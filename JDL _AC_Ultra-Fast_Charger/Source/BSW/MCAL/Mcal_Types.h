@@ -1,0 +1,24 @@
+#ifndef __MCAL_TYPES_H__
+/* polyspace<MISRA-C3:21.1:Not a defect:Justified> Normal. */
+#define __MCAL_TYPES_H__
+
+typedef unsigned long long McalTickCount_t;
+typedef unsigned char McalBool_t;
+typedef enum
+{
+	MCAL_RET_SUCCESS = 0,
+	MCAL_RET_FAILED,
+	MCAL_RET_UNEXPECTED_ERROR,
+	MCAL_RET_PARAMETE_ERROR,
+	MCAL_RET_STARTED_ERROR,
+	MCAL_RET_NOT_START_ERROR,
+	MCAL_RET_NO_FREE_TIMER,
+	MCAL_RET_PWM_OVERLIMIT,
+	MCAL_RET_SPI_BUSY,
+	MCAL_RET_USART_SEND_BUSY,
+	MCAL_RET_USART_SEND_CYCBUF_OVERFLOW,
+	MCAL_RET_I2C_NO_ACK,
+	MCAL_RET_I2C_TIMEOVER,
+}McalRetVal_t;
+
+#endif

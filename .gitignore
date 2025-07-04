@@ -1,0 +1,32 @@
+# 忽略编译和链接生成的文件
+*.o
+*.a
+*.out
+*.exe
+
+# 忽略编辑器、IDE和操作系统生成的文件
+.vscode/
+.idea/
+
+# 忽略系统文件
+.DS_Store
+Thumbs.db
+
+# 忽略日志文件和临时文件
+logs/
+temp*
+
+# 忽略文档和配置文件
+*.pdf
+*.docx
+*.cfg
+*.py
+*.scvd
+*.Mr_zh
+*.JDL_zhou
+*.json
+
+#忽略编辑器、IDE和操作系统生成的文件
+JDL _AC_Ultra-Fast_Charger/.vscode/**
+JDL _AC_Ultra-Fast_Charger/.Objects/**
+

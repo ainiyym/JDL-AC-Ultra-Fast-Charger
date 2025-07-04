@@ -1,0 +1,119 @@
+/*
+ * Mcal_Usart_Cfg.h
+ * DMA driver source file
+ */
+
+#if !defined (MCAL_USART_CFG_H_)
+#define MCAL_USART_CFG_H_
+
+/*******************************************************************************
+|    Other Header File Inclusion
+|******************************************************************************/
+#include "stm32f1xx_hal.h"  // Include the HAL library for STM32F1xx
+#include "Mcal_App_Cfg.h"
+#include "Mcal_MCUCore.h"
+/*******************************************************************************
+|    Compile Option or configuration Section (for test/debug)
+|******************************************************************************/
+
+/*******************************************************************************
+|    Macro Definition
+|******************************************************************************/
+#define MCAL_USART1_CH_SEND_CYCBUF_LEN (1024U)
+#define MCAL_USART1_CH_RCV_CYCBUF_LEN (1024U)
+#define MCAL_USART1_CH_SEND_BUF_LEN (1024U)
+
+#define MCAL_USART2_CH_SEND_CYCBUF_LEN (1024)
+#define MCAL_USART2_CH_RCV_CYCBUF_LEN (1024U)
+#define MCAL_USART2_CH_SEND_BUF_LEN (1024U)
+
+#define MCAL_USART4_CH_RCV_CYCBUF_LEN (1024U)
+#define MCAL_USART5_CH_RCV_CYCBUF_LEN (1024U)
+
+#define MCAL_USART_RCV_CYCBUF_MAX_LEN   (MCAL_USART1_CH_RCV_CYCBUF_LEN)
+/*******************************************************************************
+|    Typedef Definition
+|******************************************************************************/
+typedef enum {
+	MCAL_USART1_CH = 0U ,   	     /* 4G */
+	MCAL_USART2_CH ,              /* LOG */
+  MCAL_USART4_CH ,              /* Meter */
+  MCAL_USART5_CH ,              /* Fan speeder */
+	MCAL_USART_MAX_NUMBER
+}McalUsartChannel_Enum_t;
+
+typedef struct
+{
+  McalUsartChannel_Enum_t UsartNum; /* USART通道号 */
+  UART_HandleTypeDef* UsartBase;    /* USART句柄 */
+} McalUsart_NumMapUsart_t;
+
+typedef struct
+{
+  uint8_t UsartNum; /* USART通道号 */
+  uint8_t *SendCycBuf; /* 发送环形缓冲区 */
+  uint32_t SendCycBufLen; /* 发送环形缓冲区长度 */
+  uint8_t *RcvCycBuf; /* 接收环形缓冲区 */
+  uint32_t RcvCycBufLen; /* 接收环形缓冲区长度 */
+  uint8_t *SendBuf; /* 发送缓冲区 */
+  uint32_t SendBufLen; /* 发送缓冲区长度 */
+}McalUsart_BufCfg_t;
+/*******************************************************************************
+|    Enum Definition
+|******************************************************************************/
+
+/*******************************************************************************
+|    Union Definition
+|******************************************************************************/
+
+/*******************************************************************************
+|    Struct Definition+
+|******************************************************************************/
+typedef struct
+{
+  uint8_t SendCycBufID;
+  uint8_t Send_Lock;
+  uint8_t Rcv_Lock;
+  uint8_t RcvCycBufID;
+
+  uint8_t RcvIntSwapBufIdx;
+  uint16_t RcvIntSwapBufDataCnt;
+  uint8_t RcvIntSwapBuf[2][MCAL_USART1_CH_RCV_CYCBUF_LEN]; // 交换缓冲区,所配置的长度必须大于等于所有串口接收缓冲区的长度
+
+  uint8_t *SendBuf;
+  uint32_t SendBufLen;
+  uint32_t SenLen;
+  uint32_t RcvLen;
+} McalUsart_Ctrol_t;
+/*******************************************************************************
+|    Constant Definition
+|******************************************************************************/
+
+/*******************************************************************************
+|    Extern variables Declaration
+|******************************************************************************/
+
+/*******************************************************************************
+|    Extern functions Declaration
+|******************************************************************************/
+extern void McalUsart_CfgInit(void);
+// USART initialization
+extern void Mcal_Usart_Init(void);
+// USART enable
+extern void Mcal_Usart_Enable(void);
+// USART disable
+extern void Mcal_Usart_Disable(void);
+// USART receive data
+extern uint32_t Mcal_Usart_AppReceiveData(uint32_t USART, uint8_t *data, uint32_t size);
+// USART send data
+extern McalRetVal_t Mcal_Usart_AppSentData(uint32_t USART, uint8_t *data, uint32_t size);
+// USART send main function
+extern void Mcal_USARTIf_Send_MainFunction(void);
+// USART receive main function
+extern void Mcal_Usart_AppReceive_MainFunction(void);
+// USART receive interrupt callback
+extern void HAL_UART_IdleCallback(UART_HandleTypeDef *huart);
+// USART send interrupt callback
+extern void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
+#endif
+/*EOF*/
