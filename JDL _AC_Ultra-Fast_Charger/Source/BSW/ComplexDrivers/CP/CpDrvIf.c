@@ -106,39 +106,41 @@ Call By         :
 uint8_t CPDRV_SetPwm(SysConnector_Num_Enum ch, uint32_t lv_ulFreqValue, uint32_t lv_ulDutyValue)
 {
 	uint8_t lv_ucRtn = STD_TRUE;
-	static uint32_t st_ulFreqValue = 0;
-	static uint32_t st_ulDutyValue = 0;
+	static uint32_t st_ulFreqValueCh1 = 0;
+	static uint32_t st_ulDutyValueCh1 = 0;
+	static uint32_t st_ulFreqValueCh2 = 0;
+	static uint32_t st_ulDutyValueCh2 = 0;
 
-	if (lv_ulFreqValue != st_ulFreqValue || lv_ulDutyValue != st_ulDutyValue)
+	if (SYS_CONNECTOR1 == ch && (lv_ulFreqValue != st_ulFreqValueCh1 || lv_ulDutyValue != st_ulDutyValueCh1))
 	{
-		st_ulFreqValue = lv_ulFreqValue;
-		st_ulDutyValue = lv_ulDutyValue;
+		st_ulFreqValueCh1 = lv_ulFreqValue;
+		st_ulDutyValueCh1 = lv_ulDutyValue;
 
-		if (st_ulFreqValue == 1000 && (st_ulDutyValue == 1000 || st_ulDutyValue == 0))
+		if (lv_ulFreqValue == 1000 && (lv_ulDutyValue == 1000 || lv_ulDutyValue == 0))
 		{
-			if (SYS_CONNECTOR1 == ch)
-			{
-				CpDrvif_CpAdVolCollEnable(CPDRVIF_CP_ADC1);
-			}
-
-			if (SYS_CONNECTOR2 == ch)
-			{
-				CpDrvif_CpAdVolCollEnable(CPDRVIF_CP_ADC2);
-			}
+			CpDrvif_CpAdVolCollEnable(CPDRVIF_CP_ADC1);
 		}
 		else
 		{
-			if (SYS_CONNECTOR1 == ch)
-			{
-				CpDrvif_CpAdVolCollDisable(CPDRVIF_CP_ADC1);
-			}
-
-			if (SYS_CONNECTOR2 == ch)
-			{
-				CpDrvif_CpAdVolCollDisable(CPDRVIF_CP_ADC2);
-			}
+			CpDrvif_CpAdVolCollDisable(CPDRVIF_CP_ADC1);
 		}
-		CPDrvif_SetPwm(CPDRV_ConnectorCfgTable[ch].PwmOutCh, st_ulFreqValue, st_ulDutyValue);
+		CPDrvif_SetPwm(CPDRV_ConnectorCfgTable[ch].PwmOutCh, lv_ulFreqValue, lv_ulDutyValue);
+	}
+
+	if (SYS_CONNECTOR2 == ch && (lv_ulFreqValue != st_ulFreqValueCh2 || lv_ulDutyValue != st_ulDutyValueCh2))
+	{
+		st_ulFreqValueCh2 = lv_ulFreqValue;
+		st_ulDutyValueCh2 = lv_ulDutyValue;
+
+		if (lv_ulFreqValue == 1000 && (lv_ulDutyValue == 1000 || lv_ulDutyValue == 0))
+		{
+			CpDrvif_CpAdVolCollEnable(CPDRVIF_CP_ADC2);
+		}
+		else
+		{
+			CpDrvif_CpAdVolCollDisable(CPDRVIF_CP_ADC2);
+		}
+		CPDrvif_SetPwm(CPDRV_ConnectorCfgTable[ch].PwmOutCh, lv_ulFreqValue, lv_ulDutyValue);
 	}
 
 	return lv_ucRtn;

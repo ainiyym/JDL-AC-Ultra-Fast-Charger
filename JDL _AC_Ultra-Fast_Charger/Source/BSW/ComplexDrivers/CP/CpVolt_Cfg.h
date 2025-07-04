@@ -77,7 +77,7 @@
 #define CPV_VOLTAGE_2P4_RECOVER  					(240)							 /*cp 2P4 output error voltage*/
 #define CPV_VOLTAGE_1P6_RECOVER  					(160)							 /*cp 1P6 output error voltage*/
 
-#define CPV_ADC_FIFO_MAX_NUM						(15)							 /*cp adc fifo max numer*/
+#define CPV_ADC_FIFO_MAX_NUM						(12)							 /*cp adc fifo max numer*/
 
 
 #define CPV_GET_SWITCH_MODE(ch)                     SwitchM_GetCpVolMode(ch)            /* get cp switch mode */

@@ -15,7 +15,7 @@
 #include "STD_LogService.h"
 #include "STD_Lib.h"
 #include "Std_Types.h"
-#include "dummy.h"
+#include "STD_SysM.h"
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
 |******************************************************************************/
@@ -30,7 +30,7 @@
 #define ERRHDL_FLT_FLAG_SHOW_FIXED_TIME				(0x02u)   /*Led fixed time display flag*/
 #define ERRHDL_FLT_FLAG_CLEAR						(0x04u)	  /*Manual clearing flag*/
 
-#define ERRHDL_GetSysReadyState()				Sys_GetSysReadyState()	  /*get sys status*/
+#define ERRHDL_GetSysReadyState()				SYSM_GetResetPrepareStatus()	  /*get sys status*/
 
 #define ERRHDL_DEBUG(fmt, ...) 						LOG_DEBUG(LOG_MODULE_ERRHDL, fmt, ##__VA_ARGS__)
 /*******************************************************************************

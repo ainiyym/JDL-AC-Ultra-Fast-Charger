@@ -7,7 +7,6 @@
 //* Author: JDLzhou
 //* 
 /*******************************************************************************/
-
 #if !defined (_CPM_CFG_H)
 /* polyspace<MISRA-C3:2.5:Not a defect:Other> NO fluence *//* polyspace<MISRA-C3:21.1:Not a defect:Other> NO fluence */
 #define _CPM_CFG_H
@@ -18,7 +17,7 @@
 #include "Std_Types.h"
 #include "CpDuty.h"
 #include "CpVolt.h"
-#include "dummy.h"
+#include "STD_SysM.h"
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
 |******************************************************************************/
@@ -26,7 +25,7 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
-#define CPM_GetSysReadyState            Sys_GetSysReadyState		/*get system ready state interface*/
+#define CPM_GetSysReadyState            SYSM_GetResetPrepareStatus		/*get system ready state interface*/
 #define CPM_OutputEnable				CPD_OutputEnable			/*pwm output enable interface*/
 #define CPM_OutputDisable				CPD_OutputDisable			/*pwm output disable interface*/
 #define CPM_ConfigCurrentValue			CPD_ConfigCurrentValue		/*config current value interface*/

@@ -20,7 +20,7 @@
 #include "CpM.h"
 #include "STD_ErrorHandler.h"
 #include "STD_RlyM.h"
-#include "dummy.h"
+#include "STD_SysM.h"
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
 |***************************************************************************/
@@ -71,7 +71,7 @@
 #define EVSEM_SetRelayOff(ch)							        RELAYM_ReqRelaySwitchOff(ch)			/*request relay turn off*/
 #define EVSEM_SetRelayOn(ch)							        RELAYM_ReqRelaySwitchOn(ch)				/*request relay turn on*/
 #define EVSEM_GetRelayStatus(ch)						        RELAYM_GetRelayStatus(ch)				/*get relay status*/
-#define EVSEM_GetSysReadyState()				                Sys_GetSysReadyState()              	/*get sys status*/
+#define EVSEM_GetSysReadyState()				                SYSM_GetResetPrepareStatus()              	/*get sys status*/
 #define EVSEM_GetChargeConditions()				                ERRHDL_GetChargeConditions()			/*get Charge Conditions*/
 
 #if (EVSEM_DIODE_CHECKSELF_ENABLE == STD_ON)

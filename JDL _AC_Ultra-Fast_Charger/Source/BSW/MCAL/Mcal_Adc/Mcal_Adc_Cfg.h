@@ -9,7 +9,7 @@ extern "C" {
 #include "Mcal_App_Cfg.h"
 
 /* ================== Macros ================== */
-#define MCAL_ADC1_COLECTION_PERIOD   ((uint32_t)20u / OS_SOFTTIMER_COUNTING_UNIT) /* ADC1 Collection period */
+#define MCAL_ADC1_COLECTION_PERIOD   ((uint32_t)25u / OS_SOFTTIMER_COUNTING_UNIT) /* ADC1 Collection period */
 #define MCAL_ADC2_COLECTION_PERIOD   ((uint32_t)1000u / OS_SOFTTIMER_COUNTING_UNIT) /* ADC2 Collection period */
 /* ================== Type Definitions ================== */
 typedef enum

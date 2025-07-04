@@ -96,7 +96,7 @@ typedef struct
 /*******************************************************************************
 |    Extern functions Declaration
 |******************************************************************************/
-extern void McalUsart_CfgInit(void);
+extern void McalUsart_CycBuffCfgInit(void);
 // USART initialization
 extern void Mcal_Usart_Init(void);
 // USART enable

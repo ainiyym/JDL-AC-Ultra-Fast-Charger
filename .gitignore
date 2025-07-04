@@ -27,6 +27,6 @@ temp*
 *.json
 
 #忽略编辑器、IDE和操作系统生成的文件
-JDL _AC_Ultra-Fast_Charger/.vscode/**
-JDL _AC_Ultra-Fast_Charger/.Objects/**
+JDL _AC_Ultra-Fast_Charger/vscode/**
+JDL _AC_Ultra-Fast_Charger/Objects/**
 

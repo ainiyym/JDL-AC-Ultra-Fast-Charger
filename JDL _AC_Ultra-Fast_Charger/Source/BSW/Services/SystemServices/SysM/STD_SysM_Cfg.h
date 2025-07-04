@@ -1,23 +1,20 @@
-//****************************************************************************************
+//******************************************************************************
 //*
-//* File Name: STD_RlyM.h 
+//* File Name: STD_SysM_Cfg.h
 //* Project Name: ChargingSys
 //* Version: v1.0
-//* Date: 2025-05-16 11:27:24
+//* Date: 2025-07-04 11:27:24
 //* Author: JDLzhou
 //* 
-//****************************************************************************************/
-
-#if !defined (_STD_RLYM_H)
-/* polyspace<MISRA-C3:2.5:Not a defect:Justified> NO fluence *//* polyspace<MISRA-C3:21.1:Not a defect:Justified> NO fluence */
-#define _STD_RLYM_H
+/*******************************************************************************/
+#if !defined (_STD_SYSM_CFG_H)
+#define _STD_SYSM_CFG_H
 
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "Std_Types.h"
-#include "STD_RlyCtrl.h"
-#include "STD_SysM.h"
+#include "STD_Types.h"
+#include <stdbool.h>
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
 |******************************************************************************/
@@ -25,30 +22,32 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
+/* polyspace<MISRA-C3:2.5:Not a defect:Justified> Normal. */
+#define SYSM_TASK_PERIOD                (10U)
+#define SYSM_RESET_PREPARE_MAX_CNT      ((uint32_t)30U / SYSM_TASK_PERIOD)
 
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
-
+typedef enum
+{
+    SYS_CONNECTOR1, /* Connector 1 */
+    SYS_CONNECTOR2, /* Connector 2 */
+    SYS_CONNECTOR_NUM_MAX
+} SysConnector_Num_Enum;
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
 
 /*******************************************************************************
-|    Global Variable with extern linkage
+|    Table Definition
 |******************************************************************************/
 
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-extern void  RELAYM_InitMemory( void );
-extern void  RELAYM_ForceRelaySwitchOff(SysConnector_Num_Enum ch);
-extern void  RELAYM_5msMainFunction( void );
-extern uint8_t RELAYM_ReqRelaySwitchOn(SysConnector_Num_Enum ch);
-extern uint8_t RELAYM_ReqRelaySwitchOff(SysConnector_Num_Enum ch);
-extern uint8_t RELAYM_GetRelayStatus(SysConnector_Num_Enum ch);
-extern void  RELAYM_ShortSelfCheckReq(SysConnector_Num_Enum ch);
-extern uint8_t RELAYM_ShortSelfCheckGetRelayStatus(SysConnector_Num_Enum ch);
+
+/* polyspace:end<MISRA-C3:2.5:Not a defect:Justified> Normal. */
+
 #endif
 /*EOF*/
-

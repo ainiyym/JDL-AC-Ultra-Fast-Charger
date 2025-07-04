@@ -36,9 +36,9 @@ void Mcal_CP_Test(void)
         /* code */
         SwitchM_SetCpVol12vMode(SYS_CONNECTOR1);
         SwitchM_SetCpVol12vMode(SYS_CONNECTOR2);
-        Mcal_Set_Pwm_Param(MCAL_GPT_CH_PWM_OUT_CP1, 1000, 1000);
+        Mcal_Set_Pwm_Param(MCAL_GPT_CH_PWM_OUT_CP1, 1000, 200);
         Mcal_GptDrv_Pwm_Start(MCAL_GPT_CH_PWM_OUT_CP1);
-        Mcal_Set_Pwm_Param(MCAL_GPT_CH_PWM_OUT_CP2, 1000, 1000);
+        Mcal_Set_Pwm_Param(MCAL_GPT_CH_PWM_OUT_CP2, 1000, 100);
         Mcal_GptDrv_Pwm_Start(MCAL_GPT_CH_PWM_OUT_CP2);
         MCAL_DEBUG("set connect(1)(2) 12V \r\n");
         step++;

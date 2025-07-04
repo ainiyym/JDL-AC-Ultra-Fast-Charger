@@ -100,7 +100,7 @@ McalUsart_BufCfg_t  const McalUsart_BufferCfg[MCAL_USART_MAX_NUMBER] =
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-void McalUsart_CfgInit(void)
+void McalUsart_CycBuffCfgInit(void)
 {
     uint32_t CycBufRet;
     uint8_t i;

@@ -81,7 +81,7 @@ void Mcal_Can_Init(void);
 void Mcal_Can_Enable(void);
 void Mcal_Can_Disable(void);
 extern void Mcal_Can_Filter_Init(void);                                                                                                                 /* Filter configuration function */
-extern void Mcal_Can_RxBufCfg_Init(void);                                                                                                               /* Can Rx buff configuration init func */
+extern void Mcal_Can_RxCycBufCfg_Init(void);                                                                                                               /* Can Rx buff configuration init func */
 extern McalRetVal_t Mcal_Can_Send_Msg(Mcal_CanTxChannel_Enum_t Channel, CAN_TxHeaderTypeDef TxHeader, uint32_t *pTxMailbox, uint8_t *msg, uint8_t len); /* Send data function */
 extern uint32_t Mcal_Can_Receive_Msg(Mcal_CanRxChannel_Enum_t Channel, uint8_t *data, uint32_t size);                                                   /* Receive data function */
 #ifdef __cplusplus

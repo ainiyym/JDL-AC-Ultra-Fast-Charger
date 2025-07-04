@@ -86,7 +86,7 @@ void Mcal_Can_Filter_Init(void)
 }
 
 /* CAN Circular queue initialization */
-void Mcal_Can_RxBufCfg_Init(void)
+void Mcal_Can_RxCycBufCfg_Init(void)
 {
   uint8_t i = 0;
   uint32_t CycBufRet;

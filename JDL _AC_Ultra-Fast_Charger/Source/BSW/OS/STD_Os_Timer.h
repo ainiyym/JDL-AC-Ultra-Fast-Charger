@@ -9,7 +9,7 @@
 #define STD_OS_TIMER_H_
 
 #include "Os.h"
-#include "dummy.h"
+#include "STD_SysM.h"
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
 |******************************************************************************/
@@ -20,7 +20,7 @@
 
 /* 配置软定时器最大通道数 */
 #define OS_SOFTTIMER_MAX_CH_NUM      (4u)
-#define OS_SOFTTIMER_COUNTING_UNIT	 (20u)	/* 软定时器计数单位 :20us */
+#define OS_SOFTTIMER_COUNTING_UNIT	 (25u)	/* 软定时器计数单位 :25us */
 
 #define OS_SOFTTIMER_ENTER_CRITICAL_AREA()
 #define OS_SOFTTIMER_EXIT_CRITICAL_AREA()

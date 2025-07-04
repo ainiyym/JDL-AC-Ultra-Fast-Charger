@@ -3,7 +3,7 @@
 
 #include "stm32f1xx_hal.h"
 #include "Mcal_Types.h"
-#include "float.h"
+#include "Mcal_Adc_Cfg.h"
 
 #define MCAL_TIM1_CLK_FREQ 56000000 /* TIM1时钟频率 */
 #define MCAL_TIM_PRESCALER 55 /* TIM预分频值，56-1 */

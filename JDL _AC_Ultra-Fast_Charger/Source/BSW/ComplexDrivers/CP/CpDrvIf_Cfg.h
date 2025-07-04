@@ -17,7 +17,7 @@
 
 #include "Std_Types.h"
 #include "Mcal_App.h"
-#include "dummy.h"
+#include "STD_SysM.h"
 #include "STD_ErrorHandler.h"
 #include"SwitchM.h"
 /*******************************************************************************
@@ -35,7 +35,7 @@
 
 #define CpDrvif_GetDutyCycle(ch, DutyCycle)                         0//Mcal_GptDrrv_Icu_It_GetDutyCycle(ch, DutyCycle)
 #define CpDrvif_GetDutyFrequency(ch, Frequency)                     0//Mcal_GptDrrv_Icu_It_GetFrequency(ch, Frequency)
-#define CPDrvif_SetPwm(ch, FreqValue, DutyValue)                    Mcal_Set_Pwm_Param(ch, FreqValue, DutyValue)
+#define CPDrvif_SetPwm(ch, FreqValue, DutyValue)                    Mcal_Set_Pwm_Param(ch, FreqValue, DutyValue);Mcal_GptDrv_Pwm_Start(ch)                                
 #define CPDrvif_GetCpVolAdcValue(ch)                                Mcal_AdcDrv_GetAdcValue(ch)
 #define CpDrvif_SetFaultStatus(lv_enFaultIdNum, lv_ucFaultStatus)   ERRHDL_FaultStatusUpdata_CallBack(lv_enFaultIdNum, lv_ucFaultStatus)
 

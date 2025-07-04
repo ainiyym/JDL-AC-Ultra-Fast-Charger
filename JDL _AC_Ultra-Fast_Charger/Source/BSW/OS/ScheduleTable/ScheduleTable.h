@@ -15,6 +15,7 @@
 #include "STD_EvseM.h"
 #include "CpM.h"
 #include "STD_ErrorHandler.h"
+#include "STD_RlyM.h"
 
 extern void Scheduler_ISRCb(void);
 extern void Scheduler_Init(void);   

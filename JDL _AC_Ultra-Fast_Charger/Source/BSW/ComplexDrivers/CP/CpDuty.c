@@ -153,6 +153,8 @@ void CPD_Open(void)
 		gv_stCpD[ch].ucPwmOutputFlag = STD_FALSE;
 		(void)CPD_SetPwmOutput(ch, CPD_PWM_DFLT, CPD_PWM_DFLT);
 	}
+	// Mcal_Set_Pwm_Param(MCAL_GPT_CH_PWM_OUT_CP1, 1000, 1000); // Set cp1 level hight
+	// Mcal_Set_Pwm_Param(MCAL_GPT_CH_PWM_OUT_CP2, 1000, 1000); // Set cp2 level hight
 }
 
 /*******************************************************************************
