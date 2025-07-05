@@ -8,4 +8,7 @@
 //* 
 /*******************************************************************************/
 #include "dummy.h"
-
+uint8_t Dummy_RemoteSuspendStatus(void)
+{
+    return 0; // Dummy implementation
+}

@@ -16,7 +16,7 @@
 #include "Mcal_App.h"
 #include "Std_Types.h"
 #include "STD_LogService.h"
-#include "Mcal_Adc_Cfg.h"
+#include "STD_Os_Timer.h"
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
 |******************************************************************************/
@@ -28,7 +28,7 @@
 #define SWITCHM_74HCT4851D_MULTIPLEX_ADC1       MCAL_ADC_CHANNEL_2
 #define SWITCHM_74HCT4851D_MULTIPLEX_CH_NUM     MCAL_ADC_CHANNEL_NUM_MAX
 
-#define SWITCHM_74HCT4851D_SOFTTIMER_PERIOD     (MCAL_ADC1_COLECTION_PERIOD * 2)            /* 74HCT4851D softtimer period */
+#define SWITCHM_74HCT4851D_SOFTTIMER_PERIOD     (54U)            /* 74HCT4851D softtimer period */
 #define SWITCHM_DEBUG(fmt, ...) 			    LOG_DEBUG(LOG_MODULE_SWITCHM, fmt, ##__VA_ARGS__)
 /*******************************************************************************
 |    Enum Definition

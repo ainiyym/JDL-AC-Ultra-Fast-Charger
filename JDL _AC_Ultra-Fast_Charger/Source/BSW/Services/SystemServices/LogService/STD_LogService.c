@@ -57,6 +57,7 @@ static uint8_t gv_ucLogStatus = 0;
 /* Initial configuration module and level log output control */
 static LogServiceCtrl_Struct gv_stLogServiceCtrl = {  (  LOG_STATE_ON  << LOG_MODULE_XXX)
 													  | (LOG_STATE_ON  << LOG_MODULE_AUTHM)
+                                                      | (LOG_STATE_ON  << LOG_MODULE_NOAUTH)
 													  | (LOG_STATE_ON  << LOG_MODULE_ENERGY)
 													  | (LOG_STATE_ON  << LOG_MODULE_EVSEM)
 													  | (LOG_STATE_ON  << LOG_MODULE_HMI)
@@ -90,6 +91,7 @@ static const char* const gv_LogModule_Name[] =
 {
 	    "XXX",
 	    "AUTHM",
+        "NOAUTH",
 		"ENERGY",
 		"EVSEM",
 		"HMI",

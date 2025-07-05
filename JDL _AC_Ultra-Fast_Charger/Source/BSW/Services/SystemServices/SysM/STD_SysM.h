@@ -24,16 +24,17 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
-
+#define STD_SYSM_SYSSTATUS_SAFTY_ENTER		(0X5A5A5A5A)	/* 安全态进入标志位 */
+#define STD_SYSM_SYSSTATUS_SAFTY_EXIT		(0XA5A5A5A5)	/* 安全态退出标志位 */
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
 typedef enum {
 	STD_SYSM_SYSSTATUS_CHARGING,        	/* 系统状态字索引：桩是否在充电 0：否；1：是 */
 	STD_SYSM_SYSSTATUS_SAFTYMODE,		 	/* 系统状态字索引：桩是否处于安全态 0：否；1：是 */
-	STD_SYSM_SYSSTATUS_COM_APP_UPDATING,	/* 系统状态字索引：桩COM板是否在升级过程中 0：否；1：是 */
-	STD_SYSM_SYSSTATUS_LOW_VOLTAGE,			/* 系统状态字索引：桩COM板是否在处于低压状态 0：否；1：是 */
-	STD_SYSM_SYSSTATUS_STANDBY,			    /* 系统状态字索引：桩COM板是否是待机状态，0：否；1：是 */
+	STD_SYSM_SYSSTATUS_APP_UPDATING,		/* 系统状态字索引：桩是否在升级过程中 0：否；1：是 */
+	STD_SYSM_SYSSTATUS_LOW_VOLTAGE,			/* 系统状态字索引：桩是否在处于低压状态 0：否；1：是 */
+	STD_SYSM_SYSSTATUS_STANDBY,			    /* 系统状态字索引：桩是否是待机状态，0：否；1：是 */
 	STD_SYSM_SYSSTATUS_EMERGENCY_STOP,		/* 系统状态字索引：墙盒是否是急停状态，0：否；1：是 */
 }STD_SysM_SysStatus_t;
 

@@ -24,7 +24,7 @@
 #include <stdbool.h>
 #include "STD_LogService.h"
 #include "STD_CycBuf.h"
-#include "STD_Os_Timer.h"
+
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/

@@ -116,10 +116,9 @@ Return value    : void
 Description     : Set Charge stop Reason
 Call By         : Auth
 |******************************************************************************/
-void EVSEM_SetChargeStopReason(uint8_t lv_ucReson)
+void EVSEM_SetChargeStopReason(SysConnector_Num_Enum ch, uint8_t lv_ucReson)
 {
-	gv_stEvseM[SYS_CONNECTOR1].ucStopChargeReason = lv_ucReson;
-	gv_stEvseM[SYS_CONNECTOR2].ucStopChargeReason = lv_ucReson;
+	gv_stEvseM[ch].ucStopChargeReason = lv_ucReson;
 }
 
 /*******************************************************************************
@@ -406,7 +405,7 @@ void EVSEM_10msMainFunction(void)
 
 	for (ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
 	{
-		// gv_stEvseM[ch].ucCpStatus = EVSEM_GetCpStatus(ch);
+		gv_stEvseM[ch].ucCpStatus = EVSEM_GetCpStatus(ch);
 
 		switch (gv_stEvseM[ch].ucState)
 		{
@@ -476,7 +475,7 @@ Return value    : void
 Description     : judgy evse working in GB or JDL
 Call By         : EVSEM_10msMainFunction
 |******************************************************************************/
-static void  EVSEM_ChargingModeJudgy(SysConnector_Num_Enum ch)
+static void EVSEM_ChargingModeJudgy(SysConnector_Num_Enum ch)
 {
 	if ((uint8_t)EVSEM_CP_4V == gv_stEvseM[ch].ucCpStatus)
 	{
@@ -491,12 +490,14 @@ static void  EVSEM_ChargingModeJudgy(SysConnector_Num_Enum ch)
 			{
 				gv_stEvseM[ch].usWaitCnt = 0u;
 				EVSEM_SET_CP_OUT_12V(ch);
+				EVSEM_DEBUG("ch:%d Cp 3V into 2V timeout!!\r\n", ch);
 			}
 		}
 		else if ((uint8_t)EVSEM_CP_2V == gv_stEvseM[ch].ucCpStatus)
 		{
 			gv_stEvseM[ch].usWaitCnt = 0u;
 			gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_CAN_MODEL;
+			EVSEM_DEBUG("ch:%d EVSE into CAN model!\r\n", ch);
 		}
 		else
 		{
@@ -504,6 +505,7 @@ static void  EVSEM_ChargingModeJudgy(SysConnector_Num_Enum ch)
 			gv_stEvseM[ch].usWaitCnt = 0u;
 			gv_stEvseM[ch].usStateTwoDlyTick = 0;
 			gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_ONE;
+			EVSEM_DEBUG("ch:%d EVSE into 1!\r\n", ch);
 		}
 	}
 }
@@ -527,8 +529,9 @@ static void EVSEM_StateZeroHandle(SysConnector_Num_Enum ch)
 	{
 		if (lv_ucChargeConditions < (uint8_t)EVSEM_CHARGE_SUSPENDED)
 		{
+			EVSEM_CpStopOutputNegative12V(ch);
 			EVSEM_ChargingModeJudgy(ch);
-			EVSEM_DEBUG("ch:%d Init! \n", ch);
+			// EVSEM_DEBUG("ch:%d Init! \n", ch);
 		}
 	}
 }

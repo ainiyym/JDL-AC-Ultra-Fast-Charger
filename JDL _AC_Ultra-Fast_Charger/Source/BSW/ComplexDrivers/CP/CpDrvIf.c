@@ -48,7 +48,9 @@ static uint8_t uc_enGptChannel = 0u;
 const CPDRV_ConnectorCfg_s CPDRV_ConnectorCfgTable[SYS_CONNECTOR_NUM_MAX] =
 	{
 		{SYS_CONNECTOR1, MCAL_GPT_PWM_CAPTURE_CP, MCAL_GPT_CH_PWM_OUT_CP1, MCAL_ADC1_CP1_CH, FIFO_CHAN_CP1_VOLT},
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
 		{SYS_CONNECTOR2, MCAL_GPT_PWM_CAPTURE_CP, MCAL_GPT_CH_PWM_OUT_CP2, MCAL_ADC1_CP2_CH, FIFO_CHAN_CP2_VOLT}
+#endif
 };
 
 /*******************************************************************************
@@ -108,8 +110,10 @@ uint8_t CPDRV_SetPwm(SysConnector_Num_Enum ch, uint32_t lv_ulFreqValue, uint32_t
 	uint8_t lv_ucRtn = STD_TRUE;
 	static uint32_t st_ulFreqValueCh1 = 0;
 	static uint32_t st_ulDutyValueCh1 = 0;
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
 	static uint32_t st_ulFreqValueCh2 = 0;
 	static uint32_t st_ulDutyValueCh2 = 0;
+#endif
 
 	if (SYS_CONNECTOR1 == ch && (lv_ulFreqValue != st_ulFreqValueCh1 || lv_ulDutyValue != st_ulDutyValueCh1))
 	{
@@ -126,7 +130,7 @@ uint8_t CPDRV_SetPwm(SysConnector_Num_Enum ch, uint32_t lv_ulFreqValue, uint32_t
 		}
 		CPDrvif_SetPwm(CPDRV_ConnectorCfgTable[ch].PwmOutCh, lv_ulFreqValue, lv_ulDutyValue);
 	}
-
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
 	if (SYS_CONNECTOR2 == ch && (lv_ulFreqValue != st_ulFreqValueCh2 || lv_ulDutyValue != st_ulDutyValueCh2))
 	{
 		st_ulFreqValueCh2 = lv_ulFreqValue;
@@ -142,7 +146,7 @@ uint8_t CPDRV_SetPwm(SysConnector_Num_Enum ch, uint32_t lv_ulFreqValue, uint32_t
 		}
 		CPDrvif_SetPwm(CPDRV_ConnectorCfgTable[ch].PwmOutCh, lv_ulFreqValue, lv_ulDutyValue);
 	}
-
+#endif
 	return lv_ucRtn;
 }
 

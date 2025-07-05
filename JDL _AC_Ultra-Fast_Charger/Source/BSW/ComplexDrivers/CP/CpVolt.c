@@ -116,10 +116,6 @@ Call By         :
 void CPV_InitMemory(void)
 {
 	LIB_SetMemory((uint8_t *)(&gv_stCpVolt), 0u, (uint16_t)(sizeof(gv_stCpVolt) / sizeof(uint8_t)));
-	for (SysConnector_Num_Enum ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
-	{
-		gv_stCpVolt[ch].stCpVolt.ucValidStatus = CPV_VOLT_FOUR;
-	}
 }
 
 /*******************************************************************************
@@ -215,9 +211,11 @@ void CPV_MainFunction(SysConnector_Num_Enum ch)
 	{
 		if (STD_TRUE == FIFO_GetData(CPDRV_ConnectorCfgTable[ch].CpAdVolFifoCh, gv_stCpVolt[ch].usAdData))
 		{
+			// CP_DEBUG("CPV_MainFunction:ch:%d,usAdData[0]:%d,usAdData[1]:%d,usAdData[2]:%d,usAdData[3]:%d\r\n", ch,
+			// 	gv_stCpVolt[ch].usAdData[0], gv_stCpVolt[ch].usAdData[1], gv_stCpVolt[ch].usAdData[2], gv_stCpVolt[ch].usAdData[3]);
 			if (STD_TRUE == CPV_AdcFillter(gv_stCpVolt[ch].usAdData, &gv_stCpVolt[ch].usValidAdValue))
 			{
-
+				// CP_DEBUG("CPV_MainFunction:ch:%d,usValidAdValue:%d\r\n", ch, gv_stCpVolt[ch].usValidAdValue);
 				(void)CPV_AdcCvrtToVolt(ch, gv_stCpVolt[ch].usValidAdValue);
 				CPV_CpVoltErrHandle(ch, gv_stCpVolt[ch].usVoltValue);
 #if (STD_ON == CPV_BRK_LIN_FUN_EN)
@@ -260,60 +258,50 @@ Call By         :
 |******************************************************************************/
 static uint8_t CPV_AdcFillter(const uint16_t *plv_usData, uint16_t *lv_usValidAdValue)
 {
-	uint8_t lv_ucReVal = STD_FALSE;
-	uint16_t lv_usMin = 0, lv_usMax = 0, lv_usValidIdx = 0, lv_usIdx = 0;
-	uint32_t lv_ulSum = 0;
+	uint16_t max1 = 0, max2 = 0;
+	uint16_t min1 = plv_usData[0], min2 = plv_usData[0];
+	uint32_t sum = 0;
+	uint8_t validCount = 0;
 
-	if (plv_usData != STD_NULL)
+	// 找出最大的两个元素
+	for (uint8_t i = 0; i < CPV_ADC_FIFO_MAX_NUM; i++)
 	{
-		lv_usMin = plv_usData[0u];
-		lv_usMax = plv_usData[0u];
-		for (lv_usIdx = 0; lv_usIdx < CPV_ADC_FIFO_MAX_NUM; lv_usIdx++)
+		if (plv_usData[i] != 0)
 		{
-			if (plv_usData[lv_usIdx] != 0)
+			if (plv_usData[i] > max1)
 			{
-				if (lv_usMin == 0)
-				{
-					lv_usMin = plv_usData[lv_usIdx];
-				}
-				else if (lv_usMin > plv_usData[lv_usIdx])
-				{
-					lv_usMin = plv_usData[lv_usIdx];
-				}
-				else
-				{
-				}
-
-				if (lv_usMax < plv_usData[lv_usIdx])
-				{
-					lv_usMax = plv_usData[lv_usIdx];
-				}
-				else
-				{
-				}
-				lv_ulSum += plv_usData[lv_usIdx];
-				lv_usValidIdx++;
+				max2 = max1;
+				max1 = plv_usData[i];
 			}
-			else
+			else if (plv_usData[i] > max2)
 			{
+				max2 = plv_usData[i];
 			}
-		}
 
-		if (lv_usValidIdx > 2u)
-		{
-			lv_ulSum -= lv_usMin;
-			lv_ulSum -= lv_usMax;
-			*lv_usValidAdValue = (uint16_t)(lv_ulSum / (lv_usValidIdx - 2u));
-			lv_ucReVal = STD_TRUE;
-		}
-		else
-		{
+			// 找出最小的两个元素
+			if (plv_usData[i] < min1)
+			{
+				min2 = min1;
+				min1 = plv_usData[i];
+			}
+			else if (plv_usData[i] < min2)
+			{
+				min2 = plv_usData[i];
+			}
+			validCount++;
+			sum += plv_usData[i];
 		}
 	}
-	else
+	sum -= (max1 + max2 + min1 + min2);
+
+	if (validCount > 4)
 	{
+		*lv_usValidAdValue = sum / (validCount - 4);
+
+		return STD_TRUE;
 	}
-	return lv_ucReVal;
+
+	return STD_FALSE;
 }
 
 /*******************************************************************************
@@ -465,11 +453,12 @@ Call By         :
 static uint8_t CPV_GetErrStatus(SysConnector_Num_Enum ch)
 {
 	uint8_t lv_ucRtn = STD_FALSE;
-	for(uint8_t lv_ucIndex = 0u;lv_ucIndex<(uint8_t)CPV_ERR_VOLT_MAX;lv_ucIndex++)
+	for (uint8_t lv_ucIndex = 0u; lv_ucIndex < (uint8_t)CPV_ERR_VOLT_MAX; lv_ucIndex++)
 	{
-		if(STD_TRUE == gv_stVoltageErr[ch][lv_ucIndex].ucErrState)
+		if (STD_TRUE == gv_stVoltageErr[ch][lv_ucIndex].ucErrState)
 		{
 			lv_ucRtn = STD_TRUE;
+			// CP_DEBUG("ch:%d CPV_GetErrStatus:CPV_ERR_VOLT_%d usValidAdValue: %d\r\n", ch, lv_ucIndex, gv_stCpVolt[ch].usValidAdValue);
 			break;
 		}
 	}
@@ -489,7 +478,7 @@ Call By         :
 |******************************************************************************/
 static uint8_t CPV_12VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVoltAvrg)
 {
-	uint8_t lv_ucRtnVolt = CPV_VOLT_ZERO;
+	static uint8_t lv_ucRtnVolt = CPV_VOLT_ZERO;
 
 	if (lv_usVoltAvrg > CPV_VOLTAGE_12P8)
 	{
@@ -534,6 +523,7 @@ static uint8_t CPV_12VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVo
 		if (gv_stVoltageErr[ch][CPV_ERR_VOLT_9V].ucErrState == STD_FALSE)
 		{
 			gv_stVoltageErr[ch][CPV_ERR_VOLT_9V].ucErrCnt++;
+			CP_DEBUG("ch :%d CPV_VoltErrTypeHandle CPV_ERR_VOLT_9V ucErrCnt:%d lv_usVoltAvrg:%d \r\n", ch, gv_stVoltageErr[ch][CPV_ERR_VOLT_9V].ucErrCnt, lv_usVoltAvrg);
 			if (gv_stVoltageErr[ch][CPV_ERR_VOLT_9V].ucErrCnt >= CPV_VOLTAGE_9V_3V_ERR_FILLTE_COUNT)
 			{
 				CP_DEBUG("ch :%d CP ERROR CPV_ERR_VOLT_9V\r\n", ch);
@@ -571,6 +561,8 @@ static uint8_t CPV_12VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVo
 		if (gv_stVoltageErr[ch][CPV_ERR_VOLT_6V].ucErrState == STD_FALSE)
 		{
 			gv_stVoltageErr[ch][CPV_ERR_VOLT_6V].ucErrCnt++;
+			CP_DEBUG("ch :%d CPV_VoltErrTypeHandle CPV_ERR_VOLT_6V ucErrCnt:%d lv_usVoltAvrg:%d\r\n", ch, gv_stVoltageErr[ch][CPV_ERR_VOLT_6V].ucErrCnt, lv_usVoltAvrg);
+			CP_PRINT_Hex(gv_stCpVolt[ch].usAdData, CPV_ADC_FIFO_MAX_NUM*2);
 			if (gv_stVoltageErr[ch][CPV_ERR_VOLT_6V].ucErrCnt >= CPV_VOLTAGE_6V_2V_ERR_FILLTE_COUNT)
 			{
 				CP_DEBUG("ch :%d CP ERROR CPV_ERR_VOLT_6V\r\n", ch);
@@ -637,7 +629,7 @@ Call By         :
 |******************************************************************************/
 static uint8_t CPV_4VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVoltAvrg)
 {
-	uint8_t lv_ucRtnVolt = CPV_VOLT_ZERO;
+	static uint8_t lv_ucRtnVolt = CPV_VOLT_ZERO;
 
 	if (lv_usVoltAvrg > CPV_VOLTAGE_4P4)
 	{
@@ -832,12 +824,15 @@ static void CPV_AdcCvrtToVolt(SysConnector_Num_Enum ch, uint16_t lv_usAdcValue)
 {
 	if (CPV_GET_CP_SWITCH_4V_MODE == CPV_GET_SWITCH_MODE(ch))
 	{
-		gv_stCpVolt[ch].usVoltValue = (uint16_t)((uint32_t)lv_usAdcValue * CPV_12V_CVRT_COEFF / 1000u);
+		gv_stCpVolt[ch].usVoltValue = (uint16_t)((uint32_t)lv_usAdcValue * CPV_12V_CVRT_COEFF / 100u);
 	}
 	else if (CPV_GET_CP_SWITCH_12V_MODE == CPV_GET_SWITCH_MODE(ch))
 	{
-		gv_stCpVolt[ch].usVoltValue = (uint16_t)((uint32_t)lv_usAdcValue * CPV_4V_CVRT_COEFF / 1000u);
+		gv_stCpVolt[ch].usVoltValue = (uint16_t)((uint32_t)lv_usAdcValue * CPV_4V_CVRT_COEFF / 100u);
 	}
+	else
+	{}
+	// CP_DEBUG("ch:%d,usAdcValue:%d,usVoltValue:%d\r\n", ch, lv_usAdcValue, gv_stCpVolt[ch].usVoltValue);
 }
 
 /*******************************************************************************

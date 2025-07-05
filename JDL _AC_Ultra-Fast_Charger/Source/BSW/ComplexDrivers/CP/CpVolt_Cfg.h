@@ -30,22 +30,21 @@
 |******************************************************************************/
 #define CPV_TASK_PERIOD                       		(uint16_t)(5U)					        /*cp module task period*/
 
-#define CPV_VOLT_STATUS_FILTER_MAX_CNT              ((uint16_t)20u / CPV_TASK_PERIOD)	    /*cp voltage status filter max cnt*/
+#define CPV_VOLT_STATUS_FILTER_MAX_CNT              ((uint16_t)10u / CPV_TASK_PERIOD)	    /*cp voltage status filter max cnt*/
 #define CPV_VOLT_ERROR_FILTER_MAX_CNT              	((uint16_t)10u / CPV_TASK_PERIOD)       /*cp voltage error filter max cnt*/
 #define CPV_VOLT_BREAKLINE_FILTER_MAX_CNT           ((uint16_t)20u / CPV_TASK_PERIOD)       /*cp voltage breakline filter max cnt*/
 #define CPV_VOLT_BRKLIN_RESTORE_MAX_CNT             ((uint16_t)10000u / CPV_TASK_PERIOD)    /*cp voltage brekline recover max cnt*/
 #define CPV_VOLT_BRKLIN_NINE_RESTORE_MAX_CNT		((uint16_t)2000u / CPV_TASK_PERIOD)     /*cp breakline recover of push evse max cnt*/
 #define CPV_VOLT_BRKLIN_FILTER_MAX_CNT  			((uint16_t)100u / CPV_TASK_PERIOD)      /*cp breakline input error filter max cnt*/
 
-#define CPV_ADC_REF_VOL 							(30u)							    /*cp adc reference voltage*/
 #define CPV_ADC_RESOLUTION							(4095u)							    /*cp ad resolution*/
-#define CPV_12V_VOLT_ENLARGE_FACTOR 				(1600/3u)							    /*12V cp volatge enlarge factor*/
+#define CPV_12V_VOLT_ENLARGE_FACTOR 				(1600)							    /*12V cp volatge enlarge factor*/
 #define CPV_4V_VOLT_ENLARGE_FACTOR 				    (CPV_12V_VOLT_ENLARGE_FACTOR)       /*4V cp volatge enlarge factor*/
-#define CPV_12V_CVRT_COEFF							(((uint32_t)100 * (uint32_t)CPV_ADC_REF_VOL * (uint32_t)CPV_12V_VOLT_ENLARGE_FACTOR)/(uint32_t)CPV_ADC_RESOLUTION)/* The coefficient of AD collecting voltage to the true voltage(BASE 12V) */
-#define CPV_4V_CVRT_COEFF							(((uint32_t)100 * (uint32_t)CPV_ADC_REF_VOL * (uint32_t)CPV_4V_VOLT_ENLARGE_FACTOR)/(uint32_t)CPV_ADC_RESOLUTION)/* The coefficient of AD collecting voltage to the true voltage(BASE 4V) */
+#define CPV_12V_CVRT_COEFF							(((uint32_t)100 * (uint32_t)CPV_12V_VOLT_ENLARGE_FACTOR)/(uint32_t)CPV_ADC_RESOLUTION)/* The coefficient of AD collecting voltage to the true voltage(BASE 12V) */
+#define CPV_4V_CVRT_COEFF							(((uint32_t)100 * (uint32_t)CPV_4V_VOLT_ENLARGE_FACTOR)/(uint32_t)CPV_ADC_RESOLUTION)/* The coefficient of AD collecting voltage to the true voltage(BASE 4V) */
 
 #define CPV_BRK_LIN_FUN_EN							STD_OFF							    /*CP Break line function enable*/
-#define CPV_VOLTAGE_6V_2V_ERR_FILLTE_COUNT 			((uint16_t)30u / CPV_TASK_PERIOD)   /*cp 6V error filter count*/
+#define CPV_VOLTAGE_6V_2V_ERR_FILLTE_COUNT 			((uint16_t)40u / CPV_TASK_PERIOD)  /*cp 6V error filter count*/
 #define CPV_VOLTAGE_9V_3V_ERR_FILLTE_COUNT 			((uint16_t)500u / CPV_TASK_PERIOD)	/*cp 9V error filter count*/
 #define CPV_VOLTAGE_12V_4V_ERR_FILLTE_COUNT 		((uint16_t)1000u / CPV_TASK_PERIOD) /*cp 12V error filter count*/
 #define CPV_VOLTAGE_RECOVER_ERR_FILLTE_COUNT 		((uint16_t)1000u / CPV_TASK_PERIOD) /*cp recover error filter count*/
@@ -77,7 +76,7 @@
 #define CPV_VOLTAGE_2P4_RECOVER  					(240)							 /*cp 2P4 output error voltage*/
 #define CPV_VOLTAGE_1P6_RECOVER  					(160)							 /*cp 1P6 output error voltage*/
 
-#define CPV_ADC_FIFO_MAX_NUM						(12)							 /*cp adc fifo max numer*/
+#define CPV_ADC_FIFO_MAX_NUM						(11)							 /*cp adc fifo max numer*/
 
 
 #define CPV_GET_SWITCH_MODE(ch)                     SwitchM_GetCpVolMode(ch)            /* get cp switch mode */

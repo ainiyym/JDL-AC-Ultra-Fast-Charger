@@ -19,6 +19,7 @@
 #include "CpM.h"
 #include "STD_ErrorHandler.h"
 #include "STD_RlyM.h"
+#include "STD_AuthM.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -31,14 +32,23 @@
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
+typedef struct
+{
+	uint8_t CpStatus[SYS_CONNECTOR_NUM_MAX]; /* Cp状态 */
+	uint8_t EVSEStatus[SYS_CONNECTOR_NUM_MAX]; /* EVSE状态 */
+	uint8_t StopChargingReason[SYS_CONNECTOR_NUM_MAX]; /* 停止充电原因 */
+	uint32_t ul10msCnt; /* 计数器 */
+}SysM_BasicInfo_Struct;
+
 
 typedef struct
 {
+	SysM_BasicInfo_Struct basic_ctrl_info; /* 基本控制信息 */
+	uint8_t ucSysReady10msCnt;	   /* 系统就绪状态计数器 */
 	uint8_t ucLowPowerShutdownFlag;
 	uint8_t ucLowPowerShutdownCnt;
 	uint8_t usRemoteResetFlag; /* 0: No reset request; 1: Reset immediately; 2:Reset when the conditons are satisfied.*/
 	uint32_t ulSystemStatus;   /* 系统状态字。位表示，位定义见STD_SysM_SysStatus_t，1：表示存在定义状态； 0：表示不存在。*/
-	uint32_t ulKam10msCnt;
 } SysM_Struct;
 /*******************************************************************************
 |    Static local KAM variables Declaration
@@ -58,6 +68,7 @@ static SysM_Struct stSysM;
 |******************************************************************************/
 static void SYSM_ShowUserInfo(void);
 static void SYSM_RemoteResetManage(void);
+static void SYSM_ShowBasicInfo(void);
 
 /*******************************************************************************
 |    Function Source Code
@@ -136,8 +147,14 @@ void SYSM_InitTwo( void )
 	SYSM_InitMemory();
 	/* STD_Library Init*/
 	FIFO_InitMemory();
+	/* Initialize the peripherals */
+	MCALAPP_PeripheralInit();
 	/* Enable logging service */
 	LogService_SetLogEnable();
+	/* print user info */
+	SYSM_ShowUserInfo();
+	/* print reset source */
+	Mcal_McuCheck_Rst();
 	/* App init memery */
 	ERRHDL_InitMemory(); 
 	Comm_Init();
@@ -145,12 +162,8 @@ void SYSM_InitTwo( void )
 	EVSEM_InitMemory();
 	CPM_InitMemory();
 	RELAYM_InitMemory();
-	/* Initialize the peripherals */
-	MCALAPP_PeripheralInit();
-	/* print user info */
-	SYSM_ShowUserInfo();
- 	/* print reset source */
-	Mcal_McuCheck_Rst();
+	AUTHM_InitMemory();
+	NOAUTHEN_InitMemory();
 }
 
 /****************************************************************************************
@@ -236,7 +249,7 @@ uint8_t SYSM_GetResetPrepareStatus(void)
 {
     uint8_t ReStatus = FALSE;
 
-    if((stSysM.ulKam10msCnt > SYSM_RESET_PREPARE_MAX_CNT))
+    if((stSysM.ucSysReady10msCnt > SYSM_RESET_PREPARE_MAX_CNT))
     {
         ReStatus = TRUE ;
     }
@@ -395,6 +408,50 @@ static void SYSM_RemoteResetManage(void)
 }
 
 /****************************************************************************************
+ *函数名称  : static void SYSM_ShowBasicInfo(void)
+ *参数      : void
+ *返回值    :
+ *描述      : 打印系统基本信息。
+ *编辑时间  :
+ *备注      : 初版
+ *****************************************************************************************/
+static void SYSM_ShowBasicInfo(void)
+{
+	uint8_t ucCpStatus[SYS_CONNECTOR_NUM_MAX] = {0};
+	uint8_t ucEvseStatus[SYS_CONNECTOR_NUM_MAX] = {0};
+	uint8_t lv_ucStopReson[SYS_CONNECTOR_NUM_MAX] = {0};
+
+	for (SysConnector_Num_Enum i = SYS_CONNECTOR1; i < SYS_CONNECTOR_NUM_MAX; i++)
+	{
+		ucCpStatus[i] = CPM_GetCpVoltStatus(i);
+		ucEvseStatus[i] = EVSEM_GetChargeStatus(i);
+		lv_ucStopReson[i] = EVSEM_GetChargeStopReason(i);
+
+		if ((stSysM.basic_ctrl_info.CpStatus[i] != ucCpStatus[i]) || (stSysM.basic_ctrl_info.EVSEStatus[i] != ucEvseStatus[i]))
+		{
+			stSysM.basic_ctrl_info.CpStatus[i] = ucCpStatus[i];
+			stSysM.basic_ctrl_info.EVSEStatus[i] = ucEvseStatus[i];
+			SYSM_DEBUG("Connecter:%d CP %d EVSE %d \r\n", i, stSysM.basic_ctrl_info.CpStatus[i], stSysM.basic_ctrl_info.EVSEStatus[i]);
+		}
+		else if (stSysM.basic_ctrl_info.ul10msCnt < SYSM_REPORT_BASIC_INFO_CNT)
+		{
+			stSysM.basic_ctrl_info.ul10msCnt++;
+		}
+		else
+		{
+			stSysM.basic_ctrl_info.ul10msCnt = 0;
+			SYSM_DEBUG("Connecter:%d CP %d EVSE %d \r\n", i, stSysM.basic_ctrl_info.CpStatus[i], stSysM.basic_ctrl_info.EVSEStatus[i]);
+		}
+
+		if (stSysM.basic_ctrl_info.StopChargingReason[i] != lv_ucStopReson[i])
+		{
+			stSysM.basic_ctrl_info.StopChargingReason[i] = lv_ucStopReson[i];
+			SYSM_DEBUG("Connecter:%d ChargingStopReason %d \r\n", i, stSysM.basic_ctrl_info.StopChargingReason[i]);
+		}
+	}
+}
+
+/****************************************************************************************
  *函数名称  : void SYSM_10msMainFunction( void )
 
  *参数      : void
@@ -409,10 +466,12 @@ static void SYSM_RemoteResetManage(void)
  *****************************************************************************************/
 void SYSM_10msMainFunction(void)
 {
-	stSysM.ulKam10msCnt++;
+	stSysM.ucSysReady10msCnt++;
 
 	SYSM_StandbyStatusCtrl();
 
 	SYSM_RemoteResetManage();
+
+	SYSM_ShowBasicInfo();
 }
 /*EOF*/

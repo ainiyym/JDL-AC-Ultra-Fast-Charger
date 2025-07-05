@@ -74,7 +74,7 @@ extern void EVSEM_10msMainFunction(void);
 extern uint8_t EVSEM_GetChargeStatus(SysConnector_Num_Enum ch);
 extern uint8_t EVSEM_GetDiodeCheckResult(SysConnector_Num_Enum ch);
 extern uint8_t EVSEM_GetChargeStopReason(SysConnector_Num_Enum ch);
-extern void EVSEM_SetChargeStopReason(uint8_t lv_ucReson);
+extern void EVSEM_SetChargeStopReason(SysConnector_Num_Enum ch, uint8_t lv_ucReson);
 extern void EVSEM_EnterStateZero(SysConnector_Num_Enum ch);
 #endif
 /*EOF*/

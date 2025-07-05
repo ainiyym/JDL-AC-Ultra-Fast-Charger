@@ -35,7 +35,7 @@ void Mcal_CP_Test(void)
     case 0:
         /* code */
         SwitchM_SetCpVol12vMode(SYS_CONNECTOR1);
-        SwitchM_SetCpVol12vMode(SYS_CONNECTOR2);
+        // SwitchM_SetCpVol12vMode(SYS_CONNECTOR2);
         Mcal_Set_Pwm_Param(MCAL_GPT_CH_PWM_OUT_CP1, 1000, 200);
         Mcal_GptDrv_Pwm_Start(MCAL_GPT_CH_PWM_OUT_CP1);
         Mcal_Set_Pwm_Param(MCAL_GPT_CH_PWM_OUT_CP2, 1000, 100);
@@ -53,7 +53,7 @@ void Mcal_CP_Test(void)
     case 2:
         /* code */
         SwitchM_SetCpVol4vMode(SYS_CONNECTOR1);
-        SwitchM_SetCpVol4vMode(SYS_CONNECTOR2);
+        // SwitchM_SetCpVol4vMode(SYS_CONNECTOR2);
         MCAL_DEBUG("set connect(1)(2) 4V\r\n");
         Mcal_Set_Pwm_Param(MCAL_GPT_CH_PWM_OUT_CP1, 1000, 1000);
         Mcal_Set_Pwm_Param(MCAL_GPT_CH_PWM_OUT_CP2, 1000, 1000);
@@ -139,7 +139,7 @@ void Mcal_CP_Test(void)
         if (cnt++ == 10)
         {
             cnt = 0;
-            SwitchM_SetCpVol12vMode(SYS_CONNECTOR2);
+            // SwitchM_SetCpVol12vMode(SYS_CONNECTOR2);
             SwitchM_SetCpVol4vMode(SYS_CONNECTOR1);
             MCAL_DEBUG("SET CP2 12v; cp1 4v\r\n");
             step++;
@@ -149,7 +149,7 @@ void Mcal_CP_Test(void)
         if (cnt++ == 10)
         {
             cnt = 0;
-            SwitchM_SetCpVol4vMode(SYS_CONNECTOR2);
+            // SwitchM_SetCpVol4vMode(SYS_CONNECTOR2);
             MCAL_DEBUG("SET CP2 4v\r\n");
             step++;
         }
@@ -616,7 +616,7 @@ void Mcal_Gpio_Test(void)
         if(cnt++ == 20)
         {
             MOSDRV_ReqMosOn(SYS_CONNECTOR1);
-            MOSDRV_ReqMosOn(SYS_CONNECTOR2);
+            // MOSDRV_ReqMosOn(SYS_CONNECTOR2);
             MCAL_DEBUG("%s SET CONNECTOR RELAY ON\r\n", __FUNCTION__);
             cnt = 0;
             step++;
@@ -626,7 +626,7 @@ void Mcal_Gpio_Test(void)
         if(cnt++ == 20)
         {
             MOSDRV_ReqMosOff(SYS_CONNECTOR1);
-            MOSDRV_ReqMosOff(SYS_CONNECTOR2);
+            // MOSDRV_ReqMosOff(SYS_CONNECTOR2);
             MCAL_DEBUG("%s SET CONNECTOR RELAY OFF\r\n", __FUNCTION__);
             cnt = 0;
             step++;
@@ -635,7 +635,7 @@ void Mcal_Gpio_Test(void)
         if(cnt++ == 20)
         {
             MOSDRV_ReqMosOn(SYS_CONNECTOR1);
-            MOSDRV_ReqMosOn(SYS_CONNECTOR2);
+            // MOSDRV_ReqMosOn(SYS_CONNECTOR2);
             MCAL_DEBUG("%s SET CONNECTOR RELAY ON\r\n", __FUNCTION__);
             cnt = 0;
             step++;
@@ -678,5 +678,5 @@ void Mcal_Test_Run(void)
     // MCAL_TestIIC();
     // Mcal_Test_Spi();
     // Mcal_Test_Adc();
-    MCAL_DEBUG("%s\r\n", __FUNCTION__);
+    // MCAL_DEBUG("%s\r\n", __FUNCTION__);
 }

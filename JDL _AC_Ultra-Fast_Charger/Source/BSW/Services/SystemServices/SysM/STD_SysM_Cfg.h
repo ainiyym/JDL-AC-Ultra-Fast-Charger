@@ -15,6 +15,8 @@
 |******************************************************************************/
 #include "STD_Types.h"
 #include <stdbool.h>
+#include "STD_LogService.h"
+
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
 |******************************************************************************/
@@ -25,6 +27,18 @@
 /* polyspace<MISRA-C3:2.5:Not a defect:Justified> Normal. */
 #define SYSM_TASK_PERIOD                (10U)
 #define SYSM_RESET_PREPARE_MAX_CNT      ((uint32_t)30U / SYSM_TASK_PERIOD)
+#define SYSM_REPORT_BASIC_INFO_CNT      (3000U / SYSM_TASK_PERIOD) /* 3s */
+
+#define SYSM_CONNECTOR2_ENABLE           (STD_OFF)
+/*******************************************************************************
+|    Log Service Macro Definition
+|******************************************************************************/
+#define SYSM_DEBUG(fmt, ...) LOG_DEBUG(LOG_MODULE_SYSM, fmt, ##__VA_ARGS__) /* log output */
+#define SYSM_INFO(fmt, ...)  LOG_INFO(LOG_MODULE_SYSM, fmt, ##__VA_ARGS__)  /* log output */
+#define SYSM_WARN(fmt, ...)  LOG_WARN(LOG_MODULE_SYSM, fmt, ##__VA_ARGS__)  /* log output */
+#define SYSM_ERROR(fmt, ...) LOG_ERROR(LOG_MODULE_SYSM, fmt, ##__VA_ARGS__) /* log output */
+#define SYSM_CRITICAL(fmt, ...) LOG_CRITICAL(LOG_MODULE_SYSM, fmt, ##__VA_ARGS__) /* log output */
+#define SYSM_PRINT_HEX(BUFF, LEN, R) LogService_Print_Hex_Array(LOG_MODULE_SYSM, BUFF, LEN, R)  /* print hex array */
 
 /*******************************************************************************
 |    Enum Definition
@@ -32,9 +46,12 @@
 typedef enum
 {
     SYS_CONNECTOR1, /* Connector 1 */
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
     SYS_CONNECTOR2, /* Connector 2 */
+#endif
     SYS_CONNECTOR_NUM_MAX
 } SysConnector_Num_Enum;
+
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/

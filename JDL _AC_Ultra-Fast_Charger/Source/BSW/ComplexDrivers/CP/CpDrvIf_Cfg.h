@@ -17,7 +17,7 @@
 
 #include "Std_Types.h"
 #include "Mcal_App.h"
-#include "STD_SysM.h"
+#include "STD_Os_Timer.h"
 #include "STD_ErrorHandler.h"
 #include"SwitchM.h"
 /*******************************************************************************
@@ -41,6 +41,7 @@
 
 #define CP_DEBUG(fmt, ...)                                          LOG_DEBUG(LOG_MODULE_CP, fmt, ##__VA_ARGS__) /* cp module log output */
 #define CP_ERROR(fmt, ...)                                          LOG_ERROR(LOG_MODULE_CP, fmt, ##__VA_ARGS__) /* cp module log output */
+#define CP_PRINT_Hex(A, B)                                          LogService_Print_Hex_Array(LOG_MODULE_CP, A, B, 1)
 #define CP_ADC_COLECTION_PERIOD                                     (SWITCHM_74HCT4851D_SOFTTIMER_PERIOD * 8)   /* CP ADC Collection period */
 /*******************************************************************************
 |    Enum Definition

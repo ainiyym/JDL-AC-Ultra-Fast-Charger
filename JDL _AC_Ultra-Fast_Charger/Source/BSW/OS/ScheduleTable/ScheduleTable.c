@@ -12,6 +12,16 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "ScheduleTable.h"
+#include "Mcal_App.h"
+#include "Mcal_Test.h"
+#include "Comm.h"
+#include "SwitchM.h"
+#include "STD_EvseM.h"
+#include "CpM.h"
+#include "STD_ErrorHandler.h"
+#include "STD_RlyM.h"
+#include "STD_AuthM.h"
+
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -134,7 +144,7 @@ static void Task5ms(void)
 {
     /* 5ms task code */
     Mcal_USARTIf_Send_MainFunction(); // Call the main function for serial port transmission
-    // CPM_5msMainFunction();
+    CPM_5msMainFunction();
     RELAYM_5msMainFunction();
 }
 
@@ -146,7 +156,8 @@ static void Task10ms(void)
     // Mcal_Iwdg_Feedback();
 #endif
     EVSEM_10msMainFunction(); // Call the EVSE manager's 10ms main function
-    ERRHDL_10msMainFunction();  // Call the error handler's 10ms main function
+    // ERRHDL_10msMainFunction();  // Call the error handler's 10ms main function
+    AUTHM_10msMainFunction(); // Call the authorization manager's 10ms main function
 }
 
 static void Task20ms(void)
@@ -157,6 +168,7 @@ static void Task20ms(void)
 static void Task100ms(void)
 {
     /* 100ms task code */
+    NOAUTHEN_100msFunction();
 }
 
 static void Task1000ms(void)

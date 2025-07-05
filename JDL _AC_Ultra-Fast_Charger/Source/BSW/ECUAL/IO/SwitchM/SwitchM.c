@@ -64,9 +64,9 @@ static void SwitchM_Set74hct4851dOutputA7(void);
 |******************************************************************************/
 void SwitchM_Init(void)
 {
-	for (SysConnector_Num_Enum ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
+    for (SysConnector_Num_Enum ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
     {
-           SWITCHM_SetCp12V(ch);
+        SwitchM_SetCpVol12vMode(ch);
     }
     SwitchMCtrl.M74hct4851dIncrementCounter = M74HCT4851D_A0;
 }
@@ -83,11 +83,13 @@ static void SWITCHM_SetCp4V(SysConnector_Num_Enum ch)
         Mcal_Gpio_ResetPin(Switch1_4V_GPIO_Port, Switch1_4V_Pin);
         Mcal_Gpio_ResetPin(Switch1_12V_GPIO_Port, Switch1_12V_Pin);
     }
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
     else if (SYS_CONNECTOR2 == ch)
     {
         Mcal_Gpio_ResetPin(Switch2_4V_GPIO_Port, Switch2_4V_Pin);
         Mcal_Gpio_ResetPin(Switch2_12V_GPIO_Port, Switch2_12V_Pin);
     }
+#endif
     else
     {
     }
@@ -100,11 +102,13 @@ static void SWITCHM_SetCp12V(SysConnector_Num_Enum ch)
         Mcal_Gpio_SetPin(Switch1_4V_GPIO_Port, Switch1_4V_Pin);
         Mcal_Gpio_SetPin(Switch1_12V_GPIO_Port, Switch1_12V_Pin);
     }
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
     else if (SYS_CONNECTOR2 == ch)
     {
         Mcal_Gpio_SetPin(Switch2_4V_GPIO_Port, Switch2_4V_Pin);
         Mcal_Gpio_SetPin(Switch2_12V_GPIO_Port, Switch2_12V_Pin);
     }
+#endif
     else
     {
     }

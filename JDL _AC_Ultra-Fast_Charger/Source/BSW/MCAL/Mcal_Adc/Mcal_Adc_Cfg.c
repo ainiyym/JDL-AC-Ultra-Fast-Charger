@@ -7,6 +7,7 @@
 #include "Mcal_Adc_Cfg.h"
 #include "SwitchM.h"
 #include "Mcal_Gpio_Cfg.h"
+#include "STD_Os_Timer.h"
 
 Mcal_Adc_Ctrl_t Mcal_AdcCtrl = {0};
 uint16_t AdcHardWareTriggerBuffer[MCAL_ADC2_TEMP_CHANNEL_MAX] = {0};

@@ -62,11 +62,13 @@ static void MOSDRV_SetConnectorOn(SysConnector_Num_Enum ch)
 		MOSDRV_WriteGpioValue(MOS_DRV_CONNECTOR1_ON, MOSDRV_HIGH);
 		MOSDRV_WriteGpioValue(MOS_DRV_CONNECTOR1_OFF, MOSDRV_LOW);
 	}
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
 	else if (SYS_CONNECTOR2 == ch)
 	{
 		MOSDRV_WriteGpioValue(MOS_DRV_CONNECTOR2_ON, MOSDRV_HIGH);
 		MOSDRV_WriteGpioValue(MOS_DRV_CONNECTOR2_OFF, MOSDRV_LOW);
 	}
+#endif
 	else
 	{
 	}
@@ -90,11 +92,13 @@ static void MOSDRV_SetConnectorOff(SysConnector_Num_Enum ch)
 		MOSDRV_WriteGpioValue(MOS_DRV_CONNECTOR1_ON, MOSDRV_LOW);
 		MOSDRV_WriteGpioValue(MOS_DRV_CONNECTOR1_OFF, MOSDRV_HIGH);
 	}
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
 	else if (SYS_CONNECTOR2 == ch)
 	{
 		MOSDRV_WriteGpioValue(MOS_DRV_CONNECTOR2_ON, MOSDRV_LOW);
 		MOSDRV_WriteGpioValue(MOS_DRV_CONNECTOR2_OFF, MOSDRV_HIGH);
 	}
+#endif
 	else
 	{
 	}
@@ -166,10 +170,12 @@ uint8_t MOSDRV_ReqResetOnButton(SysConnector_Num_Enum ch)
 		{
 			MOSDRV_WriteGpioValue(MOS_DRV_CONNECTOR1_ON, MOSDRV_LOW);
 		}
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
 		else if (SYS_CONNECTOR2 == ch)
 		{
 			MOSDRV_WriteGpioValue(MOS_DRV_CONNECTOR2_ON, MOSDRV_LOW);
 		}
+#endif
 		else
 		{
 		}
