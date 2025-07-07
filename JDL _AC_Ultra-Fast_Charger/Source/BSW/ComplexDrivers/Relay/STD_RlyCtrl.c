@@ -310,14 +310,14 @@ static void RLYCTRL_SwitchControl(SysConnector_Num_Enum ch)
 			if (RLYCTRL_SWITCH_OFF == gv_stRlyCtrl[ch].ucControlType)
 			{
 				MOSDRV_ReqMosOff(ch);
-				gv_stRlyCtrl[ch].ucCurrSwitchStatus = RLYCTRL_SwitchOn;
+				gv_stRlyCtrl[ch].ucCurrSwitchStatus = RLYCTRL_SwitchOff;
 				gv_stRlyCtrl[ch].ucSwitchStep = RLYCTRL_Switch_Three;
 				RLYCTRL_DEBUG("ch:%d MOS OFF \r\n",ch);
 			}
 			else if (RLYCTRL_SWITCH_ON == gv_stRlyCtrl[ch].ucControlType)
 			{
 				MOSDRV_ReqMosOn(ch);
-				gv_stRlyCtrl[ch].ucCurrSwitchStatus = RLYCTRL_SwitchOff;
+				gv_stRlyCtrl[ch].ucCurrSwitchStatus = RLYCTRL_SwitchOn;
 				gv_stRlyCtrl[ch].ucSwitchStep = RLYCTRL_Switch_Three;
 				RLYCTRL_DEBUG("ch:%d MOS ON\r\n",ch);
 			}

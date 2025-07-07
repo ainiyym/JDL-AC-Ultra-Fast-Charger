@@ -34,6 +34,7 @@
 typedef struct
 {
 	uint8_t ucMode;			   /*Authorization mode*/
+	bool ucReqChargeStatus; /*Request charge status*/
 	uint8_t ucAuthoOpenSrc;	   /*Authorization open source*/
 	uint8_t ucAuthoCloseSrc;   /*Authorization close source*/
 	uint32_t ulNotPlugInCnt;   /*Not plug input count*/
@@ -190,100 +191,95 @@ Call By         : Auth
 static void AUTHM_ReqAuthStop(SysConnector_Num_Enum ch)
 {
 #if (AUTHM_CLOSE_RFID_EN == STD_ON)
-	if(STD_TRUE == AUTHM_GetRfidCancelAuthStatus(ch))
+	if (STD_TRUE == AUTHM_GetRfidCancelAuthStatus(ch))
 	{
-		if (STD_TRUE == AUTHM_UartSendStopChargeCmd(ch))
-		{
-			gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_RFID;
-			gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
-			AUTHM_DEBUG("ch:%d RFID stop Auth\r\n", ch);
-		}
+		gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_RFID;
+		gv_stAuthM[ch].ucReqChargeStatus = STD_FALSE;
+		gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
+		AUTHM_DEBUG("ch:%d RFID stop Auth\r\n", ch);
 	}
 	else
 #endif
 
-#if(AUTHM_CLOSE_BTAPP_EN == STD_ON)
-	if(STD_TRUE == AUTHM_GetBtAppCancelAuthStatus(ch))
+#if (AUTHM_CLOSE_BTAPP_EN == STD_ON)
+		if (STD_TRUE == AUTHM_GetBtAppCancelAuthStatus(ch))
 	{
-		if (STD_TRUE == AUTHM_UartSendStopChargeCmd(ch))
-		{
-			gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_BT_APP;
-			gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
-			AUTHM_DEBUG("ch:%d BTAPP stop Auth\r\n", ch);	
-		}
-	}else
+		gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_BT_APP;
+		gv_stAuthM[ch].ucReqChargeStatus = STD_FALSE;
+		gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
+		AUTHM_DEBUG("ch:%d BTAPP stop Auth\r\n", ch);
+	}
+	else
 #endif
 
-#if(AUTHM_CLOSE_NETAPP_EN == STD_ON)
-	if(STD_TRUE == AUTHM_GetNetAppCancelAuthStatus(ch))
+#if (AUTHM_CLOSE_NETAPP_EN == STD_ON)
+		if (STD_TRUE == AUTHM_GetNetAppCancelAuthStatus(ch))
 	{
-		if (STD_TRUE == AUTHM_UartSendStopChargeCmd(ch))
-		{
-			gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_NET_APP;
-			gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
-			AUTHM_DEBUG("ch:%d NETAPP stop Auth\r\n", ch);
-		}
+
+		gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_NET_APP;
+		gv_stAuthM[ch].ucReqChargeStatus = STD_FALSE;
+		gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
+		AUTHM_DEBUG("ch:%d NETAPP stop Auth\r\n", ch);
 	}
 	else
 #endif
 
 #if (AUTHM_CLOSE_SINGLE_TIMING_EN == STD_ON)
-	if(STD_TRUE == AUTHM_GetSingleTimeCancelAuthStatus(ch))
+		if (STD_TRUE == AUTHM_GetSingleTimeCancelAuthStatus(ch))
 	{
-		if (STD_TRUE == AUTHM_UartSendStopChargeCmd(ch))
-		{
-			gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_SINGLE_TIMING;
-			gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
-			AUTHM_DEBUG("ch:%d ST stop Auth\r\n", ch);
-		}
+		gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_SINGLE_TIMING;
+		gv_stAuthM[ch].ucReqChargeStatus = STD_FALSE;
+		gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
+		AUTHM_DEBUG("ch:%d ST stop Auth\r\n", ch);
 	}
 	else
 #endif
 
 #if (AUTHM_CLOSE_PERIOD_TIMING_EN == STD_ON)
-	if(STD_TRUE == AUTHM_GetPriodTimeCancelAuthStatus(ch))
+		if (STD_TRUE == AUTHM_GetPriodTimeCancelAuthStatus(ch))
 	{
-		if (STD_TRUE == AUTHM_UartSendStopChargeCmd(ch))
-		{
-			gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_PERIOD_TIMING;
-			gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
-			AUTHM_DEBUG("ch:%d PT stop Auth\r\n", ch);
-		}
+
+		gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_PERIOD_TIMING;
+		gv_stAuthM[ch].ucReqChargeStatus = STD_FALSE;
+		gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
+		AUTHM_DEBUG("ch:%d PT stop Auth\r\n", ch);
 	}
 	else
 #endif
 
-#if(AUTHM_CLOSE_BUTTON_EN == STD_ON)
-	if(STD_TRUE == AUTHM_GetButtonStopStatus(ch))
+#if (AUTHM_CLOSE_BUTTON_EN == STD_ON)
+		if (STD_TRUE == AUTHM_GetButtonStopStatus(ch))
 	{
-		if (STD_TRUE == AUTHM_UartSendStopChargeCmd(ch))
-		{
-			gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
-			gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_BUTTON_STOP;
-			AUTHM_DEBUG("ch:%d Button stop Auth\r\n", ch);
-		}
+
+		gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
+		gv_stAuthM[ch].ucReqChargeStatus = STD_FALSE;
+		gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_BUTTON_STOP;
+		AUTHM_DEBUG("ch:%d Button stop Auth\r\n", ch);
 	}
 	else
 #endif
 
-#if(AUTHM_CLOSE_EMER_EN == STD_ON)
+#if (AUTHM_CLOSE_EMER_EN == STD_ON)
 		if (STD_TRUE == AUTHM_GetEmerStopStatus(ch))
 	{
 		gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
+		gv_stAuthM[ch].ucReqChargeStatus = STD_FALSE;
 		gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_EMER_STOP;
 		AUTHM_DEBUG("ch:%d Emer stop Auth\r\n", ch);
 	}
 	else
 #endif
 
-	if (AUTHM_GetChargeConditions() >= AUTHM_ERRHDL_CHARGE_CANCEL)
+		if (AUTHM_GetChargeConditions() >= AUTHM_ERRHDL_CHARGE_CANCEL)
 	{
 		gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
+		gv_stAuthM[ch].ucReqChargeStatus = STD_FALSE;
 		gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_SERIOUS_FLT;
 		AUTHM_DEBUG("ch:%d SERIOUS FLT stop Auth\r\n", ch);
 	}
 	else
-	{}
+	{
+	}
 }
 
 /*******************************************************************************
@@ -306,6 +302,7 @@ static void AUTHM_UnauthorizedModeHandle(SysConnector_Num_Enum ch)
 		{
 			gv_stAuthM[ch].ucAuthoOpenSrc = AUTHM_OPEN_SRC_RFID;
 			gv_stAuthM[ch].ucMode = AUTHM_MODE_AUTHORIZED;
+			gv_stAuthM[ch].ucReqChargeStatus = STD_TRUE;
 			AUTHM_ResetRfidAuthStatus(ch);
 			AUTHM_DEBUG("ch:%d RFID Auth\r\n", ch);
 		}
@@ -317,6 +314,7 @@ static void AUTHM_UnauthorizedModeHandle(SysConnector_Num_Enum ch)
 		{
 			gv_stAuthM[ch].ucAuthoOpenSrc = AUTHM_OPEN_SRC_BT_APP;
 			gv_stAuthM[ch].ucMode = AUTHM_MODE_AUTHORIZED;
+			gv_stAuthM[ch].ucReqChargeStatus = STD_TRUE;
 			AUTHM_ResetBtAppAuthStatus(ch);
 			AUTHM_DEBUG("ch:%d BT Auth\r\n", ch);
 		}
@@ -328,6 +326,7 @@ static void AUTHM_UnauthorizedModeHandle(SysConnector_Num_Enum ch)
 		{
 			gv_stAuthM[ch].ucAuthoOpenSrc = AUTHM_OPEN_SRC_NET_APP;
 			gv_stAuthM[ch].ucMode = AUTHM_MODE_AUTHORIZED;
+			gv_stAuthM[ch].ucReqChargeStatus = STD_TRUE;
 			AUTHM_ResetNetAuthStatus(ch);
 			AUTHM_DEBUG("ch:%d 5G Auth\r\n", ch);
 		}
@@ -339,6 +338,7 @@ static void AUTHM_UnauthorizedModeHandle(SysConnector_Num_Enum ch)
 		{
 			gv_stAuthM[ch].ucAuthoOpenSrc = AUTHM_OPEN_SRC_SINGLE_TIMING;
 			gv_stAuthM[ch].ucMode = AUTHM_MODE_AUTHORIZED;
+			gv_stAuthM[ch].ucReqChargeStatus = STD_TRUE;
 			AUTHM_DEBUG("ch:%d Single Timing Auth\r\n", ch);
 		}
 		else
@@ -349,6 +349,7 @@ static void AUTHM_UnauthorizedModeHandle(SysConnector_Num_Enum ch)
 		{
 			gv_stAuthM[ch].ucAuthoOpenSrc = AUTHM_OPEN_SRC_PERIOD_TIMING;
 			gv_stAuthM[ch].ucMode = AUTHM_MODE_AUTHORIZED;
+			gv_stAuthM[ch].ucReqChargeStatus = STD_TRUE;
 			AUTHM_DEBUG("ch:%d Period Timing Auth\r\n", ch);
 		}
 		else
@@ -359,6 +360,7 @@ static void AUTHM_UnauthorizedModeHandle(SysConnector_Num_Enum ch)
 		{
 			gv_stAuthM[ch].ucAuthoOpenSrc = AUTHM_OPEN_SRC_NO_AUTHEN;
 			gv_stAuthM[ch].ucMode = AUTHM_MODE_AUTHORIZED;
+			gv_stAuthM[ch].ucReqChargeStatus = STD_TRUE;
 			AUTHM_ResetNoAuthStatus(ch);
 			AUTHM_DEBUG("ch:%d NoAuth Auth\r\n", ch);
 		}
@@ -370,6 +372,7 @@ static void AUTHM_UnauthorizedModeHandle(SysConnector_Num_Enum ch)
 		{
 			gv_stAuthM[ch].ucAuthoOpenSrc = AUTHM_OPEN_SRC_BT_FAST;
 			gv_stAuthM[ch].ucMode = AUTHM_MODE_AUTHORIZED;
+			gv_stAuthM[ch].ucReqChargeStatus = STD_TRUE;
 			AUTHM_DEBUG("ch:%d BTFAST Auth\r\n", ch);
 		}
 		else
@@ -416,7 +419,15 @@ static void AUTHM_AuthorizedModeHandle(SysConnector_Num_Enum ch)
 	}
 	else if ((AUTHM_CP_VOL_STATUS_9V == lv_ucCpVolStatus) || (AUTHM_CP_VOL_STATUS_6V == lv_ucCpVolStatus))
 	{
-		gv_stAuthM[ch].ucMode = AUTHM_MODE_REQ_CHARGE;
+		if (STD_FALSE == gv_stAuthM[ch].ucReqChargeStatus)
+		{
+			gv_stAuthM[ch].ucReqChargeStatus = STD_TRUE;
+			gv_stAuthM[ch].ucMode = AUTHM_MODE_REQ_CHARGE;
+		}
+		else
+		{
+			gv_stAuthM[ch].ucMode = AUTHM_MODE_REQ_CHARGE;
+		}
 	}
 	else
 	{}
@@ -480,7 +491,8 @@ static void AUTHM_ChargingModeHandle(SysConnector_Num_Enum ch)
 	
 	if(AUTHM_CP_VOL_STATUS_12V == lv_ucCpVolStatus)
 	{
-		gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;	
+		gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
+		gv_stAuthM[ch].ucReqChargeStatus = STD_FALSE;	
 		gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_DRAWGUN;
 	}
 	else
@@ -505,7 +517,7 @@ static void AUTHM_EvseStatusManage(SysConnector_Num_Enum ch)
 	uint8_t lv_ucChargeConditions;
 	lv_ucChargeConditions = ERRHDL_GetChargeConditions();
 
-	if (AUTHM_MODE_CHARGING == gv_stAuthM[ch].ucMode)
+	if(STD_TRUE == gv_stAuthM[ch].ucReqChargeStatus)
 	{
 		if (AUTHM_ERRHDL_CHARGE_SUSPENDED == lv_ucChargeConditions)
 		{
@@ -521,7 +533,7 @@ static void AUTHM_EvseStatusManage(SysConnector_Num_Enum ch)
 		{
 			AUTHM_ReqEvseChargeOn(ch);
 		}
-	}
+	} 
 	else
 	{
 		AUTHM_ReqEvseChargeOff(ch);

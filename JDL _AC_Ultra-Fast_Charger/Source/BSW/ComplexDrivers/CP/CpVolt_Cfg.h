@@ -44,7 +44,7 @@
 #define CPV_4V_CVRT_COEFF							(((uint32_t)100 * (uint32_t)CPV_4V_VOLT_ENLARGE_FACTOR)/(uint32_t)CPV_ADC_RESOLUTION)/* The coefficient of AD collecting voltage to the true voltage(BASE 4V) */
 
 #define CPV_BRK_LIN_FUN_EN							STD_OFF							    /*CP Break line function enable*/
-#define CPV_VOLTAGE_6V_2V_ERR_FILLTE_COUNT 			((uint16_t)40u / CPV_TASK_PERIOD)  /*cp 6V error filter count*/
+#define CPV_VOLTAGE_6V_2V_ERR_FILLTE_COUNT 			((uint16_t)100u / CPV_TASK_PERIOD)  /*cp 6V error filter count*/
 #define CPV_VOLTAGE_9V_3V_ERR_FILLTE_COUNT 			((uint16_t)500u / CPV_TASK_PERIOD)	/*cp 9V error filter count*/
 #define CPV_VOLTAGE_12V_4V_ERR_FILLTE_COUNT 		((uint16_t)1000u / CPV_TASK_PERIOD) /*cp 12V error filter count*/
 #define CPV_VOLTAGE_RECOVER_ERR_FILLTE_COUNT 		((uint16_t)1000u / CPV_TASK_PERIOD) /*cp recover error filter count*/

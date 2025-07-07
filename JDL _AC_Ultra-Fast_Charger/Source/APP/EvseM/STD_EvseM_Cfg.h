@@ -35,6 +35,7 @@
 
 #define EVSEM_TASK_PERIOD          								    (10u)	/* 10ms */
 #define EVSEM_S2OFF_TIMEOUT_CNT									   	(uint16_t)(200u / EVSEM_TASK_PERIOD)				/* 0.2s   */
+#define EVSEM_CP_FILTER_MAX_CNT									   	(uint16_t)(1500u / EVSEM_TASK_PERIOD)				/* 1.5s   */
 #define EVSEM_S2OFF_DLY_CNT											(uint16_t)(1000u / EVSEM_TASK_PERIOD)				/* 1s   */
 #define EVSEM_STATUS3_DLY_CNT  										(uint16_t)(6000u / EVSEM_TASK_PERIOD )			    /* 6s   */
 #define EVSEM_SELFCHECK_DLY_CNT										(uint16_t)(900u / EVSEM_TASK_PERIOD)				/* 90ms */

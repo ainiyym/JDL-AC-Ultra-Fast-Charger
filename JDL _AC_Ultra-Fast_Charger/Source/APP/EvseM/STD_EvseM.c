@@ -477,6 +477,14 @@ Call By         : EVSEM_10msMainFunction
 |******************************************************************************/
 static void EVSEM_ChargingModeJudgy(SysConnector_Num_Enum ch)
 {
+	static uint8_t lv_ucLastCpStatus = (uint8_t)EVSEM_CP_NULL;
+
+	if (lv_ucLastCpStatus != gv_stEvseM[ch].ucCpStatus)
+	{
+		lv_ucLastCpStatus = gv_stEvseM[ch].ucCpStatus;
+		gv_stEvseM[ch].usWaitCnt = 0u; /* reset wait count */
+	}
+
 	if ((uint8_t)EVSEM_CP_4V == gv_stEvseM[ch].ucCpStatus)
 	{
 		gv_stEvseM[ch].usWaitCnt = 0u;
@@ -488,24 +496,28 @@ static void EVSEM_ChargingModeJudgy(SysConnector_Num_Enum ch)
 			gv_stEvseM[ch].usWaitCnt++;
 			if (gv_stEvseM[ch].usWaitCnt > EVSEM_S2OFF_TIMEOUT_CNT)
 			{
+				EVSEM_DEBUG("ch:%d Cp 3V into 2V timeout!!\r\n", ch);
 				gv_stEvseM[ch].usWaitCnt = 0u;
 				EVSEM_SET_CP_OUT_12V(ch);
-				EVSEM_DEBUG("ch:%d Cp 3V into 2V timeout!!\r\n", ch);
 			}
 		}
 		else if ((uint8_t)EVSEM_CP_2V == gv_stEvseM[ch].ucCpStatus)
 		{
+			EVSEM_DEBUG("ch:%d EVSE into CAN model!\r\n", ch);
 			gv_stEvseM[ch].usWaitCnt = 0u;
 			gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_CAN_MODEL;
-			EVSEM_DEBUG("ch:%d EVSE into CAN model!\r\n", ch);
 		}
 		else
 		{
-			gv_stEvseM[ch].ucSelfCheckStep = (uint8_t)EVSEM_SELFCHECK_STEP0;
-			gv_stEvseM[ch].usWaitCnt = 0u;
-			gv_stEvseM[ch].usStateTwoDlyTick = 0;
-			gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_ONE;
-			EVSEM_DEBUG("ch:%d EVSE into 1!\r\n", ch);
+			gv_stEvseM[ch].usWaitCnt++;
+			if (gv_stEvseM[ch].usWaitCnt > EVSEM_CP_FILTER_MAX_CNT)
+			{
+				EVSEM_DEBUG("ch:%d EVSE into 1!\r\n", ch);
+				gv_stEvseM[ch].ucSelfCheckStep = (uint8_t)EVSEM_SELFCHECK_STEP0;
+				gv_stEvseM[ch].usWaitCnt = 0u;
+				gv_stEvseM[ch].usStateTwoDlyTick = 0;
+				gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_ONE;
+			}
 		}
 	}
 }
@@ -595,8 +607,8 @@ static void EVSEM_StateOneDotHandle(SysConnector_Num_Enum ch)
 	}
 	else
 	{
-		EVSEM_EnterStateZero(ch);
 		EVSEM_DEBUG("ch:%d 1' Into init! \n",ch);
+		EVSEM_EnterStateZero(ch);
 	}
 }
 
@@ -693,20 +705,20 @@ static void EVSEM_StateTwoHandle(SysConnector_Num_Enum ch)
 		{
 			if ((uint8_t)EVSEM_CP_6V == gv_stEvseM[ch].ucCpStatus)
 			{
+				EVSEM_DEBUG("ch:%d 2 Go to status 3!\n",ch);
 				gv_stEvseM[ch].ucSelfCheckStep = (uint8_t)EVSEM_SELFCHECK_STEP0;
 				gv_stEvseM[ch].ucStatus2SelfCheckStep = EVSEM_SELFCHECK_STEP0;
 				gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_THREE;
 				gv_stEvseM[ch].usWaitCnt = 0;
-				EVSEM_DEBUG("ch:%d 2 Go to status 3!\n",ch);
 			}
 			else if ((uint8_t)EVSEM_CP_9V == gv_stEvseM[ch].ucCpStatus)
 			{
+				EVSEM_DEBUG("ch:%d 2 Start CP Output!\n", ch);
 				gv_stEvseM[ch].ucSelfCheckStep = (uint8_t)EVSEM_SELFCHECK_STEP0;
 				gv_stEvseM[ch].ucStatus2SelfCheckStep = EVSEM_SELFCHECK_STEP0;
 				gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_TWO_dot;
 				gv_stEvseM[ch].usWaitCnt = 0u;
 				EVSEM_StartCpOutput(ch);
-				EVSEM_DEBUG("ch:%d 2 Start CP Output!\n", ch);
 			}
 			else
 			{
@@ -736,18 +748,18 @@ static void EVSEM_StateTwoDotHandle(SysConnector_Num_Enum ch)
 {
 	if ((uint8_t)EVSEM_REQ_CHARGE_ON != (uint8_t)gv_stEvseM[ch].enChargeStatus)
 	{
+		EVSEM_DEBUG("ch:%d 2' Stop CP Output! 1\n", ch);
 		gv_stEvseM[ch].usWaitCnt = 0u;
 		gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_TWO;
 		EVSEM_StopCpOutput(ch);
 		EVSEM_SetRelayOff(ch);
-		EVSEM_DEBUG("ch:%d 2' Stop CP Output! 1\n", ch);
 	}
 	else if ((uint8_t)EVSEM_CP_12V == gv_stEvseM[ch].ucCpStatus)
 	{
+		EVSEM_DEBUG("ch:%d 2' Turn off Relay! 2\n", ch);
 		gv_stEvseM[ch].usWaitCnt = 0u;
 		gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_ONE_dot;
 		EVSEM_SetRelayOff(ch);
-		EVSEM_DEBUG("ch:%d 2' Turn off Relay! 2\n", ch);
 	}
 	else
 	{
@@ -755,14 +767,14 @@ static void EVSEM_StateTwoDotHandle(SysConnector_Num_Enum ch)
 		{
 			if (gv_stEvseM[ch].usWaitCnt >= (uint8_t)EVSEM_S2OFF_DLY_CNT)
 			{
-				EVSEM_SetRelayOn(ch);
 				EVSEM_DEBUG("%s : ch:%d 2' Relay on \n", __FUNCTION__, ch);
+				EVSEM_SetRelayOn(ch);
 				if ((uint8_t)STD_TRUE == EVSEM_GetRelayStatus(ch))
 				{
+					EVSEM_DEBUG("ch:%d 2' Turn on Relay! 2\n", ch);
 					gv_stEvseM[ch].usWaitCnt = 0;
 					gv_stEvseM[ch].ucStopChargeReason = EVSEM_STOP_CHARGE_NONE;
 					gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_THREE_dot;
-					EVSEM_DEBUG("ch:%d 2' Turn on Relay! 2\n", ch);
 				}
 			}
 			else
@@ -797,30 +809,30 @@ static void EVSEM_StateThreeHandle(SysConnector_Num_Enum ch)
 	{
 		if ((uint8_t)EVSEM_REQ_CHARGE_ON == (uint8_t)gv_stEvseM[ch].enChargeStatus)
 		{
+			EVSEM_DEBUG("ch:%d 3 Turn on Relay and cp! \n", ch);
 			EVSEM_SetRelayOn(ch);
 			EVSEM_StartCpOutput(ch);
 			gv_stEvseM[ch].ucStopChargeReason = EVSEM_STOP_CHARGE_NONE;
 			gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_THREE_dot;
-			EVSEM_DEBUG("ch:%d 3 Turn on Relay and cp! 2\n", ch);
 		}
 		else
 		{
 			gv_stEvseM[ch].usWaitCnt++;
 			if (gv_stEvseM[ch].usWaitCnt > EVSEM_STATUS3_DLY_CNT)
 			{
+				EVSEM_DEBUG("ch:%d 3 Turn off Relay! 1\n", ch);
 				gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_TWO;
 				gv_stEvseM[ch].usWaitCnt = 0u;
 				EVSEM_SetRelayOff(ch);
-				EVSEM_DEBUG("ch:%d 3 Turn off Relay! 1\n", ch);
 			}
 		}
 	}
 	else if (((uint8_t)EVSEM_CP_9V == gv_stEvseM[ch].ucCpStatus) || ((uint8_t)EVSEM_CP_12V == gv_stEvseM[ch].ucCpStatus))
 	{
+		EVSEM_DEBUG("ch:%d 3 Turn off Relay! 2\n", ch);
 		gv_stEvseM[ch].usWaitCnt = 0;
 		EVSEM_SetRelayOff(ch);
 		gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_TWO;
-		EVSEM_DEBUG("ch:%d 3 Turn off Relay! 2\n", ch);
 	} 
 	else
 	{
@@ -842,25 +854,25 @@ static void EVSEM_StateThreeDotHandle(SysConnector_Num_Enum ch)
 {
 	if ((uint8_t)EVSEM_CP_12V == gv_stEvseM[ch].ucCpStatus)
 	{
+		EVSEM_DEBUG("ch:%d 3' Turn off Relay! 3\n", ch);
 		EVSEM_SetRelayOff(ch);
 		gv_stEvseM[ch].ucStopChargeReason = EVSEM_STOP_CHARGE_CP_OFF;
 		gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_ONE_dot;
-		EVSEM_DEBUG("ch:%d 3' Turn off Relay! 3\n", ch);
 	}
 	else if ((uint8_t)EVSEM_REQ_CHARGE_ON != (uint8_t)gv_stEvseM[ch].enChargeStatus)
 	{
+		EVSEM_DEBUG("ch:%d 3' Stop CP Output! 1\n", ch);
 		EVSEM_StopCpOutput(ch);
 		gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_THREE;
 		gv_stEvseM[ch].usWaitCnt = 0;
-		EVSEM_DEBUG("ch:%d 3' Stop CP Output! 1\n", ch);
 	}
 	else if ((uint8_t)EVSEM_CP_9V == gv_stEvseM[ch].ucCpStatus) /*S2 off*/
 	{
+		EVSEM_DEBUG("ch:%d 3' Turn off Relay! 2\n", ch);
 		EVSEM_SetRelayOff(ch);
 		gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_TWO_dot;
 		gv_stEvseM[ch].usWaitCnt = 0;
 		gv_stEvseM[ch].ucStopChargeReason = EVSEM_STOP_CHARGE_S2_OFF;
-		EVSEM_DEBUG("ch:%d 3' Turn off Relay! 2\n", ch);
 	}
 	else
 	{
@@ -907,11 +919,11 @@ Call By         : EVSEM_10msMainFunction
 |******************************************************************************/
 void EVSEM_EnterStateZero(SysConnector_Num_Enum ch)
 {
+	EVSEM_DEBUG("ch:%d Cp 4V Enter init! \n", ch);
 	EVSEM_SetRelayOff(ch);
 	EVSEM_StopCpOutput(ch);
 	EVSEM_SET_CP_OUT_4V(ch);
 	gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_ZERO;
-	EVSEM_DEBUG("ch:%d Cp 4V Enter init! \n", ch);
 }
 
 /*******************************************************************************

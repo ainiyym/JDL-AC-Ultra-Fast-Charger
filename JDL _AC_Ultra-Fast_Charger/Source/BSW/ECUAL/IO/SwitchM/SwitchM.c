@@ -78,16 +78,17 @@ uint8_t SwitchM_GetCpVolMode(SysConnector_Num_Enum ch)
 
 static void SWITCHM_SetCp4V(SysConnector_Num_Enum ch)
 {
+    /* 电路特性，必须先拉低12V */
     if (SYS_CONNECTOR1 == ch)
     {
-        Mcal_Gpio_ResetPin(Switch1_4V_GPIO_Port, Switch1_4V_Pin);
         Mcal_Gpio_ResetPin(Switch1_12V_GPIO_Port, Switch1_12V_Pin);
+        Mcal_Gpio_ResetPin(Switch1_4V_GPIO_Port, Switch1_4V_Pin);
     }
 #if (SYSM_CONNECTOR2_ENABLE == STD_ON)
     else if (SYS_CONNECTOR2 == ch)
     {
-        Mcal_Gpio_ResetPin(Switch2_4V_GPIO_Port, Switch2_4V_Pin);
         Mcal_Gpio_ResetPin(Switch2_12V_GPIO_Port, Switch2_12V_Pin);
+        Mcal_Gpio_ResetPin(Switch2_4V_GPIO_Port, Switch2_4V_Pin);
     }
 #endif
     else
@@ -97,6 +98,7 @@ static void SWITCHM_SetCp4V(SysConnector_Num_Enum ch)
 
 static void SWITCHM_SetCp12V(SysConnector_Num_Enum ch)
 {
+    /* 电路特性，必须先拉高4V */
     if (SYS_CONNECTOR1 == ch)
     {
         Mcal_Gpio_SetPin(Switch1_4V_GPIO_Port, Switch1_4V_Pin);

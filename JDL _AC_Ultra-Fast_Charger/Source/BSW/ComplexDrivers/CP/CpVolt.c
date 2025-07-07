@@ -562,7 +562,6 @@ static uint8_t CPV_12VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVo
 		{
 			gv_stVoltageErr[ch][CPV_ERR_VOLT_6V].ucErrCnt++;
 			CP_DEBUG("ch :%d CPV_VoltErrTypeHandle CPV_ERR_VOLT_6V ucErrCnt:%d lv_usVoltAvrg:%d\r\n", ch, gv_stVoltageErr[ch][CPV_ERR_VOLT_6V].ucErrCnt, lv_usVoltAvrg);
-			CP_PRINT_Hex(gv_stCpVolt[ch].usAdData, CPV_ADC_FIFO_MAX_NUM*2);
 			if (gv_stVoltageErr[ch][CPV_ERR_VOLT_6V].ucErrCnt >= CPV_VOLTAGE_6V_2V_ERR_FILLTE_COUNT)
 			{
 				CP_DEBUG("ch :%d CP ERROR CPV_ERR_VOLT_6V\r\n", ch);
