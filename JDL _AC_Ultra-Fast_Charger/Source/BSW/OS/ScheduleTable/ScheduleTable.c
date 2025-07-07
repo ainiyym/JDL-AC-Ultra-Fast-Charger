@@ -21,6 +21,7 @@
 #include "STD_ErrorHandler.h"
 #include "STD_RlyM.h"
 #include "STD_AuthM.h"
+#include "STD_Curr.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -163,6 +164,7 @@ static void Task10ms(void)
 static void Task20ms(void)
 {
     /* 20ms task code */
+    CURR_20msFunctionControl();
 }
 
 static void Task100ms(void)

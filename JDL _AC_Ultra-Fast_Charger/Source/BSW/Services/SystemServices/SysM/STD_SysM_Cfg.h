@@ -45,6 +45,12 @@
 |******************************************************************************/
 typedef enum
 {
+    SYSM_CP_MODE_4V,
+    SYSM_CP_MODE_12V
+}SysM_CpVol_Enum;
+
+typedef enum
+{
     SYS_CONNECTOR1, /* Connector 1 */
 #if (SYSM_CONNECTOR2_ENABLE == STD_ON)
     SYS_CONNECTOR2, /* Connector 2 */

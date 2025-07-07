@@ -59,6 +59,7 @@ static LogServiceCtrl_Struct gv_stLogServiceCtrl = {  (  LOG_STATE_ON  << LOG_MO
 													  | (LOG_STATE_ON  << LOG_MODULE_AUTHM)
                                                       | (LOG_STATE_ON  << LOG_MODULE_NOAUTH)
 													  | (LOG_STATE_ON  << LOG_MODULE_ENERGY)
+                                                      | (LOG_STATE_ON  << LOG_MODULE_CURRM)
 													  | (LOG_STATE_ON  << LOG_MODULE_EVSEM)
 													  | (LOG_STATE_ON  << LOG_MODULE_HMI)
                                                       | (LOG_STATE_ON  << LOG_MODULE_CCP)
@@ -93,6 +94,7 @@ static const char* const gv_LogModule_Name[] =
 	    "AUTHM",
         "NOAUTH",
 		"ENERGY",
+        "CURRM",
 		"EVSEM",
 		"HMI",
         "CCP",

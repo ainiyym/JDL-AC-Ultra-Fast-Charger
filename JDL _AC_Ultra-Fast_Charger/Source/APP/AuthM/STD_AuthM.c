@@ -85,6 +85,54 @@ void AUTHM_InitMemory(void)
 }
 
 /*******************************************************************************
+Name            : AUTHM_AppSetChargeStatus
+Syntax          : void AUTHM_AppSetChargeStatus(SysConnector_Num_Enum ch)
+Sync/Async      : Synchronous
+Reentrancy      :
+Parameters(in)  : None                                
+Parameters(out) : None                
+Return value    : void
+Description     : APP Set Charge Status  
+Call By         : UartM
+|******************************************************************************/
+void AUTHM_AppSetReqChargeStatus(SysConnector_Num_Enum ch)
+{
+	gv_stAuthM[ch].ucReqChargeStatus = STD_TRUE;
+}
+
+/*******************************************************************************
+Name            : AUTHM_ChargingModeHandle
+Syntax          : void AUTHM_ChargingModeHandle(SysConnector_Num_Enum ch)
+Sync/Async      : Synchronous
+Reentrancy      :
+Parameters(in)  : None                                   
+Parameters(out) : None                
+Return value    : void
+Description     : APP Reset Charge Status
+Call By         : UartM
+|******************************************************************************/
+void AUTHM_AppResetReqChargeStatus(SysConnector_Num_Enum ch)
+{
+	gv_stAuthM[ch].ucReqChargeStatus  = STD_FALSE;
+}
+
+/*******************************************************************************
+Name            : AUTHM_GetChargeStatus
+Syntax          : uint8 AUTHM_GetChargeStatus(SysConnector_Num_Enum ch)
+Sync/Async      : Synchronous
+Reentrancy      :
+Parameters(in)  : None                                    
+Parameters(out) : None                
+Return value    : uint8
+Description     : Get Charge Status
+Call By         : UartM
+|******************************************************************************/
+uint8_t AUTHM_GetReqChargeStatus(SysConnector_Num_Enum ch)
+{
+	return gv_stAuthM[ch].ucReqChargeStatus;
+}
+
+/*******************************************************************************
 Name            : AUTHM_GetAuthOpenSource
 Syntax          : uint8_t AUTHM_GetAuthOpenSource(SysConnector_Num_Enum ch)
 Sync/Async      : Synchronous

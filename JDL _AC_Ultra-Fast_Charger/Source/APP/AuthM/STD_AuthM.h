@@ -81,9 +81,9 @@ extern uint8_t AUTHM_GetAuthOpenSource(SysConnector_Num_Enum ch);
 extern uint8_t AUTHM_GetAuthCloseSource(SysConnector_Num_Enum ch);
 extern uint8_t AUTHM_GetCurrAuthStatus(SysConnector_Num_Enum ch);
 extern uint8_t AUTHM_GetAllowResAuthReqStatus(void);
-extern void AUTHM_AppSetReqChargeStatus(void);
-extern void AUTHM_AppResetReqChargeStatus(void);
-extern uint8_t AUTHM_GetReqChargeStatus(void);
+extern void AUTHM_AppSetReqChargeStatus(SysConnector_Num_Enum ch);
+extern void AUTHM_AppResetReqChargeStatus(SysConnector_Num_Enum ch);
+extern uint8_t AUTHM_GetReqChargeStatus(SysConnector_Num_Enum ch);
 extern void AUTHM_10msMainFunction(void);
 #endif
 /*EOF*/

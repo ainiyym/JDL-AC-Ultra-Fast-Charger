@@ -17,6 +17,7 @@
 #include "Std_Types.h"
 #include "STD_LogService.h"
 #include "STD_Os_Timer.h"
+#include "STD_SysM_Cfg.h"
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
 |******************************************************************************/
@@ -24,6 +25,10 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
+#define SWITCHM_CP_4V                           (SYSM_CP_MODE_4V)
+#define SWITCHM_CP_12V                          (SYSM_CP_MODE_12V)
+#define SWITCHM_SET_SYSM_CP_MODE(ch, mode)		SYSM_SetCpVolMode(ch, mode)
+
 #define SWITCHM_74HCT4851D_MULTIPLEX_ADC0       MCAL_ADC_CHANNEL_1
 #define SWITCHM_74HCT4851D_MULTIPLEX_ADC1       MCAL_ADC_CHANNEL_2
 #define SWITCHM_74HCT4851D_MULTIPLEX_CH_NUM     MCAL_ADC_CHANNEL_NUM_MAX
@@ -34,12 +39,6 @@
 |    Enum Definition
 |******************************************************************************/
 typedef Mcal_Adc_Channel_Num_e SwitchM_74HCT4851D_Multiplex_e;
-
-typedef enum
-{
-    SWITCHM_CP_4V,
-    SWITCHM_CP_12V
-}SwitchM_CpVol_e;
 
 typedef enum
 {

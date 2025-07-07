@@ -32,7 +32,6 @@ enum
 |******************************************************************************/
 typedef struct
 {
-    uint8_t CpVolMode[SYS_CONNECTOR_NUM_MAX];   /* cp based vol */
     uint8_t M74hct4851dWorkingStatus[SWITCHM_74HCT4851D_MULTIPLEX_CH_NUM];        /* 8-channel selector input status */
     uint8_t M74hct4851dIncrementCounter; /* 74hct4851d Mode switching auto-incrementing counter */
     uint8_t SoftGptChannel;
@@ -71,9 +70,19 @@ void SwitchM_Init(void)
     SwitchMCtrl.M74hct4851dIncrementCounter = M74HCT4851D_A0;
 }
 
-uint8_t SwitchM_GetCpVolMode(SysConnector_Num_Enum ch)
+void SwitchM_SetCpVol4vMode(SysConnector_Num_Enum ch)
 {
-    return (uint8_t)SwitchMCtrl.CpVolMode[ch];
+    SWITCHM_DEBUG("ch:%d SetCpVol4v\r\n",ch);
+    SWITCHM_SetCp4V(ch);
+    SWITCHM_SET_SYSM_CP_MODE(ch, (uint8_t)SWITCHM_CP_4V);
+
+}
+
+void SwitchM_SetCpVol12vMode(SysConnector_Num_Enum ch)
+{
+    SWITCHM_DEBUG("ch:%d SetCpVol12v\r\n",ch);
+    SWITCHM_SetCp12V(ch);
+    SWITCHM_SET_SYSM_CP_MODE(ch, (uint8_t)SWITCHM_CP_12V);
 }
 
 static void SWITCHM_SetCp4V(SysConnector_Num_Enum ch)
@@ -114,22 +123,6 @@ static void SWITCHM_SetCp12V(SysConnector_Num_Enum ch)
     else
     {
     }
-}
-
-void SwitchM_SetCpVol4vMode(SysConnector_Num_Enum ch)
-{
-    // Switch to CAN mode code here
-    SWITCHM_SetCp4V(ch);
-    SwitchMCtrl.CpVolMode[ch] = (uint8_t)SWITCHM_CP_4V;
-    SWITCHM_DEBUG("ch:%d SetCpVol4v\r\n",ch);
-}
-
-void SwitchM_SetCpVol12vMode(SysConnector_Num_Enum ch)
-{
-    // Switch to CP/CC mode code here
-    SWITCHM_SetCp12V(ch);
-    SwitchMCtrl.CpVolMode[ch] = (uint8_t)SWITCHM_CP_12V;
-    SWITCHM_DEBUG("ch:%d SetCpVol12v\r\n",ch);
 }
 
 void SwitchM_Set74hct4851dEnable(void)

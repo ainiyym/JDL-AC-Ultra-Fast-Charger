@@ -11,6 +11,11 @@
 #define _DUMMY_H
 //****************************************************************************************
 #include "stdint.h"
+#include "STD_SysM_Cfg.h"
 
 extern uint8_t Dummy_RemoteSuspendStatus(void);
+extern uint8_t Dummy_GetMeterReadyStatus(SysConnector_Num_Enum ch);
+extern uint8_t Dummy_GetCurrL1(SysConnector_Num_Enum ch);
+extern uint8_t Dummy_GetCurrL2(SysConnector_Num_Enum ch);
+extern uint8_t Dummy_GetCurrL3(SysConnector_Num_Enum ch);
 #endif

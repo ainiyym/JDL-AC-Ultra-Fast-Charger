@@ -20,6 +20,7 @@
 #include "STD_ErrorHandler.h"
 #include "STD_RlyM.h"
 #include "STD_AuthM.h"
+#include "STD_Curr.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -45,6 +46,7 @@ typedef struct
 {
 	SysM_BasicInfo_Struct basic_ctrl_info; /* 基本控制信息 */
 	uint8_t ucSysReady10msCnt;	   /* 系统就绪状态计数器 */
+	uint8_t ucCpOutMode[SYS_CONNECTOR_NUM_MAX];           /* CP输出模式 */
 	uint8_t ucLowPowerShutdownFlag;
 	uint8_t ucLowPowerShutdownCnt;
 	uint8_t usRemoteResetFlag; /* 0: No reset request; 1: Reset immediately; 2:Reset when the conditons are satisfied.*/
@@ -69,7 +71,7 @@ static SysM_Struct stSysM;
 static void SYSM_ShowUserInfo(void);
 static void SYSM_RemoteResetManage(void);
 static void SYSM_ShowBasicInfo(void);
-
+static void SYSM_OutPutDefaultCurrManage(void);
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
@@ -164,6 +166,7 @@ void SYSM_InitTwo( void )
 	RELAYM_InitMemory();
 	AUTHM_InitMemory();
 	NOAUTHEN_InitMemory();
+	CURR_InitMemory();
 }
 
 /****************************************************************************************
@@ -187,6 +190,7 @@ void SYSM_InitThree(void)
 	Mcal_GpTime_AdcCollection_Start();
 	Mcal_Adc_SoftTimer_Enable();
 	ERRHDL_Enable();
+	CURR_Enable();
 	CPM_Enable();
 }
 
@@ -451,6 +455,42 @@ static void SYSM_ShowBasicInfo(void)
 	}
 }
 
+void SYSM_SetCpVolMode(SysConnector_Num_Enum ch, uint8_t mode)
+{
+    stSysM.ucCpOutMode[ch] = mode;
+}
+
+uint8_t SYSM_GetCpVolMode(SysConnector_Num_Enum ch)
+{
+    return (uint8_t)stSysM.ucCpOutMode[ch];
+}
+
+static void SYSM_OutPutDefaultCurrManage(void)
+{
+	static uint8_t stCpModeLast[SYS_CONNECTOR_NUM_MAX] = {0};
+
+	for (SysConnector_Num_Enum i = SYS_CONNECTOR1; i < SYS_CONNECTOR_NUM_MAX; i++)
+	{
+		if (stCpModeLast[i] != SYSM_GetCpVolMode(i))
+		{
+			stCpModeLast[i] = SYSM_GetCpVolMode(i);
+			if (SYSM_CP_MODE_4V == stCpModeLast[i])
+			{
+				SYSM_DEBUG("Connector:%d CP Mode 4V set default current to %d\r\n", i, CURR_ONE_PHASE_CP4V_DFLT_CURR_VAL);
+				CURR_SetDfltCurrVal(i, CURR_ONE_PHASE_CP4V_DFLT_CURR_VAL);
+			}
+			else if (SYSM_CP_MODE_12V == stCpModeLast[i])
+			{
+				SYSM_DEBUG("Connector:%d CP Mode 12V set default current to %d\r\n", i, CURR_ONE_PHASE_CP12V_DFLT_CURR_VAL);
+				CURR_SetDfltCurrVal(i, CURR_ONE_PHASE_CP12V_DFLT_CURR_VAL);
+			}
+			else
+			{
+			}
+		}
+	}
+}
+
 /****************************************************************************************
  *函数名称  : void SYSM_10msMainFunction( void )
 
@@ -473,5 +513,7 @@ void SYSM_10msMainFunction(void)
 	SYSM_RemoteResetManage();
 
 	SYSM_ShowBasicInfo();
+
+	SYSM_OutPutDefaultCurrManage();
 }
 /*EOF*/

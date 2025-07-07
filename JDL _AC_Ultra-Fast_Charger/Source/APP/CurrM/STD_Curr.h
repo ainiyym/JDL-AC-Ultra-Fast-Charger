@@ -1,20 +1,21 @@
 //****************************************************************************************
 //*
-//* File Name: SwitchM.h 
+//* File Name: STD_Curr_Cfg.h 
 //* Project Name: ChargingSys
 //* Version: v1.0
 //* Date: 2025-05-16 11:27:24
 //* Author: JDLzhou
 //* 
-/*******************************************************************************/
-#ifndef _SWITCHM_H
-#define _SWITCHM_H
+//****************************************************************************************/
+
+#if !defined (_STD_CURR_H)
+#define _STD_CURR_H
 
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "SwitchM_Cfg.h"
-#include "STD_SysM.h"
+#include "STD_Curr_Cfg.h"
+
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
 |******************************************************************************/
@@ -23,17 +24,6 @@
 |    Macro Definition
 |******************************************************************************/
 
-/*******************************************************************************
-|    LOWER LAYER CONFIGURATION PARAMETERS
-|******************************************************************************/
- 
-/*******************************************************************************
-|    UPPER LAYER CONFIGURATION PARAMETERS
-|******************************************************************************/
-
-/*******************************************************************************
-|    Callback Notification
-|******************************************************************************/
 
 /*******************************************************************************
 |    Enum Definition
@@ -44,28 +34,28 @@
 |******************************************************************************/
 
 /*******************************************************************************
-|    Table Const Definition
+|    Table Definition
+|******************************************************************************/
+
+/*******************************************************************************
+|    Global KAM with extern linkage
 |******************************************************************************/
 
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-extern void SwitchM_Init(void);
-extern void SwitchM_SetCpVol4vMode(SysConnector_Num_Enum ch);
-extern void SwitchM_SetCpVol12vMode(SysConnector_Num_Enum ch);
 
-extern void SwitchM_Set74hct4851dEnable(void);
-extern void SwitchM_Set74hct4851dDisable(void);
-extern uint8_t SwitchM_Get74hct4851dOutputStatusCallBack(SwitchM_74HCT4851D_Multiplex_e CH);
-extern void SwitchM_74hct4851dControlCallBack(void);
-extern void SwitchM_SoftTimerStart74hct4851d_Enable(void);
-// extern void SwitchM_Set74hct4851dOutputA0(void);
-// extern void SwitchM_Set74hct4851dOutputA1(void);
-// extern void SwitchM_Set74hct4851dOutputA2(void);
-// extern void SwitchM_Set74hct4851dOutputA3(void);
-// extern void SwitchM_Set74hct4851dOutputA4(void);
-// extern void SwitchM_Set74hct4851dOutputA5(void);
-// extern void SwitchM_Set74hct4851dOutputA6(void);
-// extern void SwitchM_Set74hct4851dOutputA7(void);
+extern void CURR_InitMemory(void);
+extern void CURR_Enable(void);
+extern void CURR_Disable(void);
+extern void CURR_20msFunctionControl(void);
+extern void CURR_AdjRemoteCurr(SysConnector_Num_Enum ch, uint16_t lv_ucPercent, uint8_t lv_ucEn);
+extern uint8_t CURR_GetRemoteSuspendStatus(SysConnector_Num_Enum ch);
+extern void CURR_SetDfltCurrVal(SysConnector_Num_Enum ch, uint8_t lv_ucCurrentVal);
+extern uint8_t CURR_GetOutPutModeType(SysConnector_Num_Enum ch);
+extern uint16_t CURR_GetL1Value(SysConnector_Num_Enum ch);
 #endif
 /*EOF*/
+
+
+

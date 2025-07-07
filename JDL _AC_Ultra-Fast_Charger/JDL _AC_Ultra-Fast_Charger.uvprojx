@@ -973,6 +973,16 @@
             </File>
           </Files>
         </Group>
+        <Group>
+          <GroupName>Curr</GroupName>
+          <Files>
+            <File>
+              <FileName>STD_Curr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\APP\CurrM\STD_Curr.c</FilePath>
+            </File>
+          </Files>
+        </Group>
       </Groups>
     </Target>
   </Targets>

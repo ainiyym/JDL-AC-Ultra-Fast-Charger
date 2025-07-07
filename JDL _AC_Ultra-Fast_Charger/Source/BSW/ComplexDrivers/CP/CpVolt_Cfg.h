@@ -79,7 +79,7 @@
 #define CPV_ADC_FIFO_MAX_NUM						(11)							 /*cp adc fifo max numer*/
 
 
-#define CPV_GET_SWITCH_MODE(ch)                     SwitchM_GetCpVolMode(ch)            /* get cp switch mode */
+#define CPV_GET_SWITCH_MODE(ch)                     SYSM_GetCpVolMode(ch)            /* get cp switch mode */
 #define CPV_GET_CP_SWITCH_12V_MODE                  SWITCHM_CP_12V                   /* get cp switch 12V mode */
 #define CPV_GET_CP_SWITCH_4V_MODE                   SWITCHM_CP_4V                   /* get cp switch 4V mode */
 

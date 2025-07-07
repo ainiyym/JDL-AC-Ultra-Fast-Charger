@@ -12,3 +12,23 @@ uint8_t Dummy_RemoteSuspendStatus(void)
 {
     return 0; // Dummy implementation
 }
+
+uint8_t Dummy_GetMeterReadyStatus(SysConnector_Num_Enum ch)
+{
+    return 1; // Dummy implementation, assuming meter is always ready
+}
+
+uint8_t Dummy_GetCurrL1(SysConnector_Num_Enum ch)
+{
+    return 0; // Dummy implementation, returning 0 for current L1
+}
+
+uint8_t Dummy_GetCurrL2(SysConnector_Num_Enum ch)
+{
+    return 0; // Dummy implementation, returning 0 for current L2
+}
+
+uint8_t Dummy_GetCurrL3(SysConnector_Num_Enum ch)
+{
+    return 0; // Dummy implementation, returning 0 for current L3
+}
