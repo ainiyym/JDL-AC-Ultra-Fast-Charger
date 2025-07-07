@@ -971,6 +971,11 @@
               <FileType>1</FileType>
               <FilePath>.\Source\BSW\ECUAL\IO\SwitchM\SwitchM.c</FilePath>
             </File>
+            <File>
+              <FileName>SwitchM_Cfg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\ECUAL\IO\SwitchM\SwitchM_Cfg.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

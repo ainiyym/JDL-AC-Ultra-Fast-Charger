@@ -35,6 +35,7 @@
 
 #define SWITCHM_74HCT4851D_SOFTTIMER_PERIOD     (54U)            /* 74HCT4851D softtimer period */
 #define SWITCHM_DEBUG(fmt, ...) 			    LOG_DEBUG(LOG_MODULE_SWITCHM, fmt, ##__VA_ARGS__)
+#define SWITCHM_ERROR(fmt, ...) 			    LOG_ERROR(LOG_MODULE_SWITCHM, fmt, ##__VA_ARGS__)
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
@@ -48,12 +49,12 @@ typedef enum
     SWITCHM_74HCT4851D_CP2,     /* YC_CP2(A3) */
     SWITCHM_74HCT4851D_12V,     /* AD12V(A4) */
     SWITCHM_74HCT4851D_5V,      /* AD5V(A5) */
-    SWITCHM_74HCT4851D_3V3,     /* AD3V3(A6) */
-    SWITCHM_74HCT4851D_GND,     /* GND(A7) */
+    SWITCHM_74HCT4851D_3V3,     /* AD3V3(A6) */  
+    SWITCHM_74HCT4851D_GND,     /* GND(A7) */ 
     SWITCHM_74HCT4851D_ADC1_MAX
 } SwitchM_74HCT4851D_ADC1_e;
 
-typedef enum
+typedef enum 
 {
     SWITCHM_74HCT4851D_CONNECTOR1_FRONT_TEMP = 0, /* Tsmp1(A0) */
     SWITCHM_74HCT4851D_CONNECTOR1_REAR_TEMP,      /* Tsmp2(A1) */
@@ -65,6 +66,12 @@ typedef enum
     SWITCHM_74HCT4851D_OIL2_OUTLET_TEMP,          /* Tsmp8(A7) */
     SWITCHM_74HCT4851D_ADC2_MAX
 } SwitchM_74HCT4851D_ADC2_e;
+
+typedef enum
+{
+    SWITCHM_CC_CP_MODE,
+    SWITCHM_CAN_MODE
+}SwitchM_CcCpSwitchMode_Enum;
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
@@ -76,8 +83,9 @@ typedef enum
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-
+extern void SwitchM_SetCpVol4vMode(SysConnector_Num_Enum ch);
+extern void SwitchM_SetCpVol12vMode(SysConnector_Num_Enum ch);
+extern void SwitchM_SetCpMosStatus(SysConnector_Num_Enum ch, SwitchM_CcCpSwitchMode_Enum mode);
 /* polyspace:end<MISRA-C3:2.5:Not a defect:Justified> Normal. */
-
 #endif
 /*EOF*/

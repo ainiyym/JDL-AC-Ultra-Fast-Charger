@@ -48,8 +48,6 @@ static SwitchM_Ctrl_t SwitchMCtrl = {0u};
 /*******************************************************************************
 |    Static Local Functions Declaration
 |******************************************************************************/
-static void SWITCHM_SetCp4V(SysConnector_Num_Enum ch);
-static void SWITCHM_SetCp12V(SysConnector_Num_Enum ch);
 static void SwitchM_Set74hct4851dOutputA0(void);
 static void SwitchM_Set74hct4851dOutputA1(void);
 static void SwitchM_Set74hct4851dOutputA2(void);
@@ -66,63 +64,9 @@ void SwitchM_Init(void)
     for (SysConnector_Num_Enum ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
     {
         SwitchM_SetCpVol12vMode(ch);
+        SwitchM_SetCpMosStatus(ch, SWITCHM_CC_CP_MODE); /* Set to CC/CP mode */
     }
     SwitchMCtrl.M74hct4851dIncrementCounter = M74HCT4851D_A0;
-}
-
-void SwitchM_SetCpVol4vMode(SysConnector_Num_Enum ch)
-{
-    SWITCHM_DEBUG("ch:%d SetCpVol4v\r\n",ch);
-    SWITCHM_SetCp4V(ch);
-    SWITCHM_SET_SYSM_CP_MODE(ch, (uint8_t)SWITCHM_CP_4V);
-
-}
-
-void SwitchM_SetCpVol12vMode(SysConnector_Num_Enum ch)
-{
-    SWITCHM_DEBUG("ch:%d SetCpVol12v\r\n",ch);
-    SWITCHM_SetCp12V(ch);
-    SWITCHM_SET_SYSM_CP_MODE(ch, (uint8_t)SWITCHM_CP_12V);
-}
-
-static void SWITCHM_SetCp4V(SysConnector_Num_Enum ch)
-{
-    /* 电路特性，必须先拉低12V */
-    if (SYS_CONNECTOR1 == ch)
-    {
-        Mcal_Gpio_ResetPin(Switch1_12V_GPIO_Port, Switch1_12V_Pin);
-        Mcal_Gpio_ResetPin(Switch1_4V_GPIO_Port, Switch1_4V_Pin);
-    }
-#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
-    else if (SYS_CONNECTOR2 == ch)
-    {
-        Mcal_Gpio_ResetPin(Switch2_12V_GPIO_Port, Switch2_12V_Pin);
-        Mcal_Gpio_ResetPin(Switch2_4V_GPIO_Port, Switch2_4V_Pin);
-    }
-#endif
-    else
-    {
-    }
-}
-
-static void SWITCHM_SetCp12V(SysConnector_Num_Enum ch)
-{
-    /* 电路特性，必须先拉高4V */
-    if (SYS_CONNECTOR1 == ch)
-    {
-        Mcal_Gpio_SetPin(Switch1_4V_GPIO_Port, Switch1_4V_Pin);
-        Mcal_Gpio_SetPin(Switch1_12V_GPIO_Port, Switch1_12V_Pin);
-    }
-#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
-    else if (SYS_CONNECTOR2 == ch)
-    {
-        Mcal_Gpio_SetPin(Switch2_4V_GPIO_Port, Switch2_4V_Pin);
-        Mcal_Gpio_SetPin(Switch2_12V_GPIO_Port, Switch2_12V_Pin);
-    }
-#endif
-    else
-    {
-    }
 }
 
 void SwitchM_Set74hct4851dEnable(void)

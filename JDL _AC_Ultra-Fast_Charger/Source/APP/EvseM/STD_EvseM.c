@@ -389,82 +389,6 @@ static uint8_t EVSEM_DiodeSelfCheck(SysConnector_Num_Enum ch)
 #endif
 
 /*******************************************************************************
-Name            : EVSEM_10msMainFunction
-Syntax          : void EVSEM_10msMainFunction(void)
-Sync/Async      : Synchronous
-Reentrancy      :
-Parameters(in)  : void
-Parameters(out) : none
-Return value    : void
-Description     : 10ms MainFunction
-Call By         : TASK( OS_Task10msA )
-|******************************************************************************/
-void EVSEM_10msMainFunction(void)
-{
-	SysConnector_Num_Enum ch;
-
-	for (ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
-	{
-		gv_stEvseM[ch].ucCpStatus = EVSEM_GetCpStatus(ch);
-
-		switch (gv_stEvseM[ch].ucState)
-		{
-		case EVSEM_STATE_ZERO:
-		{
-			EVSEM_StateZeroHandle(ch);
-			break;
-		}
-
-		case EVSEM_STATE_ONE:
-		{
-			EVSEM_StateOneHandle(ch);
-			break;
-		}
-
-		case EVSEM_STATE_ONE_dot:
-		{
-			EVSEM_StateOneDotHandle(ch);
-			break;
-		}
-
-		case EVSEM_STATE_TWO:
-		{
-			EVSEM_StateTwoHandle(ch);
-			break;
-		}
-
-		case EVSEM_STATE_TWO_dot:
-		{
-			EVSEM_StateTwoDotHandle(ch);
-			break;
-		}
-		case EVSEM_STATE_THREE:
-		{
-			EVSEM_StateThreeHandle(ch);
-			break;
-		}
-		case EVSEM_STATE_THREE_dot:
-		{
-			EVSEM_StateThreeDotHandle(ch);
-			break;
-		}
-		case EVSEM_STATE_CAN_MODEL:
-		{
-			EVSEM_StateCanModelHandle(ch);
-			break;
-		}
-		default:
-		{
-			gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_ZERO;
-			break;
-		}
-		}
-
-		EVSEM_EnterStateFourHandle(ch);
-	}
-}
-
-/*******************************************************************************
 Name            : EVSEM_ChargingModeJudgy
 Syntax          : static void EVSEM_ChargingModeJudgy(SysConnector_Num_Enum ch)
 Sync/Async      : Synchronous
@@ -506,6 +430,7 @@ static void EVSEM_ChargingModeJudgy(SysConnector_Num_Enum ch)
 			EVSEM_DEBUG("ch:%d EVSE into CAN model!\r\n", ch);
 			gv_stEvseM[ch].usWaitCnt = 0u;
 			gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_CAN_MODEL;
+			EVSEM_SET_CP_MOS_STATUS(ch, SWITCHM_CAN_MODE); /* Set to CAN mode */
 		}
 		else
 		{
@@ -943,6 +868,82 @@ static void EVSEM_StateCanModelHandle(SysConnector_Num_Enum ch)
 	{
 		gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_ZERO;
 		EVSEM_DEBUG("ch:%d CAN into zero! \n", ch);
+	}
+}
+
+/*******************************************************************************
+Name            : EVSEM_10msMainFunction
+Syntax          : void EVSEM_10msMainFunction(void)
+Sync/Async      : Synchronous
+Reentrancy      :
+Parameters(in)  : void
+Parameters(out) : none
+Return value    : void
+Description     : 10ms MainFunction
+Call By         : TASK( OS_Task10msA )
+|******************************************************************************/
+void EVSEM_10msMainFunction(void)
+{
+	SysConnector_Num_Enum ch;
+
+	for (ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
+	{
+		gv_stEvseM[ch].ucCpStatus = EVSEM_GetCpStatus(ch);
+
+		switch (gv_stEvseM[ch].ucState)
+		{
+		case EVSEM_STATE_ZERO:
+		{
+			EVSEM_StateZeroHandle(ch);
+			break;
+		}
+
+		case EVSEM_STATE_ONE:
+		{
+			EVSEM_StateOneHandle(ch);
+			break;
+		}
+
+		case EVSEM_STATE_ONE_dot:
+		{
+			EVSEM_StateOneDotHandle(ch);
+			break;
+		}
+
+		case EVSEM_STATE_TWO:
+		{
+			EVSEM_StateTwoHandle(ch);
+			break;
+		}
+
+		case EVSEM_STATE_TWO_dot:
+		{
+			EVSEM_StateTwoDotHandle(ch);
+			break;
+		}
+		case EVSEM_STATE_THREE:
+		{
+			EVSEM_StateThreeHandle(ch);
+			break;
+		}
+		case EVSEM_STATE_THREE_dot:
+		{
+			EVSEM_StateThreeDotHandle(ch);
+			break;
+		}
+		case EVSEM_STATE_CAN_MODEL:
+		{
+			EVSEM_StateCanModelHandle(ch);
+			break;
+		}
+		default:
+		{
+			gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_ZERO;
+			break;
+		}
+		}
+
+		EVSEM_EnterStateFourHandle(ch);
 	}
 }
 /*EOF*/

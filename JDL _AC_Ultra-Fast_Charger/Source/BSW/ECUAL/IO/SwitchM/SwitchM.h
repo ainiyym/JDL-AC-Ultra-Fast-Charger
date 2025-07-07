@@ -51,9 +51,6 @@
 |    Global Function Prototypes
 |******************************************************************************/
 extern void SwitchM_Init(void);
-extern void SwitchM_SetCpVol4vMode(SysConnector_Num_Enum ch);
-extern void SwitchM_SetCpVol12vMode(SysConnector_Num_Enum ch);
-
 extern void SwitchM_Set74hct4851dEnable(void);
 extern void SwitchM_Set74hct4851dDisable(void);
 extern uint8_t SwitchM_Get74hct4851dOutputStatusCallBack(SwitchM_74HCT4851D_Multiplex_e CH);
