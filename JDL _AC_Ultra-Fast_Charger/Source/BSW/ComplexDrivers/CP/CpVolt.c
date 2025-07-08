@@ -478,7 +478,7 @@ Call By         :
 |******************************************************************************/
 static uint8_t CPV_12VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVoltAvrg)
 {
-	static uint8_t lv_ucRtnVolt = CPV_VOLT_ZERO;
+	static uint8_t lv_ucRtnVolt[SYS_CONNECTOR_NUM_MAX] = {CPV_VOLT_ZERO};
 
 	if (lv_usVoltAvrg > CPV_VOLTAGE_12P8)
 	{
@@ -490,7 +490,7 @@ static uint8_t CPV_12VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVo
 			{
 				CP_DEBUG("ch :%d CP ERROR CPV_ERR_VOLT_12V\r\n", ch);
 				CPV_VoltErrTypeHandle(ch, CPV_ERR_VOLT_12V, (uint8_t)CPV_ERR_INPUT);
-				lv_ucRtnVolt = CPV_VOLT_ZERO;
+				lv_ucRtnVolt[ch] = CPV_VOLT_ZERO;
 			}
 		}
 		else
@@ -501,10 +501,10 @@ static uint8_t CPV_12VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVo
 	else if ((lv_usVoltAvrg >= CPV_VOLTAGE_11P2) && (lv_usVoltAvrg <= CPV_VOLTAGE_12P8))
 	{
 		CPV_VoltErrTypeHandle(ch, CPV_ERR_VOLT_12V, (uint8_t)CPV_ERR_REC);
-		lv_ucRtnVolt = CPV_VOLT_TWF;
+		lv_ucRtnVolt[ch] = CPV_VOLT_TWF;
 		if (CPV_GetErrStatus(ch) == STD_TRUE)
 		{
-			lv_ucRtnVolt = CPV_VOLT_ZERO;
+			lv_ucRtnVolt[ch] = CPV_VOLT_ZERO;
 			if (lv_usVoltAvrg >= CPV_VOLTAGE_11P2_RECOVER)
 			{
 				gv_stVoltageErr[ch][CPV_ERR_VOLT_12V].ucRevocerErrCnt++;
@@ -512,7 +512,7 @@ static uint8_t CPV_12VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVo
 				{
 					CPV_ClearVoltErr(ch);
 					CP_DEBUG("ch:%d CP CLEAR CPV_ERR_VOLT_12V\r\n", ch);
-					lv_ucRtnVolt = CPV_VOLT_TWF;
+					lv_ucRtnVolt[ch] = CPV_VOLT_TWF;
 				}
 			}
 		}
@@ -528,7 +528,7 @@ static uint8_t CPV_12VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVo
 			{
 				CP_DEBUG("ch :%d CP ERROR CPV_ERR_VOLT_9V\r\n", ch);
 				CPV_VoltErrTypeHandle(ch, CPV_ERR_VOLT_9V, (uint8_t)CPV_ERR_INPUT);
-				lv_ucRtnVolt = CPV_VOLT_ZERO;
+				lv_ucRtnVolt[ch] = CPV_VOLT_ZERO;
 			}
 		}
 		else
@@ -539,10 +539,10 @@ static uint8_t CPV_12VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVo
 	else if ((lv_usVoltAvrg >= CPV_VOLTAGE_8P2) && (lv_usVoltAvrg <= CPV_VOLTAGE_9P8))
 	{
 		CPV_VoltErrTypeHandle(ch, CPV_ERR_VOLT_9V, (uint8_t)CPV_ERR_REC);
-		lv_ucRtnVolt = CPV_VOLT_NINE;
+		lv_ucRtnVolt[ch] = CPV_VOLT_NINE;
 		if (CPV_GetErrStatus(ch) == STD_TRUE)
 		{
-			lv_ucRtnVolt = CPV_VOLT_ZERO;
+			lv_ucRtnVolt[ch] = CPV_VOLT_ZERO;
 			if (lv_usVoltAvrg <= CPV_VOLTAGE_9P8_RECOVER)
 			{
 				gv_stVoltageErr[ch][CPV_ERR_VOLT_9V].ucRevocerErrCnt++;
@@ -550,7 +550,7 @@ static uint8_t CPV_12VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVo
 				{
 					CPV_ClearVoltErr(ch);
 					CP_DEBUG("ch:%d CP CLEAR CPV_ERR_VOLT_9V\r\n", ch);
-					lv_ucRtnVolt = CPV_VOLT_NINE;
+					lv_ucRtnVolt[ch] = CPV_VOLT_NINE;
 				}
 			}
 		}
@@ -566,7 +566,7 @@ static uint8_t CPV_12VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVo
 			{
 				CP_DEBUG("ch :%d CP ERROR CPV_ERR_VOLT_6V\r\n", ch);
 				CPV_VoltErrTypeHandle(ch, CPV_ERR_VOLT_6V, (uint8_t)CPV_ERR_INPUT);
-				lv_ucRtnVolt = CPV_VOLT_ZERO;
+				lv_ucRtnVolt[ch] = CPV_VOLT_ZERO;
 			}
 		}
 		else
@@ -577,10 +577,10 @@ static uint8_t CPV_12VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVo
 	else if ((lv_usVoltAvrg >= CPV_VOLTAGE_5P2) && (lv_usVoltAvrg <= CPV_VOLTAGE_6P8))
 	{
 		CPV_VoltErrTypeHandle(ch, CPV_ERR_VOLT_6V, (uint8_t)CPV_ERR_REC);
-		lv_ucRtnVolt = CPV_VOLT_SIX;
+		lv_ucRtnVolt[ch] = CPV_VOLT_SIX;
 		if (CPV_GetErrStatus(ch) == STD_TRUE)
 		{
-			lv_ucRtnVolt = CPV_VOLT_ZERO;
+			lv_ucRtnVolt[ch] = CPV_VOLT_ZERO;
 			if (lv_usVoltAvrg <= CPV_VOLTAGE_6P8_RECOVER)
 			{
 				gv_stVoltageErr[ch][CPV_ERR_VOLT_6V].ucRevocerErrCnt++;
@@ -588,7 +588,7 @@ static uint8_t CPV_12VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVo
 				{
 					CPV_ClearVoltErr(ch);
 					CP_DEBUG("ch:%d CP CLEAR CPV_ERR_VOLT_6V\r\n", ch);
-					lv_ucRtnVolt = CPV_VOLT_SIX;
+					lv_ucRtnVolt[ch] = CPV_VOLT_SIX;
 				}
 			}
 		}
@@ -603,7 +603,7 @@ static uint8_t CPV_12VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVo
 			{
 				CP_DEBUG("ch :%d CP ERROR CPV_ERR_VOLT_6V\r\n", ch);
 				CPV_VoltErrTypeHandle(ch, CPV_ERR_VOLT_6V, (uint8_t)CPV_ERR_INPUT);
-				lv_ucRtnVolt = CPV_VOLT_ZERO;
+				lv_ucRtnVolt[ch] = CPV_VOLT_ZERO;
 			}
 		}
 		else
@@ -612,7 +612,7 @@ static uint8_t CPV_12VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVo
 		}
 	}
 
-	return lv_ucRtnVolt;
+	return lv_ucRtnVolt[ch];
 }
 
 /*******************************************************************************
@@ -628,7 +628,7 @@ Call By         :
 |******************************************************************************/
 static uint8_t CPV_4VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVoltAvrg)
 {
-	static uint8_t lv_ucRtnVolt = CPV_VOLT_ZERO;
+	static uint8_t lv_ucRtnVolt[SYS_CONNECTOR_NUM_MAX] = {CPV_VOLT_ZERO};
 
 	if (lv_usVoltAvrg > CPV_VOLTAGE_4P4)
 	{
@@ -640,7 +640,7 @@ static uint8_t CPV_4VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVol
 			{
 				CP_DEBUG("ch :%d CP ERROR CPV_ERR_VOLT_4V\r\n", ch);
 				CPV_VoltErrTypeHandle(ch, CPV_ERR_VOLT_4V, (uint8_t)CPV_ERR_INPUT);
-				lv_ucRtnVolt = CPV_VOLT_ZERO;
+				lv_ucRtnVolt[ch] = CPV_VOLT_ZERO;
 			}
 		}
 		else
@@ -650,11 +650,11 @@ static uint8_t CPV_4VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVol
 	}
 	else if ((lv_usVoltAvrg >= CPV_VOLTAGE_3P6) && (lv_usVoltAvrg <= CPV_VOLTAGE_4P4))
 	{
-		lv_ucRtnVolt = CPV_VOLT_FOUR;
+		lv_ucRtnVolt[ch] = CPV_VOLT_FOUR;
 		CPV_VoltErrTypeHandle(ch, CPV_ERR_VOLT_4V, (uint8_t)CPV_ERR_REC);
 		if (CPV_GetErrStatus(ch) == STD_TRUE)
 		{
-			lv_ucRtnVolt = CPV_VOLT_ZERO;
+			lv_ucRtnVolt[ch] = CPV_VOLT_ZERO;
 			if (lv_usVoltAvrg <= CPV_VOLTAGE_4P4_RECOVER)
 			{
 				gv_stVoltageErr[ch][CPV_ERR_VOLT_4V].ucRevocerErrCnt++;
@@ -662,7 +662,7 @@ static uint8_t CPV_4VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVol
 				{
 					CPV_ClearVoltErr(ch);
 					CP_DEBUG("ch:%d CP CLEAR CPV_ERR_VOLT_4V\r\n", ch);
-					lv_ucRtnVolt = CPV_VOLT_FOUR;
+					lv_ucRtnVolt[ch] = CPV_VOLT_FOUR;
 				}
 			}
 		}
@@ -677,7 +677,7 @@ static uint8_t CPV_4VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVol
 			{
 				CP_DEBUG("ch :%d CP ERROR CPV_ERR_VOLT_3V\r\n", ch);
 				CPV_VoltErrTypeHandle(ch, CPV_ERR_VOLT_3V, (uint8_t)CPV_ERR_INPUT);
-				lv_ucRtnVolt = CPV_VOLT_ZERO;
+				lv_ucRtnVolt[ch] = CPV_VOLT_ZERO;
 			}
 		}
 		else
@@ -688,10 +688,10 @@ static uint8_t CPV_4VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVol
 	else if ((lv_usVoltAvrg >= CPV_VOLTAGE_2P6) && (lv_usVoltAvrg <= CPV_VOLTAGE_3P4))
 	{
 		CPV_VoltErrTypeHandle(ch, CPV_ERR_VOLT_3V, (uint8_t)CPV_ERR_REC);
-		lv_ucRtnVolt = CPV_VOLT_THREE;
+		lv_ucRtnVolt[ch] = CPV_VOLT_THREE;
 		if (CPV_GetErrStatus(ch) == STD_TRUE)
 		{
-			lv_ucRtnVolt = CPV_VOLT_ZERO;
+			lv_ucRtnVolt[ch] = CPV_VOLT_ZERO;
 			if (lv_usVoltAvrg <= CPV_VOLTAGE_3P4)
 			{
 				gv_stVoltageErr[ch][CPV_ERR_VOLT_3V].ucRevocerErrCnt++;
@@ -699,7 +699,7 @@ static uint8_t CPV_4VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVol
 				{
 					CPV_ClearVoltErr(ch);
 					CP_DEBUG("ch:%d CP CLEAR CPV_ERR_VOLT_3V\r\n", ch);
-					lv_ucRtnVolt = CPV_VOLT_THREE;
+					lv_ucRtnVolt[ch] = CPV_VOLT_THREE;
 				}
 			}
 		}
@@ -714,7 +714,7 @@ static uint8_t CPV_4VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVol
 			{
 				CP_DEBUG("ch :%d CP ERROR CPV_ERR_VOLT_2V\r\n", ch);
 				CPV_VoltErrTypeHandle(ch, CPV_ERR_VOLT_2V, (uint8_t)CPV_ERR_INPUT);
-				lv_ucRtnVolt = CPV_VOLT_ZERO;
+				lv_ucRtnVolt[ch] = CPV_VOLT_ZERO;
 			}
 		}
 		else
@@ -725,10 +725,10 @@ static uint8_t CPV_4VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVol
 	else if ((lv_usVoltAvrg >= CPV_VOLTAGE_1P6) && (lv_usVoltAvrg <= CPV_VOLTAGE_2P4))
 	{
 		CPV_VoltErrTypeHandle(ch, CPV_ERR_VOLT_2V, (uint8_t)CPV_ERR_REC);
-		lv_ucRtnVolt = CPV_VOLT_TWEO;
+		lv_ucRtnVolt[ch] = CPV_VOLT_TWEO;
 		if (CPV_GetErrStatus(ch) == STD_TRUE)
 		{
-			lv_ucRtnVolt = CPV_VOLT_ZERO;
+			lv_ucRtnVolt[ch] = CPV_VOLT_ZERO;
 			if (lv_usVoltAvrg <= CPV_VOLTAGE_2P4)
 			{
 				gv_stVoltageErr[ch][CPV_ERR_VOLT_2V].ucRevocerErrCnt++;
@@ -736,7 +736,7 @@ static uint8_t CPV_4VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVol
 				{
 					CPV_ClearVoltErr(ch);
 					CP_DEBUG("ch:%d CP CLEAR CPV_ERR_VOLT_2V\r\n", ch);
-					lv_ucRtnVolt = CPV_VOLT_TWEO;
+					lv_ucRtnVolt[ch] = CPV_VOLT_TWEO;
 				}
 			}
 		}
@@ -754,7 +754,7 @@ static uint8_t CPV_4VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVol
 			{
 				CP_DEBUG("ch :%d CP ERROR CPV_ERR_VOLT_2V\r\n", ch);
 				CPV_VoltErrTypeHandle(ch, CPV_ERR_VOLT_2V, (uint8_t)CPV_ERR_INPUT);
-				lv_ucRtnVolt = CPV_VOLT_ZERO;
+				lv_ucRtnVolt[ch] = CPV_VOLT_ZERO;
 			}
 		}
 		else
@@ -763,7 +763,7 @@ static uint8_t CPV_4VCpVoltageFilter(SysConnector_Num_Enum ch, uint16_t lv_usVol
 		}
 	}
 
-	return lv_ucRtnVolt;
+	return lv_ucRtnVolt[ch];
 }
 /*******************************************************************************
 Name            : CPV_CpVoltErrHandle
@@ -778,17 +778,17 @@ Call By         :
 |******************************************************************************/
 static void CPV_CpVoltErrHandle(SysConnector_Num_Enum ch, uint16_t lv_usVoltAvrg)
 {
-	static uint8_t lv_ucRtnVolt = CPV_VOLT_ZERO;
+	static uint8_t lv_ucRtnVolt[SYS_CONNECTOR_NUM_MAX] = {CPV_VOLT_ZERO};
 
 	if (CPV_GET_CP_SWITCH_12V_MODE == CPV_GET_SWITCH_MODE(ch))
 	{
-		lv_ucRtnVolt = CPV_12VCpVoltageFilter(ch, lv_usVoltAvrg);
+		lv_ucRtnVolt[ch] = CPV_12VCpVoltageFilter(ch, lv_usVoltAvrg);
 	}
 	else if (CPV_GET_CP_SWITCH_4V_MODE == CPV_GET_SWITCH_MODE(ch))
 	{
-		lv_ucRtnVolt = CPV_4VCpVoltageFilter(ch, lv_usVoltAvrg);
+		lv_ucRtnVolt[ch] = CPV_4VCpVoltageFilter(ch, lv_usVoltAvrg);
 	}
-	gv_stCpVolt[ch].stCpVolt.ucStatus = lv_ucRtnVolt;
+	gv_stCpVolt[ch].stCpVolt.ucStatus = lv_ucRtnVolt[ch];
 
 	if (TRUE == LIB_StatusFilter(&gv_stCpVolt[ch].stCpVolt, CPV_VOLT_STATUS_FILTER_MAX_CNT))
 	{

@@ -401,11 +401,11 @@ Call By         : EVSEM_10msMainFunction
 |******************************************************************************/
 static void EVSEM_ChargingModeJudgy(SysConnector_Num_Enum ch)
 {
-	static uint8_t lv_ucLastCpStatus = (uint8_t)EVSEM_CP_NULL;
+	static uint8_t lv_ucLastCpStatus[SYS_CONNECTOR_NUM_MAX] = { (uint8_t)EVSEM_CP_NULL };
 
-	if (lv_ucLastCpStatus != gv_stEvseM[ch].ucCpStatus)
+	if (lv_ucLastCpStatus[ch] != gv_stEvseM[ch].ucCpStatus)
 	{
-		lv_ucLastCpStatus = gv_stEvseM[ch].ucCpStatus;
+		lv_ucLastCpStatus[ch] = gv_stEvseM[ch].ucCpStatus;
 		gv_stEvseM[ch].usWaitCnt = 0u; /* reset wait count */
 	}
 
@@ -438,6 +438,7 @@ static void EVSEM_ChargingModeJudgy(SysConnector_Num_Enum ch)
 			if (gv_stEvseM[ch].usWaitCnt > EVSEM_CP_FILTER_MAX_CNT)
 			{
 				EVSEM_DEBUG("ch:%d EVSE into 1!\r\n", ch);
+				EVSEM_SET_CP_OUT_12V(ch);
 				gv_stEvseM[ch].ucSelfCheckStep = (uint8_t)EVSEM_SELFCHECK_STEP0;
 				gv_stEvseM[ch].usWaitCnt = 0u;
 				gv_stEvseM[ch].usStateTwoDlyTick = 0;
@@ -525,7 +526,7 @@ Call By         : EVSEM_10msMainFunction
 |******************************************************************************/
 static void EVSEM_StateOneDotHandle(SysConnector_Num_Enum ch)
 {
-	if ((uint8_t)EVSEM_CP_9V == gv_stEvseM[ch].ucCpStatus)
+	if ((uint8_t)EVSEM_CP_9V == gv_stEvseM[ch].ucCpStatus || (uint8_t)EVSEM_CP_6V == gv_stEvseM[ch].ucCpStatus)
 	{
 		gv_stEvseM[ch].ucState = EVSEM_STATE_TWO_dot;
 		gv_stEvseM[ch].usWaitCnt = 0u;
@@ -694,7 +695,7 @@ static void EVSEM_StateTwoDotHandle(SysConnector_Num_Enum ch)
 			{
 				EVSEM_DEBUG("%s : ch:%d 2' Relay on \n", __FUNCTION__, ch);
 				EVSEM_SetRelayOn(ch);
-				if ((uint8_t)STD_TRUE == EVSEM_GetRelayStatus(ch))
+				if ((uint8_t)EVSEM_RLYCTRL_STATE_ON == EVSEM_GetRelayStatus(ch))
 				{
 					EVSEM_DEBUG("ch:%d 2' Turn on Relay! 2\n", ch);
 					gv_stEvseM[ch].usWaitCnt = 0;
@@ -844,7 +845,7 @@ Call By         : EVSEM_10msMainFunction
 |******************************************************************************/
 void EVSEM_EnterStateZero(SysConnector_Num_Enum ch)
 {
-	EVSEM_DEBUG("ch:%d Cp 4V Enter init! \n", ch);
+	EVSEM_DEBUG("ch:%d EVSEM_EnterStateZero! \n", ch);
 	EVSEM_SetRelayOff(ch);
 	EVSEM_StopCpOutput(ch);
 	EVSEM_SET_CP_OUT_4V(ch);

@@ -17,7 +17,7 @@
 |******************************************************************************/
 #include "STD_MosDrv.h"
 #include "Mcal_ADC_Cfg.h"
-
+#include "STD_ErrorHandler.h"
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
 |******************************************************************************/
@@ -26,6 +26,7 @@
 |    Macro Definition
 |******************************************************************************/
 #define RLYCTRL_DEBUG(fmt, ...) 		LOG_DEBUG(LOG_MODULE_RLY, fmt, ##__VA_ARGS__)
+#define RLYCTRL_ERR(fmt, ...) 			LOG_ERROR(LOG_MODULE_RLY, fmt, ##__VA_ARGS__)
 #define RLYCTRL_Get12VResult() 			1
 
 #define RLYCTRL_SWITCH_IDLE 			(0u)  				/* Relay control switch idle */
@@ -40,6 +41,12 @@
 
 #define RLYCTRL_TASK_PERIOD 			(5U) 				/* 5ms */ /* Relay control task period */
 #define RLYCTRL_WAITING_RELAY_PIOWER_UPPER_TIME (20U / RLYCTRL_TASK_PERIOD)	/* wating upper cnt */
+
+#define RLYCTRL_AUXL_ON_FILTER_NUM					(uint16_t)(50u / RLYCTRL_TASK_PERIOD)
+#define RLYCTRL_AUXL_OFF_FILTER_NUM					(uint16_t)(50u / RLYCTRL_TASK_PERIOD)
+#define RLYCTRL_AUXL_ERR_FILTER_NUM					(uint16_t)(200u / RLYCTRL_TASK_PERIOD)
+
+#define RLYCTRL_FAULT_CALLBACK(Id, Status)			ERRHDL_FaultStatusUpdata_CallBack(Id, Status)
 /*******************************************************************************
 |    LOWER LAYER CONFIGURATION PARAMETERS
 |******************************************************************************/

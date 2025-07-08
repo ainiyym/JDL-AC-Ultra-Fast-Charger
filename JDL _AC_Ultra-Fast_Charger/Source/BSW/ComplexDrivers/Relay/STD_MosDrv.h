@@ -61,5 +61,6 @@ typedef enum
 |******************************************************************************/
 extern uint8_t MOSDRV_ReqMosOn(SysConnector_Num_Enum ch);
 extern uint8_t MOSDRV_ReqMosOff(SysConnector_Num_Enum ch);
+uint8_t MOSDRV_ReadContactorAuxiliaryStatus(SysConnector_Num_Enum ch);
 #endif
 /*EOF*/

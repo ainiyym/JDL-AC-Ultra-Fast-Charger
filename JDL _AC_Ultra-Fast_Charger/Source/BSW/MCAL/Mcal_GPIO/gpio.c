@@ -80,7 +80,7 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = W25_WP_Pin|W25_HOLD_Pin|Switch1_12V_Pin|Switch2_12V_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW; 
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : W25_CS_Pin Buzzer_Pin ACE_Pin */
@@ -93,7 +93,7 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pins : Contactor1DetectsContacts_Pin Contactor2DetectsContacts_Pin */
   GPIO_InitStruct.Pin = Contactor1DetectsContacts_Pin|Contactor2DetectsContacts_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
 }

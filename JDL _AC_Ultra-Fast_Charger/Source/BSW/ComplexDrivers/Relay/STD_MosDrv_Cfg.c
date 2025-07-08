@@ -38,14 +38,15 @@
 |    Table Const Definition
 |******************************************************************************/
 static const MosDrv_Struct gv_stMosDrvArry[MOS_DRV_CONTACTIOR_SWITCH_NUM_MAX] = {
-	{GPIOE, GPIO_PIN_6, MOS_DRV_LOW},	/* MOS_DRV_CONNECTOR1_OFF */
-	{GPIOE, GPIO_PIN_7, MOS_DRV_LOW},	/* MOS_DRV_CONNECTOR1_ON */
-	{GPIOE, GPIO_PIN_11, MOS_DRV_LOW},	/* MOS_DRV_CONNECTOR2_OFF */
-	{GPIOE, GPIO_PIN_12, MOS_DRV_LOW}	/* MOS_DRV_CONNECTOR2_ON */
+	{Relay1ControlStop_GPIO_Port, 	Relay1ControlStop_Pin, MOS_DRV_LOW},		/* MOS_DRV_CONNECTOR1_OFF */
+	{Relay1ControlStart_GPIO_Port, 	Relay1ControlStart_Pin, MOS_DRV_LOW},		/* MOS_DRV_CONNECTOR1_ON */
+	{Relay2ControlStop_GPIO_Port, 	Relay2ControlStop_Pin, MOS_DRV_LOW},		/* MOS_DRV_CONNECTOR2_OFF */
+	{Relay2ControlStart_GPIO_Port, 	Relay2ControlStart_Pin, MOS_DRV_LOW}		/* MOS_DRV_CONNECTOR2_ON */
 };
 
-static const MosDrv_Struct gv_stMosDrvShortSelfCheckArry[MOS_SHORT_SELFCHECK_NUM_MAX] = {
-	/*{MCAL_PORT_B, MCAL_PIN_9,MOS_DRV_HIGH}*/
+static const MosDrv_Struct gv_stMosDrvAuxiliaryContactStatusArry[MOS_DRV_CONTACTIOR_AUXILIARY_NUM_MAX] = {
+	{Contactor1DetectsContacts_GPIO_Port, Contactor1DetectsContacts_Pin,MOS_DRV_LOW},
+	{Contactor2DetectsContacts_GPIO_Port, Contactor2DetectsContacts_Pin,MOS_DRV_LOW}
 };
 /*******************************************************************************
 |    Static Local Functions Declaration
@@ -102,51 +103,28 @@ uint8_t MOSDRV_ReadGpioValue(uint8_t lv_ucIndex)
 	 return lv_ucRelust;
 }
 /*******************************************************************************
-Name            : MOSDRV_ShortSelfCheckWriteGpioValue
-Syntax          : void MOSDRV_ShortSelfCheckWriteGpioValue(uint8_t lv_ucIndex,uint8_t lv_ucLevel)
-Sync/Async      : Synchronous
-Reentrancy      :
-Parameters(in)  : lv_ucIndex ,lv_ucLevel       :-
-Parameters(in)  :                              :-
-Parameters(out) : None                         :-
-Return value    : None
-Description     : Write gpio Short circuit self check
-Call By         : MOSDRV_ShortSelfCheckSetAllOn MOSDRV_ShortSelfCheckSetAllOff
-|******************************************************************************/
-void MOSDRV_ShortSelfCheckWriteGpioValue(uint8_t lv_ucIndex, uint8_t lv_ucLevel)
-{
-	if (MOSDRV_HIGH == lv_ucLevel)
-	{
-		Mcal_Gpio_SetPin(gv_stMosDrvShortSelfCheckArry[lv_ucIndex].ucGpioPort, gv_stMosDrvShortSelfCheckArry[lv_ucIndex].ucGpioPinIndx);
-	}
-	else
-	{
-		Mcal_Gpio_ResetPin(gv_stMosDrvShortSelfCheckArry[lv_ucIndex].ucGpioPort, gv_stMosDrvShortSelfCheckArry[lv_ucIndex].ucGpioPinIndx);
-	}
-}
-/*******************************************************************************
-Name            : MOSDRV_ShortSelfCheckReadGpioValue
-Syntax          : uint8_t MOSDRV_ShortSelfCheckReadGpioValue(uint8_t lv_ucIndex)
+Name            : MOSDRV_ReadAuxiliaryGpioValue
+Syntax          : uint8_t MOSDRV_ReadAuxiliaryGpioValue(uint8_t lv_ucIndex)
 Sync/Async      : Synchronous
 Reentrancy      :
 Parameters(in)  : lv_ucIndex             :-
 Parameters(out) : None                   :-
 Return value    : None
-Description     : Read gpio Short circuit self check
+Description     : Read contactor Auxiliary circuit status
 Call By         : -
 |******************************************************************************/
-uint8_t MOSDRV_ShortSelfCheckReadGpioValue(uint8_t lv_ucIndex)
+uint8_t MOSDRV_ReadAuxiliaryGpioValue(uint8_t lv_ucIndex)
 {
 	uint8_t lv_ucRelust;
 
-	if (gv_stMosDrvShortSelfCheckArry[lv_ucIndex].ucGpioLevelLower == Mcal_Gpio_ReadPinStatus(gv_stMosDrvShortSelfCheckArry[lv_ucIndex].ucGpioPort, gv_stMosDrvShortSelfCheckArry[lv_ucIndex].ucGpioPinIndx))
+	if (gv_stMosDrvAuxiliaryContactStatusArry[lv_ucIndex].ucGpioLevelLower == Mcal_Gpio_ReadPinStatus(gv_stMosDrvAuxiliaryContactStatusArry[lv_ucIndex].ucGpioPort, gv_stMosDrvAuxiliaryContactStatusArry[lv_ucIndex].ucGpioPinIndx))
 	{
 		lv_ucRelust = MOSDRV_LOW;
 	}
 	else
 	{
+		lv_ucRelust = MOSDRV_HIGH;
 	}
-	lv_ucRelust = MOSDRV_HIGH;
 
 	return lv_ucRelust;
 }

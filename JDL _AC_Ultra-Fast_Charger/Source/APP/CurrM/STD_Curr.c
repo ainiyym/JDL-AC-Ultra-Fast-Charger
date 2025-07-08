@@ -539,6 +539,10 @@ static void CURR_RfrshDfltCurr(SysConnector_Num_Enum ch)
 			{
 				gv_stCurr[ch].usDfltCurrVal = CURR_ONE_PHASE_CP12V_DFLT_CURR_VAL;
 			}
+			else
+			{
+				gv_stCurr[ch].usDfltCurrVal = gv_stCurr[ch].usReqCfgDfltCurrVal;
+			}
 		}
 #elif CURR_MONITOR_MODE_TYPE == CURR_THR_PHASE_MODE_TYPE
 		else if (gv_stCurr[ch].usReqCfgDfltCurrVal > CURR_THR_PHASE_DFLT_CURR_VAL)

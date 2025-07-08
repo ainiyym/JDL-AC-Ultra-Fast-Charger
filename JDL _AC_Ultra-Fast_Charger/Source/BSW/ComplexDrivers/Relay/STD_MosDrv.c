@@ -160,32 +160,35 @@ uint8_t MOSDRV_ReqMosOff(SysConnector_Num_Enum ch)
 	return ret;
 }
 
-uint8_t MOSDRV_ReqResetOnButton(SysConnector_Num_Enum ch)
+/*******************************************************************************
+Name              : MOSDRV_ReadContactorAuxiliaryStatus
+Syntax            : uint8_t MOSDRV_ReadContactorAuxiliaryStatus(SysConnector_Num_Enum ch)
+Sync/Async        : Synchronous
+Reentrancy        : None
+Parameters(in)    : ch
+Parameters(out)   : None
+Return value      : ret
+Description       : READ Auxiliary contact status
+Call By           : RLYCTRL_AuxlDetect
+|******************************************************************************/
+uint8_t MOSDRV_ReadContactorAuxiliaryStatus(SysConnector_Num_Enum ch)
 {
-	uint8_t ret = STD_TRUE;
+	uint8_t status = MOSDRV_LOW;
 
-	if (ch < SYS_CONNECTOR_NUM_MAX)
+	if (SYS_CONNECTOR1 == ch)
 	{
-		if (SYS_CONNECTOR1 == ch)
-		{
-			MOSDRV_WriteGpioValue(MOS_DRV_CONNECTOR1_ON, MOSDRV_LOW);
-		}
-#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
-		else if (SYS_CONNECTOR2 == ch)
-		{
-			MOSDRV_WriteGpioValue(MOS_DRV_CONNECTOR2_ON, MOSDRV_LOW);
-		}
-#endif
-		else
-		{
-		}
-		MOSDRV_DEBUG("ucReqMos %d button reset\r\n", ch);
+		status = MOSDRV_ReadAuxiliaryGpioValue(MOS_DRV_CONTACT1_AUXILIARY);
 	}
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
+	else if (SYS_CONNECTOR2 == ch)
+	{
+		status = MOSDRV_ReadAuxiliaryGpioValue(MOS_DRV_CONTACT2_AUXILIARY);
+	}
+#endif
 	else
 	{
-		ret = STD_FALSE;
+		MOSDRV_ERROR("Invalid connector number: %d\r\n", ch);
 	}
-
-	return ret;
+	return status;
 }
 /*EOF*/

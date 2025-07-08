@@ -27,12 +27,11 @@
 |    Macro Definition
 |******************************************************************************/
 #define MOSDRV_DEBUG(fmt, ...) 					LOG_DEBUG(LOG_MODULE_RLY, fmt, ##__VA_ARGS__)
-#define MOS_SHORT_SELFCHECK_NUM_MAX             (0U)                                  /*short circuit self test number*/
-#define MOS_DRV_LOW                             (MCAL_GPIO_PIN_RESET)                 /*MOS drive low*/
-#define MOS_DRV_HIGH                            (MCAL_GPIO_PIN_SET)                   /*MOS drive high*/
-
-#define MOSDRV_TASK_PERIOD          			(5U)                                  /*MOS switching idle*/
-#define MOSDRV_WAIT_OVERTIME  			        (uint16_t)( 200u / MOSDRV_TASK_PERIOD ) /*overtime wait*/
+#define MOSDRV_ERROR(fmt, ...) 					LOG_ERROR(LOG_MODULE_RLY, fmt, ##__VA_ARGS__)
+#define MOS_DRV_LOW                             (MCAL_GPIO_PIN_RESET)                	/* MOS drive low */
+#define MOS_DRV_HIGH                            (MCAL_GPIO_PIN_SET)                  	/* MOS drive high */
+#define MOSDRV_TASK_PERIOD          			(5U)                                  	/* MOS switching idle */
+#define MOSDRV_WAIT_OVERTIME  			        (uint16_t)( 200u / MOSDRV_TASK_PERIOD ) /* overtime wait */
 
 /*******************************************************************************
 |    LOWER LAYER CONFIGURATION PARAMETERS
@@ -51,8 +50,8 @@
 |******************************************************************************/
 typedef enum
 {
-	MOSDRV_LOW,	 /*MOS drive low*/
-	MOSDRV_HIGH, /*MOS drive high*/
+	MOSDRV_LOW = 0U,	 /*MOS drive low*/
+	MOSDRV_HIGH, 		/*MOS drive high*/
 } MosDrvLevel_Enum;
 
 typedef enum
@@ -63,6 +62,13 @@ typedef enum
 	MOS_DRV_CONNECTOR2_ON,	/* Connector 2: Engagement switch */
 	MOS_DRV_CONTACTIOR_SWITCH_NUM_MAX
 } MosDrvConnectorSwitch_Enum;
+
+typedef enum
+{
+	MOS_DRV_CONTACT1_AUXILIARY,	/* Connector 1: Auxiliary */
+	MOS_DRV_CONTACT2_AUXILIARY,	/* Connector 2: Auxiliary */
+	MOS_DRV_CONTACTIOR_AUXILIARY_NUM_MAX
+} MosDrvContactAuxiliary_Enum;
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
@@ -86,7 +92,6 @@ typedef struct
 |******************************************************************************/
 extern void MOSDRV_WriteGpioValue(uint8_t lv_ucIndex,uint8_t lv_ucLevel);
 extern uint8_t MOSDRV_ReadGpioValue(uint8_t lv_ucIndex);
-extern void MOSDRV_ShortSelfCheckWriteGpioValue(uint8_t lv_ucIndex,uint8_t lv_ucLevel);
-extern uint8_t MOSDRV_ShortSelfCheckReadGpioValue(uint8_t lv_ucIndex);
+extern uint8_t MOSDRV_ReadAuxiliaryGpioValue(uint8_t lv_ucIndex);
 #endif
 /*EOF*/

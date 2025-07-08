@@ -27,13 +27,14 @@
 |******************************************************************************/
 typedef struct
 {
-	uint8_t ucMode;				/* Mode */
-	uint8_t ucReqSwitchStatus;	/* Request switching status */
-	uint8_t ucCurrSwitchStatus; /* Current switching state */
-	uint8_t ucSwitchStep;		/* Switching steps */
-	uint8_t ucControlType;		/* Control type */
-	uint8_t ucErrorStatus;		/* Error status */
-	uint16_t usWaitCnt;			/* Wait conter */
+	uint8_t ucMode;					   /* Mode */
+	uint8_t ucReqSwitchStatus;		   /* Request switching status */
+	uint8_t ucCurrSwitchStatus;		   /* Current switching state */
+	uint8_t ucSwitchStep;			   /* Switching steps */
+	uint8_t ucControlType;			   /* Control type */
+	LibFilterStruct stAuxiliaryFilter; /* Filter structure */
+	uint8_t ucErrorStatus;			   /* Error status */
+	uint16_t usWaitCnt;				   /* Wait conter */
 } RLYCTRL_Struct;
 
 typedef enum
@@ -91,7 +92,11 @@ Call By           : RELAYM_InitMemory
 |******************************************************************************/
 void RLYCTRL_InitMemory(void)
 {
-	LIB_SetMemory((uint8_t *)(&gv_stRlyCtrl), 0u, (uint16_t)(sizeof(gv_stRlyCtrl) / sizeof(uint8_t)));/*PRQA S 0310*/
+	LIB_SetMemory((uint8_t *)(&gv_stRlyCtrl), 0u, (uint16_t)(sizeof(gv_stRlyCtrl) / sizeof(uint8_t))); /*PRQA S 0310*/
+	for (SysConnector_Num_Enum ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
+	{
+		gv_stRlyCtrl[ch].stAuxiliaryFilter.ucValidStatus = 0xff;
+	}
 }
 
 /*******************************************************************************
@@ -340,6 +345,54 @@ static void RLYCTRL_SwitchControl(SysConnector_Num_Enum ch)
 	}
 }
 /*******************************************************************************
+Name              : RLYCTRL_AuxlDetect
+Syntax            : void RLYCTRL_AuxlDetect(SysConnector_Num_Enum ch)
+Sync/Async        : Synchronous
+Reentrancy        : None
+Parameters(in)    : None
+Parameters(out)   : None
+Return value      : None
+Description       : Detect Relay Auxl
+Call By           : RLYCTRL_MainFunction
+|******************************************************************************/
+static void RLYCTRL_AuxlDetect(SysConnector_Num_Enum ch)
+{
+	gv_stRlyCtrl[ch].stAuxiliaryFilter.ucStatus = MOSDRV_ReadContactorAuxiliaryStatus(ch);
+
+	if (RLYCTRL_SwitchOff == gv_stRlyCtrl[ch].ucReqSwitchStatus && RLYCTRL_SwitchOff == gv_stRlyCtrl[ch].ucCurrSwitchStatus)
+	{
+		(void)LIB_StatusFilter(&gv_stRlyCtrl[ch].stAuxiliaryFilter, RLYCTRL_AUXL_OFF_FILTER_NUM);
+
+		if (0xff != gv_stRlyCtrl[ch].stAuxiliaryFilter.ucValidStatus)
+		{
+			if (gv_stRlyCtrl[ch].stAuxiliaryFilter.ucValidStatus == MOSDRV_HIGH)
+			{
+				RLYCTRL_FAULT_CALLBACK(ERRHDL_ID_RELAY_CONGLUTINATION, STD_TRUE);
+				gv_stRlyCtrl[ch].ucErrorStatus = STD_TRUE;
+				RLYCTRL_ERR("ch:%d ERRHDL_ID_RELAY_CONGLUTINATION!!! \r\n",ch);
+			}
+			gv_stRlyCtrl[ch].stAuxiliaryFilter.ucValidStatus = 0xff; /* Reset valid status */
+		}
+	}
+	else if (RLYCTRL_SwitchOn == gv_stRlyCtrl[ch].ucReqSwitchStatus && RLYCTRL_SwitchOn == gv_stRlyCtrl[ch].ucCurrSwitchStatus)
+	{
+		(void)LIB_StatusFilter(&gv_stRlyCtrl[ch].stAuxiliaryFilter, RLYCTRL_AUXL_ON_FILTER_NUM);
+
+		if (0xff != gv_stRlyCtrl[ch].stAuxiliaryFilter.ucValidStatus)
+		{
+			if (gv_stRlyCtrl[ch].stAuxiliaryFilter.ucValidStatus == MOSDRV_LOW)
+			{
+				RLYCTRL_FAULT_CALLBACK(ERRHDL_ID_RELAY_OPENCIRCUIT, STD_TRUE);
+				gv_stRlyCtrl[ch].ucErrorStatus = STD_TRUE;
+				RLYCTRL_ERR("ch:%d ERRHDL_ID_RELAY_OPENCIRCUIT!!! \r\n",ch);
+			}
+			gv_stRlyCtrl[ch].stAuxiliaryFilter.ucValidStatus = 0xff; /* Reset valid status */
+		}
+	}
+	else
+	{}
+}
+/*******************************************************************************
 Name              : RLYCTRL_MainFunction
 Syntax            : void RLYCTRL_MainFunction(void)
 Sync/Async        : Synchronous
@@ -373,6 +426,7 @@ void RLYCTRL_MainFunction(void)
 		}
 		break;
 		}
+		RLYCTRL_AuxlDetect(ch);
 	}
 }
 /*EOF*/

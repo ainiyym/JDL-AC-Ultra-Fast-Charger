@@ -9,8 +9,8 @@
 
 void Mcal_Usart_Test(void)
 {
-    uint8_t data[100] = {0};
-    uint32_t size = 0;
+    //uint8_t data[100] = {0};
+    //uint32_t size = 0;
 
     // size = Mcal_Usart_AppReceiveData(LOG_SERVICE_USART_CH, data, 99);
     // if (size > 0)
@@ -606,6 +606,8 @@ void Mcal_Test_Adc(void)
 
 void Mcal_Gpio_Test(void)
 {
+    // uint8_t VolLevel = 0;
+#if 0
     static uint8_t step = 1;
     static uint8_t cnt = 0;
     uint8_t RelayMos1OffStatus,RelayMos1OnStatus,RelayMos2OffStatus,RelayMos2OnStatus;
@@ -649,6 +651,10 @@ void Mcal_Gpio_Test(void)
     RelayMos2OnStatus = MOSDRV_ReadGpioValue(MOS_DRV_CONNECTOR2_ON);
     // MCAL_DEBUG("%s Read Relay Status: Mos1 off:%d Mos1 on:%d Mos2 off:%d Mos2 on:%d\r\n",
                //__FUNCTION__, RelayMos1OffStatus, RelayMos1OnStatus, RelayMos2OffStatus, RelayMos2OnStatus);
+#endif
+    // VolLevel = MOSDRV_ReadAuxiliaryGpioValue(SYS_CONNECTOR1);
+    
+    // MCAL_DEBUG("%s Read Auxiliary Status: %d\r\n", __FUNCTION__, VolLevel);
 }
 
 void Mcal_test_1ms(void)

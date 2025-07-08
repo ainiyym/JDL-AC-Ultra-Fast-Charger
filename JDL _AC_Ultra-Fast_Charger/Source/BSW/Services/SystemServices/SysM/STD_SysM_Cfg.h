@@ -29,7 +29,7 @@
 #define SYSM_RESET_PREPARE_MAX_CNT      ((uint32_t)30U / SYSM_TASK_PERIOD)
 #define SYSM_REPORT_BASIC_INFO_CNT      (3000U / SYSM_TASK_PERIOD) /* 3s */
 
-#define SYSM_CONNECTOR2_ENABLE           (STD_OFF)
+#define SYSM_CONNECTOR2_ENABLE           (STD_ON)
 /*******************************************************************************
 |    Log Service Macro Definition
 |******************************************************************************/
