@@ -154,7 +154,7 @@ static void Task10ms(void)
     SYSM_10msMainFunction();
     /* 10ms task code */
 #if (MCAL_WDG_ENABLED)
-    // Mcal_Iwdg_Feedback();
+    Mcal_Iwdg_Feedback();
 #endif
     EVSEM_10msMainFunction(); // Call the EVSE manager's 10ms main function
     // ERRHDL_10msMainFunction();  // Call the error handler's 10ms main function

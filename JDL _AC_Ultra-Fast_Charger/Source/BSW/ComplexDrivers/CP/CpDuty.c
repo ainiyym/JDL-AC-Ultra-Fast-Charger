@@ -208,6 +208,11 @@ void CPD_OutputDisable(SysConnector_Num_Enum ch)
 	gv_stCpD[ch].ucPwmOutputFlag = STD_FALSE;
 }
 
+uint8_t CPD_IsOutputEnabled(SysConnector_Num_Enum ch)
+{
+	return gv_stCpD[ch].ucPwmOutputFlag;
+}
+
 void CPD_OutputNegative12VEnable(SysConnector_Num_Enum ch)
 {
 	gv_stCpD[ch].ucPwmOutNegativeFlag = STD_TRUE;

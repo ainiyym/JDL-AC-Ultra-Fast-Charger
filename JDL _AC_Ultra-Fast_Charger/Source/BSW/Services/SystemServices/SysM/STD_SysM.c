@@ -465,7 +465,6 @@ void SYSM_ImmediatelyResetManage(void)
 
 void SYSM_SendData(const uint8_t *data)
 {
-	__HAL_UART_ENABLE_IT(&huart2, UART_IT_TC);
 	HAL_UART_Transmit_IT(&huart2, (const uint8_t *)data, (uint16_t)strlen(data));
 }
 

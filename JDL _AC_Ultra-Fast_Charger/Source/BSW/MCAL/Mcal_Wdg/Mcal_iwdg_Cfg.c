@@ -3,6 +3,7 @@
  * Configuration source file for CAN MCAL module
  */
 #include "iwdg.h"
+#include "Mcal_iwdg_Cfg.h"
 
 void Mcal_Iwdg_Init(void)
 {
