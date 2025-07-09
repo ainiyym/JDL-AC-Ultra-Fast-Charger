@@ -17,7 +17,8 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "Std_Types.h"
-#include "CpM.h"
+#include "CpVolt_Cfg.h"
+#include "BtrCtr_Cfg.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -29,6 +30,8 @@
 #define FIFO_BUFF_MAX_SIZE		(18u)
 
 #define FIFO_BUFF_SIZE_CP_VOLT	(CPV_ADC_FIFO_MAX_NUM)
+#define FIFO_BUFF_SIZE_12V_VOLT	(BTRV_ADC_FIFO_MAX_NUM)
+#define FIFO_BUFF_SIZE_5V_VOLT	(BTRV_ADC_FIFO_MAX_NUM)
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
@@ -43,11 +46,8 @@ enum
 	FIFO_CHAN_CP2_VOLT,
 	FIFO_CHAN_IN_METER_VOLT,
 	FIFO_CHAN_IN_METER_CURR,
-	FIFO_CHAN_IN_ACDC_VOLT,
+	FIFO_CHAN_IN_12V_VOLT,
 	FIFO_CHAN_IN_5V_VOLT,
-	FIFO_CHAN_ENERGY_AVG_VOLT,
-	FIFO_CHAN_ENERGY_AVG_CURR,
-	FIFO_CHAN_RLY_OUT_VOLT,
 	FIFO_CHAN_MAX_NUM,
 };
 

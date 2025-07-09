@@ -105,6 +105,8 @@ Return value    : None                      :-
 Description     : Set Pwm To Mcal Level
 Call By         :
 |******************************************************************************/
+extern uint8_t CPD_IsOutputEnabled(SysConnector_Num_Enum ch);
+
 uint8_t CPDRV_SetPwm(SysConnector_Num_Enum ch, uint32_t lv_ulFreqValue, uint32_t lv_ulDutyValue)
 {
 	uint8_t lv_ucRtn = STD_TRUE;
@@ -122,7 +124,12 @@ uint8_t CPDRV_SetPwm(SysConnector_Num_Enum ch, uint32_t lv_ulFreqValue, uint32_t
 
 		if (lv_ulFreqValue == 1000 && (lv_ulDutyValue == 1000 || lv_ulDutyValue == 0))
 		{
-			CpDrvif_CpAdVolCollEnable(CPDRVIF_CP_ADC1);
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
+			if (STD_TRUE != CPD_IsOutputEnabled(SYS_CONNECTOR2))
+#endif
+			{
+				CpDrvif_CpAdVolCollEnable(CPDRVIF_CP_ADC1);
+			}
 		}
 		else
 		{
@@ -138,11 +145,14 @@ uint8_t CPDRV_SetPwm(SysConnector_Num_Enum ch, uint32_t lv_ulFreqValue, uint32_t
 
 		if (lv_ulFreqValue == 1000 && (lv_ulDutyValue == 1000 || lv_ulDutyValue == 0))
 		{
-			CpDrvif_CpAdVolCollEnable(CPDRVIF_CP_ADC2);
+			if (STD_TRUE != CPD_IsOutputEnabled(SYS_CONNECTOR1))
+			{
+				CpDrvif_CpAdVolCollEnable(CPDRVIF_CP_ADC1);
+			}
 		}
 		else
 		{
-			CpDrvif_CpAdVolCollDisable(CPDRVIF_CP_ADC2);
+			CpDrvif_CpAdVolCollDisable(CPDRVIF_CP_ADC1);
 		}
 		CPDrvif_SetPwm(CPDRV_ConnectorCfgTable[ch].PwmOutCh, lv_ulFreqValue, lv_ulDutyValue);
 	}

@@ -18,7 +18,7 @@
 |******************************************************************************/
 
 /* 配置软定时器最大通道数 */
-#define OS_SOFTTIMER_MAX_CH_NUM      (4u)
+#define OS_SOFTTIMER_MAX_CH_NUM      (5u)
 #define OS_SOFTTIMER_COUNTING_UNIT	 (50u)	/* 软定时器计数单位 :50us */
 
 #define OS_SOFTTIMER_ENTER_CRITICAL_AREA()

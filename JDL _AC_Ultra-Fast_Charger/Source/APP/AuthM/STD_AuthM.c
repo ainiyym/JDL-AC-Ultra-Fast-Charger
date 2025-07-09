@@ -118,12 +118,12 @@ void AUTHM_AppResetReqChargeStatus(SysConnector_Num_Enum ch)
 
 /*******************************************************************************
 Name            : AUTHM_GetChargeStatus
-Syntax          : uint8 AUTHM_GetChargeStatus(SysConnector_Num_Enum ch)
+Syntax          : uint8_t AUTHM_GetChargeStatus(SysConnector_Num_Enum ch)
 Sync/Async      : Synchronous
 Reentrancy      :
 Parameters(in)  : None                                    
 Parameters(out) : None                
-Return value    : uint8
+Return value    : uint8_t
 Description     : Get Charge Status
 Call By         : UartM
 |******************************************************************************/

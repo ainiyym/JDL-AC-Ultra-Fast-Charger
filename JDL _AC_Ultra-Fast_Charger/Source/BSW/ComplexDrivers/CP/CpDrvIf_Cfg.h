@@ -18,8 +18,8 @@
 #include "Std_Types.h"
 #include "Mcal_App.h"
 #include "STD_Os_Timer.h"
+#include "STD_SysM_Cfg.h"
 #include "STD_ErrorHandler.h"
-#include"SwitchM.h"
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
 |******************************************************************************/
@@ -42,7 +42,7 @@
 #define CP_DEBUG(fmt, ...)                                          LOG_DEBUG(LOG_MODULE_CP, fmt, ##__VA_ARGS__) /* cp module log output */
 #define CP_ERROR(fmt, ...)                                          LOG_ERROR(LOG_MODULE_CP, fmt, ##__VA_ARGS__) /* cp module log output */
 #define CP_PRINT_Hex(A, B)                                          LogService_Print_Hex_Array(LOG_MODULE_CP, A, B, 1)
-#define CP_ADC_COLECTION_PERIOD                                     (SWITCHM_74HCT4851D_SOFTTIMER_PERIOD * 8)   /* CP ADC Collection period */
+#define CP_ADC_COLECTION_PERIOD                                     (SYSM_ADC_PERIOD_COLLECTION_TIME)   /* CP ADC Collection period */
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/

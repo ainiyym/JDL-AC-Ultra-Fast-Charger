@@ -21,6 +21,7 @@
 #include "STD_RlyM.h"
 #include "STD_AuthM.h"
 #include "STD_Curr.h"
+#include "BtrM.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -164,6 +165,7 @@ void SYSM_InitTwo( void )
 	EVSEM_InitMemory();
 	CPM_InitMemory();
 	RELAYM_InitMemory();
+	BTRM_InitMemory();
 	AUTHM_InitMemory();
 	NOAUTHEN_InitMemory();
 	CURR_InitMemory();
@@ -192,6 +194,7 @@ void SYSM_InitThree(void)
 	ERRHDL_Enable();
 	CURR_Enable();
 	CPM_Enable();
+	BTRM_Enable();
 }
 
 static void SYSM_ShowUserInfo(void)
@@ -453,6 +456,17 @@ static void SYSM_ShowBasicInfo(void)
 			SYSM_DEBUG("Connecter:%d ChargingStopReason %d \r\n", i, stSysM.basic_ctrl_info.StopChargingReason[i]);
 		}
 	}
+}
+
+void SYSM_ImmediatelyResetManage(void)
+{
+	Mcal_MCU_SysRestart();
+}
+
+void SYSM_SendData(const uint8_t *data)
+{
+	__HAL_UART_ENABLE_IT(&huart2, UART_IT_TC);
+	HAL_UART_Transmit_IT(&huart2, (const uint8_t *)data, (uint16_t)strlen(data));
 }
 
 void SYSM_SetCpVolMode(SysConnector_Num_Enum ch, uint8_t mode)

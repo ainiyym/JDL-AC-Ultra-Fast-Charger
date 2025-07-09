@@ -33,7 +33,7 @@
 #define SWITCHM_74HCT4851D_MULTIPLEX_ADC1       MCAL_ADC_CHANNEL_2
 #define SWITCHM_74HCT4851D_MULTIPLEX_CH_NUM     MCAL_ADC_CHANNEL_NUM_MAX
 
-#define SWITCHM_74HCT4851D_SOFTTIMER_PERIOD     (54U)            /* 74HCT4851D softtimer period */
+#define SWITCHM_74HCT4851D_SOFTTIMER_PERIOD     (SYSM_4HCT4851D_SOFTTIMER_PERIOD)            /* 74HCT4851D softtimer period */
 #define SWITCHM_DEBUG(fmt, ...) 			    LOG_DEBUG(LOG_MODULE_SWITCHM, fmt, ##__VA_ARGS__)
 #define SWITCHM_ERROR(fmt, ...) 			    LOG_ERROR(LOG_MODULE_SWITCHM, fmt, ##__VA_ARGS__)
 /*******************************************************************************

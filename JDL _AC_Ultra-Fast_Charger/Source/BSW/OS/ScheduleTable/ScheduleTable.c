@@ -22,7 +22,7 @@
 #include "STD_RlyM.h"
 #include "STD_AuthM.h"
 #include "STD_Curr.h"
-
+#include "BtrM.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -159,6 +159,7 @@ static void Task10ms(void)
     EVSEM_10msMainFunction(); // Call the EVSE manager's 10ms main function
     // ERRHDL_10msMainFunction();  // Call the error handler's 10ms main function
     AUTHM_10msMainFunction(); // Call the authorization manager's 10ms main function
+    BTRM_10msMainFunction(); // Call the battery manager's 10ms main function
 }
 
 static void Task20ms(void)

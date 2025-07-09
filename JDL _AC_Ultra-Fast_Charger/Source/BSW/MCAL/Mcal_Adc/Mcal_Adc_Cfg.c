@@ -337,7 +337,7 @@ static void Mcal_Adc2_ConvCollection_Start(void)
 
 void Mcal_Adc_SoftTimer_Enable(void)
 {
-	(void)OS_SoftTimerStart(&Mcal_AdcCtrl.SoftGptChannel[MCAL_ADC_CHANNEL_1], Mcal_Adc1_ConvCollection_Start, MCAL_ADC1_COLECTION_PERIOD, 1);
+  (void)OS_SoftTimerStart(&Mcal_AdcCtrl.SoftGptChannel[MCAL_ADC_CHANNEL_1], Mcal_Adc1_ConvCollection_Start, MCAL_ADC1_COLECTION_PERIOD, 1);
   (void)OS_SoftTimerStart(&Mcal_AdcCtrl.SoftGptChannel[MCAL_ADC_CHANNEL_2], Mcal_Adc2_ConvCollection_Start, MCAL_ADC2_COLECTION_PERIOD, 1); 
 }
 

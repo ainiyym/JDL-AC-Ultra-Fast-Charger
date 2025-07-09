@@ -10,6 +10,7 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "stm32f1xx_hal.h"  // Include the HAL library for STM32F1xx
+#include "usart.h"
 #include "Mcal_App_Cfg.h"
 #include "Mcal_MCUCore.h"
 /*******************************************************************************

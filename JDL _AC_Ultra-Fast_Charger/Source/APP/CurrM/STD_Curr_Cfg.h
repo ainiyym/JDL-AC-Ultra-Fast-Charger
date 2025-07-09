@@ -39,12 +39,12 @@
 #define CURR_THR_PHASE_MODE_TYPE             					 (1u)								/*three phase mode type*/
 
 #define CURR_TASK_PERIOD										(20u)								/*current module task period*/
-#define CURR_ONE_PHASE_CP12V_DFLT_CURR_VAL           			(uint16_t)(63u)						/* when cp out 12v, one phase default current value */
+#define CURR_ONE_PHASE_CP12V_DFLT_CURR_VAL           			(uint16_t)(32u)						/* when cp out 12v, one phase default current value */
 #define CURR_ONE_PHASE_CP4V_DFLT_CURR_VAL           			(uint16_t)(125u)					/* when cp out 4v, one phase default current value */
 #define CURR_THR_PHASE_DFLT_CURR_VAL         					(uint16_t)(16u)						/*three phase default current value*/
 
 #define CURR_CFG_DFLT_CURR_MIN                  				(uint16_t)(6u)						/*config default current min value*/
-#define CURR_CFG_CP12V_DFLT_CURR_MAX                  			(uint16_t)(63u)						/*config default current max value*/
+#define CURR_CFG_CP12V_DFLT_CURR_MAX                  			(uint16_t)(32u)						/*config default current max value*/
 #define CURR_CFG_CP4V_DFLT_CURR_MAX                  			(uint16_t)(125u)					/*config default current max value*/
 
 #define CURR_LV2_IN_OVERCURR_WAIT_NUM							(uint16_t)(100u/CURR_TASK_PERIOD)	/*current module level 2 input overcurrent wait number*/

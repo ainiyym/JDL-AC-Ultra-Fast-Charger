@@ -32,3 +32,13 @@ uint8_t Dummy_GetCurrL3(SysConnector_Num_Enum ch)
 {
     return 0; // Dummy implementation, returning 0 for current L3
 }
+
+uint8_t Dummy_GetPowerDownStatus(void)
+{
+    return 0; // Dummy implementation, returning 0 for power down status
+}
+
+uint8_t Dummy_GetPowerDownVoltValue(void)
+{
+    return 0; // Dummy implementation, returning 0 for power down voltage value
+}

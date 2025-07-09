@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F107xC</Define>
               <Undefine></Undefine>
-              <IncludePath>.\Source\APP\AuthM;.\Source\APP\CurrM;.\Source\APP\EnergyM;.\Source\APP\EvseM;.\Source\APP\HmiM;.\Source\APP\RfidAuthM;.\Source\APP\TempM;.\Source\APP\VoltM;.\Source\BSW\ComplexDrivers\CP;.\Source\BSW\ComplexDrivers\Meter;.\Source\BSW\ComplexDrivers\PE;.\Source\BSW\ComplexDrivers\PE;.\Source\BSW\ComplexDrivers\RCD;.\Source\BSW\ComplexDrivers\Relay;.\Source\BSW\ComplexDrivers\RFID;.\Source\BSW\ComplexDrivers\Sensor;.\Source\BSW\ECUAL\Communication\NetDrv;.\Source\BSW\ECUAL\Communication\UartDRv;.\Source\BSW\ECUAL\Crypto\CryptoDrv;.\Source\BSW\ECUAL\IO\LedDrv;.\Source\BSW\ECUAL\IO\PowerDrv;.\Source\BSW\ECUAL\IO\SwitchM;.\Source\BSW\MCAL;.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Inc;.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Inc\Legacy;.\Source\BSW\MCAL\HAL\CMSIS\Include;.\Source\BSW\MCAL\HAL\CMSIS\Device\ST\STM32F1xx\Include;.\Source\Core\Inc;.\Source\BSW\MCAL\Mcal_Adc;.\Source\BSW\MCAL\Mcal_Common;.\Source\BSW\MCAL\Mcal_Dma;.\Source\BSW\MCAL\Mcal_GPIO;.\Source\BSW\MCAL\Mcal_Gpt;.\Source\BSW\MCAL\Mcal_I2c;.\Source\BSW\MCAL\Mcal_Icu;.\Source\BSW\MCAL\Mcal_InEep;.\Source\BSW\MCAL\Mcal_InFls;.\Source\BSW\MCAL\Mcal_Mcu;.\Source\BSW\MCAL\Mcal_Test;.\Source\BSW\MCAL\Mcal_Uart;.\Source\BSW\MCAL\Mcal_Can;.\Source\BSW\OS\ScheduleTable;.\Source\BSW\OS;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Rand;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_CycBuff;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Fifo;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Filter;.\Source\BSW\Services\SystemServices\Libs;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Lib;.\Source\BSW\Services\SystemServices\LogService;.\Source\BSW\MCAL\Mcal_Wdg;.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Inc;.\Source\BSW\MCAL\Mcal_Spi;.\Source\BSW\Services\CommunicationServices\Ccp;.\Source\BSW\Services\CommunicationServices\Ccp\Ccp;.\Source\APP\CanM;.\Source\APP\EvseM;.\Source\APP\SwitchM;.\Source;.\Source\APP\ErrorHandler;.\Source\BSW\Services\SystemServices\SysM;.\Source\APP\NoAuthenM</IncludePath>
+              <IncludePath>.\Source\APP\AuthM;.\Source\APP\CurrM;.\Source\APP\EnergyM;.\Source\APP\EvseM;.\Source\APP\HmiM;.\Source\APP\RfidAuthM;.\Source\APP\TempM;.\Source\APP\VoltM;.\Source\BSW\ComplexDrivers\CP;.\Source\BSW\ComplexDrivers\Meter;.\Source\BSW\ComplexDrivers\PE;.\Source\BSW\ComplexDrivers\PE;.\Source\BSW\ComplexDrivers\RCD;.\Source\BSW\ComplexDrivers\Relay;.\Source\BSW\ComplexDrivers\RFID;.\Source\BSW\ComplexDrivers\Sensor;.\Source\BSW\ECUAL\Communication\NetDrv;.\Source\BSW\ECUAL\Communication\UartDRv;.\Source\BSW\ECUAL\Crypto\CryptoDrv;.\Source\BSW\ECUAL\IO\LedDrv;.\Source\BSW\ECUAL\IO\PowerDrv;.\Source\BSW\ECUAL\IO\SwitchM;.\Source\BSW\MCAL;.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Inc;.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Inc\Legacy;.\Source\BSW\MCAL\HAL\CMSIS\Include;.\Source\BSW\MCAL\HAL\CMSIS\Device\ST\STM32F1xx\Include;.\Source\Core\Inc;.\Source\BSW\MCAL\Mcal_Adc;.\Source\BSW\MCAL\Mcal_Common;.\Source\BSW\MCAL\Mcal_Dma;.\Source\BSW\MCAL\Mcal_GPIO;.\Source\BSW\MCAL\Mcal_Gpt;.\Source\BSW\MCAL\Mcal_I2c;.\Source\BSW\MCAL\Mcal_Icu;.\Source\BSW\MCAL\Mcal_InEep;.\Source\BSW\MCAL\Mcal_InFls;.\Source\BSW\MCAL\Mcal_Mcu;.\Source\BSW\MCAL\Mcal_Test;.\Source\BSW\MCAL\Mcal_Uart;.\Source\BSW\MCAL\Mcal_Can;.\Source\BSW\OS\ScheduleTable;.\Source\BSW\OS;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Rand;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_CycBuff;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Fifo;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Filter;.\Source\BSW\Services\SystemServices\Libs;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Lib;.\Source\BSW\Services\SystemServices\LogService;.\Source\BSW\MCAL\Mcal_Wdg;.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Inc;.\Source\BSW\MCAL\Mcal_Spi;.\Source\BSW\Services\CommunicationServices\Ccp;.\Source\BSW\Services\CommunicationServices\Ccp\Ccp;.\Source\APP\CanM;.\Source\APP\EvseM;.\Source\APP\SwitchM;.\Source;.\Source\APP\ErrorHandler;.\Source\BSW\Services\SystemServices\SysM;.\Source\APP\NoAuthenM;.\Source\BSW\ComplexDrivers\Battery</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -985,6 +985,26 @@
               <FileName>STD_Curr.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Source\APP\CurrM\STD_Curr.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>BTR</GroupName>
+          <Files>
+            <File>
+              <FileName>BtrCtr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\ComplexDrivers\Battery\BtrCtr.c</FilePath>
+            </File>
+            <File>
+              <FileName>BtrDrvif.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\ComplexDrivers\Battery\BtrDrvif.c</FilePath>
+            </File>
+            <File>
+              <FileName>BtrM.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\ComplexDrivers\Battery\BtrM.c</FilePath>
             </File>
           </Files>
         </Group>
