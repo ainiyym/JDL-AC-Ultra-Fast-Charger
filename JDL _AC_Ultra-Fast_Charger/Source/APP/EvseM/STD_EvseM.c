@@ -10,6 +10,7 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "STD_EvseM.h"
+#include "CanM_Rte.h"
 #include "STD_Lib.h"
 /*******************************************************************************
 |    Macro Definition
@@ -103,6 +104,7 @@ Call By         : SYSM_InitOne
 void EVSEM_InitMemory(void)
 {
 	LIB_SetMemory((uint8_t *)(&gv_stEvseM), 0u, (uint16_t)(sizeof(gv_stEvseM) / sizeof(uint8_t))); /*PRQA S 0310*/
+	CanM_Rte_Init(); /* Initialize the RTE for CanM */
 }
 
 /*******************************************************************************
@@ -431,6 +433,7 @@ static void EVSEM_ChargingModeJudgy(SysConnector_Num_Enum ch)
 			gv_stEvseM[ch].usWaitCnt = 0u;
 			gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_CAN_MODEL;
 			EVSEM_SET_CP_MOS_STATUS(ch, SWITCHM_CAN_MODE); /* Set to CAN mode */
+			EVSEM_SET_CAN_START_COM(ch); /* Set CAN communication start */
 		}
 		else
 		{
@@ -946,5 +949,6 @@ void EVSEM_10msMainFunction(void)
 
 		EVSEM_EnterStateFourHandle(ch);
 	}
+	CanM_Rte_Main_Function();
 }
 /*EOF*/

@@ -85,7 +85,7 @@ const ErrHdlCfg_Struct c_arErrHdlCfgArray[ERRHDL_ID_MAX_NUM] =
 		/*22*/	{ERRHDL_BYTE_IDX2, ERRHDL_BIT_6,ERRHDL_FLT_L_NONE,	ERRORH_FLT_L_FOUR, 	(uint8_t)(0u),																			1u,	ERRORH_FLT_WAIT_DEFAULT	  },/*Metering chip error*/
 		/*23*/	{ERRHDL_BYTE_IDX2, ERRHDL_BIT_7,ERRHDL_FLT_L_NONE,	ERRORH_FLT_L_FIVE, 	(uint8_t)(0u),																			1u,	ERRORH_FLT_WAIT_DEFAULT	  },/*The 5V power module is faulty*/
         
-		/*24*/	{ERRHDL_BYTE_IDX3, ERRHDL_BIT_0,ERRHDL_FLT_L_NONE,	ERRORH_FLT_L_FOUR, 	(uint8_t)(0u),																			1u,	ERRORH_FLT_WAIT_DEFAULT	  },/*Power error*/
+		/*24*/	{ERRHDL_BYTE_IDX3, ERRHDL_BIT_0,ERRHDL_FLT_L_NONE,	ERRORH_FLT_L_ONE, 	(uint8_t)(0u),																			1u,	ERRORH_FLT_WAIT_DEFAULT	  },/*CAN error*/
 		/*25*/	{ERRHDL_BYTE_IDX3, ERRHDL_BIT_1,ERRHDL_FLT_L_NONE,	ERRORH_FLT_L_FOUR,	(uint8_t)(0u),																			1u,	ERRORH_FLT_WAIT_DEFAULT	  },/*Emergency stop error*/
 		/*26*/	{ERRHDL_BYTE_IDX3, ERRHDL_BIT_2,ERRHDL_FLT_L_NONE,	ERRORH_FLT_L_ONE, 	(uint8_t)(0u),																			1u,	ERRORH_FLT_WAIT_DEFAULT	  },/*key stuck error*/
 		/*27*/	{ERRHDL_BYTE_IDX3, ERRHDL_BIT_3,ERRORH_FLT_L_THREE,	ERRORH_FLT_L_FOUR, 	(uint8_t)(ERRHDL_FLT_FLAG_MULTI),														5u,	ERRORH_FLT_WAIT_10S		  },/*L2 or L3 phase over voltage level 1 error*/

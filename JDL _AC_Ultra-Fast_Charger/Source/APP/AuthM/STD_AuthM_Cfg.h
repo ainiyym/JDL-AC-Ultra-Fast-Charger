@@ -22,6 +22,7 @@
 #include "STD_ErrorHandler.h"
 #include "STD_EvseM.h"
 #include "CpM_Cfg.h"
+#include "CanM_Rte.h"
 #include "dummy.h" 
 
 /*******************************************************************************
@@ -95,8 +96,8 @@
 #define AUTHM_STOP_CHARGE_ERROR_SUSPEND				EVSEM_STOP_CHARGE_ERROR_SUSPEND					/*stop charge reason is error suspend*/
 #define AUTHM_STOP_CHARGE_REMOTE_SUSPEND			EVSEM_STOP_CHARGE_REMOTE_SUSPEND				/*stop charge reason is remote suspend*/
 
-#define AUTHM_ReqEvseChargeOff(ch)					EVSEM_ReqChargeOff(ch)							/*request evse charge off*/
-#define AUTHM_ReqEvseChargeOn(ch)					EVSEM_ReqChargeOn(ch)							/*request evse charge on*/
+#define AUTHM_ReqEvseChargeOff(ch)					EVSEM_ReqChargeOff(ch);CanM_Rte_Set_AuthM_AuthStatus(ch,0)							/*request evse charge off*/
+#define AUTHM_ReqEvseChargeOn(ch)					EVSEM_ReqChargeOn(ch);CanM_Rte_Set_AuthM_AuthStatus(ch,1)							/*request evse charge on*/
 #define AUTHM_SetStopChargeReason(ch,e)				EVSEM_SetChargeStopReason(ch,e)					/*set stop charge reason*/
 #define AUTHM_GetRemoteSuspendStatus()				Dummy_RemoteSuspendStatus()                     /*get suspend charge status*/
 

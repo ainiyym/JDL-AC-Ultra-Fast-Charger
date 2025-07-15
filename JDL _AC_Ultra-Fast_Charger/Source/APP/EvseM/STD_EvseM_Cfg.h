@@ -16,7 +16,7 @@
 #include "Std_Types.h"
 #include "STD_LogService.h"
 #include "SwitchM.h"
-#include "CanM.h"
+#include "CanM_Rte.h"
 #include "CpM.h"
 #include "STD_ErrorHandler.h"
 #include "STD_RlyM.h"
@@ -46,8 +46,8 @@
 #define EVSEM_SET_CP_OUT_4V(ch)										SwitchM_SetCpVol4vMode(ch)					            /*set cp voltage 4v*/
 #define EVSEM_SET_CP_MOS_STATUS(ch, mode)						    SwitchM_SetCpMosStatus(ch, mode)				        /*set cp mos status*/
 
-#define EVSEM_SET_CAN_START_COM(ch)									CanM_CarComStart(ch)
-#define EVSEM_GET_CAN_END_COM(ch)									CanM_CarComEndStatus(ch)
+#define EVSEM_SET_CAN_START_COM(ch)									CanM_Rte_SetCarComStart(ch)
+#define EVSEM_GET_CAN_END_COM(ch)									CanM_Rte_GetCarComEndStatus(ch)
 
 #if (EVSEM_RELAY_CHECKSELF_ENABLE == STD_ON)                                                                    /*relay checkself enable*/
 #define EVSEM_RLY_SELFCHECK_PROCESS								    (0u)                                        /*process of self-checking*/

@@ -1,28 +1,39 @@
 //****************************************************************************************
 //*
-//* File Name: CanM_Cfg.h 
+//* File Name: CanM_Rte.h 
 //* Project Name: ChargingSys
 //* Version: v1.0
 //* Date: 2025-05-16 11:27:24
 //* Author: JDLzhou
 //* 
 /*******************************************************************************/
-#ifndef _CANM_CFG_H
-#define _CANM_CFG_H
+#ifndef _CANM_RTE_H
+#define _CANM_RTE_H
 
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "Std_Types.h"
-#include "STD_LogService.h"
+#include "STD_SysM.h"
+
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
-|******************************************************************************/
+|****************************************************************************/
 
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
-/* polyspace<MISRA-C3:2.5:Not a defect:Justified> Normal. */
+
+/*******************************************************************************
+|    LOWER LAYER CONFIGURATION PARAMETERS
+|******************************************************************************/
+
+/*******************************************************************************
+|    UPPER LAYER CONFIGURATION PARAMETERS
+|******************************************************************************/
+
+/*******************************************************************************
+|    Callback Notification
+|******************************************************************************/
 
 /*******************************************************************************
 |    Enum Definition
@@ -33,14 +44,18 @@
 |******************************************************************************/
 
 /*******************************************************************************
-|    Table Definition
+|    Table Const Definition
 |******************************************************************************/
 
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-
-/* polyspace:end<MISRA-C3:2.5:Not a defect:Justified> Normal. */
-
+extern void CanM_Rte_SetCarComStart(SysConnector_Num_Enum ch);
+extern void CanM_Rte_Set_MCU_State3ReqChargingEnableStatus(SysConnector_Num_Enum ch, uint8_t status);
+extern void CanM_Rte_Set_MCU_State3ValidStatus(SysConnector_Num_Enum ch, uint8_t status);
+extern void CanM_Rte_Set_AuthM_AuthStatus(SysConnector_Num_Enum ch, uint8_t status);
+extern uint8_t CanM_Rte_GetCarComEndStatus(SysConnector_Num_Enum ch);
+extern void CanM_Rte_Init(void);
+extern void CanM_Rte_Main_Function(void);
 #endif
-/*EOF*/
+/*EOF*/ 
