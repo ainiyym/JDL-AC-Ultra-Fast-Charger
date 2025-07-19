@@ -333,6 +333,7 @@ static void RLYCTRL_SwitchControl(SysConnector_Num_Enum ch)
 		break;
 		case RLYCTRL_Switch_Three:
 		{
+			MOSDRV_ResetMosOnStatus(ch);
 			gv_stRlyCtrl[ch].ucControlType = RLYCTRL_SWITCH_IDLE;
 		}
 		break;
@@ -429,4 +430,5 @@ void RLYCTRL_MainFunction(void)
 		RLYCTRL_AuxlDetect(ch);
 	}
 }
+
 /*EOF*/

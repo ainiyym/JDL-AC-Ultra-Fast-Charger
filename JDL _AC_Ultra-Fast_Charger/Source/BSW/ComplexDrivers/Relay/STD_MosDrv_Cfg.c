@@ -91,16 +91,16 @@ Call By         : MOSDRV_SelfCheckMainFonction
 |******************************************************************************/
 uint8_t MOSDRV_ReadGpioValue(uint8_t lv_ucIndex)
 {
-	 uint8_t lv_ucRelust;
-	 if(gv_stMosDrvArry[lv_ucIndex].ucGpioLevelLower == Mcal_Gpio_ReadPinStatus(gv_stMosDrvArry[lv_ucIndex].ucGpioPort,gv_stMosDrvArry[lv_ucIndex].ucGpioPinIndx))
-	 {
-		  lv_ucRelust = MOSDRV_LOW;
-	 }
-	 else
-	 {
-		  lv_ucRelust = MOSDRV_HIGH;
-	 }
-	 return lv_ucRelust;
+	uint8_t lv_ucRelust;
+	if (gv_stMosDrvArry[lv_ucIndex].ucGpioLevelLower == Mcal_Gpio_ReadPinStatus(gv_stMosDrvArry[lv_ucIndex].ucGpioPort, gv_stMosDrvArry[lv_ucIndex].ucGpioPinIndx))
+	{
+		lv_ucRelust = MOSDRV_LOW;
+	}
+	else
+	{
+		lv_ucRelust = MOSDRV_HIGH;
+	}
+	return lv_ucRelust;
 }
 /*******************************************************************************
 Name            : MOSDRV_ReadAuxiliaryGpioValue

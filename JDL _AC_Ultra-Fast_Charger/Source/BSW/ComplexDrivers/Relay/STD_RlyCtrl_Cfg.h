@@ -42,8 +42,8 @@
 #define RLYCTRL_TASK_PERIOD 			(5U) 				/* 5ms */ /* Relay control task period */
 #define RLYCTRL_WAITING_RELAY_PIOWER_UPPER_TIME (20U / RLYCTRL_TASK_PERIOD)	/* wating upper cnt */
 
-#define RLYCTRL_AUXL_ON_FILTER_NUM					(uint16_t)(50u / RLYCTRL_TASK_PERIOD)
-#define RLYCTRL_AUXL_OFF_FILTER_NUM					(uint16_t)(50u / RLYCTRL_TASK_PERIOD)
+#define RLYCTRL_AUXL_ON_FILTER_NUM					(uint16_t)(300u / RLYCTRL_TASK_PERIOD)
+#define RLYCTRL_AUXL_OFF_FILTER_NUM					(uint16_t)(300u / RLYCTRL_TASK_PERIOD)
 #define RLYCTRL_AUXL_ERR_FILTER_NUM					(uint16_t)(200u / RLYCTRL_TASK_PERIOD)
 
 #define RLYCTRL_FAULT_CALLBACK(Id, Status)			ERRHDL_FaultStatusUpdata_CallBack(Id, Status)

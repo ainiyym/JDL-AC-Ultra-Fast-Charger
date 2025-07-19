@@ -191,4 +191,33 @@ uint8_t MOSDRV_ReadContactorAuxiliaryStatus(SysConnector_Num_Enum ch)
 	}
 	return status;
 }
+
+/*******************************************************************************
+Name              : MOSDRV_ResetMosOnStatus
+Syntax            : void MOSDRV_ResetMosOnStatus(SysConnector_Num_Enum ch)
+Sync/Async        : Synchronous
+Reentrancy        : None
+Parameters(in)    : ch
+Parameters(out)   : None
+Return value      : ret
+Description       : Reset Mos on control
+Call By           : RLYCTRL_SwitchControl
+|******************************************************************************/
+void MOSDRV_ResetMosOnStatus(SysConnector_Num_Enum ch)
+{
+	if (SYS_CONNECTOR1 == ch)
+	{
+		MOSDRV_WriteGpioValue(MOS_DRV_CONNECTOR1_ON, MOSDRV_LOW);
+	}
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
+	else if (SYS_CONNECTOR2 == ch)
+	{
+		MOSDRV_WriteGpioValue(MOS_DRV_CONNECTOR2_ON, MOSDRV_LOW);
+	}
+#endif
+	else
+	{
+		MOSDRV_ERROR("Invalid connector number: %d\r\n", ch);
+	}
+}
 /*EOF*/
