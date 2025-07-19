@@ -426,6 +426,15 @@ uint16_t CURR_GetL1Value(SysConnector_Num_Enum ch)
 	return gv_stCurr[ch].stChanVartArray[CURR_L1_CHAN_NUM].usCurrTempVal;
 }
 
+uint16_t CURR_GetL2Value(SysConnector_Num_Enum ch)
+{
+	return gv_stCurr[ch].stChanVartArray[CURR_L2_CHAN_NUM].usCurrTempVal;
+}
+
+uint16_t CURR_GetL3Value(SysConnector_Num_Enum ch)
+{
+	return gv_stCurr[ch].stChanVartArray[CURR_L3_CHAN_NUM].usCurrTempVal;
+}
 /*******************************************************************************
 Name            : CURR_IdleHandle
 Syntax          : static void CURR_IdleHandle(SysConnector_Num_Enum ch)
