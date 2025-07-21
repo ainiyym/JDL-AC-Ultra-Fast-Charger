@@ -55,7 +55,9 @@ extern void CanM_Rte_Set_MCU_State3ReqChargingEnableStatus(SysConnector_Num_Enum
 extern void CanM_Rte_Set_MCU_State3ValidStatus(SysConnector_Num_Enum ch, uint8_t status);
 extern void CanM_Rte_Set_AuthM_AuthStatus(SysConnector_Num_Enum ch, uint8_t status);
 extern uint8_t CanM_Rte_GetCarComEndStatus(SysConnector_Num_Enum ch);
-extern void CanM_Rte_Init(void);
-extern void CanM_Rte_Main_Function(void);
+extern void CanM_Rte_Evse_Init(void);
+extern void CanM_Rte_Msg_Init(void);
+extern void CanM_Rte_EVSE_Main_Function(void);
+extern void CanM_Rte_Msg_Main_Function(void);
 #endif
 /*EOF*/ 

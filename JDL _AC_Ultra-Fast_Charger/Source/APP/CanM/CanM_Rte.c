@@ -85,14 +85,19 @@ uint8_t CanM_Rte_GetCarComEndStatus(SysConnector_Num_Enum ch)
     return (uint8_t)STD_FALSE; /* Communication not ended */
 }
 
-void CanM_Rte_Init(void)
+void CanM_Rte_Evse_Init(void)
 {
     /* Initialize the RTE for CanM */
     /* This function can be called at the start of the application to set initial states */
     CanM_EVSEM_initialize();
     memset(gv_stCanM_RteCtrl, 0, sizeof(gv_stCanM_RteCtrl)); /* Initialize the structure to zero */
 }
- 
+
+void CanM_Rte_Msg_Init(void)
+{
+    CanM_MsgM_initialize();
+}
+
 static void CanM_Rte_SelfTestHandler(SysConnector_Num_Enum ch)
 {
     /* Iterate through each connector to handle self-test requests */
@@ -193,7 +198,7 @@ static void CanM_Rte_RelayControlHandler(SysConnector_Num_Enum ch)
     }
 }
 
-void CanM_Rte_Main_Function(void)
+void CanM_Rte_EVSE_Main_Function(void)
 {
     /* Main function for CanM RTE, can be used to call periodic tasks or handle events */
     /* Check if the system is ready for charging */
@@ -213,4 +218,9 @@ void CanM_Rte_Main_Function(void)
         /* Handle relay control based on the request status */
         CanM_Rte_RelayControlHandler(ch);
     }
+}
+
+void CanM_Rte_Msg_Main_Function(void)
+{
+    CanM_MsgM_step();
 }

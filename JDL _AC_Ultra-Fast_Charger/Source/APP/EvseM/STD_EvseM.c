@@ -104,7 +104,7 @@ Call By         : SYSM_InitOne
 void EVSEM_InitMemory(void)
 {
 	LIB_SetMemory((uint8_t *)(&gv_stEvseM), 0u, (uint16_t)(sizeof(gv_stEvseM) / sizeof(uint8_t))); /*PRQA S 0310*/
-	CanM_Rte_Init(); /* Initialize the RTE for CanM */
+	CanM_Rte_Evse_Init(); /* Initialize the RTE for CanM */
 }
 
 /*******************************************************************************
@@ -949,6 +949,6 @@ void EVSEM_10msMainFunction(void)
 
 		EVSEM_EnterStateFourHandle(ch);
 	}
-	CanM_Rte_Main_Function();
+	CanM_Rte_EVSE_Main_Function();
 }
 /*EOF*/

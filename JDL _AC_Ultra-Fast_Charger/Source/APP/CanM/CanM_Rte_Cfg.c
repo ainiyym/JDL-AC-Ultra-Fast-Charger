@@ -246,3 +246,181 @@ uint8_t CanM_Get_CanModeStatus(SysConnector_Num_Enum connector)
         return 0; /* Default return value for invalid connector */
     }
 }
+
+void CanM_Set_SECC_MSG1_Input(SysConnector_Num_Enum connector)
+{
+    if (connector == SYS_CONNECTOR1)
+    {
+        CanM_MsgM_U.SECC_MSG1_L1_Curr = CanM_Rte_GetL1CUrr(connector);
+        CanM_MsgM_U.SECC_MSG1_L2_Curr = CanM_Rte_GetL2CUrr(connector);
+        CanM_MsgM_U.SECC_MSG1_L3_Curr = CanM_Rte_GetL3CUrr(connector);
+        CanM_MsgM_U.SECC_MSG1_L1_Vol = CanM_Rte_GetL1Volt(connector);
+        CanM_MsgM_U.SECC_MSG1_L2_Vol = CanM_Rte_GetL2Volt(connector);
+        CanM_MsgM_U.SECC_MSG1_L3_Vol = CanM_Rte_GetL3Volt(connector);
+    }
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
+    else if (connector == SYS_CONNECTOR2)
+    {
+        CanM_MsgM_U.SECC_MSG1_L1_Curr1 = CanM_Rte_GetL1CUrr(connector);
+        CanM_MsgM_U.SECC_MSG1_L2_Curr1 = CanM_Rte_GetL2CUrr(connector);
+        CanM_MsgM_U.SECC_MSG1_L3_Curr1 = CanM_Rte_GetL3CUrr(connector);
+        CanM_MsgM_U.SECC_MSG1_L1_Vol1 = CanM_Rte_GetL1Volt(connector);
+        CanM_MsgM_U.SECC_MSG1_L2_Vol1 = CanM_Rte_GetL2Volt(connector);
+        CanM_MsgM_U.SECC_MSG1_L3_Vol1 = CanM_Rte_GetL3Volt(connector);
+    }
+#endif
+    else
+    {
+        /* Invalid connector, handle error if necessary */
+    }
+}
+
+uint64m_T CanM_Get_SECC_MSG1_Output(SysConnector_Num_Enum connector)
+{
+    uint64m_T defaultOutput = {0, 0}; // Default output in case of invalid connector
+
+    if (connector == SYS_CONNECTOR1)
+    {
+        return CanM_MsgM_Y.SECC_MSG1_OutU64;
+    }
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
+    else if (connector == SYS_CONNECTOR2)
+    {
+        return CanM_MsgM_Y.SECC_MSG1_OutU64_1;
+    }
+#endif 
+    else
+    {
+        /* Invalid connector, handle error if necessary */
+        return defaultOutput; /* Default return value for invalid connector */
+    }
+}
+
+void CanM_Set_SECC_MSG2_Input(SysConnector_Num_Enum connector, CanM_SECC_MSG2_Input_Struct Msg2Input)
+{
+    if (connector == SYS_CONNECTOR1)
+    {
+        CanM_MsgM_U.EVSE_ChargingEndReason = Msg2Input.ChargingEndReason;
+        CanM_MsgM_U.EVSE_RequestVehicleMode = Msg2Input.ChargingStartMode;
+        CanM_MsgM_U.EVSE_Relay_Status = Msg2Input.RelayStatus;
+        CanM_MsgM_U.EVSE_SysStatus = Msg2Input.EvseSysStatus;
+        CanM_MsgM_U.EVSE_EnergyCannotTransfer = Msg2Input.EnergyTransferUnable;
+        CanM_MsgM_U.EVSE_OverCurrFault = Msg2Input.OverCurrFaultStatus;
+        CanM_MsgM_U.EVSE_VoltageFault = Msg2Input.VoltFaultStatus;
+        CanM_MsgM_U.EVSE_EmergeStopFault = Msg2Input.EmergeStopFaultStatus;
+        CanM_MsgM_U.EVSE_RelayFault = Msg2Input.RelayFaultStatus;
+        CanM_MsgM_U.EVSE_HardwareFault = Msg2Input.HardwareFaultStatus;
+        CanM_MsgM_U.EVSE_OverTempFault = Msg2Input.OverTempFaultStatus;
+        CanM_MsgM_U.EVSE_CpVolFault = Msg2Input.CpVolFaultStatus;
+        CanM_MsgM_U.EVSE_ChargingParamMismatch = Msg2Input.ChargingParameterFaultStatus;
+        CanM_MsgM_U.EVSE_SelfTestFault = Msg2Input.SelfTestFaultStatus;
+        CanM_MsgM_U.EVSE_CanTimeout = Msg2Input.CanTimeOutFaultStatus;
+        CanM_MsgM_U.EVSE_OtherFault = Msg2Input.OtherFaultStatus;
+        CanM_MsgM_U.EVSE_RatedCurrent = Msg2Input.RatedCurr;
+        CanM_MsgM_U.EVSE_RatedVoltage = Msg2Input.RatedVolt;
+    }
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
+    else if (connector == SYS_CONNECTOR2)
+    {
+        CanM_MsgM_U.EVSE_ChargingEndReason1 = Msg2Input.ChargingEndReason;
+        CanM_MsgM_U.EVSE_RequestVehicleMode1 = Msg2Input.ChargingStartMode;
+        CanM_MsgM_U.EVSE_Relay_Status1 = Msg2Input.RelayStatus;
+        CanM_MsgM_U.EVSE_SysStatus1 = Msg2Input.EvseSysStatus;
+        CanM_MsgM_U.EVSE_EnergyCannotTransfer1 = Msg2Input.EnergyTransferUnable;
+        CanM_MsgM_U.EVSE_OverCurrFault1 = Msg2Input.OverCurrFaultStatus;
+        CanM_MsgM_U.EVSE_VoltageFault1 = Msg2Input.VoltFaultStatus;
+        CanM_MsgM_U.EVSE_EmergeStopFault1 = Msg2Input.EmergeStopFaultStatus;
+        CanM_MsgM_U.EVSE_RelayFault1 = Msg2Input.RelayFaultStatus;
+        CanM_MsgM_U.EVSE_HardwareFault1 = Msg2Input.HardwareFaultStatus;
+        CanM_MsgM_U.EVSE_OverTempFault1 = Msg2Input.OverTempFaultStatus;
+        CanM_MsgM_U.EVSE_CpVolFault1 = Msg2Input.CpVolFaultStatus;
+        CanM_MsgM_U.EVSE_ChargingParamMismatch1 = Msg2Input.ChargingParameterFaultStatus;
+        CanM_MsgM_U.EVSE_SelfTestFault1 = Msg2Input.SelfTestFaultStatus;
+        CanM_MsgM_U.EVSE_CanTimeout1 = Msg2Input.CanTimeOutFaultStatus;
+        CanM_MsgM_U.EVSE_OtherFault1 = Msg2Input.OtherFaultStatus;
+        CanM_MsgM_U.EVSE_RatedCurrent1 = Msg2Input.RatedCurr;
+        CanM_MsgM_U.EVSE_RatedVoltage1 = Msg2Input.RatedVolt;
+    }
+#endif
+    else
+    {
+        /* Invalid connector, handle error if necessary */
+    }
+}
+
+uint64m_T CanM_Get_SECC_MSG2_Output(SysConnector_Num_Enum connector)
+{
+    uint64m_T defaultOutput = {0, 0}; // Default output in case of invalid connector
+
+    if (connector == SYS_CONNECTOR1)
+    {
+        return CanM_MsgM_Y.SECC_MSG2_OutU64;
+    }
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
+    else if (connector == SYS_CONNECTOR2)
+    {
+        return CanM_MsgM_Y.SECC_MSG2_OutU64_1;
+    }
+#endif
+    else
+    {
+        /* Invalid connector, handle error if necessary */
+        return defaultOutput; /* Default return value for invalid connector */
+    }
+}
+
+void CanM_Set_MCU_Data(SysConnector_Num_Enum connector, uint8_t *MCUData)
+{
+    if (connector == SYS_CONNECTOR1)
+    {
+        memcpy((uint8_t *)&CanM_MsgM_U.MCU_Status3_Data, &MCUData[0], sizeof(CanM_MsgM_U.MCU_Status3_Data));
+    }
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
+    else if (connector == SYS_CONNECTOR2)
+    {
+        memcpy((uint8_t *)&CanM_MsgM_U.MCU_Status3_Data1, &MCUData[0], sizeof(CanM_MsgM_U.MCU_Status3_Data1));
+    }
+#endif
+    else
+    {
+        /* Invalid connector, handle error if necessary */
+    }
+}
+
+uint8_t CanM_Get_MCU_State3ReqChargingEnableStatus(SysConnector_Num_Enum connector)
+{
+    if (connector == SYS_CONNECTOR1)
+    {
+        return CanM_MsgM_Y.MCU_State3ReqChargingEnable;
+    }
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
+    else if (connector == SYS_CONNECTOR2)
+    {
+        return CanM_MsgM_Y.MCU_State3ReqChargingEnable1;
+    }
+#endif
+    else
+    {
+        /* Invalid connector, handle error if necessary */
+        return 0; /* Default return value for invalid connector */
+    }
+}
+
+uint8_t CanM_get_NCU_State3ValidStatus(SysConnector_Num_Enum connector)
+{
+    if (connector == SYS_CONNECTOR1)
+    {
+        return CanM_MsgM_Y.MCU_State3ValidStatus;
+    }
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
+    else if (connector == SYS_CONNECTOR2)
+    {
+        return CanM_MsgM_Y.MCU_State3ValidStatus1;
+    }
+#endif
+    else
+    {
+        /* Invalid connector, handle error if necessary */
+        return 0; /* Default return value for invalid connector */
+    }
+}
