@@ -188,13 +188,19 @@ static void CanM_Rte_CanFaultHandler(SysConnector_Num_Enum ch)
 
 static void CanM_Rte_RelayControlHandler(SysConnector_Num_Enum ch)
 {
-    if (CanM_Get_ReqRelayOnStatus(ch) == (uint8_t)ENABLE_STATUS_ENUM_ENABLE)
+    static uint8_t relayOnStatus[SYS_CONNECTOR_NUM_MAX] = {ENABLE_STATUS_ENUM_DISABLE};
+
+    if (relayOnStatus[ch] != CanM_Get_ReqRelayOnStatus(ch)) /* Get the request relay on status */
     {
-        CanM_Rte_SetRelayOn(ch); /* Request to turn on the relay */
-    }
-    else
-    {
-        CanM_Rte_SetRelayOff(ch); /* Request to turn off the relay */
+        relayOnStatus[ch] = CanM_Get_ReqRelayOnStatus(ch);
+        if (relayOnStatus[ch] == (uint8_t)ENABLE_STATUS_ENUM_ENABLE)
+        {
+            CanM_Rte_SetRelayOn(ch); /* Request to turn on the relay */
+        }
+        else
+        {
+            CanM_Rte_SetRelayOff(ch); /* Request to turn off the relay */
+        }
     }
 }
 

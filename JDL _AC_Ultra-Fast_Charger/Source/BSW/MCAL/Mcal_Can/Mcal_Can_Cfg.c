@@ -28,18 +28,42 @@
 /*******************************************************************************
 |    Variables Definition
 |******************************************************************************/
-Mcal_CanTxChannelCfg_t Mcal_CanTxChannelCfgTable[MCAL_CAN_TX_MAX_NUMBER] = 
+Mcal_CanChannelCfg_t Mcal_CanChannelCfgTable[MCAL_CAN_CH_MAX_NUMBER] =
 {
-    {MCAL_CAN1_TX_CH, &hcan1},
-    {MCAL_CAN1_TX_CCP, &hcan1}
+  {MCAL_CAN1_CH, &hcan1}, // CAN1
+  {MCAL_CAN2_CH, &hcan2}  // CAN2
+};
+
+Mcal_CanTxChannelCfg_t Mcal_CanTxChannelCfgTable[MCAL_CAN_TX_MAX_NUMBER] =
+    {
+        [MCAL_CAN1_TX_CH] = {
+            .CanTxChannel = MCAL_CAN1_TX_CH,
+            .CanHandle = &hcan1,
+            .TxHeader.ExtId = MCAL_CAN1_TX_ID,                            // Extended identifier (29 bits)
+            .TxHeader.IDE = CAN_ID_EXT,                                   // Extended frame
+            .TxHeader.RTR = CAN_RTR_DATA,                                 // Data frame
+            .TxHeader.DLC = 8,                                            // Data length
+            .TxHeader.StdId = 0,                                          // Standard identifier (11 bits)
+            .TxHeader.TransmitGlobalTime = DISABLE,                       // use the global timestamp
+        },
+        [MCAL_CAN1_TX_CCP] = {
+          .CanTxChannel = MCAL_CAN1_TX_CCP,
+          .CanHandle = &hcan2,
+          .TxHeader.ExtId = 0,                                             // Extended identifier (29 bits)
+          .TxHeader.IDE = CAN_ID_STD,                                      // Standard frame
+          .TxHeader.RTR = CAN_RTR_DATA,                                    // Data frame
+          .TxHeader.DLC = 8,                                               // Data length
+          .TxHeader.StdId = MCAL_CAN1_CCP_TX_ID,                           // Standard identifier (11 bits)
+          .TxHeader.TransmitGlobalTime = DISABLE,                          // use the global timestamp
+        }
 };
 
 Mcal_CanFilterCfg_t Mcal_CanFilterCfgTable[MCAL_CAN_RX_MAX_NUMBER] =
     {
-        [MCAL_CAN1_RX_CH] = {
-            .CanChannel = MCAL_CAN1_RX_CH,                                  // CAN channel
-            .CanHandle = &hcan1,                                             // CAN Handle
-            .FilterConfig.FilterBank = 0,                                   // the filter bank number
+        [MCAL_CAN1_RX_TEST] = {
+            .CanChannel = MCAL_CAN1_RX_TEST,                                // CAN channel
+            .CanHandle = &hcan1,                                            // CAN Handle
+            .FilterConfig.FilterBank = 10,                                  // the filter bank number
             .FilterConfig.FilterMode = CAN_FILTERMODE_IDMASK,               // Filter mode
             .FilterConfig.FilterScale = CAN_FILTERSCALE_32BIT,              // Filter scale
             .FilterConfig.FilterIdHigh = MCAL_CAN1_FILTER_ID_HIGH,          // High-level ID
@@ -52,7 +76,7 @@ Mcal_CanFilterCfg_t Mcal_CanFilterCfgTable[MCAL_CAN_RX_MAX_NUMBER] =
         },                                                                  /* CAN test */
         [MCAL_CAN1_RX_CCP] = {
             .CanChannel = MCAL_CAN1_RX_CCP,                                     // CAN channel
-            .CanHandle = &hcan2,                                                 // CAN Handle
+            .CanHandle = &hcan2,                                                // CAN Handle
             .FilterConfig.FilterBank = 1,                                       // the filter bank number
             .FilterConfig.FilterMode = CAN_FILTERMODE_IDLIST,                   // Filter mode
             .FilterConfig.FilterScale = CAN_FILTERSCALE_16BIT,                  // Filter scale
@@ -114,7 +138,7 @@ void Mcal_Can_RxCycBufCfg_Init(void)
  * @param  len Data length.
  * @retval @McalRetVal_t
  */
-McalRetVal_t Mcal_Can_Send_Msg(Mcal_CanTxChannel_Enum_t Channel, CAN_TxHeaderTypeDef TxHeader, uint32_t *pTxMailbox, uint8_t *msg, uint8_t len)
+McalRetVal_t Mcal_Can_Send_Msg(Mcal_CanTxChannel_Enum_t Channel, uint8_t *msg, uint8_t len)
 {
   McalRetVal_t ret = MCAL_RET_SUCCESS; /* ret init */
   uint8_t i = 0;
@@ -142,7 +166,7 @@ McalRetVal_t Mcal_Can_Send_Msg(Mcal_CanTxChannel_Enum_t Channel, CAN_TxHeaderTyp
     return MCAL_RET_FAILED;
   }
 
-  if (HAL_CAN_AddTxMessage(Mcal_CanTxChannelCfgTable[Channel].CanHandle, &TxHeader, Mcal_CanCtrl.sendData, pTxMailbox) != HAL_OK) /* Sent */
+  if (HAL_CAN_AddTxMessage(Mcal_CanTxChannelCfgTable[Channel].CanHandle, &Mcal_CanTxChannelCfgTable[Channel].TxHeader, Mcal_CanCtrl.sendData, &Mcal_CanCtrl.TxMailbox[Channel]) != HAL_OK) /* Sent */
   {
     /* Sending error */
     ret = MCAL_RET_FAILED;
@@ -157,6 +181,18 @@ McalRetVal_t Mcal_Can_Send_Msg(Mcal_CanTxChannel_Enum_t Channel, CAN_TxHeaderTyp
   }
 
   return ret;
+}
+
+uint32_t Mcal_Can_Get_TxMailbox(Mcal_CanTxChannel_Enum_t Channel)
+{
+  if (Channel < MCAL_CAN_TX_MAX_NUMBER)
+  {
+    return Mcal_CanCtrl.TxMailbox[Channel];
+  }
+  else
+  {
+    return -1; // Invalid channel
+  }
 }
 
 uint32_t Mcal_Can_Receive_Msg(Mcal_CanRxChannel_Enum_t Channel, uint8_t *data, uint32_t size)
@@ -202,27 +238,31 @@ uint32_t Mcal_Can_Receive_Msg(Mcal_CanRxChannel_Enum_t Channel, uint8_t *data, u
 /* CAN receive interrupt function */
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *CanNum)
 {
-    uint8_t chNum = 0;
+  uint8_t chNum = 0;
 
-    MCAL_DEBUG("%s \r\n", __func__);
-    for (chNum = 0; chNum < MCAL_CAN_RX_MAX_NUMBER; chNum++)
+  MCAL_DEBUG("%s \r\n", __func__);
+  for (chNum = 0; chNum < MCAL_CAN_RX_MAX_NUMBER; chNum++)
+  {
+    if (CanNum == Mcal_CanFilterCfgTable[chNum].CanHandle && CAN_RX_FIFO0 == Mcal_CanFilterCfgTable[chNum].FilterConfig.FilterFIFOAssignment)
     {
-        if (CanNum == Mcal_CanFilterCfgTable[chNum].CanHandle && CAN_RX_FIFO0 == Mcal_CanFilterCfgTable[chNum].FilterConfig.FilterFIFOAssignment)
+      HAL_CAN_GetRxMessage(Mcal_CanFilterCfgTable[chNum].CanHandle, Mcal_CanFilterCfgTable[chNum].FilterConfig.FilterFIFOAssignment, &Mcal_CanCtrl.RxHeader, Mcal_CanCtrl.rcvData);
+      if (Mcal_CanCtrl.RxHeader.DLC > 0 && Mcal_CanCtrl.RxHeader.ExtId == MCAL_CAN1_RX_ID)
+      {
+        MCAL_CYCBUF_WRITE(Mcal_CanCtrl.Buf[MCAL_CAN1_RX_TEST].RcvCycBufID, Mcal_CanCtrl.rcvData, Mcal_CanCtrl.RxHeader.DLC);
+        if (0 != Mcal_CanCtrl.RxHeader.DLC % 8)
         {
-            HAL_CAN_GetRxMessage(Mcal_CanFilterCfgTable[chNum].CanHandle, Mcal_CanFilterCfgTable[chNum].FilterConfig.FilterFIFOAssignment, &Mcal_CanCtrl.RxHeader, Mcal_CanCtrl.rcvData);
-            if (Mcal_CanCtrl.RxHeader.DLC > 0)
-            {
-                MCAL_CYCBUF_WRITE(Mcal_CanCtrl.Buf[chNum].RcvCycBufID, Mcal_CanCtrl.rcvData, Mcal_CanCtrl.RxHeader.DLC);
-            }
+          MCAL_CYCBUF_WRITE(Mcal_CanCtrl.Buf[MCAL_CAN1_RX_TEST].RcvCycBufID, 0, 8 - (Mcal_CanCtrl.RxHeader.DLC % 8)); /* Fill the remaining bytes with 0 */
         }
+      }
     }
+  }
 }
 
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *CanNum)
 {
     uint8_t chNum = 0;
 
-    // MCAL_DEBUG("%s \r\n", __func__);
+    MCAL_DEBUG("%s \r\n", __func__);
     for (chNum = 0; chNum < MCAL_CAN_RX_MAX_NUMBER; chNum++)
     {
         if (CanNum == Mcal_CanFilterCfgTable[chNum].CanHandle && CAN_RX_FIFO1 == Mcal_CanFilterCfgTable[chNum].FilterConfig.FilterFIFOAssignment)
@@ -245,33 +285,38 @@ void Mcal_Can_Init(void)
 
 void Mcal_Can_Enable(void)
 {
-    if (HAL_CAN_Start(&hcan1) != HAL_OK)
+  for (uint8_t i = 0; i < MCAL_CAN_CH_MAX_NUMBER; i++)
+  {
+    if (HAL_CAN_Start(Mcal_CanChannelCfgTable[i].CanHandle) != HAL_OK)
     {
-        /* Start Error */
-        MCAL_ERROR("%s Err!\n\r", __FUNCTION__);
+      /* Start Error */
+      MCAL_ERROR("%s Err!\n\r", __FUNCTION__);
+    }
+    /* Activate CAN RX notification */
+    if (HAL_CAN_ActivateNotification(Mcal_CanChannelCfgTable[i].CanHandle, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
+    {
+      /* Start Error */
+      MCAL_ERROR("%s Err 0!\n\r", __FUNCTION__);
     }
 
     /* Activate CAN RX notification */
-    if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
+    if (HAL_CAN_ActivateNotification(Mcal_CanChannelCfgTable[i].CanHandle, CAN_IT_RX_FIFO1_MSG_PENDING) != HAL_OK)
     {
-        /* Start Error */
-        MCAL_ERROR("%s Err 0!\n\r", __FUNCTION__);
+      /* Start Error */
+      MCAL_ERROR("%s Err 1!\n\r", __FUNCTION__);
     }
-
-        /* Activate CAN RX notification */
-    if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO1_MSG_PENDING) != HAL_OK)
-    {
-        /* Start Error */
-        MCAL_ERROR("%s Err 1!\n\r", __FUNCTION__);
-    } 
+  }
 }
 
 void Mcal_Can_Disable(void)
 {
-    if (HAL_CAN_DeInit(&hcan1) != HAL_OK)
+    for (uint8_t i = 0; i < MCAL_CAN_CH_MAX_NUMBER; i++)
     {
-        /* DeInit Error */
-        MCAL_ERROR("%s Err!\n\r", __FUNCTION__);
+        if (HAL_CAN_DeInit(Mcal_CanChannelCfgTable[i].CanHandle) != HAL_OK)
+        {
+            /* DeInit Error */
+            MCAL_ERROR("%s Err!\n\r", __FUNCTION__);
+        }
     }
 }
 /* End of file */ 

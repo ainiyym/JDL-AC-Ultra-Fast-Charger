@@ -12,7 +12,6 @@
 void Comm_Init(void)
 {
     ccp_init();
-    Ccp_CanDrv_Init();
 }
 
 /*******PWM*********************/

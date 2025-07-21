@@ -160,49 +160,22 @@ void Mcal_CP_Test(void)
     }
 }
 
-CAN_TxHeaderTypeDef Mcal_Test_TxHeader = {0};
-static void Mcal_Can_variable_Init(void)
-{
-    Mcal_Test_TxHeader.ExtId = MCAL_CAN1_TX_ID;      // 扩展标识符(29位)
-    Mcal_Test_TxHeader.IDE = CAN_ID_EXT;             // 扩展帧
-    Mcal_Test_TxHeader.RTR = CAN_RTR_DATA;           // 数据帧
-    Mcal_Test_TxHeader.DLC = 8;                      // 数据长度
-    Mcal_Test_TxHeader.StdId = 0;                    // 标准标识符(11位)，对于扩展帧无效
-    Mcal_Test_TxHeader.TransmitGlobalTime = ENABLE; // 不使用全局时间戳
-}
-
-static void Mcal_CanDrv_Init(void)
-{
-    Mcal_Test_TxHeader.ExtId = 0;                     // Extended identifier (29 bits)
-    Mcal_Test_TxHeader.IDE = CAN_ID_STD;             // Standard frame
-    Mcal_Test_TxHeader.RTR = CAN_RTR_DATA;           // Data frame
-    Mcal_Test_TxHeader.DLC = 8;                      // Data length
-    Mcal_Test_TxHeader.StdId = MCAL_CAN1_CCP_TX_ID;  // Standard identifier (11 bits)
-    Mcal_Test_TxHeader.TransmitGlobalTime = ENABLE; // use the global timestamp
-}
-
 void Mcal_Can_Send_Test(void)
 {
     static uint8_t step = 0;
-
-    do
-    {
-        // Mcal_Can_variable_Init();
-        Mcal_CanDrv_Init();
-    } while (0);
 
     if (8 > step)
     {
         // Example data to send via CAN
         uint8_t data[8] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
-        uint32_t TxMailbox = 0;
+
         McalRetVal_t ret;
 
         // Send a CAN message
-        ret = Mcal_Can_Send_Msg(MCAL_CAN1_TX_CCP, Mcal_Test_TxHeader, &TxMailbox, data, sizeof(data));
+        ret = Mcal_Can_Send_Msg(MCAL_CAN1_TX_CH, data, sizeof(data));
         if (ret == MCAL_RET_SUCCESS)
         {
-            MCAL_DEBUG("CAN message sent successfully. TxMailbox:%d \r\n", TxMailbox);
+            MCAL_DEBUG("CAN message sent successfully. TxMailbox:%d \r\n", Mcal_Can_Get_TxMailbox(MCAL_CAN1_TX_CH));
         }
         else
         {
@@ -218,7 +191,7 @@ void Mcal_Can_Rcv_Test(void)
     uint8_t RcvBUff[256] = {0};
     uint8_t RcvLen = 0;
 
-    RcvLen = Mcal_Can_Receive_Msg(MCAL_CAN1_RX_CH, RcvBUff, sizeof(RcvBUff));
+    RcvLen = Mcal_Can_Receive_Msg(MCAL_CAN1_RX_TEST, RcvBUff, sizeof(RcvBUff));
     if (RcvLen)
     {
         // Process received CAN message
@@ -679,7 +652,7 @@ void Mcal_Test_Run(void)
     // Mcal_Usart_Test();
 	// Mcal_CP_Test();
     // Mcal_Gpio_Test();
-    // Mcal_Can_Rcv_Test();
+    Mcal_Can_Rcv_Test();
     // Mcal_SoftReset_test();
     // MCAL_TestIIC();
     // Mcal_Test_Spi();

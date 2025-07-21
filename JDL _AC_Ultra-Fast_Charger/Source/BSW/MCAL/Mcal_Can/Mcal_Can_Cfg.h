@@ -33,7 +33,14 @@ extern "C" {
 /* ================== Enum ================== */
 typedef enum
 {
-    MCAL_CAN1_RX_CH,       /* CAN1 test */
+    MCAL_CAN1_CH,      /* CAN1 */
+    MCAL_CAN2_CH,       /* CAN2 */
+    MCAL_CAN_CH_MAX_NUMBER /* CAN NUM */
+} Mcal_CanChannel_Enum_t;
+
+typedef enum
+{
+    MCAL_CAN1_RX_TEST,       /* CAN1 test */
     MCAL_CAN1_RX_CCP,     /* CCP RX CH */
     MCAL_CAN_RX_MAX_NUMBER /* CAN NUM */
 } Mcal_CanRxChannel_Enum_t;
@@ -48,8 +55,15 @@ typedef enum
 /* ================== Type Definitions ================== */
 typedef struct
 {
-    Mcal_CanTxChannel_Enum_t CanChannel; /* Can Tx channal */
-    CAN_HandleTypeDef *CanHandle;        /* Can Handle */
+    Mcal_CanChannel_Enum_t CanChannel;     /* Can Tx channal */
+    CAN_HandleTypeDef *CanHandle;          /* Can Handle */
+} Mcal_CanChannelCfg_t;
+
+typedef struct
+{
+    Mcal_CanTxChannel_Enum_t CanTxChannel; /* Can Tx channal */
+    CAN_HandleTypeDef *CanHandle;          /* Can Handle */
+    CAN_TxHeaderTypeDef TxHeader;          /* Can Tx handle */
 } Mcal_CanTxChannelCfg_t;
 
 typedef struct
@@ -70,6 +84,7 @@ typedef struct
 {
     uint8_t sendData[8];                               /* Ready to send data */
     uint8_t rcvData[8];                                /* Received data */
+    uint32_t TxMailbox[MCAL_CAN_TX_MAX_NUMBER];        /* Tx Mailbox */
     CAN_RxHeaderTypeDef RxHeader;                      /* Receive handle */
     Mcal_Can_RcvBuf_Cfg_t Buf[MCAL_CAN_RX_MAX_NUMBER]; /* Rcv cyc buf Configuration */
 } Mcal_CanCtrlCfg_t;
@@ -81,8 +96,9 @@ void Mcal_Can_Init(void);
 void Mcal_Can_Enable(void);
 void Mcal_Can_Disable(void);
 extern void Mcal_Can_Filter_Init(void);                                                                                                                 /* Filter configuration function */
-extern void Mcal_Can_RxCycBufCfg_Init(void);                                                                                                               /* Can Rx buff configuration init func */
-extern McalRetVal_t Mcal_Can_Send_Msg(Mcal_CanTxChannel_Enum_t Channel, CAN_TxHeaderTypeDef TxHeader, uint32_t *pTxMailbox, uint8_t *msg, uint8_t len); /* Send data function */
+extern void Mcal_Can_RxCycBufCfg_Init(void);                                                                                                            /* Can Rx buff configuration init func */
+extern uint32_t Mcal_Can_Get_TxMailbox(Mcal_CanTxChannel_Enum_t Channel);                                                                               /* Get Txmail */
+extern McalRetVal_t Mcal_Can_Send_Msg(Mcal_CanTxChannel_Enum_t Channel, uint8_t *msg, uint8_t len);                                                     /* Send data function */
 extern uint32_t Mcal_Can_Receive_Msg(Mcal_CanRxChannel_Enum_t Channel, uint8_t *data, uint32_t size);                                                   /* Receive data function */
 #ifdef __cplusplus
 }
