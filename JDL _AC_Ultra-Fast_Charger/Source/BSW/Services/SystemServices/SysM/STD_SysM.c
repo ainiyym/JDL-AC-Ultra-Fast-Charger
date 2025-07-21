@@ -21,6 +21,7 @@
 #include "STD_RlyM.h"
 #include "STD_AuthM.h"
 #include "STD_Curr.h"
+#include "STD_Volt.h"
 #include "BtrM.h"
 /*******************************************************************************
 |    Macro Definition
@@ -169,6 +170,7 @@ void SYSM_InitTwo( void )
 	AUTHM_InitMemory();
 	NOAUTHEN_InitMemory();
 	CURR_InitMemory();
+	VOLT_InitMemory();
 }
 
 /****************************************************************************************
@@ -195,6 +197,7 @@ void SYSM_InitThree(void)
 	CURR_Enable();
 	CPM_Enable();
 	BTRM_Enable();
+	VOLT_Enable();
 }
 
 static void SYSM_ShowUserInfo(void)

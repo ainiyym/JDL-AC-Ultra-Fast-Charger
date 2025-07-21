@@ -20,4 +20,7 @@ extern uint8_t Dummy_GetCurrL2(SysConnector_Num_Enum ch);
 extern uint8_t Dummy_GetCurrL3(SysConnector_Num_Enum ch);
 extern uint8_t Dummy_GetPowerDownStatus(void);
 extern uint8_t Dummy_GetPowerDownVoltValue(void);
+extern uint8_t Dummy_GetVoltL1(SysConnector_Num_Enum ch);
+extern uint8_t Dummy_GetVoltL2(SysConnector_Num_Enum ch);
+extern uint8_t Dummy_GetVoltL3(SysConnector_Num_Enum ch);
 #endif

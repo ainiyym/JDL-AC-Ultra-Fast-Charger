@@ -14,7 +14,9 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "STD_Types.h"
+#include "STD_Lib.h"
 #include <stdbool.h>
+#include <stdint.h>
 #include "STD_LogService.h"
 
 /*******************************************************************************

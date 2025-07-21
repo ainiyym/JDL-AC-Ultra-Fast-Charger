@@ -22,6 +22,7 @@
 #include "STD_RlyM.h"
 #include "STD_AuthM.h"
 #include "STD_Curr.h"
+#include "STD_Volt.h"
 #include "BtrM.h"
 /*******************************************************************************
 |    Macro Definition
@@ -166,6 +167,7 @@ static void Task20ms(void)
 {
     /* 20ms task code */
     CURR_20msFunctionControl();
+    VOLT_20msFunctionControl();
 }
 
 static void Task100ms(void)

@@ -42,3 +42,18 @@ uint8_t Dummy_GetPowerDownVoltValue(void)
 {
     return 0; // Dummy implementation, returning 0 for power down voltage value
 }
+
+uint8_t Dummy_GetVoltL1(SysConnector_Num_Enum ch)
+{
+    return 0; // Dummy implementation, returning 0 for voltage L1
+}
+
+uint8_t Dummy_GetVoltL2(SysConnector_Num_Enum ch)
+{
+    return 0; // Dummy implementation, returning 0 for voltage L2
+}
+
+uint8_t Dummy_GetVoltL3(SysConnector_Num_Enum ch)
+{
+    return 0; // Dummy implementation, returning 0 for voltage L3
+}
