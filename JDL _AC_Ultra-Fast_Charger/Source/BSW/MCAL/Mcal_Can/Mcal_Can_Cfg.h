@@ -15,9 +15,9 @@ extern "C" {
 |******************************************************************************/
 #define MCAL_CAN_RX_CYC_LEN 256 /* CAN receive circular buffer length */
 /* TEST_ID CFG */
-#define MCAL_CAN1_RX_TEST_ID 0x1800D8D0
-#define MCAL_CAN1_TEST_FILTER_ID_HIGH (((uint32_t)MCAL_CAN1_RX_TEST_ID << 3) & 0xFFFF0000) >> 16                            // High-level ID
-#define MCAL_CAN1_TEST_FILTER_ID_LOW (((uint32_t)MCAL_CAN1_RX_TEST_ID << 3) | CAN_ID_EXT | CAN_RTR_DATA) & 0xFFFF           // Low-level ID
+#define MCAL_CAN_RX_TEST_ID 0x1800D8D0
+#define MCAL_CAN1_TEST_FILTER_ID_HIGH (((uint32_t)MCAL_CAN_RX_TEST_ID << 3) & 0xFFFF0000) >> 16                             // High-level ID
+#define MCAL_CAN1_TEST_FILTER_ID_LOW (((uint32_t)MCAL_CAN_RX_TEST_ID << 3) | CAN_ID_EXT | CAN_RTR_DATA) & 0xFFFF            // Low-level ID
 #define MCAL_CAN1_TEST_FILTER_MASK_ID_HIGH (0xffff)                                                                         // Filter mask high-level ID
 #define MCAL_CAN1_TEST_FILTER_MASK_ID_LOW ((0xfff0 << 3) | CAN_ID_EXT | CAN_RTR_DATA)                                       // Filter mask low-level ID
 /* MCU_STATUS3_ID CFG */
@@ -33,7 +33,7 @@ extern "C" {
 #define MCAL_CAN1_CCP_FILTER_MASK_ID_HIGH (0xffff)                                                                          // Filter mask high-level ID
 #define MCAL_CAN1_CCP_FILTER_MASK_ID_LOW (0xffff)                                                                           // Filter mask low-level ID
 /* CAN TX ID CFG */
-#define MCAL_CAN1_TX_TEST_ID 0x1800D8D9                                                                                     // CAN1 test ID
+#define MCAL_CAN_TX_TEST_ID 0x1800D8D9                                                                                      // CAN1 test ID
 #define MCAL_CAN1_CCP_TX_ID 0x2E2                                                                                           // CAN1 CCP TX ID
 #define MCAL_CAN_SECC_MSG1_TX_ID 0x18FF0056                                                                                 // CAN SECC_MSG1 TX ID
 #define MCAL_CAN_SECC_MSG2_TX_ID 0x18FF0156                                                                                 // CAN SECC_MSG2 TX ID
@@ -49,7 +49,7 @@ typedef enum
 
 typedef enum
 {
-    MCAL_CAN1_RX_TEST,              /* CAN1 test */
+    MCAL_CAN_RX_TEST,              /* CAN1 test */
     MCAL_CAN_RX_CCP,                /* CCP RX CH */
     MCAL_CAN1_RX_MCU_STATUS3,       /* CAN1 MCU STATUS3 RX CH */
     MCAL_CAN2_RX_MCU_STATUS3,       /* CAN2 MCU STATUS3 RX CH */
@@ -58,7 +58,7 @@ typedef enum
 
 typedef enum
 {
-    MCAL_CAN1_TX_CH,            /* CAN1 test */
+    MCAL_CAN_TX_TEST,           /* CAN test */
     MCAL_CAN_TX_CCP,            /* CCP TX CH */
     MCAL_CAN1_TX_SECC_MSG1,     /* CAN1 SECC_MSG1 */
     MCAL_CAN1_TX_SECC_MSG2,     /* CAN1 SECC_MSG2 */

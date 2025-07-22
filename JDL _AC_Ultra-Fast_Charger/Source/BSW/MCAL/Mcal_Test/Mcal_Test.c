@@ -172,10 +172,10 @@ void Mcal_Can_Send_Test(void)
         McalRetVal_t ret;
 
         // Send a CAN message
-        ret = Mcal_Can_Send_Msg(MCAL_CAN1_TX_CH, data, sizeof(data));
+        ret = Mcal_Can_Send_Msg(MCAL_CAN_TX_TEST, data, sizeof(data));
         if (ret == MCAL_RET_SUCCESS)
         {
-            MCAL_DEBUG("CAN message sent successfully. TxMailbox:%d \r\n", Mcal_Can_Get_TxMailbox(MCAL_CAN1_TX_CH));
+            MCAL_DEBUG("CAN message sent successfully. TxMailbox:%d \r\n", Mcal_Can_Get_TxMailbox(MCAL_CAN_TX_TEST));
         }
         else
         {
@@ -191,7 +191,7 @@ void Mcal_Can_Rcv_Test(void)
     uint8_t RcvBUff[256] = {0};
     uint8_t RcvLen = 0;
 
-    RcvLen = Mcal_Can_Receive_Msg(MCAL_CAN1_RX_TEST, RcvBUff, sizeof(RcvBUff));
+    RcvLen = Mcal_Can_Receive_Msg(MCAL_CAN_RX_TEST, RcvBUff, sizeof(RcvBUff));
     if (RcvLen)
     {
         // Process received CAN message

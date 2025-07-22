@@ -26,7 +26,7 @@
 uint8_t Ccp_CanDrv_Transmit(const uint8_t *pData, uint8_t length)
 {
     /* TODO: Add CAN transmit code here */
-    McalRetVal_t ret = Mcal_Can_Send_Msg(MCAL_CAN1_TX_CH, (uint8_t *)pData, length);
+    McalRetVal_t ret = Mcal_Can_Send_Msg(MCAL_CAN_TX_CCP, (uint8_t *)pData, length);
 
     if (ret != MCAL_RET_SUCCESS)
     {

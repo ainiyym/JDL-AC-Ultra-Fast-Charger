@@ -36,10 +36,10 @@ Mcal_CanChannelCfg_t Mcal_CanChannelCfgTable[MCAL_CAN_CH_MAX_NUMBER] =
 
 Mcal_CanTxChannelCfg_t Mcal_CanTxChannelCfgTable[MCAL_CAN_TX_MAX_NUMBER] =
     {
-        [MCAL_CAN1_TX_CH] = {
-            .CanTxChannel = MCAL_CAN1_TX_CH,
+        [MCAL_CAN_TX_TEST] = {
+            .CanTxChannel = MCAL_CAN_TX_TEST,
             .CanHandle = &hcan1,
-            .TxHeader.ExtId = MCAL_CAN1_TX_TEST_ID,                       // Extended identifier (29 bits)
+            .TxHeader.ExtId = MCAL_CAN_TX_TEST_ID,                       // Extended identifier (29 bits)
             .TxHeader.IDE = CAN_ID_EXT,                                   // Extended frame
             .TxHeader.RTR = CAN_RTR_DATA,                                 // Data frame
             .TxHeader.DLC = 8,                                            // Data length
@@ -100,8 +100,8 @@ Mcal_CanTxChannelCfg_t Mcal_CanTxChannelCfgTable[MCAL_CAN_TX_MAX_NUMBER] =
 
 Mcal_CanFilterCfg_t Mcal_CanFilterCfgTable[MCAL_CAN_RX_MAX_NUMBER] =
     {
-        [MCAL_CAN1_RX_TEST] = {
-            .CanChannel = MCAL_CAN1_RX_TEST,                                     // CAN channel
+        [MCAL_CAN_RX_TEST] = {
+            .CanChannel = MCAL_CAN_RX_TEST,                                     // CAN channel
             .CanHandle = &hcan1,                                                 // CAN Handle
             .FilterConfig.FilterBank = 10,                                       // the filter bank number
             .FilterConfig.FilterMode = CAN_FILTERMODE_IDMASK,                    // Filter mode
@@ -309,14 +309,14 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *CanNum)
     {
       HAL_CAN_GetRxMessage(Mcal_CanFilterCfgTable[chNum].CanHandle, Mcal_CanFilterCfgTable[chNum].FilterConfig.FilterFIFOAssignment, &Mcal_CanCtrl.RxHeader, Mcal_CanCtrl.rcvData);
       /* Check if the received message is from CAN1_RX_TEST */
-      if (Mcal_CanCtrl.RxHeader.DLC > 0 && Mcal_CanCtrl.RxHeader.ExtId == MCAL_CAN1_RX_TEST_ID)
+      if (Mcal_CanCtrl.RxHeader.DLC > 0 && Mcal_CanCtrl.RxHeader.ExtId == MCAL_CAN_RX_TEST_ID)
       {
         if (8 == Mcal_CanCtrl.RxHeader.DLC)
         {
-          MCAL_CYCBUF_WRITE(Mcal_CanCtrl.Buf[MCAL_CAN1_RX_TEST].RcvCycBufID, Mcal_CanCtrl.rcvData, Mcal_CanCtrl.RxHeader.DLC);
+          MCAL_CYCBUF_WRITE(Mcal_CanCtrl.Buf[MCAL_CAN_RX_TEST].RcvCycBufID, Mcal_CanCtrl.rcvData, Mcal_CanCtrl.RxHeader.DLC);
         }else
         {
-          MCAL_ERROR("%s ID:%x RcvErr!\n\r", __FUNCTION__, MCAL_CAN1_RX_TEST_ID);
+          MCAL_ERROR("%s ID:%x RcvErr!\n\r", __FUNCTION__, MCAL_CAN_RX_TEST_ID);
         }
       }
       /* Check if the received message is from CNA1_MCU_STATUS3 */
