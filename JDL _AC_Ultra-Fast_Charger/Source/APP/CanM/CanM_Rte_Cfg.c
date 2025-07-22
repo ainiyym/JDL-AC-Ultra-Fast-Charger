@@ -275,10 +275,8 @@ void CanM_Set_SECC_MSG1_Input(SysConnector_Num_Enum connector)
     }
 }
 
-uint64m_T CanM_Get_SECC_MSG1_Output(SysConnector_Num_Enum connector)
+uint64_t CanM_Get_SECC_MSG1_Output(SysConnector_Num_Enum connector)
 {
-    uint64m_T defaultOutput = {0, 0}; // Default output in case of invalid connector
-
     if (connector == SYS_CONNECTOR1)
     {
         return CanM_MsgM_Y.SECC_MSG1_OutU64;
@@ -292,7 +290,7 @@ uint64m_T CanM_Get_SECC_MSG1_Output(SysConnector_Num_Enum connector)
     else
     {
         /* Invalid connector, handle error if necessary */
-        return defaultOutput; /* Default return value for invalid connector */
+        return 0; /* Default return value for invalid connector */
     }
 }
 
@@ -348,10 +346,8 @@ void CanM_Set_SECC_MSG2_Input(SysConnector_Num_Enum connector, CanM_SECC_MSG2_In
     }
 }
 
-uint64m_T CanM_Get_SECC_MSG2_Output(SysConnector_Num_Enum connector)
+uint64_t CanM_Get_SECC_MSG2_Output(SysConnector_Num_Enum connector)
 {
-    uint64m_T defaultOutput = {0, 0}; // Default output in case of invalid connector
-
     if (connector == SYS_CONNECTOR1)
     {
         return CanM_MsgM_Y.SECC_MSG2_OutU64;
@@ -365,7 +361,7 @@ uint64m_T CanM_Get_SECC_MSG2_Output(SysConnector_Num_Enum connector)
     else
     {
         /* Invalid connector, handle error if necessary */
-        return defaultOutput; /* Default return value for invalid connector */
+        return 0; /* Default return value for invalid connector */
     }
 }
 

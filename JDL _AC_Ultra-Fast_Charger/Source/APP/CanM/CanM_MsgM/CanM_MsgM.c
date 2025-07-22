@@ -3,22 +3,22 @@
  *
  * Code generated for Simulink model 'CanM_MsgM'.
  *
- * Model version                  : 1.129
+ * Model version                  : 1.133
  * Simulink Coder version         : 23.2 (R2023b) 01-Aug-2023
- * C/C++ source code generated on : Mon Jul 21 08:32:47 2025
+ * C/C++ source code generated on : Tue Jul 22 14:35:47 2025
  *
  * Target selection: ert.tlc
- * Embedded hardware selection: Intel->x86-64 (Windows64)
+ * Embedded hardware selection: ARM Compatible->ARM Cortex-M
  * Code generation objectives: Unspecified
  * Validation result: Not run
  */
 
 #include "CanM_MsgM.h"
-#include "multiword_types.h"
 #include "rtwtypes.h"
 #include "CanM_MsgM_private.h"
 #include <math.h>
 #include "rt_nonfinite.h"
+#include <string.h>
 
 /* Block signals (default storage) */
 B_CanM_MsgM_T CanM_MsgM_B;
@@ -35,138 +35,6 @@ ExtY_CanM_MsgM_T CanM_MsgM_Y;
 /* Real-time model */
 static RT_MODEL_CanM_MsgM_T CanM_MsgM_M_;
 RT_MODEL_CanM_MsgM_T *const CanM_MsgM_M = &CanM_MsgM_M_;
-void uMultiWordShr(const uint32_T u1[], int32_T n1, uint32_T n2, uint32_T y[],
-                   int32_T n)
-{
-  int32_T i;
-  int32_T i1;
-  int32_T nb;
-  nb = (int32_T)(n2 >> 5);
-  i = 0;
-  if (nb < n1) {
-    int32_T nc;
-    uint32_T nr;
-    nc = n + nb;
-    if (nc > n1) {
-      nc = n1;
-    }
-
-    nr = n2 - ((uint32_T)nb << 5);
-    if (nr > 0U) {
-      uint32_T u1i;
-      uint32_T yi;
-      u1i = u1[nb];
-      for (i1 = nb + 1; i1 < nc; i1++) {
-        yi = u1i >> nr;
-        u1i = u1[i1];
-        y[i] = u1i << (32U - nr) | yi;
-        i++;
-      }
-
-      yi = u1i >> nr;
-      if (nc < n1) {
-        yi |= u1[nc] << (32U - nr);
-      }
-
-      y[i] = yi;
-      i++;
-    } else {
-      for (i1 = nb; i1 < nc; i1++) {
-        y[i] = u1[i1];
-        i++;
-      }
-    }
-  }
-
-  while (i < n) {
-    y[i] = 0U;
-    i++;
-  }
-}
-
-void uMultiWordShl(const uint32_T u1[], int32_T n1, uint32_T n2, uint32_T y[],
-                   int32_T n)
-{
-  int32_T i;
-  int32_T nb;
-  int32_T nc;
-  uint32_T u1i;
-  uint32_T ys;
-  nb = (int32_T)(n2 >> 5);
-  ys = (u1[n1 - 1] & 2147483648U) != 0U ? MAX_uint32_T : 0U;
-  nc = nb > n ? n : nb;
-  u1i = 0U;
-  for (i = 0; i < nc; i++) {
-    y[i] = 0U;
-  }
-
-  if (nb < n) {
-    uint32_T nl;
-    nl = n2 - ((uint32_T)nb << 5);
-    nb += n1;
-    if (nb > n) {
-      nb = n;
-    }
-
-    nb -= i;
-    if (nl > 0U) {
-      for (nc = 0; nc < nb; nc++) {
-        uint32_T yi;
-        yi = u1i >> (32U - nl);
-        u1i = u1[nc];
-        y[i] = u1i << nl | yi;
-        i++;
-      }
-
-      if (i < n) {
-        y[i] = u1i >> (32U - nl) | ys << nl;
-        i++;
-      }
-    } else {
-      for (nc = 0; nc < nb; nc++) {
-        y[i] = u1[nc];
-        i++;
-      }
-    }
-  }
-
-  while (i < n) {
-    y[i] = ys;
-    i++;
-  }
-}
-
-void uLong2MultiWord(uint32_T u, uint32_T y[], int32_T n)
-{
-  int32_T i;
-  y[0] = u;
-  for (i = 1; i < n; i++) {
-    y[i] = 0U;
-  }
-}
-
-void MultiWordIor(const uint32_T u1[], const uint32_T u2[], uint32_T y[],
-                  int32_T n)
-{
-  int32_T i;
-  for (i = 0; i < n; i++) {
-    y[i] = u1[i] | u2[i];
-  }
-}
-
-uint32_T MultiWord2uLong(const uint32_T u[])
-{
-  return u[0];
-}
-
-void MultiWordAnd(const uint32_T u1[], const uint32_T u2[], uint32_T y[],
-                  int32_T n)
-{
-  int32_T i;
-  for (i = 0; i < n; i++) {
-    y[i] = u1[i] & u2[i];
-  }
-}
 
 /*
  * Output and update for atomic system:
@@ -182,10 +50,10 @@ void MultiWordAnd(const uint32_T u1[], const uint32_T u2[], uint32_T y[],
  *    '<S25>/Bit Shift2'
  *    ...
  */
-void CanM_MsgM_BitShift(uint64m_T rtu_u, uint64m_T *rty_y)
+uint64_T CanM_MsgM_BitShift(uint64_T rtu_u)
 {
   /* MATLAB Function: '<S10>/bit_shift' */
-  uMultiWordShr(&rtu_u.chunks[0U], 2, 8U, &rty_y->chunks[0U], 2);
+  return rtu_u >> 8;
 }
 
 /*
@@ -195,10 +63,10 @@ void CanM_MsgM_BitShift(uint64m_T rtu_u, uint64m_T *rty_y)
  *    '<S5>/Bit Shift'
  *    '<S6>/Bit Shift'
  */
-void CanM_MsgM_BitShift_e(uint64m_T rtu_u, uint64m_T *rty_y)
+uint64_T CanM_MsgM_BitShift_e(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S44>/bit_shift' */
-  uMultiWordShl(&rtu_u.chunks[0U], 2, 8U, &rty_y->chunks[0U], 2);
+  /* MATLAB Function: '<S41>/bit_shift' */
+  return rtu_u << 8;
 }
 
 /*
@@ -208,10 +76,10 @@ void CanM_MsgM_BitShift_e(uint64m_T rtu_u, uint64m_T *rty_y)
  *    '<S5>/Bit Shift1'
  *    '<S6>/Bit Shift1'
  */
-void CanM_MsgM_BitShift1(uint64m_T rtu_u, uint64m_T *rty_y)
+uint64_T CanM_MsgM_BitShift1(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S45>/bit_shift' */
-  uMultiWordShl(&rtu_u.chunks[0U], 2, 16U, &rty_y->chunks[0U], 2);
+  /* MATLAB Function: '<S42>/bit_shift' */
+  return rtu_u << 16;
 }
 
 /*
@@ -221,10 +89,10 @@ void CanM_MsgM_BitShift1(uint64m_T rtu_u, uint64m_T *rty_y)
  *    '<S5>/Bit Shift2'
  *    '<S6>/Bit Shift2'
  */
-void CanM_MsgM_BitShift2(uint64m_T rtu_u, uint64m_T *rty_y)
+uint64_T CanM_MsgM_BitShift2(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S46>/bit_shift' */
-  uMultiWordShl(&rtu_u.chunks[0U], 2, 24U, &rty_y->chunks[0U], 2);
+  /* MATLAB Function: '<S43>/bit_shift' */
+  return rtu_u << 24;
 }
 
 /*
@@ -234,10 +102,10 @@ void CanM_MsgM_BitShift2(uint64m_T rtu_u, uint64m_T *rty_y)
  *    '<S5>/Bit Shift3'
  *    '<S6>/Bit Shift3'
  */
-void CanM_MsgM_BitShift3(uint64m_T rtu_u, uint64m_T *rty_y)
+uint64_T CanM_MsgM_BitShift3(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S47>/bit_shift' */
-  uMultiWordShl(&rtu_u.chunks[0U], 2, 32U, &rty_y->chunks[0U], 2);
+  /* MATLAB Function: '<S44>/bit_shift' */
+  return rtu_u << 32;
 }
 
 /*
@@ -247,10 +115,10 @@ void CanM_MsgM_BitShift3(uint64m_T rtu_u, uint64m_T *rty_y)
  *    '<S5>/Bit Shift4'
  *    '<S6>/Bit Shift4'
  */
-void CanM_MsgM_BitShift4(uint64m_T rtu_u, uint64m_T *rty_y)
+uint64_T CanM_MsgM_BitShift4(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S48>/bit_shift' */
-  uMultiWordShl(&rtu_u.chunks[0U], 2, 40U, &rty_y->chunks[0U], 2);
+  /* MATLAB Function: '<S45>/bit_shift' */
+  return rtu_u << 40;
 }
 
 /*
@@ -260,10 +128,10 @@ void CanM_MsgM_BitShift4(uint64m_T rtu_u, uint64m_T *rty_y)
  *    '<S5>/Bit Shift5'
  *    '<S6>/Bit Shift5'
  */
-void CanM_MsgM_BitShift5(uint64m_T rtu_u, uint64m_T *rty_y)
+uint64_T CanM_MsgM_BitShift5(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S49>/bit_shift' */
-  uMultiWordShl(&rtu_u.chunks[0U], 2, 48U, &rty_y->chunks[0U], 2);
+  /* MATLAB Function: '<S46>/bit_shift' */
+  return rtu_u << 48;
 }
 
 /*
@@ -273,10 +141,10 @@ void CanM_MsgM_BitShift5(uint64m_T rtu_u, uint64m_T *rty_y)
  *    '<S5>/Bit Shift6'
  *    '<S6>/Bit Shift6'
  */
-void CanM_MsgM_BitShift6(uint64m_T rtu_u, uint64m_T *rty_y)
+uint64_T CanM_MsgM_BitShift6(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S50>/bit_shift' */
-  uMultiWordShl(&rtu_u.chunks[0U], 2, 56U, &rty_y->chunks[0U], 2);
+  /* MATLAB Function: '<S47>/bit_shift' */
+  return rtu_u << 56;
 }
 
 /*
@@ -287,45 +155,46 @@ void CanM_MsgM_BitShift6(uint64m_T rtu_u, uint64m_T *rty_y)
 void CanM_MsgM_SECC_MSG1(boolean_T rtu_Enable, uint16_T rtu_SECC_MSG1_L1_Curr,
   uint16_T rtu_SECC_MSG1_L1_Vol, uint16_T rtu_SECC_MSG1_L2_Curr, uint16_T
   rtu_SECC_MSG1_L2_Vol, uint16_T rtu_SECC_MSG1_L3_Curr, uint16_T
-  rtu_SECC_MSG1_L3_Vol, uint64m_T *rty_SECC_MSG1_OutU64, B_SECC_MSG1_CanM_MsgM_T
-  *localB, DW_SECC_MSG1_CanM_MsgM_T *localDW)
+  rtu_SECC_MSG1_L3_Vol, uint64_T *rty_SECC_MSG1_OutU64, B_SECC_MSG1_CanM_MsgM_T *
+  localB, DW_SECC_MSG1_CanM_MsgM_T *localDW)
 {
-  uint64m_T rtb_y_a;
-  uint64m_T rtb_y_an;
-  uint64m_T rtb_y_fd;
-  uint64m_T rtb_y_g;
-  uint64m_T rtb_y_k;
-  uint64m_T rtb_y_na;
-  uint64m_T rtb_y_pt;
-  uint64m_T tmp;
-  uint64m_T tmp_0;
-  uint64m_T tmp_1;
-  uint64m_T tmp_2;
-  uint64m_T tmp_3;
-  uint64m_T tmp_4;
-  uint64m_T tmp_5;
+  uint64_T rtb_y_a;
+  uint64_T rtb_y_an;
+  uint64_T rtb_y_fd;
+  uint64_T rtb_y_g;
+  uint64_T rtb_y_k;
+  uint64_T rtb_y_na;
+  uint64_T rtb_y_pt;
 
   /* Outputs for Enabled SubSystem: '<Root>/SECC_MSG1' incorporates:
    *  EnablePort: '<S3>/Enable'
    */
   if (rtu_Enable) {
-    /* Sum: '<S41>/Subtract' incorporates:
-     *  Constant: '<S41>/Constant1'
-     */
-    localB->Subtract = (int16_T)(rtu_SECC_MSG1_L2_Curr - 1000U);
-
-    /* Sum: '<S42>/Subtract' incorporates:
-     *  Constant: '<S42>/Constant1'
-     */
-    localB->Subtract_l = (int16_T)(rtu_SECC_MSG1_L1_Curr - 1000U);
-
-    /* Sum: '<S43>/Subtract' incorporates:
-     *  Constant: '<S43>/Constant1'
-     */
-    localB->Subtract_e = (int16_T)(rtu_SECC_MSG1_L3_Curr - 1000U);
-
-    /* UnitDelay: '<S51>/Output' */
+    /* UnitDelay: '<S48>/Output' */
     localB->Output = localDW->Output_DSTATE;
+
+    /* Switch: '<S57>/FixPt Switch' incorporates:
+     *  Constant: '<S56>/FixPt Constant'
+     *  Constant: '<S57>/Constant'
+     *  Sum: '<S56>/FixPt Sum1'
+     *  UnitDelay: '<S48>/Output'
+     */
+    if ((uint8_T)(localB->Output + 1U) > 15) {
+      localDW->Output_DSTATE = 0U;
+    } else {
+      localDW->Output_DSTATE = (uint8_T)(localB->Output + 1U);
+    }
+
+    /* End of Switch: '<S57>/FixPt Switch' */
+
+    /* DataTypeConversion: '<S3>/Data Type Conversion8' */
+    localB->DataTypeConversion8 = (int16_T)rtu_SECC_MSG1_L1_Curr;
+
+    /* DataTypeConversion: '<S3>/Data Type Conversion9' */
+    localB->DataTypeConversion9 = (int16_T)rtu_SECC_MSG1_L2_Curr;
+
+    /* DataTypeConversion: '<S3>/Data Type Conversion10' */
+    localB->DataTypeConversion10 = (int16_T)rtu_SECC_MSG1_L3_Curr;
 
     /* S-Function (scanpack): '<S3>/SECC_MSG1 Pack' */
     /* S-Function (scanpack): '<S3>/SECC_MSG1 Pack' */
@@ -394,7 +263,7 @@ void CanM_MsgM_SECC_MSG1(boolean_T rtu_Enable, uint16_T rtu_SECC_MSG1_L1_Curr,
         int32_T packingValue = 0;
 
         {
-          int32_T result = (int32_T) (localB->Subtract_l);
+          int32_T result = (int32_T) (localB->DataTypeConversion8);
 
           /* no factor to apply */
           result = (int32_T) (result - -1000);
@@ -482,7 +351,7 @@ void CanM_MsgM_SECC_MSG1(boolean_T rtu_Enable, uint16_T rtu_SECC_MSG1_L1_Curr,
         int32_T packingValue = 0;
 
         {
-          int32_T result = (int32_T) (localB->Subtract);
+          int32_T result = (int32_T) (localB->DataTypeConversion9);
 
           /* no factor to apply */
           result = (int32_T) (result - -1000);
@@ -571,7 +440,7 @@ void CanM_MsgM_SECC_MSG1(boolean_T rtu_Enable, uint16_T rtu_SECC_MSG1_L1_Curr,
         int32_T packingValue = 0;
 
         {
-          int32_T result = (int32_T) (localB->Subtract_e);
+          int32_T result = (int32_T) (localB->DataTypeConversion10);
 
           /* no factor to apply */
           result = (int32_T) (result - -1000);
@@ -646,90 +515,53 @@ void CanM_MsgM_SECC_MSG1(boolean_T rtu_Enable, uint16_T rtu_SECC_MSG1_L1_Curr,
       }
     }
 
-    /* DataTypeConversion: '<S3>/Data Type Conversion1' */
-    uLong2MultiWord(localB->SECC_MSG1Pack.Data[1], &rtb_y_an.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S3>/Bit Shift' */
-    CanM_MsgM_BitShift_e(rtb_y_an, &rtb_y_fd);
+    /* DataTypeConversion: '<S3>/Data Type Conversion1' */
+    rtb_y_fd = CanM_MsgM_BitShift_e((uint64_T)localB->SECC_MSG1Pack.Data[1]);
 
     /* End of Outputs for SubSystem: '<S3>/Bit Shift' */
 
-    /* DataTypeConversion: '<S3>/Data Type Conversion2' */
-    uLong2MultiWord(localB->SECC_MSG1Pack.Data[2], &rtb_y_k.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S3>/Bit Shift1' */
-    CanM_MsgM_BitShift1(rtb_y_k, &rtb_y_an);
+    /* DataTypeConversion: '<S3>/Data Type Conversion2' */
+    rtb_y_an = CanM_MsgM_BitShift1((uint64_T)localB->SECC_MSG1Pack.Data[2]);
 
     /* End of Outputs for SubSystem: '<S3>/Bit Shift1' */
 
-    /* DataTypeConversion: '<S3>/Data Type Conversion3' */
-    uLong2MultiWord(localB->SECC_MSG1Pack.Data[3], &rtb_y_na.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S3>/Bit Shift2' */
-    CanM_MsgM_BitShift2(rtb_y_na, &rtb_y_k);
+    /* DataTypeConversion: '<S3>/Data Type Conversion3' */
+    rtb_y_k = CanM_MsgM_BitShift2((uint64_T)localB->SECC_MSG1Pack.Data[3]);
 
     /* End of Outputs for SubSystem: '<S3>/Bit Shift2' */
 
-    /* DataTypeConversion: '<S3>/Data Type Conversion4' */
-    uLong2MultiWord(localB->SECC_MSG1Pack.Data[4], &rtb_y_a.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S3>/Bit Shift3' */
-    CanM_MsgM_BitShift3(rtb_y_a, &rtb_y_na);
+    /* DataTypeConversion: '<S3>/Data Type Conversion4' */
+    rtb_y_na = CanM_MsgM_BitShift3((uint64_T)localB->SECC_MSG1Pack.Data[4]);
 
     /* End of Outputs for SubSystem: '<S3>/Bit Shift3' */
 
-    /* DataTypeConversion: '<S3>/Data Type Conversion5' */
-    uLong2MultiWord(localB->SECC_MSG1Pack.Data[5], &rtb_y_g.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S3>/Bit Shift4' */
-    CanM_MsgM_BitShift4(rtb_y_g, &rtb_y_a);
+    /* DataTypeConversion: '<S3>/Data Type Conversion5' */
+    rtb_y_a = CanM_MsgM_BitShift4((uint64_T)localB->SECC_MSG1Pack.Data[5]);
 
     /* End of Outputs for SubSystem: '<S3>/Bit Shift4' */
 
-    /* DataTypeConversion: '<S3>/Data Type Conversion6' */
-    uLong2MultiWord(localB->SECC_MSG1Pack.Data[6], &rtb_y_pt.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S3>/Bit Shift5' */
-    CanM_MsgM_BitShift5(rtb_y_pt, &rtb_y_g);
+    /* DataTypeConversion: '<S3>/Data Type Conversion6' */
+    rtb_y_g = CanM_MsgM_BitShift5((uint64_T)localB->SECC_MSG1Pack.Data[6]);
 
     /* End of Outputs for SubSystem: '<S3>/Bit Shift5' */
 
-    /* DataTypeConversion: '<S3>/Data Type Conversion7' */
-    uLong2MultiWord(localB->SECC_MSG1Pack.Data[7], &tmp.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S3>/Bit Shift6' */
-    CanM_MsgM_BitShift6(tmp, &rtb_y_pt);
+    /* DataTypeConversion: '<S3>/Data Type Conversion7' */
+    rtb_y_pt = CanM_MsgM_BitShift6((uint64_T)localB->SECC_MSG1Pack.Data[7]);
 
     /* End of Outputs for SubSystem: '<S3>/Bit Shift6' */
 
-    /* DataTypeConversion: '<S3>/Data Type Conversion' */
-    uLong2MultiWord(localB->SECC_MSG1Pack.Data[0], &tmp_5.chunks[0U], 2);
-
-    /* S-Function (sfix_bitop): '<S3>/Bitwise OR' */
-    MultiWordIor(&tmp_5.chunks[0U], &rtb_y_fd.chunks[0U], &tmp_4.chunks[0U], 2);
-    MultiWordIor(&tmp_4.chunks[0U], &rtb_y_an.chunks[0U], &tmp_3.chunks[0U], 2);
-    MultiWordIor(&tmp_3.chunks[0U], &rtb_y_k.chunks[0U], &tmp_2.chunks[0U], 2);
-    MultiWordIor(&tmp_2.chunks[0U], &rtb_y_na.chunks[0U], &tmp_1.chunks[0U], 2);
-    MultiWordIor(&tmp_1.chunks[0U], &rtb_y_a.chunks[0U],
-                 &rty_SECC_MSG1_OutU64->chunks[0U], 2);
-    MultiWordIor(&rty_SECC_MSG1_OutU64->chunks[0U], &rtb_y_g.chunks[0U],
-                 &tmp_0.chunks[0U], 2);
-    MultiWordIor(&tmp_0.chunks[0U], &rtb_y_pt.chunks[0U],
-                 &rty_SECC_MSG1_OutU64->chunks[0U], 2);
-
-    /* Switch: '<S60>/FixPt Switch' incorporates:
-     *  Constant: '<S59>/FixPt Constant'
-     *  Constant: '<S60>/Constant'
-     *  Sum: '<S59>/FixPt Sum1'
-     *  UnitDelay: '<S51>/Output'
+    /* S-Function (sfix_bitop): '<S3>/Bitwise OR' incorporates:
+     *  DataTypeConversion: '<S3>/Data Type Conversion'
      */
-    if ((uint8_T)(localB->Output + 1) > 15) {
-      localDW->Output_DSTATE = 0U;
-    } else {
-      localDW->Output_DSTATE = (uint8_T)(localB->Output + 1);
-    }
-
-    /* End of Switch: '<S60>/FixPt Switch' */
+    *rty_SECC_MSG1_OutU64 = localB->SECC_MSG1Pack.Data[0] | rtb_y_fd | rtb_y_an |
+      rtb_y_k | rtb_y_na | rtb_y_a | rtb_y_g | rtb_y_pt;
   }
 
   /* End of Outputs for SubSystem: '<Root>/SECC_MSG1' */
@@ -738,127 +570,88 @@ void CanM_MsgM_SECC_MSG1(boolean_T rtu_Enable, uint16_T rtu_SECC_MSG1_L1_Curr,
 /* Model step function */
 void CanM_MsgM_step(void)
 {
-  uint64m_T rtb_DataTypeConversion;
-  uint64m_T rtb_y;
-  uint64m_T rtb_y_ay;
-  uint64m_T rtb_y_f;
-  uint64m_T rtb_y_j;
-  uint64m_T rtb_y_ko;
-  uint64m_T rtb_y_l;
-  uint64m_T rtb_y_m;
-  uint64m_T tmp_0;
-  uint64m_T tmp_1;
-  uint64m_T tmp_2;
-  uint64m_T tmp_3;
-  uint64m_T tmp_4;
-  uint64m_T tmp_5;
-  uint64m_T tmp_6;
-  uint64m_T tmp_7;
-  uint64m_T tmp_8;
-  uint64m_T tmp_9;
-  uint64m_T tmp_a;
-  uint64m_T tmp_b;
-  uint64m_T tmp_c;
-  uint64m_T tmp_d;
-  uint64m_T tmp_e;
-  uint64m_T tmp_f;
-  uint64m_T tmp_g;
-  uint64m_T tmp_h;
-  uint64m_T tmp_i;
-  uint64m_T tmp_j;
   real_T tmp;
+  uint64_T rtb_DataTypeConversion;
+  uint64_T rtb_y;
+  uint64_T rtb_y_ay;
+  uint64_T rtb_y_f;
+  uint64_T rtb_y_j;
+  uint64_T rtb_y_ko;
+  uint64_T rtb_y_l;
+  uint64_T rtb_y_m;
   uint8_T rtb_DataTypeConversion_j;
   uint8_T rtb_DataTypeConversion_o;
 
   /* Outputs for Atomic SubSystem: '<S8>/Bit Shift' */
   /* Inport: '<Root>/MCU_Status3_Data' */
-  CanM_MsgM_BitShift(CanM_MsgM_U.MCU_Status3_Data, &rtb_y_m);
+  rtb_y_m = CanM_MsgM_BitShift(CanM_MsgM_U.MCU_Status3_Data);
 
   /* End of Outputs for SubSystem: '<S8>/Bit Shift' */
 
-  /* S-Function (sfix_bitop): '<S8>/Bitwise AND1' */
-  rtb_y = CanM_MsgM_ConstP.pooled12;
-  MultiWordAnd(&rtb_y_m.chunks[0U], &CanM_MsgM_ConstP.pooled12.chunks[0],
-               &tmp_0.chunks[0U], 2);
-
   /* BusCreator: '<S1>/Bus Creator1' incorporates:
    *  DataTypeConversion: '<S8>/Data Type Conversion1'
+   *  S-Function (sfix_bitop): '<S8>/Bitwise AND1'
    */
-  CanM_MsgM_B.BusCreator1.Data[1] = (uint8_T)MultiWord2uLong(&tmp_0.chunks[0U]);
+  CanM_MsgM_B.BusCreator1.Data[1] = (uint8_T)(rtb_y_m & 255ULL);
 
   /* Outputs for Atomic SubSystem: '<S8>/Bit Shift1' */
-  CanM_MsgM_BitShift(rtb_y_m, &rtb_y_f);
+  rtb_y_f = CanM_MsgM_BitShift(rtb_y_m);
 
   /* End of Outputs for SubSystem: '<S8>/Bit Shift1' */
 
-  /* S-Function (sfix_bitop): '<S8>/Bitwise AND2' */
-  tmp_0 = CanM_MsgM_ConstP.pooled12;
-  MultiWordAnd(&rtb_y_f.chunks[0U], &CanM_MsgM_ConstP.pooled12.chunks[0],
-               &rtb_y.chunks[0U], 2);
-
   /* BusCreator: '<S1>/Bus Creator1' incorporates:
    *  DataTypeConversion: '<S8>/Data Type Conversion2'
+   *  S-Function (sfix_bitop): '<S8>/Bitwise AND2'
    */
-  CanM_MsgM_B.BusCreator1.Data[2] = (uint8_T)MultiWord2uLong(&rtb_y.chunks[0U]);
+  CanM_MsgM_B.BusCreator1.Data[2] = (uint8_T)(rtb_y_f & 255ULL);
 
   /* Outputs for Atomic SubSystem: '<S8>/Bit Shift2' */
-  CanM_MsgM_BitShift(rtb_y_f, &rtb_y_m);
+  rtb_y_m = CanM_MsgM_BitShift(rtb_y_f);
 
   /* End of Outputs for SubSystem: '<S8>/Bit Shift2' */
 
-  /* S-Function (sfix_bitop): '<S8>/Bitwise AND3' */
-  rtb_y = CanM_MsgM_ConstP.pooled12;
-  MultiWordAnd(&rtb_y_m.chunks[0U], &CanM_MsgM_ConstP.pooled12.chunks[0],
-               &tmp_0.chunks[0U], 2);
-
   /* BusCreator: '<S1>/Bus Creator1' incorporates:
    *  DataTypeConversion: '<S8>/Data Type Conversion3'
+   *  S-Function (sfix_bitop): '<S8>/Bitwise AND3'
    */
-  CanM_MsgM_B.BusCreator1.Data[3] = (uint8_T)MultiWord2uLong(&tmp_0.chunks[0U]);
+  CanM_MsgM_B.BusCreator1.Data[3] = (uint8_T)(rtb_y_m & 255ULL);
 
   /* Outputs for Atomic SubSystem: '<S8>/Bit Shift3' */
-  CanM_MsgM_BitShift(rtb_y_m, &rtb_y_f);
+  rtb_y_f = CanM_MsgM_BitShift(rtb_y_m);
 
   /* End of Outputs for SubSystem: '<S8>/Bit Shift3' */
 
-  /* S-Function (sfix_bitop): '<S8>/Bitwise AND4' */
-  tmp_0 = CanM_MsgM_ConstP.pooled12;
-  MultiWordAnd(&rtb_y_f.chunks[0U], &CanM_MsgM_ConstP.pooled12.chunks[0],
-               &rtb_y.chunks[0U], 2);
-
   /* BusCreator: '<S1>/Bus Creator1' incorporates:
    *  DataTypeConversion: '<S8>/Data Type Conversion4'
+   *  S-Function (sfix_bitop): '<S8>/Bitwise AND4'
    */
-  CanM_MsgM_B.BusCreator1.Data[4] = (uint8_T)MultiWord2uLong(&rtb_y.chunks[0U]);
+  CanM_MsgM_B.BusCreator1.Data[4] = (uint8_T)(rtb_y_f & 255ULL);
 
   /* Outputs for Atomic SubSystem: '<S8>/Bit Shift4' */
-  CanM_MsgM_BitShift(rtb_y_f, &rtb_y_m);
+  rtb_y_m = CanM_MsgM_BitShift(rtb_y_f);
 
   /* End of Outputs for SubSystem: '<S8>/Bit Shift4' */
 
-  /* S-Function (sfix_bitop): '<S8>/Bitwise AND5' */
-  MultiWordAnd(&rtb_y_m.chunks[0U], &CanM_MsgM_ConstP.pooled12.chunks[0],
-               &tmp_0.chunks[0U], 2);
-
   /* BusCreator: '<S1>/Bus Creator1' incorporates:
    *  DataTypeConversion: '<S8>/Data Type Conversion5'
+   *  S-Function (sfix_bitop): '<S8>/Bitwise AND5'
    */
-  CanM_MsgM_B.BusCreator1.Data[5] = (uint8_T)MultiWord2uLong(&tmp_0.chunks[0U]);
+  CanM_MsgM_B.BusCreator1.Data[5] = (uint8_T)(rtb_y_m & 255ULL);
 
   /* Outputs for Atomic SubSystem: '<S8>/Bit Shift5' */
-  CanM_MsgM_BitShift(rtb_y_m, &rtb_y_f);
+  rtb_y_f = CanM_MsgM_BitShift(rtb_y_m);
 
   /* End of Outputs for SubSystem: '<S8>/Bit Shift5' */
 
   /* Outputs for Atomic SubSystem: '<S8>/Bit Shift6' */
-  CanM_MsgM_BitShift(rtb_y_f, &rtb_y_m);
+  rtb_y_m = CanM_MsgM_BitShift(rtb_y_f);
 
   /* End of Outputs for SubSystem: '<S8>/Bit Shift6' */
 
-  /* S-Function (sfix_bitop): '<S8>/Bitwise AND7' */
-  rtb_y = CanM_MsgM_ConstP.pooled12;
-  MultiWordAnd(&rtb_y_m.chunks[0U], &CanM_MsgM_ConstP.pooled12.chunks[0],
-               &rtb_DataTypeConversion.chunks[0U], 2);
+  /* S-Function (sfix_bitop): '<S8>/Bitwise AND7' incorporates:
+   *  DataTypeConversion: '<S6>/Data Type Conversion'
+   */
+  rtb_DataTypeConversion = rtb_y_m & 255ULL;
 
   /* BusCreator: '<S1>/Bus Creator1' incorporates:
    *  Constant: '<S1>/Constant26'
@@ -867,6 +660,13 @@ void CanM_MsgM_step(void)
    *  Constant: '<S1>/Constant29'
    *  Constant: '<S1>/Constant3'
    *  Constant: '<S1>/Constant30'
+   *  DataTypeConversion: '<S6>/Data Type Conversion'
+   *  DataTypeConversion: '<S8>/Data Type Conversion'
+   *  DataTypeConversion: '<S8>/Data Type Conversion6'
+   *  DataTypeConversion: '<S8>/Data Type Conversion7'
+   *  Inport: '<Root>/MCU_Status3_Data'
+   *  S-Function (sfix_bitop): '<S8>/Bitwise AND'
+   *  S-Function (sfix_bitop): '<S8>/Bitwise AND6'
    */
   CanM_MsgM_B.BusCreator1.Extended = 1U;
   CanM_MsgM_B.BusCreator1.Length = 8U;
@@ -874,31 +674,10 @@ void CanM_MsgM_step(void)
   CanM_MsgM_B.BusCreator1.Error = 0U;
   CanM_MsgM_B.BusCreator1.ID = 419406575U;
   CanM_MsgM_B.BusCreator1.Timestamp = 0.0;
-
-  /* S-Function (sfix_bitop): '<S8>/Bitwise AND' incorporates:
-   *  Inport: '<Root>/MCU_Status3_Data'
-   */
-  tmp_0 = CanM_MsgM_U.MCU_Status3_Data;
-  MultiWordAnd(&CanM_MsgM_U.MCU_Status3_Data.chunks[0U],
-               &CanM_MsgM_ConstP.pooled12.chunks[0], &rtb_y.chunks[0U], 2);
-
-  /* BusCreator: '<S1>/Bus Creator1' incorporates:
-   *  DataTypeConversion: '<S8>/Data Type Conversion'
-   */
-  CanM_MsgM_B.BusCreator1.Data[0] = (uint8_T)MultiWord2uLong(&rtb_y.chunks[0U]);
-
-  /* S-Function (sfix_bitop): '<S8>/Bitwise AND6' */
-  rtb_y = CanM_MsgM_ConstP.pooled12;
-  MultiWordAnd(&rtb_y_f.chunks[0U], &CanM_MsgM_ConstP.pooled12.chunks[0],
-               &tmp_0.chunks[0U], 2);
-
-  /* BusCreator: '<S1>/Bus Creator1' incorporates:
-   *  DataTypeConversion: '<S8>/Data Type Conversion6'
-   *  DataTypeConversion: '<S8>/Data Type Conversion7'
-   */
-  CanM_MsgM_B.BusCreator1.Data[6] = (uint8_T)MultiWord2uLong(&tmp_0.chunks[0U]);
-  CanM_MsgM_B.BusCreator1.Data[7] = (uint8_T)MultiWord2uLong
-    (&rtb_DataTypeConversion.chunks[0U]);
+  CanM_MsgM_B.BusCreator1.Data[0] = (uint8_T)(CanM_MsgM_U.MCU_Status3_Data &
+    255ULL);
+  CanM_MsgM_B.BusCreator1.Data[6] = (uint8_T)(rtb_y_f & 255ULL);
+  CanM_MsgM_B.BusCreator1.Data[7] = (uint8_T)rtb_DataTypeConversion;
 
   /* S-Function (scanunpack): '<S1>/CAN Unpack' */
   {
@@ -1256,7 +1035,6 @@ void CanM_MsgM_step(void)
    *  Inport: '<Root>/SECC_MSG1_L3_Curr'
    *  Inport: '<Root>/SECC_MSG1_L3_Vol'
    *  Outport: '<Root>/SECC_MSG1_OutU64'
-   *  S-Function (sfix_bitop): '<S8>/Bitwise AND'
    */
   CanM_MsgM_SECC_MSG1(CanM_MsgM_U.SECC_MSG_Enable, CanM_MsgM_U.SECC_MSG1_L1_Curr,
                       CanM_MsgM_U.SECC_MSG1_L1_Vol,
@@ -1273,14 +1051,13 @@ void CanM_MsgM_step(void)
    *  EnablePort: '<S5>/Enable'
    */
   if (CanM_MsgM_U.SECC_MSG_Enable) {
-    /* Sum: '<S81>/Subtract' incorporates:
-     *  Constant: '<S81>/Constant1'
+    /* UnitDelay: '<S82>/Output' */
+    CanM_MsgM_B.Output_h = CanM_MsgM_DW.Output_DSTATE_m;
+
+    /* DataTypeConversion: '<S5>/Data Type Conversion8' incorporates:
      *  Inport: '<Root>/EVSE_RatedCurrent'
      */
-    CanM_MsgM_B.Subtract_e = (int16_T)(CanM_MsgM_U.EVSE_RatedCurrent - 2000U);
-
-    /* UnitDelay: '<S89>/Output' */
-    CanM_MsgM_B.Output_h = CanM_MsgM_DW.Output_DSTATE_m;
+    CanM_MsgM_B.DataTypeConversion8_i = (int16_T)CanM_MsgM_U.EVSE_RatedCurrent;
 
     /* S-Function (scanpack): '<S5>/SECC_MSG2 Pack' incorporates:
      *  Constant: '<S5>/Constant'
@@ -1787,7 +1564,7 @@ void CanM_MsgM_step(void)
         int32_T packingValue = 0;
 
         {
-          int32_T result = (int32_T) (CanM_MsgM_B.Subtract_e);
+          int32_T result = (int32_T) (CanM_MsgM_B.DataTypeConversion8_i);
 
           /* no factor to apply */
           result = (int32_T) (result - -2000);
@@ -2129,106 +1906,73 @@ void CanM_MsgM_step(void)
       }
     }
 
-    /* DataTypeConversion: '<S5>/Data Type Conversion1' */
-    uLong2MultiWord(CanM_MsgM_B.SECC_MSG2Pack_d.Data[1], &rtb_y.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S5>/Bit Shift' */
-    CanM_MsgM_BitShift_e(rtb_y, &rtb_DataTypeConversion);
+    rtb_DataTypeConversion = CanM_MsgM_BitShift_e((uint64_T)
+      CanM_MsgM_B.SECC_MSG2Pack_d.Data[1]);
 
     /* End of Outputs for SubSystem: '<S5>/Bit Shift' */
 
-    /* DataTypeConversion: '<S5>/Data Type Conversion2' incorporates:
-     *  DataTypeConversion: '<S5>/Data Type Conversion1'
-     *  S-Function (sfix_bitop): '<S8>/Bitwise AND'
-     */
-    uLong2MultiWord(CanM_MsgM_B.SECC_MSG2Pack_d.Data[2], &rtb_y_ko.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S5>/Bit Shift1' */
-    CanM_MsgM_BitShift1(rtb_y_ko, &rtb_y);
+    rtb_y = CanM_MsgM_BitShift1((uint64_T)CanM_MsgM_B.SECC_MSG2Pack_d.Data[2]);
 
     /* End of Outputs for SubSystem: '<S5>/Bit Shift1' */
 
-    /* DataTypeConversion: '<S5>/Data Type Conversion3' incorporates:
-     *  DataTypeConversion: '<S5>/Data Type Conversion2'
-     */
-    uLong2MultiWord(CanM_MsgM_B.SECC_MSG2Pack_d.Data[3], &rtb_y_l.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S5>/Bit Shift2' */
-    CanM_MsgM_BitShift2(rtb_y_l, &rtb_y_ko);
+    rtb_y_ko = CanM_MsgM_BitShift2((uint64_T)CanM_MsgM_B.SECC_MSG2Pack_d.Data[3]);
 
     /* End of Outputs for SubSystem: '<S5>/Bit Shift2' */
 
-    /* DataTypeConversion: '<S5>/Data Type Conversion4' incorporates:
-     *  DataTypeConversion: '<S5>/Data Type Conversion3'
-     */
-    uLong2MultiWord(CanM_MsgM_B.SECC_MSG2Pack_d.Data[4], &rtb_y_j.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S5>/Bit Shift3' */
-    CanM_MsgM_BitShift3(rtb_y_j, &rtb_y_l);
+    rtb_y_l = CanM_MsgM_BitShift3((uint64_T)CanM_MsgM_B.SECC_MSG2Pack_d.Data[4]);
 
     /* End of Outputs for SubSystem: '<S5>/Bit Shift3' */
 
-    /* DataTypeConversion: '<S5>/Data Type Conversion5' incorporates:
-     *  DataTypeConversion: '<S5>/Data Type Conversion4'
-     */
-    uLong2MultiWord(CanM_MsgM_B.SECC_MSG2Pack_d.Data[5], &rtb_y_ay.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S5>/Bit Shift4' */
-    CanM_MsgM_BitShift4(rtb_y_ay, &rtb_y_j);
+    rtb_y_j = CanM_MsgM_BitShift4((uint64_T)CanM_MsgM_B.SECC_MSG2Pack_d.Data[5]);
 
     /* End of Outputs for SubSystem: '<S5>/Bit Shift4' */
 
-    /* DataTypeConversion: '<S5>/Data Type Conversion6' incorporates:
-     *  DataTypeConversion: '<S5>/Data Type Conversion5'
-     */
-    uLong2MultiWord(CanM_MsgM_B.SECC_MSG2Pack_d.Data[6], &tmp_1.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S5>/Bit Shift5' */
-    CanM_MsgM_BitShift5(tmp_1, &rtb_y_ay);
+    rtb_y_ay = CanM_MsgM_BitShift5((uint64_T)CanM_MsgM_B.SECC_MSG2Pack_d.Data[6]);
 
     /* End of Outputs for SubSystem: '<S5>/Bit Shift5' */
 
-    /* DataTypeConversion: '<S5>/Data Type Conversion7' incorporates:
-     *  DataTypeConversion: '<S5>/Data Type Conversion6'
-     */
-    uLong2MultiWord(CanM_MsgM_B.SECC_MSG2Pack_d.Data[7], &tmp_2.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S5>/Bit Shift6' */
-    CanM_MsgM_BitShift6(tmp_2, &rtb_y_f);
+    rtb_y_f = CanM_MsgM_BitShift6((uint64_T)CanM_MsgM_B.SECC_MSG2Pack_d.Data[7]);
 
     /* End of Outputs for SubSystem: '<S5>/Bit Shift6' */
 
     /* DataTypeConversion: '<S5>/Data Type Conversion' incorporates:
+     *  DataTypeConversion: '<S5>/Data Type Conversion1'
+     *  DataTypeConversion: '<S5>/Data Type Conversion2'
+     *  DataTypeConversion: '<S5>/Data Type Conversion3'
+     *  DataTypeConversion: '<S5>/Data Type Conversion4'
+     *  DataTypeConversion: '<S5>/Data Type Conversion5'
+     *  DataTypeConversion: '<S5>/Data Type Conversion6'
      *  DataTypeConversion: '<S5>/Data Type Conversion7'
      */
-    uLong2MultiWord(CanM_MsgM_B.SECC_MSG2Pack_d.Data[0], &rtb_y_m.chunks[0U], 2);
+    rtb_y_m = CanM_MsgM_B.SECC_MSG2Pack_d.Data[0];
 
-    /* S-Function (sfix_bitop): '<S5>/Bitwise OR' */
-    MultiWordIor(&rtb_y_m.chunks[0U], &rtb_DataTypeConversion.chunks[0U],
-                 &tmp_7.chunks[0U], 2);
-    MultiWordIor(&tmp_7.chunks[0U], &rtb_y.chunks[0U], &tmp_6.chunks[0U], 2);
-    MultiWordIor(&tmp_6.chunks[0U], &rtb_y_ko.chunks[0U], &tmp_5.chunks[0U], 2);
-    MultiWordIor(&tmp_5.chunks[0U], &rtb_y_l.chunks[0U], &tmp_4.chunks[0U], 2);
-    MultiWordIor(&tmp_4.chunks[0U], &rtb_y_j.chunks[0U],
-                 &CanM_MsgM_Y.SECC_MSG2_OutU64.chunks[0U], 2);
-    MultiWordIor(&CanM_MsgM_Y.SECC_MSG2_OutU64.chunks[0U], &rtb_y_ay.chunks[0U],
-                 &tmp_3.chunks[0U], 2);
-    MultiWordIor(&tmp_3.chunks[0U], &rtb_y_f.chunks[0U],
-                 &CanM_MsgM_Y.SECC_MSG2_OutU64.chunks[0U], 2);
-
-    /* Switch: '<S98>/FixPt Switch' incorporates:
-     *  Constant: '<S97>/FixPt Constant'
-     *  Constant: '<S98>/Constant'
-     *  Sum: '<S97>/FixPt Sum1'
-     *  UnitDelay: '<S89>/Output'
+    /* Outport: '<Root>/SECC_MSG2_OutU64' incorporates:
+     *  DataTypeConversion: '<S6>/Data Type Conversion'
+     *  S-Function (sfix_bitop): '<S5>/Bitwise OR'
      */
-    if ((uint8_T)(CanM_MsgM_B.Output_h + 1) > 15) {
+    CanM_MsgM_Y.SECC_MSG2_OutU64 = rtb_y_m | rtb_DataTypeConversion | rtb_y |
+      rtb_y_ko | rtb_y_l | rtb_y_j | rtb_y_ay | rtb_y_f;
+
+    /* Switch: '<S91>/FixPt Switch' incorporates:
+     *  Constant: '<S90>/FixPt Constant'
+     *  Constant: '<S91>/Constant'
+     *  Sum: '<S90>/FixPt Sum1'
+     *  UnitDelay: '<S82>/Output'
+     */
+    if ((uint8_T)(CanM_MsgM_B.Output_h + 1U) > 15) {
       CanM_MsgM_DW.Output_DSTATE_m = 0U;
     } else {
-      CanM_MsgM_DW.Output_DSTATE_m = (uint8_T)(CanM_MsgM_B.Output_h + 1);
+      CanM_MsgM_DW.Output_DSTATE_m = (uint8_T)(CanM_MsgM_B.Output_h + 1U);
     }
 
-    /* End of Switch: '<S98>/FixPt Switch' */
+    /* End of Switch: '<S91>/FixPt Switch' */
   }
 
   /* End of Inport: '<Root>/SECC_MSG_Enable' */
@@ -2236,87 +1980,67 @@ void CanM_MsgM_step(void)
 
   /* Outputs for Atomic SubSystem: '<S25>/Bit Shift' */
   /* Inport: '<Root>/MCU_Status3_Data1' */
-  CanM_MsgM_BitShift(CanM_MsgM_U.MCU_Status3_Data1, &rtb_y_m);
+  rtb_y_m = CanM_MsgM_BitShift(CanM_MsgM_U.MCU_Status3_Data1);
 
   /* End of Outputs for SubSystem: '<S25>/Bit Shift' */
 
-  /* S-Function (sfix_bitop): '<S25>/Bitwise AND1' */
-  tmp_4 = CanM_MsgM_ConstP.pooled12;
-  MultiWordAnd(&rtb_y_m.chunks[0U], &CanM_MsgM_ConstP.pooled12.chunks[0],
-               &tmp_3.chunks[0U], 2);
-
   /* BusCreator: '<S2>/Bus Creator1' incorporates:
    *  DataTypeConversion: '<S25>/Data Type Conversion1'
+   *  S-Function (sfix_bitop): '<S25>/Bitwise AND1'
    */
-  CanM_MsgM_B.BusCreator1_l.Data[1] = (uint8_T)MultiWord2uLong(&tmp_3.chunks[0U]);
+  CanM_MsgM_B.BusCreator1_l.Data[1] = (uint8_T)(rtb_y_m & 255ULL);
 
   /* Outputs for Atomic SubSystem: '<S25>/Bit Shift1' */
-  CanM_MsgM_BitShift(rtb_y_m, &rtb_y_f);
+  rtb_y_f = CanM_MsgM_BitShift(rtb_y_m);
 
   /* End of Outputs for SubSystem: '<S25>/Bit Shift1' */
 
-  /* S-Function (sfix_bitop): '<S25>/Bitwise AND2' */
-  tmp_5 = CanM_MsgM_ConstP.pooled12;
-  MultiWordAnd(&rtb_y_f.chunks[0U], &CanM_MsgM_ConstP.pooled12.chunks[0],
-               &tmp_4.chunks[0U], 2);
-
   /* BusCreator: '<S2>/Bus Creator1' incorporates:
    *  DataTypeConversion: '<S25>/Data Type Conversion2'
+   *  S-Function (sfix_bitop): '<S25>/Bitwise AND2'
    */
-  CanM_MsgM_B.BusCreator1_l.Data[2] = (uint8_T)MultiWord2uLong(&tmp_4.chunks[0U]);
+  CanM_MsgM_B.BusCreator1_l.Data[2] = (uint8_T)(rtb_y_f & 255ULL);
 
   /* Outputs for Atomic SubSystem: '<S25>/Bit Shift2' */
-  CanM_MsgM_BitShift(rtb_y_f, &rtb_y_m);
+  rtb_y_m = CanM_MsgM_BitShift(rtb_y_f);
 
   /* End of Outputs for SubSystem: '<S25>/Bit Shift2' */
 
-  /* S-Function (sfix_bitop): '<S25>/Bitwise AND3' */
-  tmp_6 = CanM_MsgM_ConstP.pooled12;
-  MultiWordAnd(&rtb_y_m.chunks[0U], &CanM_MsgM_ConstP.pooled12.chunks[0],
-               &tmp_5.chunks[0U], 2);
-
   /* BusCreator: '<S2>/Bus Creator1' incorporates:
    *  DataTypeConversion: '<S25>/Data Type Conversion3'
+   *  S-Function (sfix_bitop): '<S25>/Bitwise AND3'
    */
-  CanM_MsgM_B.BusCreator1_l.Data[3] = (uint8_T)MultiWord2uLong(&tmp_5.chunks[0U]);
+  CanM_MsgM_B.BusCreator1_l.Data[3] = (uint8_T)(rtb_y_m & 255ULL);
 
   /* Outputs for Atomic SubSystem: '<S25>/Bit Shift3' */
-  CanM_MsgM_BitShift(rtb_y_m, &rtb_y_f);
+  rtb_y_f = CanM_MsgM_BitShift(rtb_y_m);
 
   /* End of Outputs for SubSystem: '<S25>/Bit Shift3' */
 
-  /* S-Function (sfix_bitop): '<S25>/Bitwise AND4' */
-  tmp_7 = CanM_MsgM_ConstP.pooled12;
-  MultiWordAnd(&rtb_y_f.chunks[0U], &CanM_MsgM_ConstP.pooled12.chunks[0],
-               &tmp_6.chunks[0U], 2);
-
   /* BusCreator: '<S2>/Bus Creator1' incorporates:
    *  DataTypeConversion: '<S25>/Data Type Conversion4'
+   *  S-Function (sfix_bitop): '<S25>/Bitwise AND4'
    */
-  CanM_MsgM_B.BusCreator1_l.Data[4] = (uint8_T)MultiWord2uLong(&tmp_6.chunks[0U]);
+  CanM_MsgM_B.BusCreator1_l.Data[4] = (uint8_T)(rtb_y_f & 255ULL);
 
   /* Outputs for Atomic SubSystem: '<S25>/Bit Shift4' */
-  CanM_MsgM_BitShift(rtb_y_f, &rtb_y_m);
+  rtb_y_m = CanM_MsgM_BitShift(rtb_y_f);
 
   /* End of Outputs for SubSystem: '<S25>/Bit Shift4' */
 
-  /* S-Function (sfix_bitop): '<S25>/Bitwise AND5' */
-  rtb_y = CanM_MsgM_ConstP.pooled12;
-  MultiWordAnd(&rtb_y_m.chunks[0U], &CanM_MsgM_ConstP.pooled12.chunks[0],
-               &tmp_7.chunks[0U], 2);
-
   /* BusCreator: '<S2>/Bus Creator1' incorporates:
    *  DataTypeConversion: '<S25>/Data Type Conversion5'
+   *  S-Function (sfix_bitop): '<S25>/Bitwise AND5'
    */
-  CanM_MsgM_B.BusCreator1_l.Data[5] = (uint8_T)MultiWord2uLong(&tmp_7.chunks[0U]);
+  CanM_MsgM_B.BusCreator1_l.Data[5] = (uint8_T)(rtb_y_m & 255ULL);
 
   /* Outputs for Atomic SubSystem: '<S25>/Bit Shift5' */
-  CanM_MsgM_BitShift(rtb_y_m, &rtb_y_f);
+  rtb_y_f = CanM_MsgM_BitShift(rtb_y_m);
 
   /* End of Outputs for SubSystem: '<S25>/Bit Shift5' */
 
   /* Outputs for Atomic SubSystem: '<S25>/Bit Shift6' */
-  CanM_MsgM_BitShift(rtb_y_f, &rtb_y_m);
+  rtb_y_m = CanM_MsgM_BitShift(rtb_y_f);
 
   /* End of Outputs for SubSystem: '<S25>/Bit Shift6' */
 
@@ -2327,6 +2051,13 @@ void CanM_MsgM_step(void)
    *  Constant: '<S2>/Constant29'
    *  Constant: '<S2>/Constant3'
    *  Constant: '<S2>/Constant30'
+   *  DataTypeConversion: '<S25>/Data Type Conversion'
+   *  DataTypeConversion: '<S25>/Data Type Conversion6'
+   *  DataTypeConversion: '<S25>/Data Type Conversion7'
+   *  Inport: '<Root>/MCU_Status3_Data1'
+   *  S-Function (sfix_bitop): '<S25>/Bitwise AND'
+   *  S-Function (sfix_bitop): '<S25>/Bitwise AND6'
+   *  S-Function (sfix_bitop): '<S25>/Bitwise AND7'
    */
   CanM_MsgM_B.BusCreator1_l.Extended = 1U;
   CanM_MsgM_B.BusCreator1_l.Length = 8U;
@@ -2334,38 +2065,10 @@ void CanM_MsgM_step(void)
   CanM_MsgM_B.BusCreator1_l.Error = 0U;
   CanM_MsgM_B.BusCreator1_l.ID = 419406575U;
   CanM_MsgM_B.BusCreator1_l.Timestamp = 0.0;
-
-  /* S-Function (sfix_bitop): '<S25>/Bitwise AND' incorporates:
-   *  Inport: '<Root>/MCU_Status3_Data1'
-   */
-  tmp_0 = CanM_MsgM_U.MCU_Status3_Data1;
-  MultiWordAnd(&CanM_MsgM_U.MCU_Status3_Data1.chunks[0U],
-               &CanM_MsgM_ConstP.pooled12.chunks[0], &rtb_y.chunks[0U], 2);
-
-  /* BusCreator: '<S2>/Bus Creator1' incorporates:
-   *  DataTypeConversion: '<S25>/Data Type Conversion'
-   */
-  CanM_MsgM_B.BusCreator1_l.Data[0] = (uint8_T)MultiWord2uLong(&rtb_y.chunks[0U]);
-
-  /* S-Function (sfix_bitop): '<S25>/Bitwise AND6' */
-  rtb_y = CanM_MsgM_ConstP.pooled12;
-  MultiWordAnd(&rtb_y_f.chunks[0U], &CanM_MsgM_ConstP.pooled12.chunks[0],
-               &tmp_0.chunks[0U], 2);
-
-  /* BusCreator: '<S2>/Bus Creator1' incorporates:
-   *  DataTypeConversion: '<S25>/Data Type Conversion6'
-   */
-  CanM_MsgM_B.BusCreator1_l.Data[6] = (uint8_T)MultiWord2uLong(&tmp_0.chunks[0U]);
-
-  /* S-Function (sfix_bitop): '<S25>/Bitwise AND7' */
-  tmp_0 = CanM_MsgM_ConstP.pooled12;
-  MultiWordAnd(&rtb_y_m.chunks[0U], &CanM_MsgM_ConstP.pooled12.chunks[0],
-               &rtb_y.chunks[0U], 2);
-
-  /* BusCreator: '<S2>/Bus Creator1' incorporates:
-   *  DataTypeConversion: '<S25>/Data Type Conversion7'
-   */
-  CanM_MsgM_B.BusCreator1_l.Data[7] = (uint8_T)MultiWord2uLong(&rtb_y.chunks[0U]);
+  CanM_MsgM_B.BusCreator1_l.Data[0] = (uint8_T)(CanM_MsgM_U.MCU_Status3_Data1 &
+    255ULL);
+  CanM_MsgM_B.BusCreator1_l.Data[6] = (uint8_T)(rtb_y_f & 255ULL);
+  CanM_MsgM_B.BusCreator1_l.Data[7] = (uint8_T)(rtb_y_m & 255ULL);
 
   /* S-Function (scanunpack): '<S2>/CAN Unpack' */
   {
@@ -2720,11 +2423,8 @@ void CanM_MsgM_step(void)
     tmp = fmod(tmp, 256.0);
   }
 
-  if (tmp < 0.0) {
-    rtb_DataTypeConversion_o = (uint8_T)-(int8_T)(uint8_T)-tmp;
-  } else {
-    rtb_DataTypeConversion_o = (uint8_T)tmp;
-  }
+  rtb_DataTypeConversion_o = (uint8_T)(tmp < 0.0 ? (int32_T)(uint8_T)-(int8_T)
+    (uint8_T)-tmp : (int32_T)(uint8_T)tmp);
 
   /* End of DataTypeConversion: '<S2>/Data Type Conversion' */
 
@@ -2736,8 +2436,8 @@ void CanM_MsgM_step(void)
    *  Sum: '<S24>/Add'
    *  Sum: '<S24>/Subtract'
    */
-  CanM_MsgM_Y.MCU_State3ValidStatus1 = ((uint8_T)((uint8_T)
-    (rtb_DataTypeConversion_o - CanM_MsgM_DW.Delay_DSTATE) - 1) <= 2);
+  CanM_MsgM_Y.MCU_State3ValidStatus1 = ((uint8_T)(rtb_DataTypeConversion_o -
+    (uint8_T)(CanM_MsgM_DW.Delay_DSTATE + 1U)) <= 2);
 
   /* Outputs for Enabled SubSystem: '<Root>/SECC_MSG1_1' */
   /* Inport: '<Root>/SECC_MSG_Enable1' incorporates:
@@ -2755,7 +2455,6 @@ void CanM_MsgM_step(void)
    *  Inport: '<Root>/SECC_MSG1_L3_Curr1'
    *  Inport: '<Root>/SECC_MSG1_L3_Vol1'
    *  Outport: '<Root>/SECC_MSG1_OutU64_1'
-   *  S-Function (sfix_bitop): '<S25>/Bitwise AND7'
    */
   CanM_MsgM_SECC_MSG1(CanM_MsgM_U.SECC_MSG_Enable1,
                       CanM_MsgM_U.SECC_MSG1_L1_Curr1,
@@ -2773,14 +2472,13 @@ void CanM_MsgM_step(void)
    *  EnablePort: '<S6>/Enable'
    */
   if (CanM_MsgM_U.SECC_MSG_Enable1) {
-    /* Sum: '<S99>/Subtract' incorporates:
-     *  Constant: '<S99>/Constant1'
+    /* UnitDelay: '<S99>/Output' */
+    CanM_MsgM_B.Output = CanM_MsgM_DW.Output_DSTATE;
+
+    /* DataTypeConversion: '<S6>/Data Type Conversion8' incorporates:
      *  Inport: '<Root>/EVSE_RatedCurrent1'
      */
-    CanM_MsgM_B.Subtract = (int16_T)(CanM_MsgM_U.EVSE_RatedCurrent1 - 2000U);
-
-    /* UnitDelay: '<S107>/Output' */
-    CanM_MsgM_B.Output = CanM_MsgM_DW.Output_DSTATE;
+    CanM_MsgM_B.DataTypeConversion8 = (int16_T)CanM_MsgM_U.EVSE_RatedCurrent1;
 
     /* S-Function (scanpack): '<S6>/SECC_MSG2 Pack' incorporates:
      *  Constant: '<S6>/Constant'
@@ -3287,7 +2985,7 @@ void CanM_MsgM_step(void)
         int32_T packingValue = 0;
 
         {
-          int32_T result = (int32_T) (CanM_MsgM_B.Subtract);
+          int32_T result = (int32_T) (CanM_MsgM_B.DataTypeConversion8);
 
           /* no factor to apply */
           result = (int32_T) (result - -2000);
@@ -3629,105 +3327,68 @@ void CanM_MsgM_step(void)
       }
     }
 
-    /* DataTypeConversion: '<S6>/Data Type Conversion1' */
-    uLong2MultiWord(CanM_MsgM_B.SECC_MSG2Pack.Data[1], &tmp_0.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S6>/Bit Shift' */
-    CanM_MsgM_BitShift_e(tmp_0, &rtb_y_m);
+    rtb_y_m = CanM_MsgM_BitShift_e((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[1]);
 
     /* End of Outputs for SubSystem: '<S6>/Bit Shift' */
 
-    /* DataTypeConversion: '<S6>/Data Type Conversion2' incorporates:
-     *  DataTypeConversion: '<S6>/Data Type Conversion1'
-     *  S-Function (sfix_bitop): '<S25>/Bitwise AND7'
-     */
-    uLong2MultiWord(CanM_MsgM_B.SECC_MSG2Pack.Data[2], &tmp_8.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S6>/Bit Shift1' */
-    CanM_MsgM_BitShift1(tmp_8, &rtb_y_f);
+    rtb_y_f = CanM_MsgM_BitShift1((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[2]);
 
     /* End of Outputs for SubSystem: '<S6>/Bit Shift1' */
 
-    /* DataTypeConversion: '<S6>/Data Type Conversion3' incorporates:
-     *  DataTypeConversion: '<S6>/Data Type Conversion2'
-     */
-    uLong2MultiWord(CanM_MsgM_B.SECC_MSG2Pack.Data[3], &tmp_9.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S6>/Bit Shift2' */
-    CanM_MsgM_BitShift2(tmp_9, &rtb_y_ay);
+    rtb_y_ay = CanM_MsgM_BitShift2((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[3]);
 
     /* End of Outputs for SubSystem: '<S6>/Bit Shift2' */
 
-    /* DataTypeConversion: '<S6>/Data Type Conversion4' incorporates:
-     *  DataTypeConversion: '<S6>/Data Type Conversion3'
-     */
-    uLong2MultiWord(CanM_MsgM_B.SECC_MSG2Pack.Data[4], &tmp_a.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S6>/Bit Shift3' */
-    CanM_MsgM_BitShift3(tmp_a, &rtb_y_j);
+    rtb_y_j = CanM_MsgM_BitShift3((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[4]);
 
     /* End of Outputs for SubSystem: '<S6>/Bit Shift3' */
 
-    /* DataTypeConversion: '<S6>/Data Type Conversion5' incorporates:
-     *  DataTypeConversion: '<S6>/Data Type Conversion4'
-     */
-    uLong2MultiWord(CanM_MsgM_B.SECC_MSG2Pack.Data[5], &tmp_b.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S6>/Bit Shift4' */
-    CanM_MsgM_BitShift4(tmp_b, &rtb_y_l);
+    rtb_y_l = CanM_MsgM_BitShift4((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[5]);
 
     /* End of Outputs for SubSystem: '<S6>/Bit Shift4' */
 
-    /* DataTypeConversion: '<S6>/Data Type Conversion6' incorporates:
-     *  DataTypeConversion: '<S6>/Data Type Conversion5'
-     */
-    uLong2MultiWord(CanM_MsgM_B.SECC_MSG2Pack.Data[6], &tmp_c.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S6>/Bit Shift5' */
-    CanM_MsgM_BitShift5(tmp_c, &rtb_y_ko);
+    rtb_y_ko = CanM_MsgM_BitShift5((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[6]);
 
     /* End of Outputs for SubSystem: '<S6>/Bit Shift5' */
 
-    /* DataTypeConversion: '<S6>/Data Type Conversion7' incorporates:
-     *  DataTypeConversion: '<S6>/Data Type Conversion6'
-     */
-    uLong2MultiWord(CanM_MsgM_B.SECC_MSG2Pack.Data[7], &tmp_d.chunks[0U], 2);
-
     /* Outputs for Atomic SubSystem: '<S6>/Bit Shift6' */
-    CanM_MsgM_BitShift6(tmp_d, &rtb_y);
+    rtb_y = CanM_MsgM_BitShift6((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[7]);
 
     /* End of Outputs for SubSystem: '<S6>/Bit Shift6' */
 
-    /* DataTypeConversion: '<S6>/Data Type Conversion' incorporates:
+    /* Outport: '<Root>/SECC_MSG2_OutU64_1' incorporates:
+     *  DataTypeConversion: '<S6>/Data Type Conversion'
+     *  DataTypeConversion: '<S6>/Data Type Conversion1'
+     *  DataTypeConversion: '<S6>/Data Type Conversion2'
+     *  DataTypeConversion: '<S6>/Data Type Conversion3'
+     *  DataTypeConversion: '<S6>/Data Type Conversion4'
+     *  DataTypeConversion: '<S6>/Data Type Conversion5'
+     *  DataTypeConversion: '<S6>/Data Type Conversion6'
      *  DataTypeConversion: '<S6>/Data Type Conversion7'
+     *  S-Function (sfix_bitop): '<S6>/Bitwise OR'
      */
-    uLong2MultiWord(CanM_MsgM_B.SECC_MSG2Pack.Data[0], &tmp_j.chunks[0U], 2);
+    CanM_MsgM_Y.SECC_MSG2_OutU64_1 = CanM_MsgM_B.SECC_MSG2Pack.Data[0] | rtb_y_m
+      | rtb_y_f | rtb_y_ay | rtb_y_j | rtb_y_l | rtb_y_ko | rtb_y;
 
-    /* S-Function (sfix_bitop): '<S6>/Bitwise OR' */
-    MultiWordIor(&tmp_j.chunks[0U], &rtb_y_m.chunks[0U], &tmp_i.chunks[0U], 2);
-    MultiWordIor(&tmp_i.chunks[0U], &rtb_y_f.chunks[0U], &tmp_h.chunks[0U], 2);
-    MultiWordIor(&tmp_h.chunks[0U], &rtb_y_ay.chunks[0U], &tmp_g.chunks[0U], 2);
-    MultiWordIor(&tmp_g.chunks[0U], &rtb_y_j.chunks[0U], &tmp_f.chunks[0U], 2);
-    MultiWordIor(&tmp_f.chunks[0U], &rtb_y_l.chunks[0U],
-                 &CanM_MsgM_Y.SECC_MSG2_OutU64_1.chunks[0U], 2);
-    MultiWordIor(&CanM_MsgM_Y.SECC_MSG2_OutU64_1.chunks[0U], &rtb_y_ko.chunks[0U],
-                 &tmp_e.chunks[0U], 2);
-    MultiWordIor(&tmp_e.chunks[0U], &rtb_y.chunks[0U],
-                 &CanM_MsgM_Y.SECC_MSG2_OutU64_1.chunks[0U], 2);
-
-    /* Switch: '<S116>/FixPt Switch' incorporates:
-     *  Constant: '<S115>/FixPt Constant'
-     *  Constant: '<S116>/Constant'
-     *  Sum: '<S115>/FixPt Sum1'
-     *  UnitDelay: '<S107>/Output'
+    /* Switch: '<S108>/FixPt Switch' incorporates:
+     *  Constant: '<S107>/FixPt Constant'
+     *  Constant: '<S108>/Constant'
+     *  Sum: '<S107>/FixPt Sum1'
+     *  UnitDelay: '<S99>/Output'
      */
-    if ((uint8_T)(CanM_MsgM_B.Output + 1) > 15) {
+    if ((uint8_T)(CanM_MsgM_B.Output + 1U) > 15) {
       CanM_MsgM_DW.Output_DSTATE = 0U;
     } else {
-      CanM_MsgM_DW.Output_DSTATE = (uint8_T)(CanM_MsgM_B.Output + 1);
+      CanM_MsgM_DW.Output_DSTATE = (uint8_T)(CanM_MsgM_B.Output + 1U);
     }
 
-    /* End of Switch: '<S116>/FixPt Switch' */
+    /* End of Switch: '<S108>/FixPt Switch' */
   }
 
   /* End of Inport: '<Root>/SECC_MSG_Enable1' */
@@ -3746,11 +3407,8 @@ void CanM_MsgM_step(void)
     tmp = fmod(tmp, 256.0);
   }
 
-  if (tmp < 0.0) {
-    rtb_DataTypeConversion_j = (uint8_T)-(int8_T)(uint8_T)-tmp;
-  } else {
-    rtb_DataTypeConversion_j = (uint8_T)tmp;
-  }
+  rtb_DataTypeConversion_j = (uint8_T)(tmp < 0.0 ? (int32_T)(uint8_T)-(int8_T)
+    (uint8_T)-tmp : (int32_T)(uint8_T)tmp);
 
   /* End of DataTypeConversion: '<S1>/Data Type Conversion' */
 
@@ -3762,8 +3420,8 @@ void CanM_MsgM_step(void)
    *  Sum: '<S7>/Add'
    *  Sum: '<S7>/Subtract'
    */
-  CanM_MsgM_Y.MCU_State3ValidStatus = ((uint8_T)((uint8_T)
-    (rtb_DataTypeConversion_j - CanM_MsgM_DW.Delay_DSTATE_a) - 1) <= 2);
+  CanM_MsgM_Y.MCU_State3ValidStatus = ((uint8_T)(rtb_DataTypeConversion_j -
+    (uint8_T)(CanM_MsgM_DW.Delay_DSTATE_a + 1U)) <= 2);
 
   /* Update for Delay: '<S24>/Delay' */
   CanM_MsgM_DW.Delay_DSTATE = rtb_DataTypeConversion_o;
@@ -3779,6 +3437,17 @@ void CanM_MsgM_initialize(void)
 
   /* initialize non-finites */
   rt_InitInfAndNaN(sizeof(real_T));
+
+  /* initialize error status */
+  rtmSetErrorStatus(CanM_MsgM_M, (NULL));
+
+  /* block I/O */
+  (void) memset(((void *) &CanM_MsgM_B), 0,
+                sizeof(B_CanM_MsgM_T));
+
+  /* states (dwork) */
+  (void) memset((void *)&CanM_MsgM_DW, 0,
+                sizeof(DW_CanM_MsgM_T));
 
   /* Start for S-Function (scanunpack): '<S1>/CAN Unpack' */
 

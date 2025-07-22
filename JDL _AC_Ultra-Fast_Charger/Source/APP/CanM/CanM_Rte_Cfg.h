@@ -153,9 +153,9 @@ extern uint8_t CanM_Get_ReqRelayOnStatus(SysConnector_Num_Enum connector);
 extern uint8_t CanM_Get_CanModeStatus(SysConnector_Num_Enum connector);
 /* CanM_MsgM */
 extern void CanM_Set_SECC_MSG1_Input(SysConnector_Num_Enum connector);
-extern uint64m_T CanM_Get_SECC_MSG1_Output(SysConnector_Num_Enum connector);
+extern uint64_t CanM_Get_SECC_MSG1_Output(SysConnector_Num_Enum connector);
 extern void CanM_Set_SECC_MSG2_Input(SysConnector_Num_Enum connector, CanM_SECC_MSG2_Input_Struct Msg2Input);
-extern uint64m_T CanM_Get_SECC_MSG2_Output(SysConnector_Num_Enum connector);
+extern uint64_t CanM_Get_SECC_MSG2_Output(SysConnector_Num_Enum connector);
 extern uint8_t CanM_Get_MCU_State3ReqChargingEnableStatus(SysConnector_Num_Enum connector);
 extern uint8_t CanM_Get_MCU_State3ValidStatus(SysConnector_Num_Enum connector);
 #endif
