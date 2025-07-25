@@ -468,7 +468,7 @@ void SYSM_ImmediatelyResetManage(void)
 
 void SYSM_SendData(const uint8_t *data)
 {
-	HAL_UART_Transmit_IT(&huart2, (const uint8_t *)data, (uint16_t)strlen(data));
+	HAL_UART_Transmit_IT(&huart2, data, (uint16_t)strlen(data));
 }
 
 void SYSM_SetCpVolMode(SysConnector_Num_Enum ch, uint8_t mode)

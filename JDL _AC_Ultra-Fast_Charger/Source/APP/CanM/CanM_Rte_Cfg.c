@@ -36,24 +36,6 @@
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
-void CanM_Set_McuStatus3ValidStatus(SysConnector_Num_Enum connector, boolean_T status)
-{
-    if (connector == SYS_CONNECTOR1)
-    {
-        CanM_EVSEM_U.MCU_State3ValidStatus = status;
-    }
-#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
-    else if (connector == SYS_CONNECTOR2)
-    {
-        CanM_EVSEM_U.MCU_State3ValidStatus1 = status;
-    }
-#endif
-    else
-    {
-        /* Invalid connector, handle error if necessary */
-    }
-}
-
 /********************************************************
 * Function name CanM_Set_EVSE_CanMode
 * Description       : Set EVSE into CanMode
@@ -100,7 +82,7 @@ void CanM_Set_MCU_State3ReqChargingEnable(SysConnector_Num_Enum connector, boole
     }
 }
 
-void CanM_Set_MCU_State3ValidStatus(SysConnector_Num_Enum connector, boolean_T status)
+void CanM_Set_EVSE_CanHeartBeatStatus(SysConnector_Num_Enum connector, boolean_T status)
 {
     if (connector == SYS_CONNECTOR1)
     {
@@ -365,8 +347,13 @@ uint64_t CanM_Get_SECC_MSG2_Output(SysConnector_Num_Enum connector)
     }
 }
 
-void CanM_Set_MCU_Data(SysConnector_Num_Enum connector, uint8_t *MCUData)
+uint8_t CanM_Set_MCU_Status3_Input(SysConnector_Num_Enum connector, uint8_t *MCUData, uint8_t DataLen)
 {
+    if (NULL == MCUData || CANM_RTE_SINGLE_FRAME_LEN != DataLen)
+    {
+        return 0;
+    }
+
     if (connector == SYS_CONNECTOR1)
     {
         memcpy((uint8_t *)&CanM_MsgM_U.MCU_Status3_Data, &MCUData[0], sizeof(CanM_MsgM_U.MCU_Status3_Data));
@@ -381,9 +368,11 @@ void CanM_Set_MCU_Data(SysConnector_Num_Enum connector, uint8_t *MCUData)
     {
         /* Invalid connector, handle error if necessary */
     }
+
+    return 1;
 }
 
-uint8_t CanM_Get_MCU_State3ReqChargingEnableStatus(SysConnector_Num_Enum connector)
+uint8_t CanM_Get_McuState3ReqChargingEnableStatus(SysConnector_Num_Enum connector)
 {
     if (connector == SYS_CONNECTOR1)
     {
@@ -402,7 +391,7 @@ uint8_t CanM_Get_MCU_State3ReqChargingEnableStatus(SysConnector_Num_Enum connect
     }
 }
 
-uint8_t CanM_get_NCU_State3ValidStatus(SysConnector_Num_Enum connector)
+uint8_t CanM_Get_McuState3HeartBeatStatus(SysConnector_Num_Enum connector)
 {
     if (connector == SYS_CONNECTOR1)
     {

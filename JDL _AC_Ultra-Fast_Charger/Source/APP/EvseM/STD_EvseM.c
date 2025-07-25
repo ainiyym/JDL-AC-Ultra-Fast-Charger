@@ -873,6 +873,7 @@ static void EVSEM_StateCanModelHandle(SysConnector_Num_Enum ch)
 		gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_ZERO;
 		EVSEM_DEBUG("ch:%d CAN into zero! \n", ch);
 	}
+	CanM_Rte_EVSE_Main_Task();
 }
 
 /*******************************************************************************
@@ -949,6 +950,5 @@ void EVSEM_10msMainFunction(void)
 
 		EVSEM_EnterStateFourHandle(ch);
 	}
-	CanM_Rte_EVSE_Main_Function();
 }
 /*EOF*/

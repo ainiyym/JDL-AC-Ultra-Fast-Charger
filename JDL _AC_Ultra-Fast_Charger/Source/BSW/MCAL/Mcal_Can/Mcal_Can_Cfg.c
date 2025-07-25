@@ -260,39 +260,40 @@ uint32_t Mcal_Can_Get_TxMailbox(Mcal_CanTxChannel_Enum_t Channel)
 
 uint32_t Mcal_Can_Receive_Msg(Mcal_CanRxChannel_Enum_t Channel, uint8_t *data, uint32_t size)
 {
-  uint32_t RcvBuffLen = 0;
+  uint32_t BuffDataLen = 0;
   uint32_t RetDataLen = 0;
 
+  // Parameter verification
   if (data == NULL || size == 0)
   {
-    // Error: Invalid parameters
+    return 0;
   }
-  else
-  {
-    if (MCAL_CYCBUF_RET_SUCCESS == MCAL_CYCBUF_CHECK_DATA(Mcal_CanCtrl.Buf[Channel].RcvCycBufID, &RcvBuffLen))
-    {
-      if (RcvBuffLen >= size)
-      {
-        if (MCAL_CYCBUF_RET_SUCCESS == MCAL_CYCBUF_PREVIEW_READ(Mcal_CanCtrl.Buf[Channel].RcvCycBufID, data, size))
-        {
 
-          if (MCAL_CYCBUF_RET_SUCCESS == MCAL_CYCBUF_READ(Mcal_CanCtrl.Buf[Channel].RcvCycBufID, data, size))
-          {
-            RetDataLen = size;
-          }
-        }
-      }
-      else
-      {
-        if (MCAL_CYCBUF_RET_SUCCESS == MCAL_CYCBUF_PREVIEW_READ(Mcal_CanCtrl.Buf[Channel].RcvCycBufID, data, RcvBuffLen))
-        {
-          if (MCAL_CYCBUF_RET_SUCCESS == MCAL_CYCBUF_READ(Mcal_CanCtrl.Buf[Channel].RcvCycBufID, data, RcvBuffLen))
-          {
-            RetDataLen = RcvBuffLen;
-          }
-        }
-      }
-    }
+  // Check the validity of the channel
+  if (Channel >= MCAL_CAN_RX_MAX_NUMBER)
+  {
+    return 0;
+  }
+
+  // Check if there is any data in the buffer
+  if (MCAL_CYCBUF_RET_SUCCESS != MCAL_CYCBUF_CHECK_DATA(Mcal_CanCtrl.Buf[Channel].RcvCycBufID, &BuffDataLen))
+  {
+    return 0;
+  }
+
+  // Determine the length of the data to be read
+  uint32_t readSize = (BuffDataLen >= size) ? size : BuffDataLen;
+
+  // Preview the read data
+  if (MCAL_CYCBUF_RET_SUCCESS != MCAL_CYCBUF_PREVIEW_READ(Mcal_CanCtrl.Buf[Channel].RcvCycBufID, data, readSize))
+  {
+    return 0;
+  }
+
+  // Actual data reading
+  if (MCAL_CYCBUF_RET_SUCCESS == MCAL_CYCBUF_READ(Mcal_CanCtrl.Buf[Channel].RcvCycBufID, data, readSize))
+  {
+    RetDataLen = readSize;
   }
 
   return RetDataLen;

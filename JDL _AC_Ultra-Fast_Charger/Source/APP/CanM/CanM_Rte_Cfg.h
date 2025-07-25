@@ -28,6 +28,7 @@
 |    Macro Definition
 |******************************************************************************/
 #define CANM_RTE_SELFTEST_NUM                                       (3U) /* Number of self-test requests */
+#define CANM_RTE_SINGLE_FRAME_LEN                                   (8U) /* CAN single-frame length */
 #define CANM_RTE_RELAY_CHECKSELF_ENABLE  					        STD_OFF
 #define CANM_RTE_DIODE_CHECKSELF_ENABLE  					        STD_OFF
 #define CANM_RTE_RCD_CHECKSELF_ENABLE  					            STD_OFF
@@ -72,66 +73,32 @@
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
-typedef enum
-{
-    CANM_RTE_CHARGING_END_REASON_NONE = 0,  /* No stoping charging */
-    CANM_RTE_CHARGING_END_REASON_NORMAL,    /* Normal end of charging */
-    CANM_RTE_CHARGING_END_REASON_MANUAL,    /* Manual stop of charging */
-    CANM_RTE_CHARGING_END_REASON_EVSE_FAULT,/* Evse fault stop of charging */
-    CANM_RTE_CHARGING_END_REASON_VEHICLE,   /* Vehicle stopped the charging */
-    CANM_RTE_CHARGING_END_REASON_RESERVE    /* Reserve */
-} CanM_Rte_ChargingEndReason_Enum;
 
-typedef enum
-{
-    CANM_RTE_CHARGING_START_MODE_NONE = 0,  /* No start charging */
-    CANM_RTE_CHARGING_START_MODE_G2V,       /* G2V charging start mode */
-    CANM_RTE_CHARGING_START_MODE_V2G,       /* V2G charging start mode */
-    CANM_RTE_CHARGING_START_MODE_RESERVE    /* Reserve */
-} CanM_Rte_ChargingStartMode_Enum;
-
-typedef enum
-{
-    CANM_RTE_RELAY_OFF = 0, /* Relay is off */
-    CANM_RTE_RELAY_ON,      /* Relay is on */
-    CANM_RTE_RELAY_ERROR,   /* Relay error */
-    CANM_RTE_RELAY_RESERVE  /* reserve */
-} CanM_Rte_RelayStatus_Enum;
-
-typedef enum
-{
-    CANM_RTE_EVSE_SYS_STATUS_POWER_LOWER = 0,           /* lower power on */
-    CANM_RTE_EVSE_SYS_STATUS_READY_POWER_HIGH,          /* Prepere high power on */
-    CANM_RTE_EVSE_SYS_STATUS_CHARGING_NORMAL,           /* Charging normal mode */
-    CANM_RTE_EVSE_SYS_STATUS_CHARGING_CONSTANT_VOLTAGE, /* Charging constant voltage mode */
-    CANM_RTE_EVSE_SYS_STATUS_CHARGING_CONSTANT_CURRENT, /* Charging constant current mode */
-    CANM_RTE_EVSE_SYS_STATUS_CHARGING_END,              /* Charging end */
-    CANM_RTE_EVSE_SYS_STATUS_RESERVE                    /* reserve */
-} CanM_Rte_EvseSysStatus_Enum;
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
 typedef struct
 {
-    uint8_t ChargingEndReason;          /* Charging end reason */ 
-    uint8_t ChargingStartMode;         /* Charging start mode */
-    uint8_t RelayStatus;               /* Relay status */ 
-    uint8_t EvseSysStatus;             /* EVSE system status */ 
-    uint8_t EnergyTransferUnable;      /* Energy transfer unable status */
-    uint8_t OverCurrFaultStatus;       /* Over current fault status */
-    uint8_t VoltFaultStatus;           /* voltage fault status */
-    uint8_t EmergeStopFaultStatus;    /* Low voltage fault status */
-    uint8_t RelayFaultStatus;         /* Relay fault status */
-    uint8_t HardwareFaultStatus;     /* Hardware fault status */
-    uint8_t OverTempFaultStatus;     /* Charging CAN fault status */
-    uint8_t CpVolFaultStatus;        /* CP voltage fault status */
-    uint8_t ChargingParameterFaultStatus; /* Charging parameter fault status */ 
-    uint8_t SelfTestFaultStatus; /* Self-test fault status */
-    uint8_t CanTimeOutFaultStatus; /* CAN timeout fault status */
-    uint8_t OtherFaultStatus;        /* Other fault status */
-    uint16_t RatedCurr;          /* Rated current */
-    uint16_t RatedVolt;          /* Rated voltage */
+    uint8_t ChargingEndReason;            /* Charging end reason */
+    uint8_t ChargingStartMode;            /* Charging start mode */
+    uint8_t RelayStatus;                  /* Relay status */
+    uint8_t EvseSysStatus;                /* EVSE system status */
+    uint8_t EnergyTransferUnable;         /* Energy transfer unable status */
+    uint8_t OverCurrFaultStatus;          /* Over current fault status */
+    uint8_t VoltFaultStatus;              /* voltage fault status */
+    uint8_t EmergeStopFaultStatus;        /* Low voltage fault status */
+    uint8_t RelayFaultStatus;             /* Relay fault status */
+    uint8_t HardwareFaultStatus;          /* Hardware fault status */
+    uint8_t OverTempFaultStatus;          /* Charging CAN fault status */
+    uint8_t CpVolFaultStatus;             /* CP voltage fault status */
+    uint8_t ChargingParameterFaultStatus; /* Charging parameter fault status */
+    uint8_t SelfTestFaultStatus;          /* Self-test fault status */
+    uint8_t CanTimeOutFaultStatus;        /* CAN timeout fault status */
+    uint8_t OtherFaultStatus;             /* Other fault status */
+    uint16_t RatedCurr;                   /* Rated current */
+    uint16_t RatedVolt;                   /* Rated voltage */
 } CanM_SECC_MSG2_Input_Struct;
+
 /*******************************************************************************
 |    Table Definition
 |******************************************************************************/
@@ -140,10 +107,9 @@ typedef struct
 |    Global Function Prototypes
 |******************************************************************************/
 /* CanM_EvseM */
-extern void CanM_Set_McuStatus3ValidStatus(SysConnector_Num_Enum connector, boolean_T status);
 extern void CanM_Set_EVSE_CanMode(SysConnector_Num_Enum connector, boolean_T status);
 extern void CanM_Set_MCU_State3ReqChargingEnable(SysConnector_Num_Enum connector, boolean_T status);
-extern void CanM_Set_MCU_State3ValidStatus(SysConnector_Num_Enum connector, boolean_T status);
+extern void CanM_Set_EVSE_CanHeartBeatStatus(SysConnector_Num_Enum connector, boolean_T status);
 extern void CanM_Set_ErrHdl_ChargingStation(SysConnector_Num_Enum connector, uint8_t status);
 extern void CanM_Set_AuthM_AuthStatus(SysConnector_Num_Enum connector, boolean_T status);
 extern void CanM_Set_BeforeChargingTestResult(SysConnector_Num_Enum connector, uint8_t result);
@@ -156,7 +122,8 @@ extern void CanM_Set_SECC_MSG1_Input(SysConnector_Num_Enum connector);
 extern uint64_t CanM_Get_SECC_MSG1_Output(SysConnector_Num_Enum connector);
 extern void CanM_Set_SECC_MSG2_Input(SysConnector_Num_Enum connector, CanM_SECC_MSG2_Input_Struct Msg2Input);
 extern uint64_t CanM_Get_SECC_MSG2_Output(SysConnector_Num_Enum connector);
-extern uint8_t CanM_Get_MCU_State3ReqChargingEnableStatus(SysConnector_Num_Enum connector);
-extern uint8_t CanM_Get_MCU_State3ValidStatus(SysConnector_Num_Enum connector);
+extern uint8_t CanM_Set_MCU_Status3_Input(SysConnector_Num_Enum connector, uint8_t *MCUData, uint8_t DataLen);
+extern uint8_t CanM_Get_McuState3ReqChargingEnableStatus(SysConnector_Num_Enum connector);
+extern uint8_t CanM_Get_McuState3HeartBeatStatus(SysConnector_Num_Enum connector);
 #endif
 /*EOF*/

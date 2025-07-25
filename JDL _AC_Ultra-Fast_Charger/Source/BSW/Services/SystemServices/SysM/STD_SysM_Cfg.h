@@ -43,6 +43,11 @@
 #define SYSM_ERROR(fmt, ...) LOG_ERROR(LOG_MODULE_SYSM, fmt, ##__VA_ARGS__) /* log output */
 #define SYSM_CRITICAL(fmt, ...) LOG_CRITICAL(LOG_MODULE_SYSM, fmt, ##__VA_ARGS__) /* log output */
 #define SYSM_PRINT_HEX(BUFF, LEN, R) LogService_Print_Hex_Array(LOG_MODULE_SYSM, BUFF, LEN, R)  /* print hex array */
+/*******************************************************************************
+|    System parameters Macro Definition
+|******************************************************************************/
+#define SYS_CONNECTOR_RATED_CURRENT           (32U)    /* A */
+#define SYS_CONNECTOR_RATED_VOLTAGE           (380U)   /* V */
 
 /*******************************************************************************
 |    Enum Definition
