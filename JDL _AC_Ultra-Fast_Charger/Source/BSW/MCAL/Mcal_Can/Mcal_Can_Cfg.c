@@ -117,7 +117,7 @@ Mcal_CanFilterCfg_t Mcal_CanFilterCfgTable[MCAL_CAN_RX_MAX_NUMBER] =
         [MCAL_CAN_RX_CCP] = {
             .CanChannel = MCAL_CAN_RX_CCP,                                      // CAN channel
             .CanHandle = &hcan2,                                                // CAN Handle
-            .FilterConfig.FilterBank = 9,                                       // the filter bank number
+            .FilterConfig.FilterBank = 15,                                       // the filter bank number
             .FilterConfig.FilterMode = CAN_FILTERMODE_IDLIST,                   // Filter mode
             .FilterConfig.FilterScale = CAN_FILTERSCALE_16BIT,                  // Filter scale
             .FilterConfig.FilterIdHigh = MCAL_CAN1_CCP_FILTER_ID_HIGH,          // High-level ID
@@ -131,7 +131,7 @@ Mcal_CanFilterCfg_t Mcal_CanFilterCfgTable[MCAL_CAN_RX_MAX_NUMBER] =
         [MCAL_CAN1_RX_MCU_STATUS3] = {
             .CanChannel = MCAL_CAN1_RX_MCU_STATUS3,                              // CAN channel
             .CanHandle = &hcan1,                                                 // CAN Handle
-            .FilterConfig.FilterBank = 0,                                        // the filter bank number
+            .FilterConfig.FilterBank = 1,                                        // the filter bank number
             .FilterConfig.FilterMode = CAN_FILTERMODE_IDLIST,                    // Filter mode
             .FilterConfig.FilterScale = CAN_FILTERSCALE_32BIT,                   // Filter scale
             .FilterConfig.FilterIdHigh = MCAL_CAN_MCU_STATUS3_FILTER_ID_HIGH,    // High-level ID
@@ -145,7 +145,7 @@ Mcal_CanFilterCfg_t Mcal_CanFilterCfgTable[MCAL_CAN_RX_MAX_NUMBER] =
         [MCAL_CAN2_RX_MCU_STATUS3] = {
             .CanChannel = MCAL_CAN2_RX_MCU_STATUS3,                              // CAN channel
             .CanHandle = &hcan2,                                                 // CAN Handle
-            .FilterConfig.FilterBank = 1,                                        // the filter bank number
+            .FilterConfig.FilterBank = 14,                                        // the filter bank number
             .FilterConfig.FilterMode = CAN_FILTERMODE_IDLIST,                    // Filter mode
             .FilterConfig.FilterScale = CAN_FILTERSCALE_32BIT,                   // Filter scale
             .FilterConfig.FilterIdHigh = MCAL_CAN_MCU_STATUS3_FILTER_ID_HIGH,    // High-level ID
@@ -222,7 +222,7 @@ McalRetVal_t Mcal_Can_Send_Msg(Mcal_CanTxChannel_Enum_t Channel, uint8_t *msg, u
 
   memcpy(Mcal_CanCtrl.sendData, msg, 8); /* copy data */
 
-  if (HAL_CAN_IsTxMessagePending(Mcal_CanTxChannelCfgTable[Channel].CanHandle, CAN_TX_MAILBOX0 | CAN_TX_MAILBOX1 | CAN_TX_MAILBOX2) != 0)
+  if (HAL_CAN_IsTxMessagePending(Mcal_CanTxChannelCfgTable[Channel].CanHandle, CAN_TX_MAILBOX0 | CAN_TX_MAILBOX1 | CAN_TX_MAILBOX2) == 3)
   {
     /* If the mailbox is not empty, return an error */
     MCAL_ERROR("%s Err: Tx Mailbox is not empty!\r\n", __func__);
@@ -235,7 +235,7 @@ McalRetVal_t Mcal_Can_Send_Msg(Mcal_CanTxChannel_Enum_t Channel, uint8_t *msg, u
     ret = MCAL_RET_FAILED;
   }
 
-  while (HAL_CAN_GetTxMailboxesFreeLevel(Mcal_CanTxChannelCfgTable[Channel].CanHandle) != 3) /* Wait for the mailbox to be free */
+  while (HAL_CAN_GetTxMailboxesFreeLevel(Mcal_CanTxChannelCfgTable[Channel].CanHandle) == 0) /* Wait for the mailbox to be free */
   {
     if (HAL_CAN_IsTxMessagePending(Mcal_CanTxChannelCfgTable[Channel].CanHandle, CAN_TX_MAILBOX0 | CAN_TX_MAILBOX1 | CAN_TX_MAILBOX2) == 0)
     {
@@ -328,13 +328,15 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *CanNum)
         }
         else
         {
-          MCAL_ERROR("%s ID:%x RcvErr!\n\r", __FUNCTION__, MCAL_RX_MCU_STATUS3_ID);
+          MCAL_ERROR("%s ID:0x%x DLC Fault! Rcv dlc len:%d\n\r", __FUNCTION__, MCAL_RX_MCU_STATUS3_ID, Mcal_CanCtrl.RxHeader.DLC);
         }
+        break;
       }
       else
       {
         // Handle other messages if necessary
       }
+      break;
     }
   }
 }
@@ -362,13 +364,14 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *CanNum)
         }
         else
         {
-         MCAL_ERROR("%s ID:%x RcvErr!\n\r", __FUNCTION__, MCAL_RX_MCU_STATUS3_ID);
+          MCAL_ERROR("%s ID:0x%x DLC Fault! Rcv dlc len:%d\n\r", __FUNCTION__, MCAL_RX_MCU_STATUS3_ID, Mcal_CanCtrl.RxHeader.DLC);
         }
       }
       else
       {
         // Handle other messages if necessary
       }
+      break;
     }
   }
 }

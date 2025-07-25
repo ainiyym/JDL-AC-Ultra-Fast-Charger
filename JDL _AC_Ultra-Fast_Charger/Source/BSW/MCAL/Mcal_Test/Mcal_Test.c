@@ -191,7 +191,7 @@ void Mcal_Can_Rcv_Test(void)
     uint8_t RcvBUff[256] = {0};
     uint8_t RcvLen = 0;
 
-    RcvLen = Mcal_Can_Receive_Msg(MCAL_CAN_RX_TEST, RcvBUff, sizeof(RcvBUff));
+    RcvLen = Mcal_Can_Receive_Msg(MCAL_CAN1_RX_MCU_STATUS3, RcvBUff, sizeof(RcvBUff));
     if (RcvLen)
     {
         // Process received CAN message
@@ -204,10 +204,6 @@ void Mcal_Can_Rcv_Test(void)
                 MCAL_DEBUG("\r\n");
             }
         }
-    }
-    else
-    {
-        MCAL_DEBUG("No CAN message received.\r\n");
     }
 }
 

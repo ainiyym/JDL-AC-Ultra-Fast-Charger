@@ -33,7 +33,7 @@ extern "C" {
 #define MCAL_CAN1_CCP_FILTER_MASK_ID_HIGH (0xffff)                                                                          // Filter mask high-level ID
 #define MCAL_CAN1_CCP_FILTER_MASK_ID_LOW (0xffff)                                                                           // Filter mask low-level ID
 /* CAN TX ID CFG */
-#define MCAL_CAN_TX_TEST_ID 0x1800D8D9                                                                                      // CAN1 test ID
+#define MCAL_CAN_TX_TEST_ID 0x18FFA2EF                                                                                      // CAN test ID
 #define MCAL_CAN1_CCP_TX_ID 0x2E2                                                                                           // CAN1 CCP TX ID
 #define MCAL_CAN_SECC_MSG1_TX_ID 0x18FF0056                                                                                 // CAN SECC_MSG1 TX ID
 #define MCAL_CAN_SECC_MSG2_TX_ID 0x18FF0156                                                                                 // CAN SECC_MSG2 TX ID
