@@ -54,8 +54,11 @@ static void CanM_Rte_SelfTestHandler(SysConnector_Num_Enum ch);
 static void CanM_Rte_SetReqChargingEnableStatus(SysConnector_Num_Enum ch);
 static void CanM_Rte_InputFrameProcess(void);
 static void CanM_Rte_OutputFrameProcess(void);
-static void CanM_Rte_SET_SECC_MSG2_Input(SysConnector_Num_Enum connector, CanM_SECC_MSG2_Input_Struct *Output);
-
+static void CanM_Rte_SET_SECC_MSG2_InputOther(SysConnector_Num_Enum connector);
+static void CanM_Rte_Set_SECC_MSG2_ChargingEndReason(SysConnector_Num_Enum ch, CanM_Rte_ChargingEndReason_Enum Reason);
+static void CanM_Rte_Set_SECC_MSG2_ChargingStartMode(SysConnector_Num_Enum ch, CanM_Rte_ChargingStartMode_Enum Mode);
+static void CanM_Rte_Set_SECC_MSG2_RelayStatus(SysConnector_Num_Enum ch, CanM_Rte_RelayStatus_Enum Status);
+static void CanM_Rte_Set_SECC_MSG2_EvseSysStatus(SysConnector_Num_Enum ch, CanM_Rte_EvseSysStatus_Enum Status);
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
@@ -67,7 +70,7 @@ void CanM_Rte_Evse_Init(void)
     memset(gv_stCanM_RteCtrl, 0, sizeof(gv_stCanM_RteCtrl)); /* Initialize the structure to zero */
     for (SysConnector_Num_Enum ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
     {
-        gv_stCanM_RteCtrl[ch].SECC_MSG2_Input.RatedCurr = SYS_CONNECTOR_RATED_CURRENT + 2000;
+        gv_stCanM_RteCtrl[ch].SECC_MSG2_Input.RatedCurr = SYS_CONNECTOR_RATED_CURRENT;
         gv_stCanM_RteCtrl[ch].SECC_MSG2_Input.RatedVolt = SYS_CONNECTOR_RATED_VOLTAGE;
     }
 }
@@ -77,9 +80,10 @@ void CanM_Rte_Msg_Init(void)
     CanM_MsgM_initialize();
 }
 
-void CanM_Rte_SetCarComStart(SysConnector_Num_Enum ch)
+void CanM_Rte_SetCarComStatus(SysConnector_Num_Enum ch, uint8_t Status)
 {
-    CanM_Set_EVSE_CanMode(ch, 1);   /* Set EVSE to CAN mode */
+    CanM_Set_EVSE_CanMode(ch, Status);   /* Set(1) or not(0) EVSE to CAN mode */
+    CanM_Set_MCU_MSG_Enable(ch, Status); /* Enable(1) or not(0) analysis Mcu MSG 3 */
 }
 
 void CanM_Rte_Set_AuthM_AuthStatus(SysConnector_Num_Enum ch, uint8_t status)
@@ -118,26 +122,6 @@ void CanM_Rte_Set_SECC_MSG2_InputFaultStatus(SysConnector_Num_Enum ch, CanM_Rte_
     }
 }
 
-void CanM_Rte_Set_SECC_MSG2_ChargingEndReason(SysConnector_Num_Enum ch, CanM_Rte_ChargingEndReason_Enum Reason)
-{
-    gv_stCanM_RteCtrl[ch].SECC_MSG2_Input.ChargingEndReason = Reason;
-}
-
-void CanM_Rte_Set_SECC_MSG2_ChargingStartMode(SysConnector_Num_Enum ch, CanM_Rte_ChargingStartMode_Enum Mode)
-{
-    gv_stCanM_RteCtrl[ch].SECC_MSG2_Input.ChargingStartMode = Mode;
-}
-
-void CanM_Rte_Set_SECC_MSG2_RelayStatus(SysConnector_Num_Enum ch, CanM_Rte_RelayStatus_Enum Status)
-{
-    gv_stCanM_RteCtrl[ch].SECC_MSG2_Input.RelayStatus = Status;
-}
-
-void CanM_Rte_Set_SECC_MSG2_EvseSysStatus(SysConnector_Num_Enum ch, CanM_Rte_EvseSysStatus_Enum Status)
-{
-    gv_stCanM_RteCtrl[ch].SECC_MSG2_Input.EvseSysStatus = Status;
-}
-
 uint8_t CanM_Rte_GetCarComEndStatus(SysConnector_Num_Enum ch)
 {
     uint8_t CanModeStatus = (uint8_t)CAN_MODE_STATUS_ENUM_CAN_MODE_STATUS_INIT;
@@ -150,6 +134,26 @@ uint8_t CanM_Rte_GetCarComEndStatus(SysConnector_Num_Enum ch)
     }
 
     return (uint8_t)STD_FALSE; /* Communication not ended */
+}
+
+static void CanM_Rte_Set_SECC_MSG2_ChargingEndReason(SysConnector_Num_Enum ch, CanM_Rte_ChargingEndReason_Enum Reason)
+{
+    gv_stCanM_RteCtrl[ch].SECC_MSG2_Input.ChargingEndReason = Reason;
+}
+
+static void CanM_Rte_Set_SECC_MSG2_ChargingStartMode(SysConnector_Num_Enum ch, CanM_Rte_ChargingStartMode_Enum Mode)
+{
+    gv_stCanM_RteCtrl[ch].SECC_MSG2_Input.ChargingStartMode = Mode;
+}
+
+static void CanM_Rte_Set_SECC_MSG2_RelayStatus(SysConnector_Num_Enum ch, CanM_Rte_RelayStatus_Enum Status)
+{
+    gv_stCanM_RteCtrl[ch].SECC_MSG2_Input.RelayStatus = Status;
+}
+
+static void CanM_Rte_Set_SECC_MSG2_EvseSysStatus(SysConnector_Num_Enum ch, CanM_Rte_EvseSysStatus_Enum Status)
+{
+    gv_stCanM_RteCtrl[ch].SECC_MSG2_Input.EvseSysStatus = Status;
 }
 
 static void CanM_Rte_SetReqChargingEnableStatus(SysConnector_Num_Enum ch)
@@ -302,7 +306,7 @@ static void CanM_Rte_OutputFrameProcess(void)
 
     for (SysConnector_Num_Enum ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
     {
-        if (CanM_Get_McuState3HeartBeatStatus(ch))
+        if (CanM_Get_SECC_MSG_Enable_Status(ch))
         {
             Msg1Data = CanM_Get_SECC_MSG1_Output(ch);
             Msg2Data = CanM_Get_SECC_MSG2_Output(ch);
@@ -312,14 +316,12 @@ static void CanM_Rte_OutputFrameProcess(void)
                 Mcal_Can_Send_Msg(MCAL_CAN1_TX_SECC_MSG1, (uint8_t *)&Msg1Data, CANM_RTE_SINGLE_FRAME_LEN);
                 Mcal_Can_Send_Msg(MCAL_CAN1_TX_SECC_MSG2, (uint8_t *)&Msg2Data, CANM_RTE_SINGLE_FRAME_LEN);
                 break;
-
 #if (SYSM_CONNECTOR2_ENABLE == STD_ON)
             case SYS_CONNECTOR2:
                 Mcal_Can_Send_Msg(MCAL_CAN2_TX_SECC_MSG1, (uint8_t *)&Msg1Data, CANM_RTE_SINGLE_FRAME_LEN);
                 Mcal_Can_Send_Msg(MCAL_CAN2_TX_SECC_MSG2, (uint8_t *)&Msg2Data, CANM_RTE_SINGLE_FRAME_LEN);
                 break;
 #endif
-
             default:
                 break;
             }
@@ -327,54 +329,40 @@ static void CanM_Rte_OutputFrameProcess(void)
     }
 }
 
-static void CanM_Rte_SET_SECC_MSG2_Input(SysConnector_Num_Enum connector, CanM_SECC_MSG2_Input_Struct *Output)
+static void CanM_Rte_SET_SECC_MSG2_InputOther(SysConnector_Num_Enum ch)
 {
-    if (SYS_CONNECTOR1 == connector)
+    const uint8_t RelayStatus[CANM_RTE_RLYCTRL_STATE_MAX] = {CANM_RTE_RELAY_RESERVE, CANM_RTE_RELAY_ON, CANM_RTE_RELAY_OFF, CANM_RTE_RELAY_ERROR};
+    const uint8_t StopChargingReason[CANM_RTE_CLOSE_SRC_MAX] = {CANM_RTE_CHARGING_END_REASON_RESERVE, CANM_RTE_CHARGING_END_REASON_MANUAL, CANM_RTE_CHARGING_END_REASON_MANUAL,
+                                                                CANM_RTE_CHARGING_END_REASON_MANUAL, CANM_RTE_CHARGING_END_REASON_NORMAL, CANM_RTE_CHARGING_END_REASON_NORMAL, CANM_RTE_CHARGING_END_REASON_MANUAL,
+                                                                CANM_RTE_CHARGING_END_REASON_MANUAL, CANM_RTE_CHARGING_END_REASON_NORMAL, CANM_RTE_CHARGING_END_REASON_MANUAL, CANM_RTE_CHARGING_END_REASON_EVSE_FAULT};
+
+    if (TRUE == CanM_Rte_GetReqChargeStatus(ch))
     {
-        Output->CanTimeOutFaultStatus = 0;
-        Output->ChargingEndReason = 0;
-        Output->CanTimeOutFaultStatus = 0;
-        Output->ChargingStartMode = 0;
-        Output->CpVolFaultStatus = 0;
-        Output->EmergeStopFaultStatus = 0;
-        Output->EnergyTransferUnable = 0;
-        Output->EvseSysStatus = 0;
-        Output->HardwareFaultStatus = 0;
-        Output->CanTimeOutFaultStatus = 0;
-        Output->OverCurrFaultStatus = 0;
-        Output->OverTempFaultStatus = 0;
-        Output->RatedCurr = SYS_CONNECTOR_RATED_CURRENT + 2000; /* factor:1; offset:2000 */
-        Output->RatedVolt = SYS_CONNECTOR_RATED_VOLTAGE;
-        Output->RelayFaultStatus = 0;
-        Output->RelayStatus = 0;
-        Output->SelfTestFaultStatus = 0;
-        Output->VoltFaultStatus = 0;
+        CanM_Rte_Set_SECC_MSG2_ChargingStartMode(ch, CANM_RTE_CHARGING_START_MODE_G2V);
+        if (ENABLE == CanM_Get_McuState3ReqChargingEnableStatus(ch))
+        {
+            CanM_Rte_Set_SECC_MSG2_ChargingEndReason(ch, CANM_RTE_CHARGING_END_REASON_NONE);
+        }
+        else
+        {
+            CanM_Rte_Set_SECC_MSG2_ChargingEndReason(ch, CANM_RTE_CHARGING_END_REASON_VEHICLE);
+        }
     }
-#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
-    else if (SYS_CONNECTOR2 == connector)
-    {
-        Output->CanTimeOutFaultStatus = 0;
-        Output->ChargingEndReason = 0;
-        Output->CanTimeOutFaultStatus = 0;
-        Output->ChargingStartMode = 0;
-        Output->CpVolFaultStatus = 0;
-        Output->EmergeStopFaultStatus = 0;
-        Output->EnergyTransferUnable = 0;
-        Output->EvseSysStatus = 0;
-        Output->HardwareFaultStatus = 0;
-        Output->CanTimeOutFaultStatus = 0;
-        Output->OverCurrFaultStatus = 0;
-        Output->OverTempFaultStatus = 0;
-        Output->RatedCurr = SYS_CONNECTOR_RATED_CURRENT + 2000; /* factor:1; offset:2000 */
-        Output->RatedVolt = SYS_CONNECTOR_RATED_VOLTAGE;
-        Output->RelayFaultStatus = 0;
-        Output->RelayStatus = 0;
-        Output->SelfTestFaultStatus = 0;
-        Output->VoltFaultStatus = 0;
-    }
-#endif
     else
     {
+        CanM_Rte_Set_SECC_MSG2_ChargingStartMode(ch, CANM_RTE_CHARGING_START_MODE_NONE);
+        CanM_Rte_Set_SECC_MSG2_ChargingEndReason(ch, (CanM_Rte_ChargingEndReason_Enum)StopChargingReason[CanM_Rte_GetAuthCloseSource(ch)]);
+    }
+
+    CanM_Rte_Set_SECC_MSG2_RelayStatus(ch, (CanM_Rte_RelayStatus_Enum)RelayStatus[CanM_Rte_GetRelayStatus(ch)]);
+
+    if (CANM_RTE_RELAY_ON == gv_stCanM_RteCtrl[ch].SECC_MSG2_Input.RelayStatus)
+    {
+        CanM_Rte_Set_SECC_MSG2_EvseSysStatus(ch, CANM_RTE_EVSE_SYS_STATUS_CHARGING_NORMAL);
+    }
+    else
+    {
+        CanM_Rte_Set_SECC_MSG2_EvseSysStatus(ch, CANM_RTE_EVSE_SYS_STATUS_POWER_LOWER);
     }
 }
 
@@ -386,7 +374,6 @@ void CanM_Rte_EVSE_Main_Task(void)
 
     /* Call the step function of CanM_EVSEM to process the EVSE CAN control logic */
     CanM_EVSEM_step();
-
     for (SysConnector_Num_Enum ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
     {
         /* Handle the self-test for each connector */
@@ -409,14 +396,26 @@ void CanM_Rte_Msg_Main_Task(void)
 
 void CanM_Rte_10ms_Task(void)
 {
-    CanM_SECC_MSG2_Input_Struct MSG2_Input = {0};
-
     for (SysConnector_Num_Enum ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
     {
         CanM_Set_EVSE_CanHeartBeatStatus(ch, (boolean_T)CanM_Get_McuState3HeartBeatStatus(ch));
-        CanM_Rte_SET_SECC_MSG2_Input(ch, &MSG2_Input);
+        CanM_Rte_SET_SECC_MSG2_InputOther(ch);
         CanM_Rte_SetReqChargingEnableStatus(ch);
         CanM_Set_SECC_MSG1_Input(ch);
-        CanM_Set_SECC_MSG2_Input(ch, MSG2_Input);
+        CanM_Set_SECC_MSG2_Input(ch, gv_stCanM_RteCtrl[ch].SECC_MSG2_Input);
+        CanM_Set_SECC_MSG_Enable(ch, CanM_Get_McuState3HeartBeatStatus(ch));
+#if(STD_ON == AUTHM_OPEN_NOAUTH_EN)
+        if (CanM_Rte_GetCanModeStatus(ch, STD_SYSM_SYSSTATUS_CAN))
+        {
+            if (CanM_Get_McuState3HeartBeatStatus(ch))
+            {
+                CanM_Rte_SetNoAuthStatus(ch);
+            }
+            else
+            {
+                CanM_Rte_CancelNoAuthStatus(ch);
+            }
+        }
+#endif
     }
 }

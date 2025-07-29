@@ -161,6 +161,7 @@ static void Task10ms(void)
     // ERRHDL_10msMainFunction();  // Call the error handler's 10ms main function
     AUTHM_10msMainFunction(); // Call the authorization manager's 10ms main function
     BTRM_10msMainFunction(); // Call the battery manager's 10ms main function
+    CanM_Rte_10ms_Task();   // Call the can manager's 10ms main function
 }
 
 static void Task20ms(void)
@@ -173,12 +174,13 @@ static void Task20ms(void)
 static void Task100ms(void)
 {
     /* 100ms task code */
+    // Mcal_Can_Send_Test(); // Call the CAN send test function
     NOAUTHEN_100msFunction();
+    CanM_Rte_Msg_Main_Task(); // Call canM task
 }
 
 static void Task1000ms(void)
 {
     /* 1-second task code */
-    // Mcal_Can_Send_Test();
-    Mcal_Test_Run(); // Call the MCAL test function
+    // Mcal_Test_Run(); // Call the MCAL test function
 }

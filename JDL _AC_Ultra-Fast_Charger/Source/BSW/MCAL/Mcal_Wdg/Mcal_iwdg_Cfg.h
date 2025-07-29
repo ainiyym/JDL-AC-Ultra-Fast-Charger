@@ -9,7 +9,7 @@ extern "C" {
 /* Add necessary includes here */
 
 /* ========================= Macros =========================== */
-#define MCAL_WDG_ENABLED        (1)
+#define MCAL_WDG_ENABLED        (0)
 
 /* ========================= Types ============================ */
 /* Add type definitions here */

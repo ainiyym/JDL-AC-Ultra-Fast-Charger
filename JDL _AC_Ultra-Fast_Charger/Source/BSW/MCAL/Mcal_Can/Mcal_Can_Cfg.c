@@ -36,10 +36,20 @@ Mcal_CanChannelCfg_t Mcal_CanChannelCfgTable[MCAL_CAN_CH_MAX_NUMBER] =
 
 Mcal_CanTxChannelCfg_t Mcal_CanTxChannelCfgTable[MCAL_CAN_TX_MAX_NUMBER] =
     {
-        [MCAL_CAN_TX_TEST] = {
-            .CanTxChannel = MCAL_CAN_TX_TEST,
+        [MCAL_CAN1_TX_TEST] = {
+            .CanTxChannel = MCAL_CAN1_TX_TEST,
             .CanHandle = &hcan1,
-            .TxHeader.ExtId = MCAL_CAN_TX_TEST_ID,                       // Extended identifier (29 bits)
+            .TxHeader.ExtId = MCAL_CAN1_TX_TEST_ID,                       // Extended identifier (29 bits)
+            .TxHeader.IDE = CAN_ID_EXT,                                   // Extended frame
+            .TxHeader.RTR = CAN_RTR_DATA,                                 // Data frame
+            .TxHeader.DLC = 8,                                            // Data length
+            .TxHeader.StdId = 0,                                          // Standard identifier (11 bits)
+            .TxHeader.TransmitGlobalTime = DISABLE,                       // use the global timestamp
+        },
+        [MCAL_CAN2_TX_TEST] = {
+            .CanTxChannel = MCAL_CAN2_TX_TEST,
+            .CanHandle = &hcan2,
+            .TxHeader.ExtId = MCAL_CAN1_TX_TEST_ID,                       // Extended identifier (29 bits)
             .TxHeader.IDE = CAN_ID_EXT,                                   // Extended frame
             .TxHeader.RTR = CAN_RTR_DATA,                                 // Data frame
             .TxHeader.DLC = 8,                                            // Data length
@@ -237,7 +247,7 @@ McalRetVal_t Mcal_Can_Send_Msg(Mcal_CanTxChannel_Enum_t Channel, uint8_t *msg, u
 
   while (HAL_CAN_GetTxMailboxesFreeLevel(Mcal_CanTxChannelCfgTable[Channel].CanHandle) == 0) /* Wait for the mailbox to be free */
   {
-    if (HAL_CAN_IsTxMessagePending(Mcal_CanTxChannelCfgTable[Channel].CanHandle, CAN_TX_MAILBOX0 | CAN_TX_MAILBOX1 | CAN_TX_MAILBOX2) == 0)
+    if (HAL_CAN_IsTxMessagePending(Mcal_CanTxChannelCfgTable[Channel].CanHandle, CAN_TX_MAILBOX0 | CAN_TX_MAILBOX1 | CAN_TX_MAILBOX2) < 3)
     {
       break; /* If the mailbox is empty, exit the loop */
     }

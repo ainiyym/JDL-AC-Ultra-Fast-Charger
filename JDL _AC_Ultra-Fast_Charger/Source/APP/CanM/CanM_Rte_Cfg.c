@@ -229,6 +229,43 @@ uint8_t CanM_Get_CanModeStatus(SysConnector_Num_Enum connector)
     }
 }
 
+void CanM_Set_SECC_MSG_Enable(SysConnector_Num_Enum connector, uint8_t Status)
+{
+    if (connector == SYS_CONNECTOR1)
+    {
+        CanM_MsgM_U.SECC_MSG_Enable = Status;
+    }
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
+    else if (connector == SYS_CONNECTOR2)
+    {
+        CanM_MsgM_U.SECC_MSG_Enable1 = Status;
+    }
+#endif 
+    else
+    {
+        /* Invalid connector, handle error if necessary */ 
+    }
+}
+
+uint8_t CanM_Get_SECC_MSG_Enable_Status(SysConnector_Num_Enum connector)
+{
+    if (connector == SYS_CONNECTOR1)
+    {
+        return CanM_MsgM_U.SECC_MSG_Enable;
+    }
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
+    else if (connector == SYS_CONNECTOR2)
+    {
+        return CanM_MsgM_U.SECC_MSG_Enable1;
+    }
+#endif 
+    else
+    {
+        return 0;
+        /* Invalid connector, handle error if necessary */ 
+    }  
+}
+
 void CanM_Set_SECC_MSG1_Input(SysConnector_Num_Enum connector)
 {
     if (connector == SYS_CONNECTOR1)
@@ -344,6 +381,24 @@ uint64_t CanM_Get_SECC_MSG2_Output(SysConnector_Num_Enum connector)
     {
         /* Invalid connector, handle error if necessary */
         return 0; /* Default return value for invalid connector */
+    }
+}
+
+void CanM_Set_MCU_MSG_Enable(SysConnector_Num_Enum connector, uint8_t Status)
+{
+    if (connector == SYS_CONNECTOR1)
+    {
+        CanM_MsgM_U.Mcu_Status3_Enable = Status;
+    }
+#if (SYSM_CONNECTOR2_ENABLE == STD_ON)
+    else if (connector == SYS_CONNECTOR2)
+    {
+        CanM_MsgM_U.Mcu_Status3_Enable1 = Status;
+    }
+#endif 
+    else
+    {
+        /* Invalid connector, handle error if necessary */ 
     }
 }
 

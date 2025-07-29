@@ -101,13 +101,9 @@ typedef enum
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-extern void CanM_Rte_SetCarComStart(SysConnector_Num_Enum ch);
+extern void CanM_Rte_SetCarComStatus(SysConnector_Num_Enum ch, uint8_t Status);
 extern void CanM_Rte_Set_AuthM_AuthStatus(SysConnector_Num_Enum ch, uint8_t status);
 extern void CanM_Rte_Set_SECC_MSG2_InputFaultStatus(SysConnector_Num_Enum ch, CanM_Rte_SeccMsg2Fault_Enum FaultID, uint8_t status);
-extern void CanM_Rte_Set_SECC_MSG2_ChargingEndReason(SysConnector_Num_Enum ch, CanM_Rte_ChargingEndReason_Enum Reason);
-extern void CanM_Rte_Set_SECC_MSG2_ChargingStartMode(SysConnector_Num_Enum ch, CanM_Rte_ChargingStartMode_Enum Mode);
-extern void CanM_Rte_Set_SECC_MSG2_RelayStatus(SysConnector_Num_Enum ch, CanM_Rte_RelayStatus_Enum Status);
-extern void CanM_Rte_Set_SECC_MSG2_EvseSysStatus(SysConnector_Num_Enum ch, CanM_Rte_EvseSysStatus_Enum Status);
 extern uint8_t CanM_Rte_GetCarComEndStatus(SysConnector_Num_Enum ch);
 extern void CanM_Rte_Evse_Init(void);
 extern void CanM_Rte_Msg_Init(void);

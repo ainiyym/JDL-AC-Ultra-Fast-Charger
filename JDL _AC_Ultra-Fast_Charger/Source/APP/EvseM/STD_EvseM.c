@@ -105,6 +105,8 @@ void EVSEM_InitMemory(void)
 {
 	LIB_SetMemory((uint8_t *)(&gv_stEvseM), 0u, (uint16_t)(sizeof(gv_stEvseM) / sizeof(uint8_t))); /*PRQA S 0310*/
 	CanM_Rte_Evse_Init(); /* Initialize the RTE for CanM */
+	gv_stEvseM[0].ucState = EVSEM_STATE_CAN_MODEL;
+	gv_stEvseM[1].ucState = EVSEM_STATE_CAN_MODEL;
 }
 
 /*******************************************************************************
@@ -871,6 +873,7 @@ static void EVSEM_StateCanModelHandle(SysConnector_Num_Enum ch)
 	if (STD_TRUE == EVSEM_GET_CAN_END_COM(ch))
 	{
 		gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_ZERO;
+		EVSEM_STOP_CAN_COM(ch);
 		EVSEM_DEBUG("ch:%d CAN into zero! \n", ch);
 	}
 	CanM_Rte_EVSE_Main_Task();

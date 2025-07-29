@@ -3,9 +3,9 @@
  *
  * Code generated for Simulink model 'CanM_MsgM'.
  *
- * Model version                  : 1.133
+ * Model version                  : 1.140
  * Simulink Coder version         : 23.2 (R2023b) 01-Aug-2023
- * C/C++ source code generated on : Tue Jul 22 14:35:47 2025
+ * C/C++ source code generated on : Tue Jul 29 10:19:03 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -45,15 +45,594 @@ RT_MODEL_CanM_MsgM_T *const CanM_MsgM_M = &CanM_MsgM_M_;
  *    '<S8>/Bit Shift4'
  *    '<S8>/Bit Shift5'
  *    '<S8>/Bit Shift6'
- *    '<S25>/Bit Shift'
- *    '<S25>/Bit Shift1'
- *    '<S25>/Bit Shift2'
+ *    '<S38>/Bit Shift'
+ *    '<S38>/Bit Shift1'
+ *    '<S38>/Bit Shift2'
  *    ...
  */
 uint64_T CanM_MsgM_BitShift(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S10>/bit_shift' */
+  /* MATLAB Function: '<S23>/bit_shift' */
   return rtu_u >> 8;
+}
+
+/*
+ * System initialize for enable system:
+ *    '<Root>/MCU_Status3_Unpack'
+ *    '<Root>/MCU_Status3_Unpack1'
+ */
+void CanM_Ms_MCU_Status3_Unpack_Init(void)
+{
+  /* Start for S-Function (scanunpack): '<S1>/CAN Unpack' */
+
+  /*-----------S-Function Block: <S1>/CAN Unpack -----------------*/
+}
+
+/*
+ * Output and update for enable system:
+ *    '<Root>/MCU_Status3_Unpack'
+ *    '<Root>/MCU_Status3_Unpack1'
+ */
+void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
+  rtu_MCU_Status3_Data, boolean_T *rty_MCU_State3ValidStatus, boolean_T
+  *rty_MCU_State3ReqChargingEnable, B_MCU_Status3_Unpack_CanM_Msg_T *localB,
+  DW_MCU_Status3_Unpack_CanM_Ms_T *localDW)
+{
+  real_T tmp;
+  uint64_T rtb_y_m;
+  uint64_T rtb_y_o4;
+  uint8_T rtb_DataTypeConversion_o;
+  uint8_T rtb_Subtract;
+  boolean_T rtb_Compare;
+  boolean_T rtb_Compare_i;
+  boolean_T rtb_LogicalOperator;
+  boolean_T rtb_LogicalOperator_g;
+  boolean_T rtb_UnitDelay_bh;
+  boolean_T rtb_UnitDelay_m;
+  boolean_T rtb_UnitDelay_p;
+
+  /* Outputs for Enabled SubSystem: '<Root>/MCU_Status3_Unpack' incorporates:
+   *  EnablePort: '<S1>/Enable'
+   */
+  if (rtu_Enable) {
+    /* Outputs for Atomic SubSystem: '<S8>/Bit Shift' */
+    rtb_y_o4 = CanM_MsgM_BitShift(rtu_MCU_Status3_Data);
+
+    /* End of Outputs for SubSystem: '<S8>/Bit Shift' */
+
+    /* BusCreator: '<S1>/Bus Creator1' incorporates:
+     *  DataTypeConversion: '<S8>/Data Type Conversion1'
+     *  S-Function (sfix_bitop): '<S8>/Bitwise AND1'
+     */
+    localB->BusCreator1.Data[1] = (uint8_T)(rtb_y_o4 & 255ULL);
+
+    /* Outputs for Atomic SubSystem: '<S8>/Bit Shift1' */
+    rtb_y_m = CanM_MsgM_BitShift(rtb_y_o4);
+
+    /* End of Outputs for SubSystem: '<S8>/Bit Shift1' */
+
+    /* BusCreator: '<S1>/Bus Creator1' incorporates:
+     *  DataTypeConversion: '<S8>/Data Type Conversion2'
+     *  S-Function (sfix_bitop): '<S8>/Bitwise AND2'
+     */
+    localB->BusCreator1.Data[2] = (uint8_T)(rtb_y_m & 255ULL);
+
+    /* Outputs for Atomic SubSystem: '<S8>/Bit Shift2' */
+    rtb_y_o4 = CanM_MsgM_BitShift(rtb_y_m);
+
+    /* End of Outputs for SubSystem: '<S8>/Bit Shift2' */
+
+    /* BusCreator: '<S1>/Bus Creator1' incorporates:
+     *  DataTypeConversion: '<S8>/Data Type Conversion3'
+     *  S-Function (sfix_bitop): '<S8>/Bitwise AND3'
+     */
+    localB->BusCreator1.Data[3] = (uint8_T)(rtb_y_o4 & 255ULL);
+
+    /* Outputs for Atomic SubSystem: '<S8>/Bit Shift3' */
+    rtb_y_m = CanM_MsgM_BitShift(rtb_y_o4);
+
+    /* End of Outputs for SubSystem: '<S8>/Bit Shift3' */
+
+    /* BusCreator: '<S1>/Bus Creator1' incorporates:
+     *  DataTypeConversion: '<S8>/Data Type Conversion4'
+     *  S-Function (sfix_bitop): '<S8>/Bitwise AND4'
+     */
+    localB->BusCreator1.Data[4] = (uint8_T)(rtb_y_m & 255ULL);
+
+    /* Outputs for Atomic SubSystem: '<S8>/Bit Shift4' */
+    rtb_y_o4 = CanM_MsgM_BitShift(rtb_y_m);
+
+    /* End of Outputs for SubSystem: '<S8>/Bit Shift4' */
+
+    /* BusCreator: '<S1>/Bus Creator1' incorporates:
+     *  DataTypeConversion: '<S8>/Data Type Conversion5'
+     *  S-Function (sfix_bitop): '<S8>/Bitwise AND5'
+     */
+    localB->BusCreator1.Data[5] = (uint8_T)(rtb_y_o4 & 255ULL);
+
+    /* Outputs for Atomic SubSystem: '<S8>/Bit Shift5' */
+    rtb_y_m = CanM_MsgM_BitShift(rtb_y_o4);
+
+    /* End of Outputs for SubSystem: '<S8>/Bit Shift5' */
+
+    /* Outputs for Atomic SubSystem: '<S8>/Bit Shift6' */
+    rtb_y_o4 = CanM_MsgM_BitShift(rtb_y_m);
+
+    /* End of Outputs for SubSystem: '<S8>/Bit Shift6' */
+
+    /* BusCreator: '<S1>/Bus Creator1' incorporates:
+     *  Constant: '<S1>/Constant26'
+     *  Constant: '<S1>/Constant27'
+     *  Constant: '<S1>/Constant28'
+     *  Constant: '<S1>/Constant29'
+     *  Constant: '<S1>/Constant3'
+     *  Constant: '<S1>/Constant30'
+     *  DataTypeConversion: '<S8>/Data Type Conversion'
+     *  DataTypeConversion: '<S8>/Data Type Conversion6'
+     *  DataTypeConversion: '<S8>/Data Type Conversion7'
+     *  S-Function (sfix_bitop): '<S8>/Bitwise AND'
+     *  S-Function (sfix_bitop): '<S8>/Bitwise AND6'
+     *  S-Function (sfix_bitop): '<S8>/Bitwise AND7'
+     */
+    localB->BusCreator1.Extended = 1U;
+    localB->BusCreator1.Length = 8U;
+    localB->BusCreator1.Remote = 0U;
+    localB->BusCreator1.Error = 0U;
+    localB->BusCreator1.ID = 419406575U;
+    localB->BusCreator1.Timestamp = 0.0;
+    localB->BusCreator1.Data[0] = (uint8_T)(rtu_MCU_Status3_Data & 255ULL);
+    localB->BusCreator1.Data[6] = (uint8_T)(rtb_y_m & 255ULL);
+    localB->BusCreator1.Data[7] = (uint8_T)(rtb_y_o4 & 255ULL);
+
+    /* S-Function (scanunpack): '<S1>/CAN Unpack' */
+    {
+      /* S-Function (scanunpack): '<S1>/CAN Unpack' */
+      if ((8 == localB->BusCreator1.Length) && (localB->BusCreator1.ID !=
+           INVALID_CAN_ID) ) {
+        if ((419406575 == localB->BusCreator1.ID) && (1U ==
+             localB->BusCreator1.Extended) ) {
+          {
+            /* --------------- START Unpacking signal 0 ------------------
+             *  startBit                = 60
+             *  length                  = 4
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            {
+              real_T outValue = 0;
+
+              {
+                uint8_T unpackedValue = 0;
+
+                {
+                  uint8_T tempValue = (uint8_T) (0);
+
+                  {
+                    tempValue = tempValue | (uint8_T)((uint8_T)((uint8_T)
+                      (localB->BusCreator1.Data[7]) & (uint8_T)(0xF0U)) >> 4);
+                  }
+
+                  unpackedValue = tempValue;
+                }
+
+                outValue = (real_T) (unpackedValue);
+              }
+
+              {
+                real_T result = (real_T) outValue;
+                localB->CANUnpack_o1 = result;
+              }
+            }
+
+            /* --------------- START Unpacking signal 1 ------------------
+             *  startBit                = 8
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 2 ------------------
+             *  startBit                = 15
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 3 ------------------
+             *  startBit                = 14
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 4 ------------------
+             *  startBit                = 0
+             *  length                  = 4
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 5 ------------------
+             *  startBit                = 33
+             *  length                  = 2
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 6 ------------------
+             *  startBit                = 27
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 7 ------------------
+             *  startBit                = 35
+             *  length                  = 2
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 8 ------------------
+             *  startBit                = 32
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            {
+              real_T outValue = 0;
+
+              {
+                uint8_T unpackedValue = 0;
+
+                {
+                  uint8_T tempValue = (uint8_T) (0);
+
+                  {
+                    tempValue = tempValue | (uint8_T)((uint8_T)
+                      (localB->BusCreator1.Data[4]) & (uint8_T)(0x1U));
+                  }
+
+                  unpackedValue = tempValue;
+                }
+
+                outValue = (real_T) (unpackedValue);
+              }
+
+              {
+                real_T result = (real_T) outValue;
+                localB->CANUnpack_o9 = result;
+              }
+            }
+
+            /* --------------- START Unpacking signal 9 ------------------
+             *  startBit                = 24
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 10 ------------------
+             *  startBit                = 16
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 11 ------------------
+             *  startBit                = 11
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 12 ------------------
+             *  startBit                = 20
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 13 ------------------
+             *  startBit                = 10
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 14 ------------------
+             *  startBit                = 17
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 15 ------------------
+             *  startBit                = 18
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 16 ------------------
+             *  startBit                = 26
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 17 ------------------
+             *  startBit                = 19
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 18 ------------------
+             *  startBit                = 12
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 19 ------------------
+             *  startBit                = 9
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 20 ------------------
+             *  startBit                = 25
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 21 ------------------
+             *  startBit                = 13
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+          }
+        }
+      }
+    }
+
+    /* DataTypeConversion: '<S1>/Data Type Conversion' */
+    tmp = floor(localB->CANUnpack_o1);
+    if (rtIsNaN(tmp) || rtIsInf(tmp)) {
+      tmp = 0.0;
+    } else {
+      tmp = fmod(tmp, 256.0);
+    }
+
+    rtb_DataTypeConversion_o = (uint8_T)(tmp < 0.0 ? (int32_T)(uint8_T)-(int8_T)
+      (uint8_T)-tmp : (int32_T)(uint8_T)tmp);
+
+    /* End of DataTypeConversion: '<S1>/Data Type Conversion' */
+
+    /* Sum: '<S7>/Subtract' incorporates:
+     *  Delay: '<S7>/Delay'
+     */
+    rtb_Subtract = (uint8_T)(rtb_DataTypeConversion_o - localDW->Delay_DSTATE);
+
+    /* RelationalOperator: '<S9>/Compare' incorporates:
+     *  Constant: '<S9>/Constant'
+     */
+    rtb_Compare = (rtb_Subtract > 2);
+
+    /* Logic: '<S15>/Logical Operator' incorporates:
+     *  UnitDelay: '<S15>/Unit Delay'
+     */
+    rtb_LogicalOperator = (localDW->UnitDelay_DSTATE && rtb_Compare);
+
+    /* Logic: '<S16>/Logical Operator' incorporates:
+     *  UnitDelay: '<S16>/Unit Delay'
+     */
+    rtb_LogicalOperator_g = (localDW->UnitDelay_DSTATE_m && rtb_LogicalOperator);
+
+    /* UnitDelay: '<S20>/Unit Delay' */
+    rtb_UnitDelay_p = localDW->UnitDelay_DSTATE_h;
+
+    /* UnitDelay: '<S19>/Unit Delay' */
+    rtb_UnitDelay_m = localDW->UnitDelay_DSTATE_c;
+
+    /* UnitDelay: '<S21>/Unit Delay' */
+    rtb_UnitDelay_bh = localDW->UnitDelay_DSTATE_hf;
+
+    /* RelationalOperator: '<S10>/Compare' incorporates:
+     *  Constant: '<S10>/Constant'
+     */
+    rtb_Compare_i = (rtb_Subtract == 0);
+
+    /* Logic: '<S18>/Logical Operator' incorporates:
+     *  UnitDelay: '<S18>/Unit Delay'
+     *  UnitDelay: '<S21>/Unit Delay'
+     */
+    localDW->UnitDelay_DSTATE_hf = (localDW->UnitDelay_DSTATE_mj &&
+      rtb_Compare_i);
+
+    /* Logic: '<S21>/Logical Operator' incorporates:
+     *  UnitDelay: '<S19>/Unit Delay'
+     *  UnitDelay: '<S21>/Unit Delay'
+     */
+    localDW->UnitDelay_DSTATE_c = (rtb_UnitDelay_bh &&
+      localDW->UnitDelay_DSTATE_hf);
+
+    /* Logic: '<S19>/Logical Operator' incorporates:
+     *  UnitDelay: '<S19>/Unit Delay'
+     *  UnitDelay: '<S20>/Unit Delay'
+     */
+    localDW->UnitDelay_DSTATE_h = (rtb_UnitDelay_m &&
+      localDW->UnitDelay_DSTATE_c);
+
+    /* Logic: '<S20>/Logical Operator' incorporates:
+     *  UnitDelay: '<S20>/Unit Delay'
+     */
+    rtb_UnitDelay_p = (rtb_UnitDelay_p && localDW->UnitDelay_DSTATE_h);
+
+    /* Logic: '<S7>/Logical Operator1' incorporates:
+     *  Logic: '<S17>/Logical Operator'
+     *  Logic: '<S22>/Logical Operator'
+     *  Logic: '<S7>/Logical Operator'
+     *  RelationalOperator: '<S11>/Compare'
+     *  RelationalOperator: '<S12>/Compare'
+     *  UnitDelay: '<S17>/Unit Delay'
+     *  UnitDelay: '<S22>/Unit Delay'
+     */
+    *rty_MCU_State3ValidStatus = (((!localDW->UnitDelay_DSTATE_a) ||
+      (!rtb_UnitDelay_p)) && ((!localDW->UnitDelay_DSTATE_o) ||
+      (!rtb_LogicalOperator_g)));
+
+    /* DataTypeConversion: '<S1>/Data Type Conversion1' */
+    *rty_MCU_State3ReqChargingEnable = (localB->CANUnpack_o9 != 0.0);
+
+    /* Update for Delay: '<S7>/Delay' */
+    localDW->Delay_DSTATE = rtb_DataTypeConversion_o;
+
+    /* Update for UnitDelay: '<S15>/Unit Delay' */
+    localDW->UnitDelay_DSTATE = rtb_Compare;
+
+    /* Update for UnitDelay: '<S16>/Unit Delay' */
+    localDW->UnitDelay_DSTATE_m = rtb_LogicalOperator;
+
+    /* Update for UnitDelay: '<S17>/Unit Delay' */
+    localDW->UnitDelay_DSTATE_o = rtb_LogicalOperator_g;
+
+    /* Update for UnitDelay: '<S22>/Unit Delay' */
+    localDW->UnitDelay_DSTATE_a = rtb_UnitDelay_p;
+
+    /* Update for UnitDelay: '<S18>/Unit Delay' */
+    localDW->UnitDelay_DSTATE_mj = rtb_Compare_i;
+  }
+
+  /* End of Outputs for SubSystem: '<Root>/MCU_Status3_Unpack' */
 }
 
 /*
@@ -65,7 +644,7 @@ uint64_T CanM_MsgM_BitShift(uint64_T rtu_u)
  */
 uint64_T CanM_MsgM_BitShift_e(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S41>/bit_shift' */
+  /* MATLAB Function: '<S67>/bit_shift' */
   return rtu_u << 8;
 }
 
@@ -78,7 +657,7 @@ uint64_T CanM_MsgM_BitShift_e(uint64_T rtu_u)
  */
 uint64_T CanM_MsgM_BitShift1(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S42>/bit_shift' */
+  /* MATLAB Function: '<S68>/bit_shift' */
   return rtu_u << 16;
 }
 
@@ -91,7 +670,7 @@ uint64_T CanM_MsgM_BitShift1(uint64_T rtu_u)
  */
 uint64_T CanM_MsgM_BitShift2(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S43>/bit_shift' */
+  /* MATLAB Function: '<S69>/bit_shift' */
   return rtu_u << 24;
 }
 
@@ -104,7 +683,7 @@ uint64_T CanM_MsgM_BitShift2(uint64_T rtu_u)
  */
 uint64_T CanM_MsgM_BitShift3(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S44>/bit_shift' */
+  /* MATLAB Function: '<S70>/bit_shift' */
   return rtu_u << 32;
 }
 
@@ -117,7 +696,7 @@ uint64_T CanM_MsgM_BitShift3(uint64_T rtu_u)
  */
 uint64_T CanM_MsgM_BitShift4(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S45>/bit_shift' */
+  /* MATLAB Function: '<S71>/bit_shift' */
   return rtu_u << 40;
 }
 
@@ -130,7 +709,7 @@ uint64_T CanM_MsgM_BitShift4(uint64_T rtu_u)
  */
 uint64_T CanM_MsgM_BitShift5(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S46>/bit_shift' */
+  /* MATLAB Function: '<S72>/bit_shift' */
   return rtu_u << 48;
 }
 
@@ -143,7 +722,7 @@ uint64_T CanM_MsgM_BitShift5(uint64_T rtu_u)
  */
 uint64_T CanM_MsgM_BitShift6(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S47>/bit_shift' */
+  /* MATLAB Function: '<S73>/bit_shift' */
   return rtu_u << 56;
 }
 
@@ -158,26 +737,26 @@ void CanM_MsgM_SECC_MSG1(boolean_T rtu_Enable, uint16_T rtu_SECC_MSG1_L1_Curr,
   rtu_SECC_MSG1_L3_Vol, uint64_T *rty_SECC_MSG1_OutU64, B_SECC_MSG1_CanM_MsgM_T *
   localB, DW_SECC_MSG1_CanM_MsgM_T *localDW)
 {
-  uint64_T rtb_y_a;
-  uint64_T rtb_y_an;
-  uint64_T rtb_y_fd;
+  uint64_T rtb_y_b;
+  uint64_T rtb_y_d0;
+  uint64_T rtb_y_es;
   uint64_T rtb_y_g;
-  uint64_T rtb_y_k;
-  uint64_T rtb_y_na;
-  uint64_T rtb_y_pt;
+  uint64_T rtb_y_jt;
+  uint64_T rtb_y_kg;
+  uint64_T rtb_y_n;
 
   /* Outputs for Enabled SubSystem: '<Root>/SECC_MSG1' incorporates:
    *  EnablePort: '<S3>/Enable'
    */
   if (rtu_Enable) {
-    /* UnitDelay: '<S48>/Output' */
+    /* UnitDelay: '<S74>/Output' */
     localB->Output = localDW->Output_DSTATE;
 
-    /* Switch: '<S57>/FixPt Switch' incorporates:
-     *  Constant: '<S56>/FixPt Constant'
-     *  Constant: '<S57>/Constant'
-     *  Sum: '<S56>/FixPt Sum1'
-     *  UnitDelay: '<S48>/Output'
+    /* Switch: '<S83>/FixPt Switch' incorporates:
+     *  Constant: '<S82>/FixPt Constant'
+     *  Constant: '<S83>/Constant'
+     *  Sum: '<S82>/FixPt Sum1'
+     *  UnitDelay: '<S74>/Output'
      */
     if ((uint8_T)(localB->Output + 1U) > 15) {
       localDW->Output_DSTATE = 0U;
@@ -185,7 +764,7 @@ void CanM_MsgM_SECC_MSG1(boolean_T rtu_Enable, uint16_T rtu_SECC_MSG1_L1_Curr,
       localDW->Output_DSTATE = (uint8_T)(localB->Output + 1U);
     }
 
-    /* End of Switch: '<S57>/FixPt Switch' */
+    /* End of Switch: '<S83>/FixPt Switch' */
 
     /* DataTypeConversion: '<S3>/Data Type Conversion8' */
     localB->DataTypeConversion8 = (int16_T)rtu_SECC_MSG1_L1_Curr;
@@ -517,51 +1096,51 @@ void CanM_MsgM_SECC_MSG1(boolean_T rtu_Enable, uint16_T rtu_SECC_MSG1_L1_Curr,
 
     /* Outputs for Atomic SubSystem: '<S3>/Bit Shift' */
     /* DataTypeConversion: '<S3>/Data Type Conversion1' */
-    rtb_y_fd = CanM_MsgM_BitShift_e((uint64_T)localB->SECC_MSG1Pack.Data[1]);
+    rtb_y_n = CanM_MsgM_BitShift_e((uint64_T)localB->SECC_MSG1Pack.Data[1]);
 
     /* End of Outputs for SubSystem: '<S3>/Bit Shift' */
 
     /* Outputs for Atomic SubSystem: '<S3>/Bit Shift1' */
     /* DataTypeConversion: '<S3>/Data Type Conversion2' */
-    rtb_y_an = CanM_MsgM_BitShift1((uint64_T)localB->SECC_MSG1Pack.Data[2]);
+    rtb_y_es = CanM_MsgM_BitShift1((uint64_T)localB->SECC_MSG1Pack.Data[2]);
 
     /* End of Outputs for SubSystem: '<S3>/Bit Shift1' */
 
     /* Outputs for Atomic SubSystem: '<S3>/Bit Shift2' */
     /* DataTypeConversion: '<S3>/Data Type Conversion3' */
-    rtb_y_k = CanM_MsgM_BitShift2((uint64_T)localB->SECC_MSG1Pack.Data[3]);
+    rtb_y_jt = CanM_MsgM_BitShift2((uint64_T)localB->SECC_MSG1Pack.Data[3]);
 
     /* End of Outputs for SubSystem: '<S3>/Bit Shift2' */
 
     /* Outputs for Atomic SubSystem: '<S3>/Bit Shift3' */
     /* DataTypeConversion: '<S3>/Data Type Conversion4' */
-    rtb_y_na = CanM_MsgM_BitShift3((uint64_T)localB->SECC_MSG1Pack.Data[4]);
+    rtb_y_g = CanM_MsgM_BitShift3((uint64_T)localB->SECC_MSG1Pack.Data[4]);
 
     /* End of Outputs for SubSystem: '<S3>/Bit Shift3' */
 
     /* Outputs for Atomic SubSystem: '<S3>/Bit Shift4' */
     /* DataTypeConversion: '<S3>/Data Type Conversion5' */
-    rtb_y_a = CanM_MsgM_BitShift4((uint64_T)localB->SECC_MSG1Pack.Data[5]);
+    rtb_y_kg = CanM_MsgM_BitShift4((uint64_T)localB->SECC_MSG1Pack.Data[5]);
 
     /* End of Outputs for SubSystem: '<S3>/Bit Shift4' */
 
     /* Outputs for Atomic SubSystem: '<S3>/Bit Shift5' */
     /* DataTypeConversion: '<S3>/Data Type Conversion6' */
-    rtb_y_g = CanM_MsgM_BitShift5((uint64_T)localB->SECC_MSG1Pack.Data[6]);
+    rtb_y_d0 = CanM_MsgM_BitShift5((uint64_T)localB->SECC_MSG1Pack.Data[6]);
 
     /* End of Outputs for SubSystem: '<S3>/Bit Shift5' */
 
     /* Outputs for Atomic SubSystem: '<S3>/Bit Shift6' */
     /* DataTypeConversion: '<S3>/Data Type Conversion7' */
-    rtb_y_pt = CanM_MsgM_BitShift6((uint64_T)localB->SECC_MSG1Pack.Data[7]);
+    rtb_y_b = CanM_MsgM_BitShift6((uint64_T)localB->SECC_MSG1Pack.Data[7]);
 
     /* End of Outputs for SubSystem: '<S3>/Bit Shift6' */
 
     /* S-Function (sfix_bitop): '<S3>/Bitwise OR' incorporates:
      *  DataTypeConversion: '<S3>/Data Type Conversion'
      */
-    *rty_SECC_MSG1_OutU64 = localB->SECC_MSG1Pack.Data[0] | rtb_y_fd | rtb_y_an |
-      rtb_y_k | rtb_y_na | rtb_y_a | rtb_y_g | rtb_y_pt;
+    *rty_SECC_MSG1_OutU64 = localB->SECC_MSG1Pack.Data[0] | rtb_y_n | rtb_y_es |
+      rtb_y_jt | rtb_y_g | rtb_y_kg | rtb_y_d0 | rtb_y_b;
   }
 
   /* End of Outputs for SubSystem: '<Root>/SECC_MSG1' */
@@ -570,454 +1149,27 @@ void CanM_MsgM_SECC_MSG1(boolean_T rtu_Enable, uint16_T rtu_SECC_MSG1_L1_Curr,
 /* Model step function */
 void CanM_MsgM_step(void)
 {
-  real_T tmp;
   uint64_T rtb_DataTypeConversion;
   uint64_T rtb_y;
-  uint64_T rtb_y_ay;
+  uint64_T rtb_y_a;
   uint64_T rtb_y_f;
-  uint64_T rtb_y_j;
-  uint64_T rtb_y_ko;
+  uint64_T rtb_y_h;
+  uint64_T rtb_y_k;
   uint64_T rtb_y_l;
-  uint64_T rtb_y_m;
-  uint8_T rtb_DataTypeConversion_j;
-  uint8_T rtb_DataTypeConversion_o;
+  uint64_T rtb_y_o;
 
-  /* Outputs for Atomic SubSystem: '<S8>/Bit Shift' */
-  /* Inport: '<Root>/MCU_Status3_Data' */
-  rtb_y_m = CanM_MsgM_BitShift(CanM_MsgM_U.MCU_Status3_Data);
-
-  /* End of Outputs for SubSystem: '<S8>/Bit Shift' */
-
-  /* BusCreator: '<S1>/Bus Creator1' incorporates:
-   *  DataTypeConversion: '<S8>/Data Type Conversion1'
-   *  S-Function (sfix_bitop): '<S8>/Bitwise AND1'
-   */
-  CanM_MsgM_B.BusCreator1.Data[1] = (uint8_T)(rtb_y_m & 255ULL);
-
-  /* Outputs for Atomic SubSystem: '<S8>/Bit Shift1' */
-  rtb_y_f = CanM_MsgM_BitShift(rtb_y_m);
-
-  /* End of Outputs for SubSystem: '<S8>/Bit Shift1' */
-
-  /* BusCreator: '<S1>/Bus Creator1' incorporates:
-   *  DataTypeConversion: '<S8>/Data Type Conversion2'
-   *  S-Function (sfix_bitop): '<S8>/Bitwise AND2'
-   */
-  CanM_MsgM_B.BusCreator1.Data[2] = (uint8_T)(rtb_y_f & 255ULL);
-
-  /* Outputs for Atomic SubSystem: '<S8>/Bit Shift2' */
-  rtb_y_m = CanM_MsgM_BitShift(rtb_y_f);
-
-  /* End of Outputs for SubSystem: '<S8>/Bit Shift2' */
-
-  /* BusCreator: '<S1>/Bus Creator1' incorporates:
-   *  DataTypeConversion: '<S8>/Data Type Conversion3'
-   *  S-Function (sfix_bitop): '<S8>/Bitwise AND3'
-   */
-  CanM_MsgM_B.BusCreator1.Data[3] = (uint8_T)(rtb_y_m & 255ULL);
-
-  /* Outputs for Atomic SubSystem: '<S8>/Bit Shift3' */
-  rtb_y_f = CanM_MsgM_BitShift(rtb_y_m);
-
-  /* End of Outputs for SubSystem: '<S8>/Bit Shift3' */
-
-  /* BusCreator: '<S1>/Bus Creator1' incorporates:
-   *  DataTypeConversion: '<S8>/Data Type Conversion4'
-   *  S-Function (sfix_bitop): '<S8>/Bitwise AND4'
-   */
-  CanM_MsgM_B.BusCreator1.Data[4] = (uint8_T)(rtb_y_f & 255ULL);
-
-  /* Outputs for Atomic SubSystem: '<S8>/Bit Shift4' */
-  rtb_y_m = CanM_MsgM_BitShift(rtb_y_f);
-
-  /* End of Outputs for SubSystem: '<S8>/Bit Shift4' */
-
-  /* BusCreator: '<S1>/Bus Creator1' incorporates:
-   *  DataTypeConversion: '<S8>/Data Type Conversion5'
-   *  S-Function (sfix_bitop): '<S8>/Bitwise AND5'
-   */
-  CanM_MsgM_B.BusCreator1.Data[5] = (uint8_T)(rtb_y_m & 255ULL);
-
-  /* Outputs for Atomic SubSystem: '<S8>/Bit Shift5' */
-  rtb_y_f = CanM_MsgM_BitShift(rtb_y_m);
-
-  /* End of Outputs for SubSystem: '<S8>/Bit Shift5' */
-
-  /* Outputs for Atomic SubSystem: '<S8>/Bit Shift6' */
-  rtb_y_m = CanM_MsgM_BitShift(rtb_y_f);
-
-  /* End of Outputs for SubSystem: '<S8>/Bit Shift6' */
-
-  /* S-Function (sfix_bitop): '<S8>/Bitwise AND7' incorporates:
-   *  DataTypeConversion: '<S6>/Data Type Conversion'
-   */
-  rtb_DataTypeConversion = rtb_y_m & 255ULL;
-
-  /* BusCreator: '<S1>/Bus Creator1' incorporates:
-   *  Constant: '<S1>/Constant26'
-   *  Constant: '<S1>/Constant27'
-   *  Constant: '<S1>/Constant28'
-   *  Constant: '<S1>/Constant29'
-   *  Constant: '<S1>/Constant3'
-   *  Constant: '<S1>/Constant30'
-   *  DataTypeConversion: '<S6>/Data Type Conversion'
-   *  DataTypeConversion: '<S8>/Data Type Conversion'
-   *  DataTypeConversion: '<S8>/Data Type Conversion6'
-   *  DataTypeConversion: '<S8>/Data Type Conversion7'
+  /* Outputs for Enabled SubSystem: '<Root>/MCU_Status3_Unpack' */
+  /* Inport: '<Root>/Mcu_Status3_Enable' incorporates:
    *  Inport: '<Root>/MCU_Status3_Data'
-   *  S-Function (sfix_bitop): '<S8>/Bitwise AND'
-   *  S-Function (sfix_bitop): '<S8>/Bitwise AND6'
+   *  Outport: '<Root>/MCU_State3ReqChargingEnable'
+   *  Outport: '<Root>/MCU_State3ValidStatus'
    */
-  CanM_MsgM_B.BusCreator1.Extended = 1U;
-  CanM_MsgM_B.BusCreator1.Length = 8U;
-  CanM_MsgM_B.BusCreator1.Remote = 0U;
-  CanM_MsgM_B.BusCreator1.Error = 0U;
-  CanM_MsgM_B.BusCreator1.ID = 419406575U;
-  CanM_MsgM_B.BusCreator1.Timestamp = 0.0;
-  CanM_MsgM_B.BusCreator1.Data[0] = (uint8_T)(CanM_MsgM_U.MCU_Status3_Data &
-    255ULL);
-  CanM_MsgM_B.BusCreator1.Data[6] = (uint8_T)(rtb_y_f & 255ULL);
-  CanM_MsgM_B.BusCreator1.Data[7] = (uint8_T)rtb_DataTypeConversion;
+  CanM_MsgM_MCU_Status3_Unpack(CanM_MsgM_U.Mcu_Status3_Enable,
+    CanM_MsgM_U.MCU_Status3_Data, &CanM_MsgM_Y.MCU_State3ValidStatus,
+    &CanM_MsgM_Y.MCU_State3ReqChargingEnable, &CanM_MsgM_B.MCU_Status3_Unpack,
+    &CanM_MsgM_DW.MCU_Status3_Unpack);
 
-  /* S-Function (scanunpack): '<S1>/CAN Unpack' */
-  {
-    /* S-Function (scanunpack): '<S1>/CAN Unpack' */
-    if ((8 == CanM_MsgM_B.BusCreator1.Length) && (CanM_MsgM_B.BusCreator1.ID !=
-         INVALID_CAN_ID) ) {
-      if ((419406575 == CanM_MsgM_B.BusCreator1.ID) && (1U ==
-           CanM_MsgM_B.BusCreator1.Extended) ) {
-        {
-          /* --------------- START Unpacking signal 0 ------------------
-           *  startBit                = 60
-           *  length                  = 4
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          {
-            real_T outValue = 0;
-
-            {
-              uint8_T unpackedValue = 0;
-
-              {
-                uint8_T tempValue = (uint8_T) (0);
-
-                {
-                  tempValue = tempValue | (uint8_T)((uint8_T)((uint8_T)
-                    (CanM_MsgM_B.BusCreator1.Data[7]) & (uint8_T)(0xF0U)) >> 4);
-                }
-
-                unpackedValue = tempValue;
-              }
-
-              outValue = (real_T) (unpackedValue);
-            }
-
-            {
-              real_T result = (real_T) outValue;
-              CanM_MsgM_B.CANUnpack_o1 = result;
-            }
-          }
-
-          /* --------------- START Unpacking signal 1 ------------------
-           *  startBit                = 8
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 2 ------------------
-           *  startBit                = 15
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 3 ------------------
-           *  startBit                = 14
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 4 ------------------
-           *  startBit                = 0
-           *  length                  = 4
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 5 ------------------
-           *  startBit                = 33
-           *  length                  = 2
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 6 ------------------
-           *  startBit                = 27
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 7 ------------------
-           *  startBit                = 35
-           *  length                  = 2
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 8 ------------------
-           *  startBit                = 32
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          {
-            real_T outValue = 0;
-
-            {
-              uint8_T unpackedValue = 0;
-
-              {
-                uint8_T tempValue = (uint8_T) (0);
-
-                {
-                  tempValue = tempValue | (uint8_T)((uint8_T)
-                    (CanM_MsgM_B.BusCreator1.Data[4]) & (uint8_T)(0x1U));
-                }
-
-                unpackedValue = tempValue;
-              }
-
-              outValue = (real_T) (unpackedValue);
-            }
-
-            {
-              real_T result = (real_T) outValue;
-              CanM_MsgM_B.CANUnpack_o9 = result;
-            }
-          }
-
-          /* --------------- START Unpacking signal 9 ------------------
-           *  startBit                = 24
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 10 ------------------
-           *  startBit                = 16
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 11 ------------------
-           *  startBit                = 11
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 12 ------------------
-           *  startBit                = 20
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 13 ------------------
-           *  startBit                = 10
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 14 ------------------
-           *  startBit                = 17
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 15 ------------------
-           *  startBit                = 18
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 16 ------------------
-           *  startBit                = 26
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 17 ------------------
-           *  startBit                = 19
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 18 ------------------
-           *  startBit                = 12
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 19 ------------------
-           *  startBit                = 9
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 20 ------------------
-           *  startBit                = 25
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 21 ------------------
-           *  startBit                = 13
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-        }
-      }
-    }
-  }
+  /* End of Outputs for SubSystem: '<Root>/MCU_Status3_Unpack' */
 
   /* Outputs for Enabled SubSystem: '<Root>/SECC_MSG1' */
   /* Inport: '<Root>/SECC_MSG_Enable' incorporates:
@@ -1051,7 +1203,7 @@ void CanM_MsgM_step(void)
    *  EnablePort: '<S5>/Enable'
    */
   if (CanM_MsgM_U.SECC_MSG_Enable) {
-    /* UnitDelay: '<S82>/Output' */
+    /* UnitDelay: '<S108>/Output' */
     CanM_MsgM_B.Output_h = CanM_MsgM_DW.Output_DSTATE_m;
 
     /* DataTypeConversion: '<S5>/Data Type Conversion8' incorporates:
@@ -1918,27 +2070,27 @@ void CanM_MsgM_step(void)
     /* End of Outputs for SubSystem: '<S5>/Bit Shift1' */
 
     /* Outputs for Atomic SubSystem: '<S5>/Bit Shift2' */
-    rtb_y_ko = CanM_MsgM_BitShift2((uint64_T)CanM_MsgM_B.SECC_MSG2Pack_d.Data[3]);
+    rtb_y_l = CanM_MsgM_BitShift2((uint64_T)CanM_MsgM_B.SECC_MSG2Pack_d.Data[3]);
 
     /* End of Outputs for SubSystem: '<S5>/Bit Shift2' */
 
     /* Outputs for Atomic SubSystem: '<S5>/Bit Shift3' */
-    rtb_y_l = CanM_MsgM_BitShift3((uint64_T)CanM_MsgM_B.SECC_MSG2Pack_d.Data[4]);
+    rtb_y_h = CanM_MsgM_BitShift3((uint64_T)CanM_MsgM_B.SECC_MSG2Pack_d.Data[4]);
 
     /* End of Outputs for SubSystem: '<S5>/Bit Shift3' */
 
     /* Outputs for Atomic SubSystem: '<S5>/Bit Shift4' */
-    rtb_y_j = CanM_MsgM_BitShift4((uint64_T)CanM_MsgM_B.SECC_MSG2Pack_d.Data[5]);
+    rtb_y_o = CanM_MsgM_BitShift4((uint64_T)CanM_MsgM_B.SECC_MSG2Pack_d.Data[5]);
 
     /* End of Outputs for SubSystem: '<S5>/Bit Shift4' */
 
     /* Outputs for Atomic SubSystem: '<S5>/Bit Shift5' */
-    rtb_y_ay = CanM_MsgM_BitShift5((uint64_T)CanM_MsgM_B.SECC_MSG2Pack_d.Data[6]);
+    rtb_y_f = CanM_MsgM_BitShift5((uint64_T)CanM_MsgM_B.SECC_MSG2Pack_d.Data[6]);
 
     /* End of Outputs for SubSystem: '<S5>/Bit Shift5' */
 
     /* Outputs for Atomic SubSystem: '<S5>/Bit Shift6' */
-    rtb_y_f = CanM_MsgM_BitShift6((uint64_T)CanM_MsgM_B.SECC_MSG2Pack_d.Data[7]);
+    rtb_y_a = CanM_MsgM_BitShift6((uint64_T)CanM_MsgM_B.SECC_MSG2Pack_d.Data[7]);
 
     /* End of Outputs for SubSystem: '<S5>/Bit Shift6' */
 
@@ -1951,20 +2103,20 @@ void CanM_MsgM_step(void)
      *  DataTypeConversion: '<S5>/Data Type Conversion6'
      *  DataTypeConversion: '<S5>/Data Type Conversion7'
      */
-    rtb_y_m = CanM_MsgM_B.SECC_MSG2Pack_d.Data[0];
+    rtb_y_k = CanM_MsgM_B.SECC_MSG2Pack_d.Data[0];
 
     /* Outport: '<Root>/SECC_MSG2_OutU64' incorporates:
      *  DataTypeConversion: '<S6>/Data Type Conversion'
      *  S-Function (sfix_bitop): '<S5>/Bitwise OR'
      */
-    CanM_MsgM_Y.SECC_MSG2_OutU64 = rtb_y_m | rtb_DataTypeConversion | rtb_y |
-      rtb_y_ko | rtb_y_l | rtb_y_j | rtb_y_ay | rtb_y_f;
+    CanM_MsgM_Y.SECC_MSG2_OutU64 = rtb_y_k | rtb_DataTypeConversion | rtb_y |
+      rtb_y_l | rtb_y_h | rtb_y_o | rtb_y_f | rtb_y_a;
 
-    /* Switch: '<S91>/FixPt Switch' incorporates:
-     *  Constant: '<S90>/FixPt Constant'
-     *  Constant: '<S91>/Constant'
-     *  Sum: '<S90>/FixPt Sum1'
-     *  UnitDelay: '<S82>/Output'
+    /* Switch: '<S117>/FixPt Switch' incorporates:
+     *  Constant: '<S116>/FixPt Constant'
+     *  Constant: '<S117>/Constant'
+     *  Sum: '<S116>/FixPt Sum1'
+     *  UnitDelay: '<S108>/Output'
      */
     if ((uint8_T)(CanM_MsgM_B.Output_h + 1U) > 15) {
       CanM_MsgM_DW.Output_DSTATE_m = 0U;
@@ -1972,472 +2124,24 @@ void CanM_MsgM_step(void)
       CanM_MsgM_DW.Output_DSTATE_m = (uint8_T)(CanM_MsgM_B.Output_h + 1U);
     }
 
-    /* End of Switch: '<S91>/FixPt Switch' */
+    /* End of Switch: '<S117>/FixPt Switch' */
   }
 
   /* End of Inport: '<Root>/SECC_MSG_Enable' */
   /* End of Outputs for SubSystem: '<Root>/SECC_MSG2' */
 
-  /* Outputs for Atomic SubSystem: '<S25>/Bit Shift' */
-  /* Inport: '<Root>/MCU_Status3_Data1' */
-  rtb_y_m = CanM_MsgM_BitShift(CanM_MsgM_U.MCU_Status3_Data1);
-
-  /* End of Outputs for SubSystem: '<S25>/Bit Shift' */
-
-  /* BusCreator: '<S2>/Bus Creator1' incorporates:
-   *  DataTypeConversion: '<S25>/Data Type Conversion1'
-   *  S-Function (sfix_bitop): '<S25>/Bitwise AND1'
-   */
-  CanM_MsgM_B.BusCreator1_l.Data[1] = (uint8_T)(rtb_y_m & 255ULL);
-
-  /* Outputs for Atomic SubSystem: '<S25>/Bit Shift1' */
-  rtb_y_f = CanM_MsgM_BitShift(rtb_y_m);
-
-  /* End of Outputs for SubSystem: '<S25>/Bit Shift1' */
-
-  /* BusCreator: '<S2>/Bus Creator1' incorporates:
-   *  DataTypeConversion: '<S25>/Data Type Conversion2'
-   *  S-Function (sfix_bitop): '<S25>/Bitwise AND2'
-   */
-  CanM_MsgM_B.BusCreator1_l.Data[2] = (uint8_T)(rtb_y_f & 255ULL);
-
-  /* Outputs for Atomic SubSystem: '<S25>/Bit Shift2' */
-  rtb_y_m = CanM_MsgM_BitShift(rtb_y_f);
-
-  /* End of Outputs for SubSystem: '<S25>/Bit Shift2' */
-
-  /* BusCreator: '<S2>/Bus Creator1' incorporates:
-   *  DataTypeConversion: '<S25>/Data Type Conversion3'
-   *  S-Function (sfix_bitop): '<S25>/Bitwise AND3'
-   */
-  CanM_MsgM_B.BusCreator1_l.Data[3] = (uint8_T)(rtb_y_m & 255ULL);
-
-  /* Outputs for Atomic SubSystem: '<S25>/Bit Shift3' */
-  rtb_y_f = CanM_MsgM_BitShift(rtb_y_m);
-
-  /* End of Outputs for SubSystem: '<S25>/Bit Shift3' */
-
-  /* BusCreator: '<S2>/Bus Creator1' incorporates:
-   *  DataTypeConversion: '<S25>/Data Type Conversion4'
-   *  S-Function (sfix_bitop): '<S25>/Bitwise AND4'
-   */
-  CanM_MsgM_B.BusCreator1_l.Data[4] = (uint8_T)(rtb_y_f & 255ULL);
-
-  /* Outputs for Atomic SubSystem: '<S25>/Bit Shift4' */
-  rtb_y_m = CanM_MsgM_BitShift(rtb_y_f);
-
-  /* End of Outputs for SubSystem: '<S25>/Bit Shift4' */
-
-  /* BusCreator: '<S2>/Bus Creator1' incorporates:
-   *  DataTypeConversion: '<S25>/Data Type Conversion5'
-   *  S-Function (sfix_bitop): '<S25>/Bitwise AND5'
-   */
-  CanM_MsgM_B.BusCreator1_l.Data[5] = (uint8_T)(rtb_y_m & 255ULL);
-
-  /* Outputs for Atomic SubSystem: '<S25>/Bit Shift5' */
-  rtb_y_f = CanM_MsgM_BitShift(rtb_y_m);
-
-  /* End of Outputs for SubSystem: '<S25>/Bit Shift5' */
-
-  /* Outputs for Atomic SubSystem: '<S25>/Bit Shift6' */
-  rtb_y_m = CanM_MsgM_BitShift(rtb_y_f);
-
-  /* End of Outputs for SubSystem: '<S25>/Bit Shift6' */
-
-  /* BusCreator: '<S2>/Bus Creator1' incorporates:
-   *  Constant: '<S2>/Constant26'
-   *  Constant: '<S2>/Constant27'
-   *  Constant: '<S2>/Constant28'
-   *  Constant: '<S2>/Constant29'
-   *  Constant: '<S2>/Constant3'
-   *  Constant: '<S2>/Constant30'
-   *  DataTypeConversion: '<S25>/Data Type Conversion'
-   *  DataTypeConversion: '<S25>/Data Type Conversion6'
-   *  DataTypeConversion: '<S25>/Data Type Conversion7'
+  /* Outputs for Enabled SubSystem: '<Root>/MCU_Status3_Unpack1' */
+  /* Inport: '<Root>/Mcu_Status3_Enable1' incorporates:
    *  Inport: '<Root>/MCU_Status3_Data1'
-   *  S-Function (sfix_bitop): '<S25>/Bitwise AND'
-   *  S-Function (sfix_bitop): '<S25>/Bitwise AND6'
-   *  S-Function (sfix_bitop): '<S25>/Bitwise AND7'
+   *  Outport: '<Root>/MCU_State3ReqChargingEnable1'
+   *  Outport: '<Root>/MCU_State3ValidStatus1'
    */
-  CanM_MsgM_B.BusCreator1_l.Extended = 1U;
-  CanM_MsgM_B.BusCreator1_l.Length = 8U;
-  CanM_MsgM_B.BusCreator1_l.Remote = 0U;
-  CanM_MsgM_B.BusCreator1_l.Error = 0U;
-  CanM_MsgM_B.BusCreator1_l.ID = 419406575U;
-  CanM_MsgM_B.BusCreator1_l.Timestamp = 0.0;
-  CanM_MsgM_B.BusCreator1_l.Data[0] = (uint8_T)(CanM_MsgM_U.MCU_Status3_Data1 &
-    255ULL);
-  CanM_MsgM_B.BusCreator1_l.Data[6] = (uint8_T)(rtb_y_f & 255ULL);
-  CanM_MsgM_B.BusCreator1_l.Data[7] = (uint8_T)(rtb_y_m & 255ULL);
+  CanM_MsgM_MCU_Status3_Unpack(CanM_MsgM_U.Mcu_Status3_Enable1,
+    CanM_MsgM_U.MCU_Status3_Data1, &CanM_MsgM_Y.MCU_State3ValidStatus1,
+    &CanM_MsgM_Y.MCU_State3ReqChargingEnable1, &CanM_MsgM_B.MCU_Status3_Unpack1,
+    &CanM_MsgM_DW.MCU_Status3_Unpack1);
 
-  /* S-Function (scanunpack): '<S2>/CAN Unpack' */
-  {
-    /* S-Function (scanunpack): '<S2>/CAN Unpack' */
-    if ((8 == CanM_MsgM_B.BusCreator1_l.Length) && (CanM_MsgM_B.BusCreator1_l.ID
-         != INVALID_CAN_ID) ) {
-      if ((419406575 == CanM_MsgM_B.BusCreator1_l.ID) && (1U ==
-           CanM_MsgM_B.BusCreator1_l.Extended) ) {
-        {
-          /* --------------- START Unpacking signal 0 ------------------
-           *  startBit                = 60
-           *  length                  = 4
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          {
-            real_T outValue = 0;
-
-            {
-              uint8_T unpackedValue = 0;
-
-              {
-                uint8_T tempValue = (uint8_T) (0);
-
-                {
-                  tempValue = tempValue | (uint8_T)((uint8_T)((uint8_T)
-                    (CanM_MsgM_B.BusCreator1_l.Data[7]) & (uint8_T)(0xF0U)) >> 4);
-                }
-
-                unpackedValue = tempValue;
-              }
-
-              outValue = (real_T) (unpackedValue);
-            }
-
-            {
-              real_T result = (real_T) outValue;
-              CanM_MsgM_B.CANUnpack_o1_o = result;
-            }
-          }
-
-          /* --------------- START Unpacking signal 1 ------------------
-           *  startBit                = 8
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 2 ------------------
-           *  startBit                = 15
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 3 ------------------
-           *  startBit                = 14
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 4 ------------------
-           *  startBit                = 0
-           *  length                  = 4
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 5 ------------------
-           *  startBit                = 33
-           *  length                  = 2
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 6 ------------------
-           *  startBit                = 27
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 7 ------------------
-           *  startBit                = 35
-           *  length                  = 2
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 8 ------------------
-           *  startBit                = 32
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          {
-            real_T outValue = 0;
-
-            {
-              uint8_T unpackedValue = 0;
-
-              {
-                uint8_T tempValue = (uint8_T) (0);
-
-                {
-                  tempValue = tempValue | (uint8_T)((uint8_T)
-                    (CanM_MsgM_B.BusCreator1_l.Data[4]) & (uint8_T)(0x1U));
-                }
-
-                unpackedValue = tempValue;
-              }
-
-              outValue = (real_T) (unpackedValue);
-            }
-
-            {
-              real_T result = (real_T) outValue;
-              CanM_MsgM_B.CANUnpack_o9_e = result;
-            }
-          }
-
-          /* --------------- START Unpacking signal 9 ------------------
-           *  startBit                = 24
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 10 ------------------
-           *  startBit                = 16
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 11 ------------------
-           *  startBit                = 11
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 12 ------------------
-           *  startBit                = 20
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 13 ------------------
-           *  startBit                = 10
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 14 ------------------
-           *  startBit                = 17
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 15 ------------------
-           *  startBit                = 18
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 16 ------------------
-           *  startBit                = 26
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 17 ------------------
-           *  startBit                = 19
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 18 ------------------
-           *  startBit                = 12
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 19 ------------------
-           *  startBit                = 9
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 20 ------------------
-           *  startBit                = 25
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-
-          /* --------------- START Unpacking signal 21 ------------------
-           *  startBit                = 13
-           *  length                  = 1
-           *  desiredSignalByteLayout = LITTLEENDIAN
-           *  dataType                = UNSIGNED
-           *  factor                  = 1.0
-           *  offset                  = 0.0
-           * -----------------------------------------------------------------------*/
-          /*
-           * Signal is not connected or connected to terminator.
-           * No unpacking code generated.
-           */
-        }
-      }
-    }
-  }
-
-  /* Outport: '<Root>/MCU_State3ReqChargingEnable1' incorporates:
-   *  DataTypeConversion: '<S2>/Data Type Conversion1'
-   */
-  CanM_MsgM_Y.MCU_State3ReqChargingEnable1 = (CanM_MsgM_B.CANUnpack_o9_e != 0.0);
-
-  /* DataTypeConversion: '<S2>/Data Type Conversion' */
-  tmp = floor(CanM_MsgM_B.CANUnpack_o1_o);
-  if (rtIsNaN(tmp) || rtIsInf(tmp)) {
-    tmp = 0.0;
-  } else {
-    tmp = fmod(tmp, 256.0);
-  }
-
-  rtb_DataTypeConversion_o = (uint8_T)(tmp < 0.0 ? (int32_T)(uint8_T)-(int8_T)
-    (uint8_T)-tmp : (int32_T)(uint8_T)tmp);
-
-  /* End of DataTypeConversion: '<S2>/Data Type Conversion' */
-
-  /* Outport: '<Root>/MCU_State3ValidStatus1' incorporates:
-   *  Constant: '<S24>/Constant'
-   *  Constant: '<S26>/Constant'
-   *  Delay: '<S24>/Delay'
-   *  RelationalOperator: '<S26>/Compare'
-   *  Sum: '<S24>/Add'
-   *  Sum: '<S24>/Subtract'
-   */
-  CanM_MsgM_Y.MCU_State3ValidStatus1 = ((uint8_T)(rtb_DataTypeConversion_o -
-    (uint8_T)(CanM_MsgM_DW.Delay_DSTATE + 1U)) <= 2);
+  /* End of Outputs for SubSystem: '<Root>/MCU_Status3_Unpack1' */
 
   /* Outputs for Enabled SubSystem: '<Root>/SECC_MSG1_1' */
   /* Inport: '<Root>/SECC_MSG_Enable1' incorporates:
@@ -2472,7 +2176,7 @@ void CanM_MsgM_step(void)
    *  EnablePort: '<S6>/Enable'
    */
   if (CanM_MsgM_U.SECC_MSG_Enable1) {
-    /* UnitDelay: '<S99>/Output' */
+    /* UnitDelay: '<S125>/Output' */
     CanM_MsgM_B.Output = CanM_MsgM_DW.Output_DSTATE;
 
     /* DataTypeConversion: '<S6>/Data Type Conversion8' incorporates:
@@ -3328,32 +3032,32 @@ void CanM_MsgM_step(void)
     }
 
     /* Outputs for Atomic SubSystem: '<S6>/Bit Shift' */
-    rtb_y_m = CanM_MsgM_BitShift_e((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[1]);
+    rtb_y_k = CanM_MsgM_BitShift_e((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[1]);
 
     /* End of Outputs for SubSystem: '<S6>/Bit Shift' */
 
     /* Outputs for Atomic SubSystem: '<S6>/Bit Shift1' */
-    rtb_y_f = CanM_MsgM_BitShift1((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[2]);
+    rtb_y_a = CanM_MsgM_BitShift1((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[2]);
 
     /* End of Outputs for SubSystem: '<S6>/Bit Shift1' */
 
     /* Outputs for Atomic SubSystem: '<S6>/Bit Shift2' */
-    rtb_y_ay = CanM_MsgM_BitShift2((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[3]);
+    rtb_y_f = CanM_MsgM_BitShift2((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[3]);
 
     /* End of Outputs for SubSystem: '<S6>/Bit Shift2' */
 
     /* Outputs for Atomic SubSystem: '<S6>/Bit Shift3' */
-    rtb_y_j = CanM_MsgM_BitShift3((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[4]);
+    rtb_y_o = CanM_MsgM_BitShift3((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[4]);
 
     /* End of Outputs for SubSystem: '<S6>/Bit Shift3' */
 
     /* Outputs for Atomic SubSystem: '<S6>/Bit Shift4' */
-    rtb_y_l = CanM_MsgM_BitShift4((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[5]);
+    rtb_y_h = CanM_MsgM_BitShift4((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[5]);
 
     /* End of Outputs for SubSystem: '<S6>/Bit Shift4' */
 
     /* Outputs for Atomic SubSystem: '<S6>/Bit Shift5' */
-    rtb_y_ko = CanM_MsgM_BitShift5((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[6]);
+    rtb_y_l = CanM_MsgM_BitShift5((uint64_T)CanM_MsgM_B.SECC_MSG2Pack.Data[6]);
 
     /* End of Outputs for SubSystem: '<S6>/Bit Shift5' */
 
@@ -3373,14 +3077,14 @@ void CanM_MsgM_step(void)
      *  DataTypeConversion: '<S6>/Data Type Conversion7'
      *  S-Function (sfix_bitop): '<S6>/Bitwise OR'
      */
-    CanM_MsgM_Y.SECC_MSG2_OutU64_1 = CanM_MsgM_B.SECC_MSG2Pack.Data[0] | rtb_y_m
-      | rtb_y_f | rtb_y_ay | rtb_y_j | rtb_y_l | rtb_y_ko | rtb_y;
+    CanM_MsgM_Y.SECC_MSG2_OutU64_1 = CanM_MsgM_B.SECC_MSG2Pack.Data[0] | rtb_y_k
+      | rtb_y_a | rtb_y_f | rtb_y_o | rtb_y_h | rtb_y_l | rtb_y;
 
-    /* Switch: '<S108>/FixPt Switch' incorporates:
-     *  Constant: '<S107>/FixPt Constant'
-     *  Constant: '<S108>/Constant'
-     *  Sum: '<S107>/FixPt Sum1'
-     *  UnitDelay: '<S99>/Output'
+    /* Switch: '<S134>/FixPt Switch' incorporates:
+     *  Constant: '<S133>/FixPt Constant'
+     *  Constant: '<S134>/Constant'
+     *  Sum: '<S133>/FixPt Sum1'
+     *  UnitDelay: '<S125>/Output'
      */
     if ((uint8_T)(CanM_MsgM_B.Output + 1U) > 15) {
       CanM_MsgM_DW.Output_DSTATE = 0U;
@@ -3388,46 +3092,11 @@ void CanM_MsgM_step(void)
       CanM_MsgM_DW.Output_DSTATE = (uint8_T)(CanM_MsgM_B.Output + 1U);
     }
 
-    /* End of Switch: '<S108>/FixPt Switch' */
+    /* End of Switch: '<S134>/FixPt Switch' */
   }
 
   /* End of Inport: '<Root>/SECC_MSG_Enable1' */
   /* End of Outputs for SubSystem: '<Root>/SECC_MSG2_1' */
-
-  /* Outport: '<Root>/MCU_State3ReqChargingEnable' incorporates:
-   *  DataTypeConversion: '<S1>/Data Type Conversion1'
-   */
-  CanM_MsgM_Y.MCU_State3ReqChargingEnable = (CanM_MsgM_B.CANUnpack_o9 != 0.0);
-
-  /* DataTypeConversion: '<S1>/Data Type Conversion' */
-  tmp = floor(CanM_MsgM_B.CANUnpack_o1);
-  if (rtIsNaN(tmp) || rtIsInf(tmp)) {
-    tmp = 0.0;
-  } else {
-    tmp = fmod(tmp, 256.0);
-  }
-
-  rtb_DataTypeConversion_j = (uint8_T)(tmp < 0.0 ? (int32_T)(uint8_T)-(int8_T)
-    (uint8_T)-tmp : (int32_T)(uint8_T)tmp);
-
-  /* End of DataTypeConversion: '<S1>/Data Type Conversion' */
-
-  /* Outport: '<Root>/MCU_State3ValidStatus' incorporates:
-   *  Constant: '<S7>/Constant'
-   *  Constant: '<S9>/Constant'
-   *  Delay: '<S7>/Delay'
-   *  RelationalOperator: '<S9>/Compare'
-   *  Sum: '<S7>/Add'
-   *  Sum: '<S7>/Subtract'
-   */
-  CanM_MsgM_Y.MCU_State3ValidStatus = ((uint8_T)(rtb_DataTypeConversion_j -
-    (uint8_T)(CanM_MsgM_DW.Delay_DSTATE_a + 1U)) <= 2);
-
-  /* Update for Delay: '<S24>/Delay' */
-  CanM_MsgM_DW.Delay_DSTATE = rtb_DataTypeConversion_o;
-
-  /* Update for Delay: '<S7>/Delay' */
-  CanM_MsgM_DW.Delay_DSTATE_a = rtb_DataTypeConversion_j;
 }
 
 /* Model initialize function */
@@ -3449,13 +3118,10 @@ void CanM_MsgM_initialize(void)
   (void) memset((void *)&CanM_MsgM_DW, 0,
                 sizeof(DW_CanM_MsgM_T));
 
-  /* Start for S-Function (scanunpack): '<S1>/CAN Unpack' */
+  /* SystemInitialize for Enabled SubSystem: '<Root>/MCU_Status3_Unpack' */
+  CanM_Ms_MCU_Status3_Unpack_Init();
 
-  /*-----------S-Function Block: <S1>/CAN Unpack -----------------*/
-
-  /* Start for S-Function (scanunpack): '<S2>/CAN Unpack' */
-
-  /*-----------S-Function Block: <S2>/CAN Unpack -----------------*/
+  /* End of SystemInitialize for SubSystem: '<Root>/MCU_Status3_Unpack' */
 
   /* SystemInitialize for Enabled SubSystem: '<Root>/SECC_MSG1' */
 
@@ -3465,6 +3131,11 @@ void CanM_MsgM_initialize(void)
    */
 
   /* End of SystemInitialize for SubSystem: '<Root>/SECC_MSG1' */
+
+  /* SystemInitialize for Enabled SubSystem: '<Root>/MCU_Status3_Unpack1' */
+  CanM_Ms_MCU_Status3_Unpack_Init();
+
+  /* End of SystemInitialize for SubSystem: '<Root>/MCU_Status3_Unpack1' */
 
   /* SystemInitialize for Enabled SubSystem: '<Root>/SECC_MSG1_1' */
 

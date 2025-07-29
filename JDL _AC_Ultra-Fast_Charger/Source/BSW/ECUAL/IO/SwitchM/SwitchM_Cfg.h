@@ -28,6 +28,7 @@
 #define SWITCHM_CP_4V                           (SYSM_CP_MODE_4V)
 #define SWITCHM_CP_12V                          (SYSM_CP_MODE_12V)
 #define SWITCHM_SET_SYSM_CP_MODE(ch, mode)		SYSM_SetCpVolMode(ch, mode)
+#define SWITCHM_SET_SYS_STATUS_BIT(ch, SysStatusMask, Mode) SYSM_SetSysStatusBit(ch, SysStatusMask, Mode)
 
 #define SWITCHM_74HCT4851D_MULTIPLEX_ADC0       MCAL_ADC_CHANNEL_1
 #define SWITCHM_74HCT4851D_MULTIPLEX_ADC1       MCAL_ADC_CHANNEL_2

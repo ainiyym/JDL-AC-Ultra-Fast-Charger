@@ -3,9 +3,9 @@
  *
  * Code generated for Simulink model 'CanM_MsgM'.
  *
- * Model version                  : 1.133
+ * Model version                  : 1.140
  * Simulink Coder version         : 23.2 (R2023b) 01-Aug-2023
- * C/C++ source code generated on : Tue Jul 22 14:35:47 2025
+ * C/C++ source code generated on : Tue Jul 29 10:19:03 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -20,6 +20,11 @@
 #include "CanM_MsgM_types.h"
 
 extern uint64_T CanM_MsgM_BitShift(uint64_T rtu_u);
+extern void CanM_Ms_MCU_Status3_Unpack_Init(void);
+extern void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
+  rtu_MCU_Status3_Data, boolean_T *rty_MCU_State3ValidStatus, boolean_T
+  *rty_MCU_State3ReqChargingEnable, B_MCU_Status3_Unpack_CanM_Msg_T *localB,
+  DW_MCU_Status3_Unpack_CanM_Ms_T *localDW);
 extern uint64_T CanM_MsgM_BitShift_e(uint64_T rtu_u);
 extern uint64_T CanM_MsgM_BitShift1(uint64_T rtu_u);
 extern uint64_T CanM_MsgM_BitShift2(uint64_T rtu_u);

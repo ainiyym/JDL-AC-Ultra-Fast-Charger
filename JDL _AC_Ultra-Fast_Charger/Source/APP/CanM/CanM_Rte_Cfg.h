@@ -20,6 +20,8 @@
 #include "STD_RlyM.h"
 #include "STD_Curr.h"
 #include "STD_Volt.h"
+#include "STD_AuthM.h"
+#include "SwitchM_Cfg.h"
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
 |******************************************************************************/
@@ -37,6 +39,9 @@
 #define CANM_RTE_REQ_SELFTEST_DISABLE                               (ENABLE_STATUS_ENUM_DISABLE)                /* Disable status */
 #define CANM_RTE_SELFTEST_SUCCESS                                   (CHARGING_BEFORE_TEST_STATUS_ENUM_SUCCESS)  /* Self-test success status */
 #define CANM_RTE_SELFTEST_FAILURE                                   (CHARGING_BEFORE_TEST_STATUS_ENUM_FAIL)     /* Self-test failure status */
+
+#define CANM_RTE_RLYCTRL_STATE_MAX                                  (RLYCTRL_STATE_MAX)                         /* relay status Map max*/
+#define CANM_RTE_CLOSE_SRC_MAX                                      (AUTHM_CLOSE_SRC_MAX)                       /* stop charging reason Map max*/
 
 #if (CANM_RTE_RELAY_CHECKSELF_ENABLE == STD_ON)                                                                 /*relay checkself enable*/
 #define CANM_RTE_RLY_SELFCHECK_PROCESS								(0u)                                        /*process of self-checking*/
@@ -59,10 +64,16 @@
 #define CANM_RTE_GetDiodeSelfCheckStatus(ch)			            CPM_CarDiodeDetectResult(ch)				/*get diode selfcheck result*/
 #endif
 
+#define CanM_Rte_SetNoAuthStatus(ch)                                AUTHM_AppSetReqChargeStatus(ch)             /* Noauth req charging  */
+#define CanM_Rte_CancelNoAuthStatus(ch)                             AUTHM_AppResetReqChargeStatus(ch)           /* Reset Noauth req charging status */
+#define CanM_Rte_GetReqChargeStatus(ch)                             AUTHM_GetReqChargeStatus(ch)                /* get authm req charging status */
+#define CanM_Rte_GetAuthCloseSource(ch)                             AUTHM_GetAuthCloseSource(ch)                /* get authm stop auth source */
+
 #define CanM_Rte_GetChargeConditions()                              ERRHDL_GetChargeConditions()                /*get Charge Conditions*/
 
 #define CanM_Rte_SetRelayOff(ch)							        RELAYM_ReqRelaySwitchOff(ch)			    /*request relay turn off*/
 #define CanM_Rte_SetRelayOn(ch)							            RELAYM_ReqRelaySwitchOn(ch)				    /*request relay turn on*/
+#define CanM_Rte_GetRelayStatus(ch)                                 RELAYM_GetRelayStatus(ch)                   /* get relay status */
 
 #define CanM_Rte_GetL1CUrr(ch)                                      CURR_GetL1Value(ch)                         /* get L1 current value */
 #define CanM_Rte_GetL2CUrr(ch)                                      CURR_GetL2Value(ch)                         /* get L2 current value */
@@ -70,6 +81,11 @@
 #define CanM_Rte_GetL1Volt(ch)                                      VOLT_GetL1VoltValue(ch)                     /* get L1 voltage value */
 #define CanM_Rte_GetL2Volt(ch)                                      VOLT_GetL2VoltValue(ch)                     /* get L2 voltage value */
 #define CanM_Rte_GetL3Volt(ch)                                      VOLT_GetL3VoltValue(ch)                     /* get L3 voltage value */
+
+#define CanM_Rte_GetCanModeStatus(ch, SysStatusMask)                SYSM_GetSysStatusBit(ch, SysStatusMask)
+
+#define CANM_DEBUG(fmt, ...) 						                LOG_DEBUG(LOG_MODULE_CAN, fmt, ##__VA_ARGS__)
+#define CANM_ERR(fmt, ...) 						                    LOG_ERROR(LOG_MODULE_CAN, fmt, ##__VA_ARGS__)
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
@@ -118,11 +134,14 @@ extern uint8_t CanM_Get_ReqSelfTestStatus(SysConnector_Num_Enum connector);
 extern uint8_t CanM_Get_ReqRelayOnStatus(SysConnector_Num_Enum connector);
 extern uint8_t CanM_Get_CanModeStatus(SysConnector_Num_Enum connector);
 /* CanM_MsgM */
-extern void CanM_Set_SECC_MSG1_Input(SysConnector_Num_Enum connector);
-extern uint64_t CanM_Get_SECC_MSG1_Output(SysConnector_Num_Enum connector);
-extern void CanM_Set_SECC_MSG2_Input(SysConnector_Num_Enum connector, CanM_SECC_MSG2_Input_Struct Msg2Input);
-extern uint64_t CanM_Get_SECC_MSG2_Output(SysConnector_Num_Enum connector);
+extern void CanM_Set_MCU_MSG_Enable(SysConnector_Num_Enum connector, uint8_t Status);
 extern uint8_t CanM_Set_MCU_Status3_Input(SysConnector_Num_Enum connector, uint8_t *MCUData, uint8_t DataLen);
+extern void CanM_Set_SECC_MSG_Enable(SysConnector_Num_Enum connector, uint8_t Status);
+extern void CanM_Set_SECC_MSG1_Input(SysConnector_Num_Enum connector);
+extern void CanM_Set_SECC_MSG2_Input(SysConnector_Num_Enum connector, CanM_SECC_MSG2_Input_Struct Msg2Input);
+uint8_t CanM_Get_SECC_MSG_Enable_Status(SysConnector_Num_Enum connector);
+extern uint64_t CanM_Get_SECC_MSG1_Output(SysConnector_Num_Enum connector);
+extern uint64_t CanM_Get_SECC_MSG2_Output(SysConnector_Num_Enum connector);
 extern uint8_t CanM_Get_McuState3ReqChargingEnableStatus(SysConnector_Num_Enum connector);
 extern uint8_t CanM_Get_McuState3HeartBeatStatus(SysConnector_Num_Enum connector);
 #endif

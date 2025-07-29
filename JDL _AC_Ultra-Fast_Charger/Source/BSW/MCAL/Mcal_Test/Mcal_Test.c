@@ -6,6 +6,7 @@
 #include "Mcal_Test.h"
 #include "SwitchM.h"
 #include "STD_MosDrv.h"
+#include "STD_EvseM.h"
 
 void Mcal_Usart_Test(void)
 {
@@ -162,26 +163,45 @@ void Mcal_CP_Test(void)
 
 void Mcal_Can_Send_Test(void)
 {
-    static uint8_t step = 0;
+    static uint8_t cnt = 0;
 
-    if (8 > step)
+    if (cnt < 10)
     {
+        static uint8_t step = 0;
         // Example data to send via CAN
-        uint8_t data[8] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+        static uint8_t data[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-        McalRetVal_t ret;
+        if (EVSEM_GetChargeStatus(1) == EVSEM_STATE_CAN_MODEL)
+        {
+            McalRetVal_t ret;
 
-        // Send a CAN message
-        ret = Mcal_Can_Send_Msg(MCAL_CAN_TX_TEST, data, sizeof(data));
-        if (ret == MCAL_RET_SUCCESS)
-        {
-            MCAL_DEBUG("CAN message sent successfully. TxMailbox:%d \r\n", Mcal_Can_Get_TxMailbox(MCAL_CAN_TX_TEST));
+            data[7] = (uint8_t)(step << 4);
+            if (16 == ++step)
+            {
+                step = 0;
+                if (5 < ++cnt)
+                {
+                    data[4] = 0x00;
+                }
+                else
+                {
+                    data[4] = 0x03;
+                }
+            }
+            // Send a CAN message
+            ret = Mcal_Can_Send_Msg(MCAL_CAN1_TX_TEST, data, sizeof(data));
+            if (ret != MCAL_RET_SUCCESS)
+            {
+                MCAL_DEBUG("Failed to send CAN1 message. Error code: %d\r\n", ret);
+            }
+            ret = Mcal_Can_Send_Msg(MCAL_CAN2_TX_TEST, data, sizeof(data));
+            if (ret != MCAL_RET_SUCCESS)
+            {
+                MCAL_DEBUG("Failed to send CAN2 message. Error code: %d\r\n", ret);
+            }
         }
-        else
-        {
-            MCAL_DEBUG("Failed to send CAN message. Error code: %d\r\n", ret);
-        }
-        step++;
+        EVSEM_SET_CAN_START_COM(0); /* Set CAN communication start */
+        EVSEM_SET_CAN_START_COM(1); /* Set CAN communication start */
     }
 }
 
@@ -648,7 +668,7 @@ void Mcal_Test_Run(void)
     // Mcal_Usart_Test();
 	// Mcal_CP_Test();
     // Mcal_Gpio_Test();
-    Mcal_Can_Rcv_Test();
+    // Mcal_Can_Rcv_Test();
     // Mcal_SoftReset_test();
     // MCAL_TestIIC();
     // Mcal_Test_Spi();

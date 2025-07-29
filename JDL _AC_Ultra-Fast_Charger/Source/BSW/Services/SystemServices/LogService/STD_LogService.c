@@ -64,7 +64,7 @@ static LogServiceCtrl_Struct gv_stLogServiceCtrl = {  (  LOG_STATE_ON  << LOG_MO
 													  | (LOG_STATE_ON  << LOG_MODULE_EVSEM)
 													  | (LOG_STATE_ON  << LOG_MODULE_HMI)
                                                       | (LOG_STATE_ON  << LOG_MODULE_CCP)
-													  | (LOG_STATE_ON  << LOG_MODULE_EEP)
+													  | (LOG_STATE_ON  << LOG_MODULE_CAN)
 													  | (LOG_STATE_ON  << LOG_MODULE_CP)
 													  | (LOG_STATE_ON  << LOG_MODULE_SWITCHM)
 													  | (LOG_STATE_ON  << LOG_MODULE_METER)
@@ -100,7 +100,7 @@ static const char* const gv_LogModule_Name[] =
 		"EVSEM",
 		"HMI",
         "CCP",
-		"EEP",
+		"CAN",
 		"CP",
 		"SWITCHM",
 		"METER",

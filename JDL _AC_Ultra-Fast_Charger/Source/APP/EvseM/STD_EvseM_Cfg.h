@@ -46,7 +46,8 @@
 #define EVSEM_SET_CP_OUT_4V(ch)										SwitchM_SetCpVol4vMode(ch)					            /*set cp voltage 4v*/
 #define EVSEM_SET_CP_MOS_STATUS(ch, mode)						    SwitchM_SetCpMosStatus(ch, mode)				        /*set cp mos status*/
 
-#define EVSEM_SET_CAN_START_COM(ch)									CanM_Rte_SetCarComStart(ch)
+#define EVSEM_SET_CAN_START_COM(ch)									CanM_Rte_SetCarComStatus(ch, 1)
+#define EVSEM_STOP_CAN_COM(ch)									    CanM_Rte_SetCarComStatus(ch, 0)
 #define EVSEM_GET_CAN_END_COM(ch)									CanM_Rte_GetCarComEndStatus(ch)
 
 #if (EVSEM_RELAY_CHECKSELF_ENABLE == STD_ON)                                                                    /*relay checkself enable*/

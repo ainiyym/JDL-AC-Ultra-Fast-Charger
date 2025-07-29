@@ -157,106 +157,75 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>306</LineNumber>
+          <LineNumber>297</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134247910</Address>
+          <Address>134241836</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\BSW\MCAL\Mcal_Can\Mcal_Can_Cfg.c</Filename>
+          <Filename>.\Source\APP\CanM\CanM_Rte.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/MCAL/Mcal_Can/Mcal_Can_Cfg.c\306</Expression>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CanM/CanM_Rte.c\297</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>404</LineNumber>
+          <LineNumber>322</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134227766</Address>
+          <Address>134241982</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\Core\Src\stm32f1xx_it.c</Filename>
+          <Filename>.\Source\APP\CanM\CanM_Rte.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/Core/Src/stm32f1xx_it.c\404</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>390</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134227750</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\Core\Src\stm32f1xx_it.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/Core/Src/stm32f1xx_it.c\390</Expression>
-        </Bp>
-        <Bp>
-          <Number>3</Number>
-          <Type>0</Type>
-          <LineNumber>278</LineNumber>
-          <EnabledFlag>0</EnabledFlag>
-          <Address>134227734</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\Core\Src\stm32f1xx_it.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/Core/Src/stm32f1xx_it.c\278</Expression>
-        </Bp>
-        <Bp>
-          <Number>4</Number>
-          <Type>0</Type>
-          <LineNumber>264</LineNumber>
-          <EnabledFlag>0</EnabledFlag>
-          <Address>134227718</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\Core\Src\stm32f1xx_it.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/Core/Src/stm32f1xx_it.c\264</Expression>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CanM/CanM_Rte.c\322</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Mcal_CanCtrl.RxHeader</ItemText>
+          <ItemText>data</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Mcal_CanCtrl.rcvData</ItemText>
+          <ItemText>CanM_MsgM_Y</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>hcan2</ItemText>
+          <ItemText>CanM_MsgM_U</ItemText>
+        </Ww>
+      </WatchWindow1>
+      <WatchWindow2>
+        <Ww>
+          <count>0</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>gv_stCanM_RteCtrl</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>CanM_EVSEM_U</ItemText>
+        </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>CanM_EVSEM_Y</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>hcan1</ItemText>
+          <WinNumber>2</WinNumber>
+          <ItemText>stSysM</ItemText>
         </Ww>
-      </WatchWindow1>
+      </WatchWindow2>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
@@ -376,7 +345,7 @@
 
   <Group>
     <GroupName>AuthM</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1424,7 +1393,7 @@
 
   <Group>
     <GroupName>Source/APP/EvseM</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1692,7 +1661,7 @@
 
   <Group>
     <GroupName>Source/BSW/IO/SwitchM</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
