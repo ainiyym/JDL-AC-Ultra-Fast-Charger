@@ -63,8 +63,8 @@ void SwitchM_Init(void)
 {
     for (SysConnector_Num_Enum ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
     {
-        SwitchM_SetCpVol12vMode(ch);
-        SwitchM_SetCpMosStatus(ch, SWITCHM_CC_CP_MODE); /* Set to CC/CP mode */
+        SwitchM_SetCpVol4vMode(ch);
+        SwitchM_SetCpMosStatus(ch, SWITCHM_CAN_MODE); /* Set to CC/CP mode */
     }
     SwitchMCtrl.M74hct4851dIncrementCounter = M74HCT4851D_A0;
 }

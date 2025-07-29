@@ -120,10 +120,12 @@ void SwitchM_SetCpMosStatus(SysConnector_Num_Enum ch, SwitchM_CcCpSwitchMode_Enu
     if (mode == SWITCHM_CC_CP_MODE)
     {
         SwitchM_SetInToCcCpMode(ch);
+        SWITCHM_SET_SYS_STATUS_BIT(ch, STD_SYSM_SYSSTATUS_CAN, 0);
     }
     else if (mode == SWITCHM_CAN_MODE)
     {
         SwitchM_SetInToCanMode(ch);
+        SWITCHM_SET_SYS_STATUS_BIT(ch, STD_SYSM_SYSSTATUS_CAN, 1);
     }
     else
     {

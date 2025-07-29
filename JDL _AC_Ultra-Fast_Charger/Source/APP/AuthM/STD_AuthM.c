@@ -192,7 +192,7 @@ uint8_t AUTHM_GetCurrAuthStatus(SysConnector_Num_Enum ch)
 
 /*******************************************************************************
 Name            : AUTHM_GetAllowResAuthReqStatus
-Syntax          : uint8_t AUTHM_GetAllowResAuthReqStatus(void)
+Syntax          : uint8_t AUTHM_GetAllowResAuthReqStatus(SysConnector_Num_Enum ch)
 Sync/Async      : Synchronous
 Reentrancy      :
 Parameters(in)  : None                                    
@@ -201,14 +201,14 @@ Return value    : uint8_t
 Description     : Get Allow Response Auth Request Status
 Call By         : 
 |******************************************************************************/
-uint8_t AUTHM_GetAllowResAuthReqStatus(void)
+uint8_t AUTHM_GetAllowResAuthReqStatus(SysConnector_Num_Enum ch)
 {
 	uint8_t lv_ucRetStatus = STD_FALSE;
-	uint8_t lv_ucSafetyStatus = AUTHM_GetSafetyStatus();
+	uint8_t lv_ucSafetyStatus = AUTHM_GetSafetyStatus(ch);
 #if (AUTHM_CLOSE_EMER_EN == STD_ON)
-	uint8_t lv_EmerStatus = AUTHM_GetEmerStopStatus();
+	uint8_t lv_EmerStatus = AUTHM_GetEmerStopStatus(ch);
 #endif
-	uint8_t lv_FotaStatus = AUTHM_GetFotaStatus();
+	uint8_t lv_FotaStatus = AUTHM_GetFotaStatus(ch);
 
 	if ((STD_FALSE == lv_ucSafetyStatus)
 #if (AUTHM_CLOSE_EMER_EN == STD_ON)
@@ -216,7 +216,7 @@ uint8_t AUTHM_GetAllowResAuthReqStatus(void)
 #endif
 		&& (STD_FALSE == lv_FotaStatus))
 	{
-		lv_ucRetStatus = STD_TRUE;
+		lv_ucRetStatus = STD_TRUE;    
 	}
 	else
 	{
@@ -343,7 +343,7 @@ Call By         : AUTHM_10msMainFunction
 |******************************************************************************/
 static void AUTHM_UnauthorizedModeHandle(SysConnector_Num_Enum ch)
 {
-	if(STD_TRUE == AUTHM_GetAllowResAuthReqStatus())
+	if(STD_TRUE == AUTHM_GetAllowResAuthReqStatus(ch))
 	{
 #if (AUTHM_OPEN_RFID_EN == STD_ON)
 		if(STD_TRUE == AUTHM_GetRfidAuthStatus(ch))

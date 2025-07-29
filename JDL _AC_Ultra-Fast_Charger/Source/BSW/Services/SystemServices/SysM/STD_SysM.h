@@ -31,6 +31,7 @@
 |******************************************************************************/
 typedef enum {
 	STD_SYSM_SYSSTATUS_CHARGING,        	/* 系统状态字索引：桩是否在充电 0：否；1：是 */
+	STD_SYSM_SYSSTATUS_CAN,        			/* 系统状态字索引：桩是否在CAN通信模式 0：否；1：是 */
 	STD_SYSM_SYSSTATUS_SAFTYMODE,		 	/* 系统状态字索引：桩是否处于安全态 0：否；1：是 */
 	STD_SYSM_SYSSTATUS_APP_UPDATING,		/* 系统状态字索引：桩是否在升级过程中 0：否；1：是 */
 	STD_SYSM_SYSSTATUS_LOW_VOLTAGE,			/* 系统状态字索引：桩是否在处于低压状态 0：否；1：是 */
@@ -62,9 +63,9 @@ extern void SYSM_SendData(const uint8_t *data);
 extern void SYSM_SetCpVolMode(SysConnector_Num_Enum ch, uint8_t mode);
 extern uint8_t SYSM_GetCpVolMode(SysConnector_Num_Enum ch);
 extern uint8_t SYSM_GetResetPrepareStatus(void);
-extern void SYSM_SetSysStatusBit(uint32_t SysStatusMask, uint8_t Mode);
-extern uint8_t SYSM_GetSysStatusBit(uint32_t SysStatusMask);
-extern uint32_t SYSM_GetSysStatus(void);
-extern uint8_t SYSM_CheckSysStatus(uint32_t SysStatusMask, uint8_t Mode);
+extern void SYSM_SetSysStatusBit(SysConnector_Num_Enum ch, uint32_t SysStatusMask, uint8_t Mode);
+extern uint8_t SYSM_GetSysStatusBit(SysConnector_Num_Enum ch, uint32_t SysStatusMask);
+extern uint32_t SYSM_GetSysStatus(SysConnector_Num_Enum ch);
+extern uint8_t SYSM_CheckSysStatus(SysConnector_Num_Enum ch, uint32_t SysStatusMask, uint8_t Mode);
 #endif
 /*EOF*/

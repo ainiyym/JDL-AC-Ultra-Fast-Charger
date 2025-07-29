@@ -52,7 +52,7 @@ typedef struct
 	uint8_t ucLowPowerShutdownFlag;
 	uint8_t ucLowPowerShutdownCnt;
 	uint8_t usRemoteResetFlag; /* 0: No reset request; 1: Reset immediately; 2:Reset when the conditons are satisfied.*/
-	uint32_t ulSystemStatus;   /* 系统状态字。位表示，位定义见STD_SysM_SysStatus_t，1：表示存在定义状态； 0：表示不存在。*/
+	uint32_t ulSystemStatus[SYS_CONNECTOR_NUM_MAX];   /* 系统状态字。位表示，位定义见STD_SysM_SysStatus_t，1：表示存在定义状态； 0：表示不存在。*/
 } SysM_Struct;
 /*******************************************************************************
 |    Static local KAM variables Declaration
@@ -270,7 +270,7 @@ uint8_t SYSM_GetResetPrepareStatus(void)
 }
 
 /****************************************************************************************
- *函数名称  : void SYSM_SetSysStatusBit(uint32_t SysStatusMask, uint8_t Mode)
+ *函数名称  : void SYSM_SetSysStatusBit(SysConnector_Num_Enum ch, uint32_t SysStatusMask, uint8_t Mode)
 
  *参数      :
 
@@ -282,13 +282,13 @@ uint8_t SYSM_GetResetPrepareStatus(void)
 
  *备注      : 初版
  *****************************************************************************************/
-void SYSM_SetSysStatusBit(uint32_t SysStatusMask, uint8_t Mode)
+void SYSM_SetSysStatusBit(SysConnector_Num_Enum ch, uint32_t SysStatusMask, uint8_t Mode)
 {
 	if (Mode) {
-		stSysM.ulSystemStatus |= SysStatusMask;
+		stSysM.ulSystemStatus[ch] |=  (1 << SysStatusMask);
 	}
 	else {
-		stSysM.ulSystemStatus &= ~SysStatusMask;
+		stSysM.ulSystemStatus[ch] &= ~(1 << SysStatusMask);
 	}
 }
 
@@ -306,9 +306,9 @@ void SYSM_SetSysStatusBit(uint32_t SysStatusMask, uint8_t Mode)
 
  *备注      : 初版
  *****************************************************************************************/
-uint8_t SYSM_GetSysStatusBit(uint32_t SysStatusMask)
+uint8_t SYSM_GetSysStatusBit(SysConnector_Num_Enum ch, uint32_t SysStatusMask)
 {
-	if (stSysM.ulSystemStatus & SysStatusMask) {
+	if (stSysM.ulSystemStatus[ch] & (1 << SysStatusMask)) {
 		return 1;
 	}
 	else {
@@ -317,7 +317,7 @@ uint8_t SYSM_GetSysStatusBit(uint32_t SysStatusMask)
 }
 
 /****************************************************************************************
- *函数名称  : uint32_t SYSM_GetSysStatus(void)
+ *函数名称  : uint32_t SYSM_GetSysStatus(SysConnector_Num_Enum ch)
 
  *参数      :
 
@@ -329,13 +329,13 @@ uint8_t SYSM_GetSysStatusBit(uint32_t SysStatusMask)
 
  *备注      : 初版
  *****************************************************************************************/
-uint32_t SYSM_GetSysStatus(void)
+uint32_t SYSM_GetSysStatus(SysConnector_Num_Enum ch)
 {
-	return stSysM.ulSystemStatus;
+	return stSysM.ulSystemStatus[ch];
 }
 
 /****************************************************************************************
- *函数名称  : uint8_t SYSM_CheckSysStatus(uint32_t SysStatusMask, uint8_t Mode)
+ *函数名称  : uint8_t SYSM_CheckSysStatus(SysConnector_Num_Enum ch, uint32_t SysStatusMask, uint8_t Mode)
 
  *参数      :
 
@@ -347,20 +347,20 @@ uint32_t SYSM_GetSysStatus(void)
 
  *备注      : 初版
  *****************************************************************************************/
-uint8_t SYSM_CheckSysStatus(uint32_t SysStatusMask, uint8_t Mode)
+uint8_t SYSM_CheckSysStatus(SysConnector_Num_Enum ch, uint32_t SysStatusMask, uint8_t Mode)
 {
 	uint8_t Ret = FALSE;
 
 	if (Mode)
 	{
-		if ((stSysM.ulSystemStatus & SysStatusMask) == SysStatusMask)
+		if ((stSysM.ulSystemStatus[ch] & SysStatusMask) == SysStatusMask)
 		{
 			Ret = TRUE;
 		}
 	}
 	else
 	{
-		if ((stSysM.ulSystemStatus & SysStatusMask) == 0)
+		if ((stSysM.ulSystemStatus[ch] & SysStatusMask) == 0)
 		{
 			Ret = TRUE;
 		}

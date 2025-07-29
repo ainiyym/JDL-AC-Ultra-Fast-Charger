@@ -47,7 +47,7 @@ typedef struct
 static NoAuthen_Struct gv_stNoAuthen[SYS_CONNECTOR_NUM_MAX];
 
 /****************************************************************************************
- 				            Global Variable Definition Section
+Global Variable Definition Section
 *****************************************************************************************/
 
 /*******************************************************************************
@@ -250,14 +250,14 @@ void NOAUTHEN_100msFunction(void)
 		{
 			uint8_t lv_ucCpVolStatus, lv_ucAllowAuthReqStatus;
 
-			lv_ucCpVolStatus = NOAUTHEN_GetCpVolStatus(ch);
-			lv_ucAllowAuthReqStatus = NOAUTHEN_GetAllowAuthReqStatus();
+			lv_ucCpVolStatus = NOAUTHEN_GetCpVolStatus(ch); 
+			lv_ucAllowAuthReqStatus = NOAUTHEN_GetAllowAuthReqStatus(ch);
 
 			switch (gv_stNoAuthen[ch].ucMode)
 			{
 				case NOAUTHEN_MODE_INIT:
 				{
-					if (STD_TRUE == NOAUTHEN_GetSysPreStatus())
+					if (STD_TRUE == NOAUTHEN_GetSysPreStatus()) 
 					{
 						gv_stNoAuthen[ch].ucMode = NOAUTHEN_MODE_IDLE;
 						NOAUTHEN_DEBUG("ch:%d NOAUTHEN_MODE_INIT\r\n", ch);

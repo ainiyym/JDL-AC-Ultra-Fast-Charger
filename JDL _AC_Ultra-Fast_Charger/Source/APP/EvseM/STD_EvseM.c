@@ -873,6 +873,7 @@ static void EVSEM_StateCanModelHandle(SysConnector_Num_Enum ch)
 	if (STD_TRUE == EVSEM_GET_CAN_END_COM(ch))
 	{
 		gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_ZERO;
+		EVSEM_SET_CP_MOS_STATUS(ch, SWITCHM_CC_CP_MODE); /* Set to CC CP mode */
 		EVSEM_STOP_CAN_COM(ch);
 		EVSEM_DEBUG("ch:%d CAN into zero! \n", ch);
 	}

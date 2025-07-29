@@ -70,11 +70,11 @@
 
 #define AUTHM_GetEvseStatus(ch)			    		EVSEM_GetChargeStatus(ch)						/*get evse status*/
 #define AUTHM_GetCpStatus(ch)	 					CPM_GetCpVoltStatus(ch)							/*get cp status*/
-#define AUTHM_GetEmerStopStatus()	       		 	SYSM_GetSysStatusBit((uint32_t)((uint8_t)1<<(uint8_t)STD_SYSM_SYSSTATUS_EMERGENCY_STOP))        /*get emergencystop status*/
-#define AUTHM_GetFotaStatus()						SYSM_GetSysStatusBit((uint32_t)((uint8_t)1<<(uint8_t)STD_SYSM_SYSSTATUS_APP_UPDATING))			/*get fota status*/
-#define AUTHM_GetSafetyStatus()	  					SYSM_GetSysStatusBit((uint32_t)((uint8_t)1<<(uint8_t)STD_SYSM_SYSSTATUS_SAFTYMODE)) 			/*get safety status*/
+#define AUTHM_GetEmerStopStatus(ch)	       		 	SYSM_GetSysStatusBit(ch, (uint32_t)STD_SYSM_SYSSTATUS_EMERGENCY_STOP)   /*get emergencystop status*/
+#define AUTHM_GetFotaStatus(ch)						SYSM_GetSysStatusBit(ch, (uint32_t)STD_SYSM_SYSSTATUS_APP_UPDATING)		/*get fota status*/
+#define AUTHM_GetSafetyStatus(ch)	  				SYSM_GetSysStatusBit(ch, (uint32_t)(STD_SYSM_SYSSTATUS_SAFTYMODE)) 	    /*get safety status*/
 #define AUTHM_ClearFltInfo()						ERRHDL_ClearAuthInfor()                         /*clear fault Infor*/
-#define AUTHM_ResetEvseSelfCheckState(ch)			EVSEM_ResetStartSelfCheckStatus(ch) 				/*reset evse selfcheck state*/
+#define AUTHM_ResetEvseSelfCheckState(ch)			EVSEM_ResetStartSelfCheckStatus(ch) 			/*reset evse selfcheck state*/
 #define AUTHM_GetNoAuthStatus(ch)					NOAUTHEN_GetAuthStatus(ch)						/*get NoAuth status*/
 #define AUTHM_GetBtFastAuthStatus()  				                            					/*get BtFast Auth status*/
 #define AUTHM_GetBtAppCancelAuthStatus()                                                            /*get BtApp Cancel Auth status*/
