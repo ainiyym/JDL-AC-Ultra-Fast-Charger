@@ -102,12 +102,9 @@ void SYSM_InitZero(void)
 
 	/* Configure the system clock */
 	SystemClock_Config();
-
-	/* Initialize the SysTick */
-	HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq() / 1000);
-
-	/* Set the SysTick priority */
-	HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+	Mcal_Dma_Init();
+ 	Mcal_Usart_Init();
+	Mcal_Usart_Enable();
 }
 
 /****************************************************************************************
@@ -188,7 +185,6 @@ void SYSM_InitTwo( void )
  *****************************************************************************************/
 void SYSM_InitThree(void)
 {
-	Mcal_Usart_Enable();
 	Mcal_Can_Enable();
 	SwitchM_SoftTimerStart74hct4851d_Enable();
 	Mcal_GpTime_AdcCollection_Start();
@@ -466,9 +462,19 @@ void SYSM_ImmediatelyResetManage(void)
 	Mcal_MCU_SysRestart();
 }
 
-void SYSM_SendData(const uint8_t *data)
+int SYSM_printf(const char *format, ...)
 {
-	HAL_UART_Transmit_IT(&huart2, data, (uint16_t)strlen(data));
+	va_list arg;
+	char SendBuff[250] = {0};
+	uint16_t rv;
+
+	va_start(arg, format);
+	rv = (uint16_t)vsnprintf((char *)SendBuff, sizeof(SendBuff), (char *)format, arg);
+	va_end(arg);
+
+	HAL_UART_Transmit_DMA(&huart2, (uint8_t *)SendBuff, rv);
+
+	return rv;
 }
 
 void SYSM_SetCpVolMode(SysConnector_Num_Enum ch, uint8_t mode)

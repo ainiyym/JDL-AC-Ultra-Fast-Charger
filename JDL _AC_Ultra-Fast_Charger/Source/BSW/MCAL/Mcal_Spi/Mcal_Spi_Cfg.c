@@ -52,7 +52,7 @@ McalRetVal_t Mcal_SpiDrv_SendData(McalSpiChannel_Enum_t Channel, uint8_t *TxData
 
     if (Channel == MCAL_SPI2_LED_CH && NULL != TxData)
     {
-        TransStatus = HAL_SPI_Transmit_DMA(Mcal_Spi_Config[Channel].SpiBase, TxData, DataLen);
+        TransStatus = HAL_SPI_Transmit_IT(Mcal_Spi_Config[Channel].SpiBase, TxData, DataLen);
         if (HAL_OK != TransStatus)
         {
             Ret = MCAL_RET_FAILED;

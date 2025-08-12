@@ -97,5 +97,4 @@ McalRetVal_t Mcal_Systick_Check_Delay(McalTickCount_t StartTimeStamp, uint32_t D
 void HAL_SYSTICK_Callback(void)
 { 
   Mcal_SYSTICK_Counter_Increase();
-	Scheduler_ISRCb();
 }

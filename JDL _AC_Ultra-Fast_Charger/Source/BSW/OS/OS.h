@@ -18,6 +18,7 @@ typedef enum
 }OS_ErrorType_t;
 
 // 调度表相关API声明
+extern void OS_Init(void);
 extern void OS_Start(void);
 
 #endif // OS_H

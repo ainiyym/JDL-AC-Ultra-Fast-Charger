@@ -53,6 +53,7 @@ void MCALAPP_PeripheralInit(void)
   Mcal_Gpio_Init();
   Mcal_Dma_Init();
   Mcal_Usart_Init();
+  // Mcal_Usart_Init();
   Mcal_GptDrv_Init();
   Mcal_Can_Init();
   Mcal_Spi_Init();

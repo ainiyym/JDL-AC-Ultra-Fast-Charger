@@ -8,14 +8,11 @@
 #include "STD_Os_Timer.h"
 
 /* Function prototypes */
-static void OS_Init(void);
 static void OS_Schedule(void);
 
 /* OS Initialization */
-static void OS_Init(void)
+void OS_Init(void)
 {
-    SYSM_InitZero();
-
     SYSM_InitOne();
 
     SYSM_InitTwo();
@@ -35,10 +32,5 @@ static void OS_Schedule(void)
 /* Public API */
 void OS_Start(void)
 {
-    OS_Init();
-    while (1)
-    {
-        OS_Schedule();
-        OS_TimerTask();
-    }
+    OS_Schedule();
 }

@@ -59,13 +59,3 @@ void Mcal_MCU_SysRestart(void)
     HAL_NVIC_SystemReset();
 }
 /* Add more MCU core related functions below */
-
-#define CRITICAL_PRIO 0x40
- 
-void vPortEnterCritical(void) {
-
-}
-
-void vPortExitCritical(void) {
-
-}
