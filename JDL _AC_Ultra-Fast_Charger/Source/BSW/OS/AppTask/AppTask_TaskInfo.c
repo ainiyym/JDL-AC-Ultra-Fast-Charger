@@ -1,13 +1,12 @@
-
-#ifdef ENABLE_TASKINFO_TASK
-
 /******************************************************************************
  *                      Include Files
  ******************************************************************************/
+#include "AppTask_TaskInfo.h"
+#ifdef ENABLE_TASKINFO_TASK
 #include "string.h"
 #include "stdio.h"
 #include "AppTask_MainTask.h"
-
+#include "Mcal_Usart_Cfg.h"
 /******************************************************************************
  *                      Macro Definitions
  ******************************************************************************/
@@ -26,7 +25,7 @@
 /**
  * @brief:栈信息
  */
-static char TaskListinfo[1536];
+static char TaskListinfo[1024];
 
 /******************************************************************************
  *                      Function definitions
@@ -103,20 +102,18 @@ static void AppPrintTaskInfo(void)
  */
 void AppTask_TaskInfo(void *pvParameters)
 {
-	TickType_t xLastWakeTime;
-	const TickType_t xPeriod = pdMS_TO_TICKS( 60000 );
+    TickType_t xLastWakeTime;
+    const TickType_t xPeriod = pdMS_TO_TICKS(10000);
 
-	xLastWakeTime = xTaskGetTickCount();
+    xLastWakeTime = xTaskGetTickCount();
+    SYSM_printf("TaskInfo creat success \r\n");
 
-    SYSM_printf("AppTask_TaskInfo start\r\n");
-	
     while (1)
     {
         AppPrintTaskInfo();
-		vTaskDelayUntil( &xLastWakeTime, xPeriod );
+        vTaskDelayUntil(&xLastWakeTime, xPeriod);
     }
 }
-
 #endif  /* ENABLE_TASKINFO_TASK */
 
 /* EOF */

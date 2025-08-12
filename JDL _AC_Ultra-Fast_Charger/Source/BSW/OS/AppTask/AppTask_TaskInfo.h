@@ -2,8 +2,6 @@
 #ifndef APPTASK_TASKINFO_H
 #define APPTASK_TASKINFO_H
 
-#ifdef ENABLE_TASKINFO_TASK
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -52,8 +50,7 @@ extern "C" {
 /******************************************************************************
  **                        Export Functions
  ******************************************************************************/
-
-
+#ifdef ENABLE_TASKINFO_TASK
 /**
  * @brief 启动任务
  *

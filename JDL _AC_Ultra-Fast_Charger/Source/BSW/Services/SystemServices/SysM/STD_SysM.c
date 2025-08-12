@@ -423,6 +423,11 @@ static void SYSM_RemoteResetManage(void)
  *****************************************************************************************/
 static void SYSM_ShowBasicInfo(void)
 {
+	if (!SYSM_GetResetPrepareStatus())
+	{
+		return;
+	}
+
 	uint8_t ucCpStatus[SYS_CONNECTOR_NUM_MAX] = {0};
 	uint8_t ucEvseStatus[SYS_CONNECTOR_NUM_MAX] = {0};
 	uint8_t lv_ucStopReson[SYS_CONNECTOR_NUM_MAX] = {0};
@@ -465,15 +470,18 @@ void SYSM_ImmediatelyResetManage(void)
 int SYSM_printf(const char *format, ...)
 {
 	va_list arg;
-	char SendBuff[250] = {0};
+	char SendBuff[251] = {0};
 	uint16_t rv;
 
 	va_start(arg, format);
 	rv = (uint16_t)vsnprintf((char *)SendBuff, sizeof(SendBuff), (char *)format, arg);
 	va_end(arg);
 
+#ifdef ENABLE_TASKINFO_TASK
+	HAL_UART_Transmit(&huart2, (uint8_t *)SendBuff, rv, 0xffff);
+#else
 	HAL_UART_Transmit_DMA(&huart2, (uint8_t *)SendBuff, rv);
-
+#endif
 	return rv;
 }
 

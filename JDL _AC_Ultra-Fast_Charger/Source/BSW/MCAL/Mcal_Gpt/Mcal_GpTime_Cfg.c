@@ -36,8 +36,9 @@
 /*******************************************************************************
 |    Variables Definition
 |******************************************************************************/
+#ifdef ENABLE_TASKINFO_TASK
 volatile uint32_t CPU_RunTime = 0UL; /* Used for counting the running time of CPU */
-
+#endif
 Mcal_GPT_Map_t Mcal_GPT_Pwm_Out_Map[MCAL_GPT_PWM_OUT_CH_FUNC_NUM] =
     {
         {MCAL_GPT_CH_PWM_OUT_CP1, MCAL_GPT_CH_FUNC_PWM_OUT, MCAL_TIM1_CLK_FREQ, MCAL_TIM_PRESCALER, &htim1, TIM_CHANNEL_1},
@@ -159,8 +160,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   if (htim == &htim6)
   { 
     // HAL_GPIO_TogglePin(TEST_E1_Port, TEST_E1_Pin); 
+#ifdef ENABLE_TASKINFO_TASK
     CPU_RunTime++;
-
+#endif
     configASSERT( OsTimer_Task_Handle != NULL );
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     // 发送通知或信号量给任务

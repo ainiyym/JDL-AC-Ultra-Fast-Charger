@@ -18,7 +18,7 @@
 |******************************************************************************/
 #define MAIN_TASK_STACK_SIZE (5u * 1024u / 4u)
 #define OS_TIMER_TASK_STACK_SIZE (1u * 1024u / 4u)
-// #define ENABLE_TASKINFO_TASK
+#define TASK_INFO_TASK_STACK_SIZE (4u * 1024u / 4u)
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
@@ -40,8 +40,7 @@ static StaticTask_t Main_StaticTask;
 TaskHandle_t OsTimer_Task_Handle = NULL;
 
 #ifdef ENABLE_TASKINFO_TASK
-static StackType_t  TaskInfo_Stack[MAIN_TASK_STACK_SIZE];
-static StaticTask_t TaskInfo_StaticTask;
+TaskHandle_t TaskInfo_StaticTask = NULL;
 #endif
 
 /*******************************************************************************
@@ -65,8 +64,8 @@ int main(void)
     xTaskCreate(
         OSTimerTask_MainTask, "OSTimerTask", OS_TIMER_TASK_STACK_SIZE, (void *)NULL, TASK_START_PRIO_2, &OsTimer_Task_Handle);
 #ifdef ENABLE_TASKINFO_TASK
-    xTaskCreateStatic(
-        AppTask_TaskInfo, "TaskInfo", MAIN_TASK_STACK_SIZE, NULL, TASK_START_PRIO_1, TaskInfo_Stack, &TaskInfo_StaticTask);
+    xTaskCreate(
+        AppTask_TaskInfo, "TaskInfo", TASK_INFO_TASK_STACK_SIZE, NULL, TASK_START_PRIO_1, &TaskInfo_StaticTask);
 #endif
 	  vTaskStartScheduler();
 }
