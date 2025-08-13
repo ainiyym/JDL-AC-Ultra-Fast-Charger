@@ -105,8 +105,6 @@ void EVSEM_InitMemory(void)
 {
 	LIB_SetMemory((uint8_t *)(&gv_stEvseM), 0u, (uint16_t)(sizeof(gv_stEvseM) / sizeof(uint8_t))); /*PRQA S 0310*/
 	CanM_Rte_Evse_Init(); /* Initialize the RTE for CanM */
-	gv_stEvseM[0].ucState = EVSEM_STATE_CAN_MODEL;
-	gv_stEvseM[1].ucState = EVSEM_STATE_CAN_MODEL;
 }
 
 /*******************************************************************************
