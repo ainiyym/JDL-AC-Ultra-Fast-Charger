@@ -127,9 +127,9 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef* canHandle)
     __HAL_AFIO_REMAP_CAN1_3();
 
     /* CAN1 interrupt Init */
-    HAL_NVIC_SetPriority(CAN1_RX0_IRQn, 2, 0);
+    HAL_NVIC_SetPriority(CAN1_RX0_IRQn, 7, 0);
     HAL_NVIC_EnableIRQ(CAN1_RX0_IRQn);
-    HAL_NVIC_SetPriority(CAN1_RX1_IRQn, 2, 0);
+    HAL_NVIC_SetPriority(CAN1_RX1_IRQn, 7, 0);
     HAL_NVIC_EnableIRQ(CAN1_RX1_IRQn);
   /* USER CODE BEGIN CAN1_MspInit 1 */
 
@@ -165,9 +165,9 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef* canHandle)
     __HAL_AFIO_REMAP_CAN2_ENABLE();
 
     /* CAN2 interrupt Init */
-    HAL_NVIC_SetPriority(CAN2_RX0_IRQn, 2, 0);
+    HAL_NVIC_SetPriority(CAN2_RX0_IRQn, 7, 0);
     HAL_NVIC_EnableIRQ(CAN2_RX0_IRQn);
-    HAL_NVIC_SetPriority(CAN2_RX1_IRQn, 2, 0);
+    HAL_NVIC_SetPriority(CAN2_RX1_IRQn, 7, 0);
     HAL_NVIC_EnableIRQ(CAN2_RX1_IRQn);
   /* USER CODE BEGIN CAN2_MspInit 1 */
 

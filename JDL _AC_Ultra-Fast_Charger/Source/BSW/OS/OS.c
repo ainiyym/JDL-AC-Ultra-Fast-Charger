@@ -8,7 +8,6 @@
 #include "STD_Os_Timer.h"
 
 /* Function prototypes */
-static void OS_Schedule(void);
 
 /* OS Initialization */
 void OS_Init(void)
@@ -24,13 +23,7 @@ void OS_Init(void)
 }
 
 /* OS Schedule Table Handler */
-static void OS_Schedule(void)
+void OS_Schedule(void)
 {
     Scheduler_run(); // Call the scheduler to run tasks
-}
-
-/* Public API */
-void OS_Start(void)
-{
-    OS_Schedule();
 }

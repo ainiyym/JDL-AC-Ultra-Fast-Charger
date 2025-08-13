@@ -30,6 +30,7 @@ extern "C" {
 #include "task.h"
 #include "semphr.h"
 #include "queue.h"
+#include "Mcal_Gpio_Cfg.h"
 
 /******************************************************************************
  **                        File Version Check
@@ -38,8 +39,8 @@ extern "C" {
 /******************************************************************************
  **                        Macro  Definitions
  ******************************************************************************/
-#define APPTASK_MAINTASK_RUN_START()
-#define APPTASK_MAINTASK_RUN_END()
+#define APPTASK_MAINTASK_RUN_START()            //Mcal_Gpio_SetPin(TEST_E1_Port, TEST_E1_Pin)
+#define APPTASK_MAINTASK_RUN_END()              //Mcal_Gpio_ResetPin(TEST_E1_Port, TEST_E1_Pin)
 
 /******************************************************************************
  **                        Typedef  Definitions

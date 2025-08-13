@@ -155,20 +155,37 @@ void Mcal_GpTime_AdcCollection_Start(void)
 }
 
 extern TaskHandle_t OsTimer_Task_Handle;
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM7 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM7)
+  {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
   if (htim == &htim6)
-  { 
-    // HAL_GPIO_TogglePin(TEST_E1_Port, TEST_E1_Pin); 
+  {
+    // HAL_GPIO_TogglePin(TEST_E1_Port, TEST_E1_Pin);
 #ifdef ENABLE_TASKINFO_TASK
     CPU_RunTime++;
 #endif
-    configASSERT( OsTimer_Task_Handle != NULL );
+    configASSERT(OsTimer_Task_Handle != NULL);
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     // 发送通知或信号量给任务
     vTaskNotifyGiveFromISR(OsTimer_Task_Handle, &xHigherPriorityTaskWoken);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
   }
+  /* USER CODE END Callback 1 */
 }
 
 #if 0

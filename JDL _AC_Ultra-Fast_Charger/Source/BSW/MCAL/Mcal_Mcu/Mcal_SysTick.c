@@ -5,7 +5,6 @@
 
 McalTickCount_t Mcal_SysTick_Counter = 0;
 
-
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};

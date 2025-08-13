@@ -402,6 +402,11 @@
               <FileType>1</FileType>
               <FilePath>.\Source\dummy.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32f1xx_hal_timebase_tim.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\Core\Src\stm32f1xx_hal_timebase_tim.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

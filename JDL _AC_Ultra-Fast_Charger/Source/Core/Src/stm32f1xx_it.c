@@ -46,7 +46,6 @@
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
-extern void xPortSysTickHandler( void );
 
 /* USER CODE END PFP */
 
@@ -62,6 +61,7 @@ extern ADC_HandleTypeDef hadc2;
 extern CAN_HandleTypeDef hcan1;
 extern CAN_HandleTypeDef hcan2;
 extern SPI_HandleTypeDef hspi1;
+extern SPI_HandleTypeDef hspi2;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim6;
 extern DMA_HandleTypeDef hdma_usart1_rx;
@@ -72,6 +72,8 @@ extern UART_HandleTypeDef huart4;
 extern UART_HandleTypeDef huart5;
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
+extern TIM_HandleTypeDef htim7;
+
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -107,7 +109,7 @@ void HardFault_Handler(void)
     /* USER CODE BEGIN W1_HardFault_IRQn 0 */
     /* USER CODE END W1_HardFault_IRQn 0 */
   }
-}  
+}
 
 /**
   * @brief This function handles Memory management fault.
@@ -170,12 +172,12 @@ void DebugMon_Handler(void)
 /**
  * @brief This function handles System tick timer.  
  */
+extern void xPortSysTickHandler( void );
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
 
   /* USER CODE END SysTick_IRQn 0 */
-  HAL_IncTick();
 #if (INCLUDE_xTaskGetSchedulerState == 1)
   if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
   {
@@ -310,17 +312,17 @@ void CAN1_RX1_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles TIM1 up interrupts.
+  * @brief This function handles TIM1 capture compare interrupt.
   */
 void TIM1_CC_IRQHandler(void)
 {
-  /* USER CODE BEGIN TIM1_TRG_COM_IRQn 0 */
+  /* USER CODE BEGIN TIM1_CC_IRQn 0 */
 
-  /* USER CODE END TIM1_TRG_COM_IRQn 0 */
+  /* USER CODE END TIM1_CC_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
-  /* USER CODE BEGIN TIM1_TRG_COM_IRQn 1 */
+  /* USER CODE BEGIN TIM1_CC_IRQn 1 */
 
-  /* USER CODE END TIM1_TRG_COM_IRQn 1 */
+  /* USER CODE END TIM1_CC_IRQn 1 */
 }
 
 /**
@@ -335,6 +337,20 @@ void SPI1_IRQHandler(void)
   /* USER CODE BEGIN SPI1_IRQn 1 */
 
   /* USER CODE END SPI1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles SPI2 global interrupt.
+  */
+void SPI2_IRQHandler(void)
+{
+  /* USER CODE BEGIN SPI2_IRQn 0 */
+
+  /* USER CODE END SPI2_IRQn 0 */
+  HAL_SPI_IRQHandler(&hspi2);
+  /* USER CODE BEGIN SPI2_IRQn 1 */
+
+  /* USER CODE END SPI2_IRQn 1 */
 }
 
 /**
@@ -405,6 +421,20 @@ void TIM6_IRQHandler(void)
   /* USER CODE BEGIN TIM6_IRQn 1 */
 
   /* USER CODE END TIM6_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM7 global interrupt.
+  */
+void TIM7_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM7_IRQn 0 */
+
+  /* USER CODE END TIM7_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim7);
+  /* USER CODE BEGIN TIM7_IRQn 1 */
+
+  /* USER CODE END TIM7_IRQn 1 */
 }
 
 /**

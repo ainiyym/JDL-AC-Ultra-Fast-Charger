@@ -182,5 +182,5 @@ static void Task100ms(void)
 static void Task1000ms(void)
 {
     /* 1-second task code */
-    // Mcal_Test_Run(); // Call the MCAL test function
+    Mcal_Test_Run(); // Call the MCAL test function
 }

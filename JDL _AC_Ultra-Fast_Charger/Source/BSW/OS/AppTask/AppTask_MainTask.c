@@ -60,10 +60,10 @@ void AppTask_MainTask(void *pvParameters)
     OS_Init();
     while (1)
     {
+        APPTASK_MAINTASK_RUN_START(); 
         Scheduler_ISRCb();
     	Mcal_SYSTICK_Counter_Increase();
-        APPTASK_MAINTASK_RUN_START(); 
-		OS_Start();
+		OS_Schedule();
         APPTASK_MAINTASK_RUN_END(); 
 		vTaskDelayUntil( &xLastWakeTime, xPeriod );
     }
@@ -75,8 +75,10 @@ void OSTimerTask_MainTask(void *pvParameters)
     while (1)
     {
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        APPTASK_MAINTASK_RUN_START(); 
         OS_SoftTimerSoftTimerINT_CB();
 		OS_TimerTask();
+        APPTASK_MAINTASK_RUN_END(); 
     }
 }
 /* EOF */
