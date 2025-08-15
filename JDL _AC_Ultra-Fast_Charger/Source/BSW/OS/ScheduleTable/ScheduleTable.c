@@ -24,6 +24,7 @@
 #include "STD_Curr.h"
 #include "STD_Volt.h"
 #include "BtrM.h"
+#include "ModbusM.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -153,6 +154,7 @@ static void Task5ms(void)
 static void Task10ms(void)
 {
     SYSM_10msMainFunction();
+    ModbusM_10msMainFunction();
     /* 10ms task code */
 #if (MCAL_WDG_ENABLED)
     Mcal_Iwdg_Feedback();

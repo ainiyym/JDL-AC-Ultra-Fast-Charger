@@ -23,6 +23,7 @@
 #include "STD_Curr.h"
 #include "STD_Volt.h"
 #include "BtrM.h"
+#include "ModbusM.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -159,6 +160,7 @@ void SYSM_InitTwo( void )
 	/* App init memery */
 	ERRHDL_InitMemory(); 
 	Comm_Init();
+	ModbusM_Init();
 	SwitchM_Init();
 	EVSEM_InitMemory();
 	CPM_InitMemory();
