@@ -5,7 +5,6 @@
  * @date    
  */
 #include "MessageBuffStack.h"
-
 // 创建消息句柄
 MessageBuffM_t Message_Handle[MESSAGE_USART_MAX_NUMBER];
 
@@ -82,4 +81,3 @@ void MessageBuff_StackInit(void)
         }
     }
 }
-       

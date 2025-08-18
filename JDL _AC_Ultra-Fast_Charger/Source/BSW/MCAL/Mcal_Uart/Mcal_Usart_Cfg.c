@@ -57,6 +57,13 @@ const McalUsart_NumMapUsart_t  McalUsart_NumMapUsart[MCAL_USART_MAX_NUMBER] =
         {MCAL_USART5_CH, &huart5}
     };
 
+const MessageBuffChannel_Enum_t Mcal_UsartMapChannel[MCAL_USART_MAX_NUMBER] = {
+    MESSAGE_USART1_CH, /* 4G */
+    MESSAGE_USART2_CH, /* LOG */
+    MESSAGE_USART4_CH, /* Meter */
+    MESSAGE_USART5_CH  /* Fan speeder */
+};
+
 McalUsart_BufCfg_t  const McalUsart_BufferCfg[MCAL_USART_MAX_NUMBER] =
 {
     {
@@ -265,6 +272,7 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef * huart)
 uint32_t Mcal_Usart_AppReceiveData(uint32_t USART, uint8_t *data, uint32_t size)
 {
   uint32_t RetDataLen = 0;
+  const MessageBuffChannel_Enum_t *channel = &Mcal_UsartMapChannel[USART];
 
   if (data == NULL || size == 0)
   {
@@ -272,11 +280,11 @@ uint32_t Mcal_Usart_AppReceiveData(uint32_t USART, uint8_t *data, uint32_t size)
   }
   else
   {
-    Message_Handle[USART].Rcvbuffer = data;
-    Message_Handle[USART].Rcvsize = size;
-    if (MESSAGE_BUFF_OK == MessageBuff_StackReceiveMessage(&Message_Handle[USART], 0))
+    Message_Handle[*channel].Rcvbuffer = data;
+    Message_Handle[*channel].Rcvsize = size;
+    if (MESSAGE_BUFF_OK == MessageBuff_StackReceiveMessage(&Message_Handle[*channel], 0))
     {
-       RetDataLen = Message_Handle[USART].Rcvsize;
+       RetDataLen = (uint32_t)Message_Handle[*channel].Rcvsize;
     }
   }
 
