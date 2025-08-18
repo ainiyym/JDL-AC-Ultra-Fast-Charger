@@ -153,7 +153,7 @@ static void LogSevice_Args(Log_Module_Enum module, Log_Level_Enum level, const c
         }
 		if(gv_ucLogStatus != 0)
 		{
-            Mcal_Usart_AppSentData(LOG_SERVICE_USART_CH, gv_LogBuf, lv_ulLogSize);
+            Mcal_Usart_AppSendData(LOG_SERVICE_USART_CH, gv_LogBuf, lv_ulLogSize);
 		}
 	}
 	else
@@ -299,7 +299,7 @@ void LogService_Print_Hex_Array(Log_Module_Enum module, uint8_t *lv_ucHexArray, 
         }
         if (gv_ucLogStatus != 0)
         {
-            Mcal_Usart_AppSentData(LOG_SERVICE_USART_CH, lv_ucBuf, lv_ulIdx);
+            Mcal_Usart_AppSendData(LOG_SERVICE_USART_CH, lv_ucBuf, lv_ulIdx);
         }
     }
 }

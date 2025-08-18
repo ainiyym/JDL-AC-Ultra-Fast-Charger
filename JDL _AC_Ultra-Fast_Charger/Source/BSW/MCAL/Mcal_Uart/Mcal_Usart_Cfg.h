@@ -11,7 +11,6 @@
 |******************************************************************************/
 #include "stm32f1xx_hal.h"  // Include the HAL library for STM32F1xx
 #include "usart.h"
-#include "Mcal_App_Cfg.h"
 #include "Mcal_MCUCore.h"
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -24,14 +23,12 @@
 #define MCAL_USART1_CH_RCV_CYCBUF_LEN (1024U)
 #define MCAL_USART1_CH_SEND_BUF_LEN (1024U)
 
-#define MCAL_USART2_CH_SEND_CYCBUF_LEN (1024)
+#define MCAL_USART2_CH_SEND_CYCBUF_LEN (1024U)
 #define MCAL_USART2_CH_RCV_CYCBUF_LEN (1024U)
 #define MCAL_USART2_CH_SEND_BUF_LEN (1024U)
 
-#define MCAL_USART4_CH_RCV_CYCBUF_LEN (1024U)
-#define MCAL_USART5_CH_RCV_CYCBUF_LEN (1024U)
-
-#define MCAL_USART_RCV_CYCBUF_MAX_LEN   (MCAL_USART1_CH_RCV_CYCBUF_LEN)
+#define MCAL_USART4_CH_RCV_CYCBUF_LEN (256U)
+#define MCAL_USART5_CH_RCV_CYCBUF_LEN (256U)
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
@@ -54,10 +51,9 @@ typedef struct
   uint8_t UsartNum; /* USART通道号 */
   uint8_t *SendCycBuf; /* 发送环形缓冲区 */
   uint32_t SendCycBufLen; /* 发送环形缓冲区长度 */
-  uint8_t *RcvCycBuf; /* 接收环形缓冲区 */
-  uint32_t RcvCycBufLen; /* 接收环形缓冲区长度 */
   uint8_t *SendBuf; /* 发送缓冲区 */
   uint32_t SendBufLen; /* 发送缓冲区长度 */
+  uint32_t RcvBufLen; /* 接收缓冲区长度 */
 }McalUsart_BufCfg_t;
 /*******************************************************************************
 |    Enum Definition
@@ -74,17 +70,14 @@ typedef struct
 {
   uint8_t SendCycBufID;
   uint8_t Send_Lock;
-  uint8_t Rcv_Lock;
-  uint8_t RcvCycBufID;
 
-  uint8_t RcvIntSwapBufIdx;
   uint16_t RcvIntSwapBufDataCnt;
-  uint8_t RcvIntSwapBuf[2][MCAL_USART1_CH_RCV_CYCBUF_LEN]; // 交换缓冲区,所配置的长度必须大于等于所有串口接收缓冲区的长度
+  uint8_t* RcvIntSwapBuf; // 交换缓冲区,动态分配
+  uint16_t RcvIntSwapBufSize;
 
   uint8_t *SendBuf;
   uint32_t SendBufLen;
   uint32_t SenLen;
-  uint32_t RcvLen;
 } McalUsart_Ctrol_t;
 /*******************************************************************************
 |    Constant Definition
@@ -101,20 +94,17 @@ extern void McalUsart_CycBuffCfgInit(void);
 // USART initialization
 extern void Mcal_Usart_Init(void);
 // USART enable
-extern void Mcal_Usart_Enable(void);
+extern void Mcal_Usart_IT_Enable(void);
 // USART disable
 extern void Mcal_Usart_Disable(void);
 // USART receive data
 extern uint32_t Mcal_Usart_AppReceiveData(uint32_t USART, uint8_t *data, uint32_t size);
 // USART send data
-extern McalRetVal_t Mcal_Usart_AppSentData(uint32_t USART, uint8_t *data, uint32_t size);
+extern McalRetVal_t Mcal_Usart_AppSendData(uint32_t USART, uint8_t *data, uint32_t size);
 // USART send main function
 extern void Mcal_USARTIf_Send_MainFunction(void);
-// USART receive main function
-extern void Mcal_Usart_AppReceive_MainFunction(void);
-// USART receive interrupt callback
-extern void HAL_UART_IdleCallback(UART_HandleTypeDef *huart);
 // USART send interrupt callback
 extern void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
+extern void HAL_UART_IdleCallback(UART_HandleTypeDef *huart);
 #endif
 /*EOF*/

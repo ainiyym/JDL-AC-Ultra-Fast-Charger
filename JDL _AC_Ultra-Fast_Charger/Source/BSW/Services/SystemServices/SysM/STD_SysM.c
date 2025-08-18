@@ -105,7 +105,6 @@ void SYSM_InitZero(void)
 	SystemClock_Config();
 	Mcal_Dma_Init();
  	Mcal_Usart_Init();
-	Mcal_Usart_Enable();
 }
 
 /****************************************************************************************
@@ -187,6 +186,7 @@ void SYSM_InitTwo( void )
  *****************************************************************************************/
 void SYSM_InitThree(void)
 {
+	Mcal_Usart_IT_Enable();
 	Mcal_Can_Enable();
 	SwitchM_SoftTimerStart74hct4851d_Enable();
 	Mcal_GpTime_AdcCollection_Start();
@@ -484,6 +484,7 @@ int SYSM_printf(const char *format, ...)
 #else
 	HAL_UART_Transmit_DMA(&huart2, (uint8_t *)SendBuff, rv);
 #endif
+	vTaskDelay(pdMS_TO_TICKS(10));
 	return rv;
 }
 
@@ -544,8 +545,13 @@ void SYSM_10msMainFunction(void)
 
 	SYSM_RemoteResetManage();
 
-	SYSM_ShowBasicInfo();
+	// SYSM_ShowBasicInfo();
 
 	SYSM_OutPutDefaultCurrManage();
+}
+
+void SYSM_RunningLedHandle(void)
+{
+	HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
 }
 /*EOF*/

@@ -26,10 +26,10 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
-#define CYCBUF_CHAN_MAX_NUM		(16u)       /* the channel parameters max num*/ 
+#define CYCBUF_CHAN_MAX_NUM		(16u)       /* the channel parameters max num*/
 
-#define CYCBUF_ENTER_CRITICAL_AREA()    //MCAL_ENTER_CRITICAL_AREA()      /* enter the Critical */
-#define CYCBUF_EXIT_CRITICAL_AREA()     //MCAL_EXIT_CRITICAL_AREA()       /* exit the Ctriticl */
+#define CYCBUF_ENTER_CRITICAL_AREA()          //MCAL_ENTER_CRITICAL_AREA();      /* enter the Critical */
+#define CYCBUF_EXIT_CRITICAL_AREA()           //MCAL_EXIT_CRITICAL_AREA();       /* exit the Critical */
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/

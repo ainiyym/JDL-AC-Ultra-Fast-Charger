@@ -157,9 +157,25 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
+          <LineNumber>378</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>.\Source\Core\Src\stm32f1xx_it.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
           <LineNumber>267</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134270138</Address>
+          <Address>134271642</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -171,62 +187,39 @@
           <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/MCAL/Mcal_Adc/Mcal_Adc_Cfg.c\267</Expression>
         </Bp>
         <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>161</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134277470</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\BSW\ECUAL\IO\SwitchM\SwitchM.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/ECUAL/IO/SwitchM/SwitchM.c\161</Expression>
-        </Bp>
-        <Bp>
           <Number>2</Number>
           <Type>0</Type>
-          <LineNumber>136</LineNumber>
+          <LineNumber>127</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134249618</Address>
+          <Address>134274854</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\BSW\MCAL\Mcal_Adc\Mcal_Adc_Cfg.c</Filename>
+          <Filename>.\Source\BSW\MCAL\Mcal_Uart\Mcal_Usart_Cfg.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/MCAL/Mcal_Adc/Mcal_Adc_Cfg.c\136</Expression>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/MCAL/Mcal_Uart/Mcal_Usart_Cfg.c\127</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Mcal_AdcCtrl</ItemText>
+          <ItemText>McalUsart_Ctrl</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>gv_stCpD</ItemText>
+          <ItemText>huart2</ItemText>
+        </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>McalUsart_BufferCfg</ItemText>
         </Ww>
       </WatchWindow1>
-      <WatchWindow2>
-        <Ww>
-          <count>0</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>OS_SoftTimerCtrl</ItemText>
-        </Ww>
-        <Ww>
-          <count>1</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>SwitchMCtrl</ItemText>
-        </Ww>
-      </WatchWindow2>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
@@ -1995,6 +1988,26 @@
       <bDave2>0</bDave2>
       <PathWithFileName>.\Source\BSW\Services\CommunicationServices\RS485_Modbus\ModbusM.c</PathWithFileName>
       <FilenameWithoutPath>ModbusM.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+  </Group>
+
+  <Group>
+    <GroupName>FreeRTOS/messagebuff</GroupName>
+    <tvExp>0</tvExp>
+    <tvExpOptDlg>0</tvExpOptDlg>
+    <cbSel>0</cbSel>
+    <RteFlg>0</RteFlg>
+    <File>
+      <GroupNumber>38</GroupNumber>
+      <FileNumber>119</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\Source\BSW\OS\MessageBuff\MessageBuffStack.c</PathWithFileName>
+      <FilenameWithoutPath>MessageBuffStack.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

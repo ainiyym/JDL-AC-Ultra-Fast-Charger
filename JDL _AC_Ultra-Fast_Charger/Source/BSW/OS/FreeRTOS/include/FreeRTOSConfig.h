@@ -284,7 +284,7 @@ extern uint32_t SystemCoreClock;
  * or heap_4.c are included in the build.  This value is defaulted to 4096 bytes but
  * it must be tailored to each application.  Note the heap will appear in the .bss
  * section.  See https://www.freertos.org/a00111.html. */
-#define configTOTAL_HEAP_SIZE                        ((size_t)(10*1024))
+#define configTOTAL_HEAP_SIZE                        ((size_t)(15*1024))
 
 /* Set configAPPLICATION_ALLOCATED_HEAP to 1 to have the application allocate
  * the array used as the FreeRTOS heap.  Set to 0 to have the linker allocate the
@@ -374,8 +374,8 @@ extern uint32_t SystemCoreClock;
  * processing time used by each task.  Set to 0 to not collect the data.  The
  * application writer needs to provide a clock source if set to 1.  Defaults to 0
  * if left undefined.  See https://www.freertos.org/rtos-run-time-stats.html. */
-// #define ENABLE_TASKINFO_TASK
-#ifdef ENABLE_TASKINFO_TASK
+#define ENABLE_TASKINFO_TASK
+#if defined(ENABLE_TASKINFO_TASK)
 #define configGENERATE_RUN_TIME_STATS           1
 extern volatile uint32_t CPU_RunTime;
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() (CPU_RunTime = 0ul)
@@ -457,7 +457,7 @@ extern int SYSM_printf(const char *format, ...);
 #define INCLUDE_xTaskGetIdleTaskHandle         0
 #define INCLUDE_eTaskGetState                  1
 #define INCLUDE_xEventGroupSetBitFromISR       0
-#define INCLUDE_xTimerPendFunctionCall         0
+#define INCLUDE_xTimerPendFunctionCall         1
 #define INCLUDE_xTaskAbortDelay                0
 #define INCLUDE_xTaskGetHandle                 0
 #define INCLUDE_xTaskResumeFromISR             1

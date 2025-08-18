@@ -30,6 +30,7 @@ extern "C" {
 #include "task.h"
 #include "semphr.h"
 #include "queue.h"
+#include "event_groups.h"
 #include "Mcal_Gpio_Cfg.h"
 
 /******************************************************************************
@@ -104,7 +105,7 @@ void FreeRTOS_Sleep(int msec);
  */
 void AppTask_MainTask(void *pvParameters);
 void OSTimerTask_MainTask(void *pvParameters);
-
+void UsartTask_MainTask(void *pvParameters);
 #ifdef __cplusplus
 }
 #endif

@@ -4,6 +4,7 @@
  */
 
 #include "Mcal_MCUCore.h"
+#include "STD_Logservice.h"
 
 /* Private macros -----------------------------------------------------------*/
 

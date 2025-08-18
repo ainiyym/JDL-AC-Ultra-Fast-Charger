@@ -57,6 +57,7 @@ extern void SYSM_InitThree(void);
 extern void SYSM_SleepShutdown(void);
 extern void SYSM_WakeupRestart( void );
 extern void SYSM_10msMainFunction(void);
+extern void SYSM_RunningLedHandle(void);
 
 extern void SYSM_ImmediatelyResetManage(void);
 extern int SYSM_printf(const char *format, ...);

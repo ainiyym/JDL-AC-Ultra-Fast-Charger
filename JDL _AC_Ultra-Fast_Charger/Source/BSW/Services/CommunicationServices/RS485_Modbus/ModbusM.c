@@ -89,7 +89,7 @@ static McalRetVal_t ModbusM_SendCallFunc(ModbusChannel_t Channel)
 {
 	McalRetVal_t ret = MCAL_RET_SUCCESS;
 
-	if (MCAL_RET_SUCCESS == Mcal_Usart_AppSentData(Channel, ModbusRtu[Channel].txBuf, ModbusRtu[Channel].txLen))
+	if (MCAL_RET_SUCCESS == Mcal_Usart_AppSendData(Channel, ModbusRtu[Channel].txBuf, ModbusRtu[Channel].txLen))
 	{
 		ModbusRtu[Channel].state = MODBUS_STATE_RX_PENDING;
 	}
@@ -200,7 +200,7 @@ static void ModbusM_MainCtrl(ModbusChannel_t Channel)
 	{
 	// Wait for receiving data
 	case MODBUS_STATE_RX_PENDING:
-		RcvLen = Mcal_Usart_AppReceiveData(Channel, &ModbusRtu[Channel].rxBuf[ModbusRtu[Channel].rxCounter], ModbusUartConfigValue[Channel].RcvProcessFrameBufLen);
+		RcvLen = Mcal_Usart_AppReceiveData(ModbusRtu[Channel].USART_Channel, &ModbusRtu[Channel].rxBuf[ModbusRtu[Channel].rxCounter], ModbusUartConfigValue[Channel].RcvProcessFrameBufLen);
 		if (0 != RcvLen)
 		{
 			ModbusRtu[Channel].rxCounter += RcvLen;

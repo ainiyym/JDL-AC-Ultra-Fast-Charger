@@ -9,6 +9,7 @@
 #include"OS.h"
 #include"STD_OS_Timer.h"
 #include "ScheduleTable.h"
+#include "MessageBuffStack.h"
 /******************************************************************************
  *                      Macro Definitions
  ******************************************************************************/
@@ -24,6 +25,7 @@
 /******************************************************************************
  *                      Variables
  ******************************************************************************/
+EventGroupHandle_t UsartEvent_Handle = NULL;
 
 /******************************************************************************
  *                      Function definitions
@@ -71,6 +73,7 @@ void AppTask_MainTask(void *pvParameters)
 
 void OSTimerTask_MainTask(void *pvParameters)
 {
+    MessageBuff_StackInit();
     SYSM_printf("OSTimerTask_MainTask start \r\n");
     while (1)
     {

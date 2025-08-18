@@ -36,10 +36,10 @@
 typedef struct
 {
 	uint32_t ulBuffSize;
-	uint32_t ulReadIdx;
-	uint32_t ulWriteIdx;
+	volatile uint32_t ulReadIdx;
+	volatile uint32_t ulWriteIdx;
 	volatile uint8_t *ucData;
-	uint8_t ucStatus;
+	volatile uint8_t ucStatus;
 } CycBuf_Struct; /* the channel setting config */
 
 /*******************************************************************************
@@ -295,7 +295,7 @@ Return value 	: CYCBUF_RET_BUF_NO_ENOUGH_DATA: the buf size if not enough for re
 Description     : Cycbuffer preview read data from the channel function 
 Call By         : -
 |******************************************************************************/
-uint8_t CycBuf_PreviewReadChan(uint8_t lv_ucChan, uint8_t *lv_pucReadBuf, uint32_t lv_ulSize)
+uint8_t CycBuf_PreviewReadChan(uint8_t lv_ucChan, uint8_t* lv_pucReadBuf, uint32_t lv_ulSize)
 {
 	uint8_t lv_ucReval;
 	uint32_t lv_ulSizeIdx;
@@ -303,7 +303,7 @@ uint8_t CycBuf_PreviewReadChan(uint8_t lv_ucChan, uint8_t *lv_pucReadBuf, uint32
 	uint32_t lv_ulWriteIdxTemp;
 	uint32_t lv_ulReadIdxTemp;
 
-	if ((lv_ucChan >= CYCBUF_CHAN_MAX_NUM) || (CYCBUF_NULL == lv_pucReadBuf) || (0 == lv_ulSize))
+	if( (lv_ucChan >= CYCBUF_CHAN_MAX_NUM) || (CYCBUF_NULL == lv_pucReadBuf) || (0 == lv_ulSize) )
 	{
 		lv_ucReval = CYCBUF_RET_ERR_PARAMETER;
 	}
@@ -311,40 +311,36 @@ uint8_t CycBuf_PreviewReadChan(uint8_t lv_ucChan, uint8_t *lv_pucReadBuf, uint32
 	{
 		CYCBUF_ENTER_CRITICAL_AREA();
 
-		if (CYCBUF_STATUS_INUSE == gv_stCycBufArry[lv_ucChan].ucStatus)
-		{
-			gv_stCycBufArry[lv_ucChan].ucStatus = CYCBUF_STATUS_BUSY;
-			lv_ulWriteIdxTemp = gv_stCycBufArry[lv_ucChan].ulWriteIdx;
-			lv_ulReadIdxTemp = gv_stCycBufArry[lv_ucChan].ulReadIdx;
+		lv_ulWriteIdxTemp = gv_stCycBufArry[lv_ucChan].ulWriteIdx;
+		lv_ulReadIdxTemp = gv_stCycBufArry[lv_ucChan].ulReadIdx;
 
-			if (lv_ulWriteIdxTemp >= lv_ulReadIdxTemp)
+		if(CYCBUF_STATUS_INUSE == gv_stCycBufArry[lv_ucChan].ucStatus)
+		{
+			if(gv_stCycBufArry[lv_ucChan].ulWriteIdx >= gv_stCycBufArry[lv_ucChan].ulReadIdx)
 			{
-				lv_ulBufUsedSize = lv_ulWriteIdxTemp - lv_ulReadIdxTemp;
+				lv_ulBufUsedSize = gv_stCycBufArry[lv_ucChan].ulWriteIdx - gv_stCycBufArry[lv_ucChan].ulReadIdx;
 			}
 			else
 			{
-				lv_ulBufUsedSize = gv_stCycBufArry[lv_ucChan].ulBuffSize + lv_ulWriteIdxTemp - lv_ulReadIdxTemp;
+				lv_ulBufUsedSize = gv_stCycBufArry[lv_ucChan].ulBuffSize + gv_stCycBufArry[lv_ucChan].ulWriteIdx - gv_stCycBufArry[lv_ucChan].ulReadIdx;
 			}
-			if (lv_ulSize > lv_ulBufUsedSize)
+			if(lv_ulSize > lv_ulBufUsedSize)
 			{
 				lv_ucReval = CYCBUF_RET_BUF_NO_ENOUGH_DATA;
 			}
 			else
 			{
-				// gv_stCycBufArry[lv_ucChan].ucStatus = CYCBUF_STATUS_BUSY;
-
-				for (lv_ulSizeIdx = 0; lv_ulSizeIdx < lv_ulSize; lv_ulSizeIdx++)
+				for (lv_ulSizeIdx = 0; lv_ulSizeIdx < lv_ulSize; lv_ulSizeIdx ++)
 				{
-					lv_pucReadBuf[lv_ulSizeIdx] = gv_stCycBufArry[lv_ucChan].ucData[lv_ulReadIdxTemp];
-					lv_ulReadIdxTemp = (lv_ulReadIdxTemp+ 1) % gv_stCycBufArry[lv_ucChan].ulBuffSize;
+					lv_pucReadBuf[lv_ulSizeIdx] = gv_stCycBufArry[lv_ucChan].ucData[gv_stCycBufArry[lv_ucChan].ulReadIdx];
+					gv_stCycBufArry[lv_ucChan].ulReadIdx = (gv_stCycBufArry[lv_ucChan].ulReadIdx + 1) % gv_stCycBufArry[lv_ucChan].ulBuffSize;
 				}
-
-				// gv_stCycBufArry[lv_ucChan].ucStatus = CYCBUF_STATUS_INUSE;
-				
-				lv_ucReval = CYCBUF_RET_SUCCESS;
+				lv_ucReval = CYCBUF_RET_SUCCESS;				
 			}
-			gv_stCycBufArry[lv_ucChan].ucStatus = CYCBUF_STATUS_INUSE;
 		}
+		gv_stCycBufArry[lv_ucChan].ulWriteIdx = lv_ulWriteIdxTemp;
+		gv_stCycBufArry[lv_ucChan].ulReadIdx = lv_ulReadIdxTemp;
+
 		CYCBUF_EXIT_CRITICAL_AREA();
 	}
 	return lv_ucReval;
@@ -364,13 +360,11 @@ Return value	: CYCBUF_RET_SUCCESS: channel read success
 Description     : Cycbuffer read data from the channel function 
 Call By         : -
 |******************************************************************************/
-uint8_t CycBuf_ReadChan(uint8_t lv_ucChan, uint8_t * lv_pucDesData, uint32_t lv_ulSize)
+uint8_t CycBuf_ReadChan(uint8_t lv_ucChan, uint8_t *lv_pucDesData, uint32_t lv_ulSize)
 {
 	uint8_t lv_ucReVal;
 	uint32_t lv_ulDataIdx;
 	uint32_t lv_ulReadBuffSize;
-	uint32_t lv_ulWriteIdxTemp;
-	uint32_t lv_ulReadIdxTemp;
 
 	CycBuf_Struct *pstCycBuf = &gv_stCycBufArry[lv_ucChan];
 
@@ -381,24 +375,20 @@ uint8_t CycBuf_ReadChan(uint8_t lv_ucChan, uint8_t * lv_pucDesData, uint32_t lv_
 	{
 		if (CYCBUF_STATUS_INUSE == pstCycBuf->ucStatus)
 		{
-			pstCycBuf->ucStatus = CYCBUF_STATUS_BUSY;
-			lv_ulWriteIdxTemp = pstCycBuf->ulWriteIdx;
-			lv_ulReadIdxTemp = pstCycBuf->ulReadIdx;
-
-			if(((lv_ulReadIdxTemp+ 1) % pstCycBuf->ulBuffSize) != lv_ulWriteIdxTemp)
+			if (((pstCycBuf->ulReadIdx + 1) % pstCycBuf->ulBuffSize) != pstCycBuf->ulWriteIdx)
 			{
-				if(lv_ulReadIdxTemp >= lv_ulWriteIdxTemp)
+				if (pstCycBuf->ulReadIdx >= pstCycBuf->ulWriteIdx)
 				{
-					lv_ulReadBuffSize = pstCycBuf->ulBuffSize - (lv_ulReadIdxTemp - lv_ulWriteIdxTemp);
+					lv_ulReadBuffSize = pstCycBuf->ulBuffSize - (pstCycBuf->ulReadIdx - pstCycBuf->ulWriteIdx);
 				}
 				else
 				{
-					lv_ulReadBuffSize = lv_ulWriteIdxTemp - lv_ulReadIdxTemp;
+					lv_ulReadBuffSize = pstCycBuf->ulWriteIdx - pstCycBuf->ulReadIdx;
 				}
 
 				if (lv_ulSize <= lv_ulReadBuffSize)
 				{
-					// pstCycBuf->ucStatus = CYCBUF_STATUS_BUSY;
+					pstCycBuf->ucStatus = CYCBUF_STATUS_BUSY;
 
 					for (lv_ulDataIdx = 0; lv_ulDataIdx < lv_ulReadBuffSize; lv_ulDataIdx++)
 					{
@@ -406,12 +396,11 @@ uint8_t CycBuf_ReadChan(uint8_t lv_ucChan, uint8_t * lv_pucDesData, uint32_t lv_
 						pstCycBuf->ulReadIdx = (pstCycBuf->ulReadIdx + 1) % pstCycBuf->ulBuffSize;
 					}
 
-					// pstCycBuf->ucStatus = CYCBUF_STATUS_INUSE;
+					pstCycBuf->ucStatus = CYCBUF_STATUS_INUSE;
 
 					lv_ucReVal = CYCBUF_RET_SUCCESS;
 				}
 			}
-			pstCycBuf->ucStatus = CYCBUF_STATUS_INUSE;
 		}
 	}
 	else
@@ -592,13 +581,11 @@ Return value	: CYCBUF_RET_SUCCESS: checkdata success
 Description     : Check the length of channel unused area 
 Call By         : -
 |******************************************************************************/
-uint8_t CycBuf_CheckData(uint8_t lv_ucChan, uint32_t *lv_pulLenBuf)
+uint8_t CycBuf_CheckData(uint8_t lv_ucChan, uint32_t* lv_pulLenBuf)
 {
-	uint8_t lv_ucReval = CYCBUF_RET_ERR_UNEXPECTED;
-	uint32_t lv_ulWriteIdxTemp;
-	uint32_t lv_ulReadIdxTemp;
+	uint8_t lv_ucReval;
 
-	if (lv_ucChan >= CYCBUF_CHAN_MAX_NUM)
+	if(lv_ucChan >= CYCBUF_CHAN_MAX_NUM)
 	{
 		lv_ucReval = CYCBUF_RET_ERR_PARAMETER;
 	}
@@ -606,24 +593,19 @@ uint8_t CycBuf_CheckData(uint8_t lv_ucChan, uint32_t *lv_pulLenBuf)
 	{
 		CYCBUF_ENTER_CRITICAL_AREA();
 
-		if (CYCBUF_STATUS_INUSE != gv_stCycBufArry[lv_ucChan].ucStatus)
+		if(CYCBUF_STATUS_INUSE != gv_stCycBufArry[lv_ucChan].ucStatus)
 		{
 			lv_ucReval = CYCBUF_RET_NOT_OPEN;
 		}
 		else
 		{
-			gv_stCycBufArry[lv_ucChan].ucStatus = CYCBUF_STATUS_BUSY;
-			lv_ulWriteIdxTemp = gv_stCycBufArry[lv_ucChan].ulWriteIdx;
-			lv_ulReadIdxTemp = gv_stCycBufArry[lv_ucChan].ulReadIdx;
-			gv_stCycBufArry[lv_ucChan].ucStatus = CYCBUF_STATUS_INUSE;
-
-			if (lv_ulWriteIdxTemp >= lv_ulReadIdxTemp)
+			if(gv_stCycBufArry[lv_ucChan].ulWriteIdx >= gv_stCycBufArry[lv_ucChan].ulReadIdx)
 			{
-				*lv_pulLenBuf = lv_ulWriteIdxTemp - lv_ulReadIdxTemp;
+				*lv_pulLenBuf = gv_stCycBufArry[lv_ucChan].ulWriteIdx - gv_stCycBufArry[lv_ucChan].ulReadIdx;
 			}
 			else
 			{
-				*lv_pulLenBuf = gv_stCycBufArry[lv_ucChan].ulBuffSize + lv_ulWriteIdxTemp - lv_ulReadIdxTemp;
+				*lv_pulLenBuf = gv_stCycBufArry[lv_ucChan].ulBuffSize + gv_stCycBufArry[lv_ucChan].ulWriteIdx - gv_stCycBufArry[lv_ucChan].ulReadIdx;
 			}
 			lv_ucReval = CYCBUF_RET_SUCCESS;
 		}

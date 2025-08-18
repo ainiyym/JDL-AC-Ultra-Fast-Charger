@@ -1,7 +1,7 @@
 #include "Mcal_MCUCore.h"
 #include "Mcal_SysTick.h"
 #include "stm32f1xx_hal.h"
-#include "ScheduleTable.h"
+#include "Mcal_App_Cfg.h"
 
 McalTickCount_t Mcal_SysTick_Counter = 0;
 

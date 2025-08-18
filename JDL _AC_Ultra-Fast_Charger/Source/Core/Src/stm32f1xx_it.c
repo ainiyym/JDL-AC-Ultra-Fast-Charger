@@ -18,7 +18,7 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#include "Mcal_App_Cfg.h"
+#include "Mcal_App.h"
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -359,7 +359,12 @@ void SPI2_IRQHandler(void)
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
-
+  // 检测串口空闲中断
+  if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_IDLE)) // 判断IDLE标志位是否被置位
+  {
+    __HAL_UART_CLEAR_IDLEFLAG(&huart1); // 清除IDLE标志位
+    HAL_UART_IdleCallback(&huart1);     // 调用自己编写的空闲中断回调函数
+  }
   /* USER CODE END USART1_IRQn 0 */
   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
@@ -373,7 +378,12 @@ void USART1_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
-
+  // 检测串口空闲中断
+  if (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_IDLE)) // 判断IDLE标志位是否被置位
+  {
+    __HAL_UART_CLEAR_IDLEFLAG(&huart2); // 清除IDLE标志位
+    HAL_UART_IdleCallback(&huart2);     // 调用自己编写的空闲中断回调函数
+  }
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
@@ -387,7 +397,12 @@ void USART2_IRQHandler(void)
 void UART4_IRQHandler(void)
 {
   /* USER CODE BEGIN UART4_IRQn 0 */
-
+  // 检测串口空闲中断
+  if (__HAL_UART_GET_FLAG(&huart4, UART_FLAG_IDLE)) // 判断IDLE标志位是否被置位
+  {
+    __HAL_UART_CLEAR_IDLEFLAG(&huart4); // 清除IDLE标志位
+    HAL_UART_IdleCallback(&huart4);     // 调用自己编写的空闲中断回调函数
+  }
   /* USER CODE END UART4_IRQn 0 */
   HAL_UART_IRQHandler(&huart4);
   /* USER CODE BEGIN UART4_IRQn 1 */
@@ -401,7 +416,12 @@ void UART4_IRQHandler(void)
 void UART5_IRQHandler(void)
 {
   /* USER CODE BEGIN UART5_IRQn 0 */
-
+  // 检测串口空闲中断
+  if (__HAL_UART_GET_FLAG(&huart5, UART_FLAG_IDLE)) // 判断IDLE标志位是否被置位
+  {
+    __HAL_UART_CLEAR_IDLEFLAG(&huart5); // 清除IDLE标志位
+    HAL_UART_IdleCallback(&huart5);     // 调用自己编写的空闲中断回调函数
+  }
   /* USER CODE END UART5_IRQn 0 */
   HAL_UART_IRQHandler(&huart5);
   /* USER CODE BEGIN UART5_IRQn 1 */

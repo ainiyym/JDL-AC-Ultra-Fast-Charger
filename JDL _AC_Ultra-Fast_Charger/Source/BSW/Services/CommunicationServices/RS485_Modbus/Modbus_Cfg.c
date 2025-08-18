@@ -36,7 +36,7 @@ static uint8_t Modbus_CH4_SendBlockFrameBuf[MODBUS_CH4_SND_BLOCK_FRAME_BUF_LEN];
 static uint8_t Modbus_CH4_RcvProcessFrameBuf[MODBUS_CH4_RCV_PROC_FRAME_BUF_LEN];
 
 static uint8_t Modbus_CH5_SendBlockFrameBuf[MODBUS_CH5_SND_BLOCK_FRAME_BUF_LEN];
-static uint8_t Modbus_CH5_RcvProcessFrameBuf[MODBUS_CH5_RCV_PROC_FRAME_BUF_LEN];
+static uint8_t Modbus_CH5_RcvProcessFrameBuf[MODBUS_CH5_RCV_PROC_FRAME_BUF_LEN];   
 
 /*******************************************************************************
 |    Table Const Definition

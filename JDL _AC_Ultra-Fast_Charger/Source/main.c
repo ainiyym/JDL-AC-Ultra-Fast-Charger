@@ -60,12 +60,12 @@ int main(void)
     SYSM_InitZero(); 
     /* Infinite loop */
     xTaskCreateStatic(
-        AppTask_MainTask, "MainTask", MAIN_TASK_STACK_SIZE, NULL, TASK_START_PRIO_3, Main_Stack, &Main_StaticTask);
+        AppTask_MainTask, "MainTask", MAIN_TASK_STACK_SIZE, NULL, TASK_START_PRIO_5, Main_Stack, &Main_StaticTask);
     xTaskCreate(
-        OSTimerTask_MainTask, "OSTimerTask", OS_TIMER_TASK_STACK_SIZE, (void *)NULL, TASK_START_PRIO_2, &OsTimer_Task_Handle);
+        OSTimerTask_MainTask, "OSTimerTask", OS_TIMER_TASK_STACK_SIZE, (void *)NULL, TASK_START_PRIO_4, &OsTimer_Task_Handle);
 #ifdef ENABLE_TASKINFO_TASK
     xTaskCreate(
         AppTask_TaskInfo, "TaskInfo", TASK_INFO_TASK_STACK_SIZE, NULL, TASK_START_PRIO_1, &TaskInfo_StaticTask);
 #endif
 	  vTaskStartScheduler();
-}
+}     
