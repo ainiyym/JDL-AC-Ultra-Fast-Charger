@@ -30,7 +30,7 @@
 typedef struct
 {
 	uint8_t USART_Channel;
-	uint8_t state;			   // modbus host状态
+	uint8_t state;			   // modbus host state
 	uint8_t errTimes;		   // Count of failures
 	uint8_t *txBuf;			   // Send buffer
 	uint8_t *rxBuf;			   // Receive buffer
@@ -85,11 +85,23 @@ void ModbusM_Reset(void)
 	ModbusM_Init();
 }
 
+uint8_t ModbusM_GetReadyStatus(ModbusChannel_t Channel)
+{
+	if (ModbusRtu[Channel].state == MODBUS_STATE_IDLE)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
 static McalRetVal_t ModbusM_SendCallFunc(ModbusChannel_t Channel)
 {
 	McalRetVal_t ret = MCAL_RET_SUCCESS;
 
-	if (MCAL_RET_SUCCESS == Mcal_Usart_AppSendData(Channel, ModbusRtu[Channel].txBuf, ModbusRtu[Channel].txLen))
+	if (MCAL_RET_SUCCESS == Mcal_Usart_AppSendData(ModbusRtu[Channel].USART_Channel, ModbusRtu[Channel].txBuf, ModbusRtu[Channel].txLen))
 	{
 		ModbusRtu[Channel].state = MODBUS_STATE_RX_PENDING;
 	}

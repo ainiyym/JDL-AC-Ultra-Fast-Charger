@@ -73,6 +73,7 @@ static LogServiceCtrl_Struct gv_stLogServiceCtrl = {  (  LOG_STATE_ON  << LOG_MO
 													  | (LOG_STATE_ON  << LOG_MODULE_PE)
 													  | (LOG_STATE_ON  << LOG_MODULE_RFID)
 													  | (LOG_STATE_ON  << LOG_MODULE_BTRCTR)
+                                                      | (LOG_STATE_ON  << LOG_MODULE_RS485)
 													  | (LOG_STATE_ON  << LOG_MODULE_SYSM)
 													  | (LOG_STATE_ON  << LOG_MODULE_MCAL),
 
@@ -109,6 +110,7 @@ static const char* const gv_LogModule_Name[] =
 		"PE",
 		"RFID",
 		"BTRCTR",
+        "RS485",
 		"SYSM",
 		"MCAL",
 };

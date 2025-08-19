@@ -24,6 +24,7 @@
 #include "STD_Volt.h"
 #include "BtrM.h"
 #include "ModbusM.h"
+#include "FanM.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -160,6 +161,7 @@ void SYSM_InitTwo( void )
 	ERRHDL_InitMemory(); 
 	Comm_Init();
 	ModbusM_Init();
+	FanM_Init();
 	SwitchM_Init();
 	EVSEM_InitMemory();
 	CPM_InitMemory();

@@ -25,6 +25,7 @@
 #include "STD_Volt.h"
 #include "BtrM.h"
 #include "ModbusM.h"
+#include "FanM.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -155,6 +156,7 @@ static void Task10ms(void)
 {
     SYSM_10msMainFunction();
     ModbusM_10msMainFunction();
+    FanM_10msMainFunction();
     /* 10ms task code */
 #if (MCAL_WDG_ENABLED)
     Mcal_Iwdg_Feedback();
@@ -171,6 +173,7 @@ static void Task20ms(void)
     /* 20ms task code */
     CURR_20msFunctionControl();
     VOLT_20msFunctionControl();
+    //Mcal_Usart_Test();
 }
 
 static void Task100ms(void)

@@ -23,4 +23,5 @@ extern uint8_t Dummy_GetPowerDownVoltValue(void);
 extern uint8_t Dummy_GetVoltL1(SysConnector_Num_Enum ch);
 extern uint8_t Dummy_GetVoltL2(SysConnector_Num_Enum ch);
 extern uint8_t Dummy_GetVoltL3(SysConnector_Num_Enum ch);
+extern uint8_t Dummy_GetTemp(uint8_t tempSensorId);
 #endif

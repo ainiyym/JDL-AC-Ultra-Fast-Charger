@@ -10,6 +10,7 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "Modbus_Hook.h"
+#include "FanM_Drv.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -84,7 +85,10 @@ void Modbus_Hook_Rec03(ModbusChannel_t Channel, uint8_t addr, uint8_t *data, uin
         /* code */
         break;
     case MODBUS_CHANNEL_FAN:
-        /* code */
+        if (FanMDrv_GetSlaveAddr() == addr)
+        {
+            FanMDrv_CurrRunningVolCallBack(data, datalen);
+        }
         break;
     default:
         break;
@@ -126,10 +130,8 @@ void Modbus_Hook_Rec06(ModbusChannel_t Channel, uint8_t addr, uint8_t *data, uin
     switch (Channel)
     {
     case MODBUS_CHANNEL_METER:
-        /* code */
         break;
     case MODBUS_CHANNEL_FAN:
-        /* code */
         break;
     default:
         break;
