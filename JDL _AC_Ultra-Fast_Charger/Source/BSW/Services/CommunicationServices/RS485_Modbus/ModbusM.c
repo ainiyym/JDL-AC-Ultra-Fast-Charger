@@ -231,7 +231,7 @@ static void ModbusM_MainCtrl(ModbusChannel_t Channel)
 	/* After receiving a frame of data, the verification process begins */
 	case MODBUS_STATE_RX_CHECK:
 		if ((ModbusRtu[Channel].rxCounter >= MODBUS_RTU_MIN_SIZE) &&
-			((Lib_Crc16(ModbusRtu[Channel].rxBuf, ModbusRtu[Channel].rxCounter - 2) == ((ModbusRtu[Channel].rxBuf[ModbusRtu[Channel].rxCounter - 1] << 8) | ModbusRtu[Channel].rxBuf[ModbusRtu[Channel].rxCounter]))))
+			((Lib_Crc16(ModbusRtu[Channel].rxBuf, ModbusRtu[Channel].rxCounter - 2) == (uint16_t)(((uint16_t)ModbusRtu[Channel].rxBuf[ModbusRtu[Channel].rxCounter - 1] << 8) | ModbusRtu[Channel].rxBuf[ModbusRtu[Channel].rxCounter]))))
 		{
 			/* Valid frame processing */
 			if ((ModbusRtu[Channel].txBuf[0] == ModbusRtu[Channel].rxBuf[0]) && (ModbusRtu[Channel].txBuf[1] == ModbusRtu[Channel].rxBuf[1])) // The address and function code of the sent frame data and the received frame data are the same

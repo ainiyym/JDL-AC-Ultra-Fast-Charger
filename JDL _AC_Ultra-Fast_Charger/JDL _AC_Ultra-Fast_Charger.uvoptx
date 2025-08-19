@@ -140,7 +140,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGTARM</Key>
-          <Name>(1010=701,260,1151,817,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1009=858,184,1116,772,0)</Name>
+          <Name>(1010=701,260,1151,817,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1009=1230,228,1488,816,1)</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -157,25 +157,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>378</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>.\Source\Core\Src\stm32f1xx_it.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
           <LineNumber>267</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134271642</Address>
+          <Address>134271390</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -185,22 +169,6 @@
           <Filename>.\Source\BSW\MCAL\Mcal_Adc\Mcal_Adc_Cfg.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/MCAL/Mcal_Adc/Mcal_Adc_Cfg.c\267</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>127</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134274854</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\BSW\MCAL\Mcal_Uart\Mcal_Usart_Cfg.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/MCAL/Mcal_Uart/Mcal_Usart_Cfg.c\127</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -212,19 +180,19 @@
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>huart2</ItemText>
+          <ItemText>McalUsart_BufferCfg</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>McalUsart_BufferCfg</ItemText>
+          <ItemText>huart5</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
-          <SubType>0</SubType>
-          <ItemText>0x20007B68</ItemText>
+          <SubType>1</SubType>
+          <ItemText>0x20002C30</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
@@ -260,7 +228,7 @@
         <aPa1>0</aPa1>
         <AscS4>0</AscS4>
         <aSer4>0</aSer4>
-        <StkLoc>0</StkLoc>
+        <StkLoc>1</StkLoc>
         <TrcWin>0</TrcWin>
         <newCpu>0</newCpu>
         <uProt>0</uProt>

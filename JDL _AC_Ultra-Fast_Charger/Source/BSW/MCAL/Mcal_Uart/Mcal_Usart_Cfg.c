@@ -34,7 +34,7 @@
 /*******************************************************************************
 |    Static Local Functions Declaration
 |******************************************************************************/
-
+static void HAL_UART_IdleCallback(UART_HandleTypeDef *huart, uint16_t Size);
 /*******************************************************************************
 |    Global Variable with extern linkage
 |******************************************************************************/
@@ -147,8 +147,8 @@ void Mcal_Usart_IT_Enable(void)
   {
     pUsart = &McalUsart_NumMapUsart[USART];
     pUsartCtrl = &McalUsart_Ctrl[USART];
-    __HAL_UART_ENABLE_IT(pUsart->UsartBase, UART_IT_IDLE);
     __HAL_UART_ENABLE_IT(pUsart->UsartBase, UART_IT_TC);
+    __HAL_UART_ENABLE_IT(pUsart->UsartBase, UART_IT_IDLE);
     if (pUsart->UsartBase == &huart1 || pUsart->UsartBase == &huart2)
     {
       HAL_UARTEx_ReceiveToIdle_DMA(pUsart->UsartBase, pUsartCtrl->RcvIntSwapBuf, pUsartCtrl->RcvIntSwapBufSize);
@@ -192,23 +192,30 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
   else if (huart == &huart4)
   {
     __HAL_UART_CLEAR_FLAG(&huart4, UART_FLAG_TC);                                                 // Clear the "Send Completed" flag
+    McalUsart_Ctrl[MCAL_USART4_CH].Send_Lock = 0;
   }
   else if (huart == &huart5)
   {
     __HAL_UART_CLEAR_FLAG(&huart5, UART_FLAG_TC);                                                 // Clear the "Send Completed" flag
+    McalUsart_Ctrl[MCAL_USART5_CH].Send_Lock = 0;
   }
   else
   {
   }
 }
 
-void HAL_UART_IdleCallback(UART_HandleTypeDef * huart)
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+  HAL_UART_IdleCallback(huart, Size);
+}
+
+void HAL_UART_IdleCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
   McalUsart_Ctrol_t *ActiveCtrl = NULL;
   uint16_t message_sent_len = 0;
 
-  if (huart == &huart1)
-  {
+    if (huart == &huart1)
+    {
     HAL_UART_DMAStop(huart);
     ActiveCtrl = &McalUsart_Ctrl[MCAL_USART1_CH];
     ActiveCtrl->RcvIntSwapBufDataCnt = MCAL_USART1_CH_RCV_CYCBUF_LEN - (__HAL_DMA_GET_COUNTER(&hdma_usart1_rx)); // 接收个数等于接收缓冲区总大小减剩余计数
@@ -244,6 +251,7 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef * huart)
   else if (huart == &huart4)
   {
     ActiveCtrl = &McalUsart_Ctrl[MCAL_USART4_CH];
+    ActiveCtrl->RcvIntSwapBufDataCnt = Size;
     Message_Handle[MESSAGE_USART4_CH].Sendsize = ActiveCtrl->RcvIntSwapBufDataCnt;
     message_sent_len =  MessageBuff_StackSendMessage(&Message_Handle[MESSAGE_USART4_CH], 1);
     if (message_sent_len != ActiveCtrl->RcvIntSwapBufDataCnt)
@@ -255,6 +263,7 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef * huart)
   else if (huart == &huart5)
   {
     ActiveCtrl = &McalUsart_Ctrl[MCAL_USART5_CH];
+    ActiveCtrl->RcvIntSwapBufDataCnt = Size;
     Message_Handle[MESSAGE_USART5_CH].Sendsize = ActiveCtrl->RcvIntSwapBufDataCnt;
     message_sent_len =  MessageBuff_StackSendMessage(&Message_Handle[MESSAGE_USART5_CH], 1);
     if (message_sent_len != ActiveCtrl->RcvIntSwapBufDataCnt)
@@ -319,11 +328,17 @@ McalRetVal_t Mcal_Usart_AppSendData(uint32_t USART, uint8_t *data, uint32_t size
     }
     else
     {
-      while (__HAL_UART_GET_FLAG(McalUsart_NumMapUsart[USART].UsartBase, UART_FLAG_TXE) != RESET)
+      if (1 != McalUsart_Ctrl[USART].Send_Lock)
       {
-        if (HAL_OK != HAL_UART_Transmit_IT(McalUsart_NumMapUsart[USART].UsartBase, data, size))
+        if (HAL_UART_GetState(McalUsart_NumMapUsart[USART].UsartBase) != HAL_UART_STATE_BUSY_TX)
         {
-          ret = MCAL_RET_FAILED;
+          MCAL_ENTER_CRITICAL_AREA();
+          McalUsart_Ctrl[USART].Send_Lock = 1;
+          MCAL_EXIT_CRITICAL_AREA();
+          // while (1 == __HAL_UART_GET_FLAG(McalUsart_NumMapUsart[USART].UsartBase, UART_FLAG_TXE))
+          {
+            // HAL_UART_Transmit_IT(McalUsart_NumMapUsart[USART].UsartBase, data, size);
+          }
         }
       }
     }

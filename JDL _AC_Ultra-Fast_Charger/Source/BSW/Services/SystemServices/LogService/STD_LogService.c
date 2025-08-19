@@ -52,7 +52,7 @@ Log(Critical, LOG_LEVEL_CRITICAL)
 /*******************************************************************************
 |    Static local variables Declaration
 |******************************************************************************/
-static uint8_t gv_LogBuf[LOGSERVICE_BUF_MAX_SIZE];
+static uint8_t gv_LogBuf[LOGSERVICE_BUF_MAX_SIZE + 1];
 static uint8_t gv_ucLogStatus = 0;
 /* Initial configuration module and level log output control */
 static LogServiceCtrl_Struct gv_stLogServiceCtrl = {  (  LOG_STATE_ON  << LOG_MODULE_XXX)
@@ -141,10 +141,10 @@ const char *LogService_Get_Module_Name(uint32_t lv_ulModuleIdx)
 static void LogSevice_Args(Log_Module_Enum module, Log_Level_Enum level, const char *fmt, va_list args)
 {
 	uint32_t lv_ulLogSize = 0;
-	
+
 	if((module < LOG_MODULE_MAX) && (gv_stLogServiceCtrl.ulLogModule_32 & (1 << module)) && (gv_stLogServiceCtrl.ulLogLevel & (1 << level)))
 	{
-		lv_ulLogSize = vsprintf((char *)gv_LogBuf, fmt, args); 
+		lv_ulLogSize = vsnprintf((char *)gv_LogBuf, LOGSERVICE_BUF_MAX_SIZE, fmt, args); 
         if(lv_ulLogSize > LOGSERVICE_BUF_MAX_SIZE)
         {
             gv_LogBuf[LOGSERVICE_BUF_MAX_SIZE - 1] = 0; 

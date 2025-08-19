@@ -56,7 +56,7 @@ typedef struct
 	uint16_t WriteVol;				/* communication value of write to modbus slave */
 	uint16_t CurrentRunningVol;		/* communication value of read from modbus slave */
 	uint16_t Timeout;				/* Timeout counter */
-	pModbusCmdSendFunc SendFunc;	/* Function pointer for Modbus command sending */
+	pModbusCmdSendFunc CallFunc;	/* Function pointer for Modbus command sending */
 } FanM_Ctrl_Struct;
 
 /*******************************************************************************
@@ -150,7 +150,7 @@ static FanM_RetrySentResultType FanM_RetrySendFunc(void)
 	if ((++FanM_Ctrl.Timeout) > (FanM_Ctrl.RetryCount * FANM_RETRY_DELAY_COUNT_THRESHOLD))
 	{
 		FanM_Ctrl.Timeout = 0;
-		if ((0 == FanM_Ctrl.SendFunc()) && (FanM_Ctrl.RetryCount++ < FANM_RETRY_COUNT))
+		if ((0 == FanM_Ctrl.CallFunc()) && (FanM_Ctrl.RetryCount++ < FANM_RETRY_COUNT))
 		{
 			FanM_Ctrl.RetryCount = 0;
 			result = FANM_OK;
@@ -180,7 +180,7 @@ static void FanM_IdleStateHandle(void)
 			}
 			break;
 		case FANM_STATE_OPERATE:
-			FanM_Ctrl.SendFunc = &FanM_ReadRegister01;
+			FanM_Ctrl.CallFunc = &FanM_ReadRegister01;
 			// FanM_Ctrl.SubState = FANM_STATE_SEND;
 			// break;
 		case FANM_STATE_SEND:
@@ -260,7 +260,7 @@ static void FanM_SendStateHandle(void)
 {
 	FanM_RetrySentResultType result = FANM_INIT;
 
-	FanM_Ctrl.SendFunc = &FanM_WriteRegister02;
+	FanM_Ctrl.CallFunc = &FanM_WriteRegister02;
 	result = FanM_RetrySendFunc();
 	if (FANM_OK == result)
 	{

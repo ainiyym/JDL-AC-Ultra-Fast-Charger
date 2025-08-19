@@ -105,6 +105,5 @@ extern McalRetVal_t Mcal_Usart_AppSendData(uint32_t USART, uint8_t *data, uint32
 extern void Mcal_USARTIf_Send_MainFunction(void);
 // USART send interrupt callback
 extern void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
-extern void HAL_UART_IdleCallback(UART_HandleTypeDef *huart);
 #endif
 /*EOF*/

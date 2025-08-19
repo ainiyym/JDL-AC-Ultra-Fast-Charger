@@ -10,15 +10,14 @@
 
 void Mcal_Usart_Test(void)
 {
-    //uint8_t data[100] = {0};
-    //uint32_t size = 0;
+    uint8_t data[100] = {0};
+    uint32_t size = 0;
 
-    // size = Mcal_Usart_AppReceiveData(LOG_SERVICE_USART_CH, data, 99);
-    // if (size > 0)
-    // {
-    //     MCAL_DEBUG("B\r\n", 3);
-    //     MCAL_DEBUG("%s", data);
-    // }
+    size = Mcal_Usart_AppReceiveData(LOG_SERVICE_USART_CH, data, 99);
+    if (size > 0)
+    {
+        MCAL_DEBUG("B %s", data);
+    }
 }
 
 void Mcal_CP_Test(void)
@@ -665,7 +664,7 @@ void Mcal_test_1ms(void)
 void Mcal_Test_Run(void)
 {
     /* TODO: Add test code here */
-    // Mcal_Usart_Test();
+    Mcal_Usart_Test();
 	// Mcal_CP_Test();
     // Mcal_Gpio_Test();
     // Mcal_Can_Rcv_Test();
