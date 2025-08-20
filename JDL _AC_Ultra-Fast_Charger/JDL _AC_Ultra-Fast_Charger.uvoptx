@@ -140,7 +140,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGTARM</Key>
-          <Name>(1010=701,260,1151,817,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1009=1230,228,1488,816,1)</Name>
+          <Name>(1010=701,260,1151,817,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1009=1230,228,1488,816,0)</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -159,7 +159,7 @@
           <Type>0</Type>
           <LineNumber>267</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134271390</Address>
+          <Address>134272986</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -175,17 +175,22 @@
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>McalUsart_Ctrl</ItemText>
+          <ItemText>ModbusRtu</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>McalUsart_BufferCfg</ItemText>
+          <ItemText>ModbusRtu[1l].rxBuf[5]</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>huart5</ItemText>
+          <ItemText>FanMDrv_Ctrl</ItemText>
+        </Ww>
+        <Ww>
+          <count>3</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>FanM_Ctrl</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
@@ -1919,7 +1924,7 @@
 
   <Group>
     <GroupName>Modbus</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

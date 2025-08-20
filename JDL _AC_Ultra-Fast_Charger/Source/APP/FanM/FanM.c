@@ -140,6 +140,7 @@ static void FanM_SubStateRevertPolling(void)
 
 static uint8_t FanM_ReadRegister01(void)
 {
+	FANM_DEBUG("%s time:%d \r\n", __func__, FanM_Ctrl.RetryCount);
 	return (uint8_t)FanMDrv_SetAdVolCmd(MODBUS_CMD_READ_HOLDING_REGISTERS, FANM_BROADCAST_ADDR, FANM_CURRENT_RUNNING_AD_VOL_ADDR);
 }
 
@@ -223,6 +224,7 @@ static void FanM_IdleStateHandle(void)
 
 static uint8_t FanM_WriteRegister02(void)
 {
+	FANM_DEBUG("%s time:%d \r\n", __func__, FanM_Ctrl.RetryCount);
 	return 	FanMDrv_SetAdVolCmd(MODBUS_CMD_WRITE_SINGLE_REGISTER, FANM_WRITING_AD_VOL_ADDR, FanM_Ctrl.WriteVol);
 }
 

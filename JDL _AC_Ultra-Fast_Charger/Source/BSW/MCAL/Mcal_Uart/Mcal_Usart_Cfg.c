@@ -335,9 +335,9 @@ McalRetVal_t Mcal_Usart_AppSendData(uint32_t USART, uint8_t *data, uint32_t size
           MCAL_ENTER_CRITICAL_AREA();
           McalUsart_Ctrl[USART].Send_Lock = 1;
           MCAL_EXIT_CRITICAL_AREA();
-          // while (1 == __HAL_UART_GET_FLAG(McalUsart_NumMapUsart[USART].UsartBase, UART_FLAG_TXE))
+          while (1 == __HAL_UART_GET_FLAG(McalUsart_NumMapUsart[USART].UsartBase, UART_FLAG_TXE))
           {
-            // HAL_UART_Transmit_IT(McalUsart_NumMapUsart[USART].UsartBase, data, size);
+            HAL_UART_Transmit_IT(McalUsart_NumMapUsart[USART].UsartBase, data, size);
           }
         }
       }

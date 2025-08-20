@@ -138,8 +138,8 @@ McalRetVal_t ModbusM_Send(ModbusChannel_t Channel, uint8_t addr, uint8_t cmd, ui
 	memcpy((ModbusRtu[Channel].txBuf + 2), data, data_len);
 	ModbusRtu[Channel].txLen = data_len + 2; // data(n)+add(1)+cmd(1)
 	crc = Lib_Crc16(ModbusRtu[Channel].txBuf, ModbusRtu[Channel].txLen);
-	ModbusRtu[Channel].txBuf[ModbusRtu[Channel].txLen++] = (uint8_t)(crc & 0xff);
 	ModbusRtu[Channel].txBuf[ModbusRtu[Channel].txLen++] = (uint8_t)(crc >> 8);
+	ModbusRtu[Channel].txBuf[ModbusRtu[Channel].txLen++] = (uint8_t)(crc & 0xff);
 	if (MCAL_RET_SUCCESS == ModbusM_SendCallFunc(Channel))
 	{
 		return MCAL_RET_SUCCESS;
@@ -231,7 +231,7 @@ static void ModbusM_MainCtrl(ModbusChannel_t Channel)
 	/* After receiving a frame of data, the verification process begins */
 	case MODBUS_STATE_RX_CHECK:
 		if ((ModbusRtu[Channel].rxCounter >= MODBUS_RTU_MIN_SIZE) &&
-			((Lib_Crc16(ModbusRtu[Channel].rxBuf, ModbusRtu[Channel].rxCounter - 2) == (uint16_t)(((uint16_t)ModbusRtu[Channel].rxBuf[ModbusRtu[Channel].rxCounter - 1] << 8) | ModbusRtu[Channel].rxBuf[ModbusRtu[Channel].rxCounter]))))
+			((Lib_Crc16(ModbusRtu[Channel].rxBuf, ModbusRtu[Channel].rxCounter - 2) == (uint16_t)(((uint16_t)ModbusRtu[Channel].rxBuf[ModbusRtu[Channel].rxCounter - 2] << 8) | ModbusRtu[Channel].rxBuf[ModbusRtu[Channel].rxCounter - 1]))))
 		{
 			/* Valid frame processing */
 			if ((ModbusRtu[Channel].txBuf[0] == ModbusRtu[Channel].rxBuf[0]) && (ModbusRtu[Channel].txBuf[1] == ModbusRtu[Channel].rxBuf[1])) // The address and function code of the sent frame data and the received frame data are the same
