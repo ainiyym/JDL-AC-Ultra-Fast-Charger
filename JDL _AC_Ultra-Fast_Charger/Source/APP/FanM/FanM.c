@@ -102,7 +102,7 @@ void FanM_Init(void)
 
 static void FanM_OileTempMonitoring(void)
 {
-	uint8_t Temp = FANM_GET_OILE_TEMP(0);
+	uint8_t Temp = FANM_GET_OILE_TEMP();
 
 	if (Temp > FANM_SPEED_TEMP_THRESHOLD_UPPER)
 	{

@@ -26,6 +26,7 @@
 #include "BtrM.h"
 #include "ModbusM.h"
 #include "FanM.h"
+#include "Sensor.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -150,6 +151,7 @@ static void Task5ms(void)
     Mcal_USARTIf_Send_MainFunction(); // Call the main function for serial port transmission
     CPM_5msMainFunction();
     RELAYM_5msMainFunction();
+    SENSOR_5msMainFunction();
 }
 
 static void Task10ms(void)
@@ -173,13 +175,13 @@ static void Task20ms(void)
     /* 20ms task code */
     CURR_20msFunctionControl();
     VOLT_20msFunctionControl();
-    //Mcal_Usart_Test();
 }
 
 static void Task100ms(void)
 {
     /* 100ms task code */
     // Mcal_Can_Send_Test(); // Call the CAN send test function
+    Mcal_Test_Run();
     NOAUTHEN_100msFunction();
     CanM_Rte_Msg_Main_Task(); // Call canM task
 }

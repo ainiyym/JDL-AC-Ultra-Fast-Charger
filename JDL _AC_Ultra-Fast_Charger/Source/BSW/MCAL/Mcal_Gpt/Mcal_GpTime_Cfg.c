@@ -152,6 +152,7 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 void Mcal_GpTime_AdcCollection_Start(void)
 {
   HAL_TIM_Base_Start_IT(&htim6);
+  Mcal_Adc_ConvCollection_Enable(MCAL_ADC_CHANNEL_2);
 }
 
 extern TaskHandle_t OsTimer_Task_Handle;

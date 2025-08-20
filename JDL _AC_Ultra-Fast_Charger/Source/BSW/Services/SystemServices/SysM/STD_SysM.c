@@ -25,6 +25,7 @@
 #include "BtrM.h"
 #include "ModbusM.h"
 #include "FanM.h"
+#include "Sensor.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -171,6 +172,7 @@ void SYSM_InitTwo( void )
 	NOAUTHEN_InitMemory();
 	CURR_InitMemory();
 	VOLT_InitMemory();
+	SENSOR_InitMemory();
 }
 
 /****************************************************************************************
@@ -446,23 +448,29 @@ static void SYSM_ShowBasicInfo(void)
 		{
 			stSysM.basic_ctrl_info.CpStatus[i] = ucCpStatus[i];
 			stSysM.basic_ctrl_info.EVSEStatus[i] = ucEvseStatus[i];
-			SYSM_DEBUG("Connecter:%d CP %d EVSE %d \r\n", i, stSysM.basic_ctrl_info.CpStatus[i], stSysM.basic_ctrl_info.EVSEStatus[i]);
-		}
-		else if (stSysM.basic_ctrl_info.ul10msCnt < SYSM_REPORT_BASIC_INFO_CNT)
-		{
-			stSysM.basic_ctrl_info.ul10msCnt++;
-		}
-		else
-		{
-			stSysM.basic_ctrl_info.ul10msCnt = 0;
-			SYSM_DEBUG("Connecter:%d CP %d EVSE %d \r\n", i, stSysM.basic_ctrl_info.CpStatus[i], stSysM.basic_ctrl_info.EVSEStatus[i]);
+			SYSM_INFO("Connecter:%d CP %d EVSE %d \r\n", i, stSysM.basic_ctrl_info.CpStatus[i], stSysM.basic_ctrl_info.EVSEStatus[i]);
 		}
 
 		if (stSysM.basic_ctrl_info.StopChargingReason[i] != lv_ucStopReson[i])
 		{
 			stSysM.basic_ctrl_info.StopChargingReason[i] = lv_ucStopReson[i];
-			SYSM_DEBUG("Connecter:%d ChargingStopReason %d \r\n", i, stSysM.basic_ctrl_info.StopChargingReason[i]);
+			SYSM_INFO("Connecter:%d ChargingStopReason %d \r\n", i, stSysM.basic_ctrl_info.StopChargingReason[i]);
 		}
+	}
+	if (stSysM.basic_ctrl_info.ul10msCnt < SYSM_REPORT_BASIC_INFO_CNT)
+	{
+		stSysM.basic_ctrl_info.ul10msCnt++;
+	}
+	else
+	{
+		stSysM.basic_ctrl_info.ul10msCnt = 0;
+		SYSM_INFO("Connecter1 CP %d EVSE %d \r\n", stSysM.basic_ctrl_info.CpStatus[0], stSysM.basic_ctrl_info.EVSEStatus[0]);
+		SYSM_INFO("Connector1 Front Temp value:%d Connector1 RearTemp value:%d\r\n", SENSOR_GetSensorAdcTempValue(SENSOR_CONNECTOR1_FRONT_TEMP_CH), SENSOR_GetSensorAdcTempValue(SENSOR_CONNECTOR1_REAR_TEMP_CH));
+		SYSM_INFO("Oil1 InTemp value:%d Oil1 OutTemp value:%d\r\n\r\n", SENSOR_GetSensorAdcTempValue(SENSOR_OIL1_INLET_TEMP_CH), SENSOR_GetSensorAdcTempValue(SENSOR_OIL1_OUTLET_TEMP_CH));
+
+		SYSM_INFO("Connecter2 CP %d EVSE %d \r\n", stSysM.basic_ctrl_info.CpStatus[1], stSysM.basic_ctrl_info.EVSEStatus[1]);
+		SYSM_INFO("Connector2 Front Temp value:%d Connector2 RearTemp value:%d\r\n", SENSOR_GetSensorAdcTempValue(SENSOR_CONNECTOR1_FRONT_TEMP_CH), SENSOR_GetSensorAdcTempValue(SENSOR_CONNECTOR1_REAR_TEMP_CH));
+		SYSM_INFO("Oil2 InTemp value:%d Oil2 OutTemp value:%d\r\n\r\n", SENSOR_GetSensorAdcTempValue(SENSOR_OIL1_INLET_TEMP_CH), SENSOR_GetSensorAdcTempValue(SENSOR_OIL1_OUTLET_TEMP_CH));
 	}
 }
 
@@ -547,7 +555,7 @@ void SYSM_10msMainFunction(void)
 
 	SYSM_RemoteResetManage();
 
-	// SYSM_ShowBasicInfo();
+	SYSM_ShowBasicInfo();
 
 	SYSM_OutPutDefaultCurrManage();
 }

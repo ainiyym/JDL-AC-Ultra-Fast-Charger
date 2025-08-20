@@ -113,7 +113,7 @@ static McalRetVal_t Mcal_Adc_Start_Collection(Mcal_Adc_Channel_e Channel)
     }
     else if ((Channel != MCAL_ADC1_CHANNEL_MAX) && (Channel < MCAL_ADC2_TEMP_CHANNEL_MAX))
     {
-        Status = HAL_ADC_Start(Mcal_Adc_MapConfig[Channel].Handle);
+        Status = HAL_ADC_Start_IT(Mcal_Adc_MapConfig[Channel].Handle);
         if (HAL_OK != Status)
         {
             Ret = MCAL_RET_FAILED;

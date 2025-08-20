@@ -18,6 +18,7 @@
 #include "STD_LogService.h"
 #include "ModbusM.h"
 #include "dummy.h"
+#include "Sensor.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -37,7 +38,8 @@
 #define FANM_RETRY_COUNT                                      (3) /* 3 times */
 #define FANM_RETRY_DELAY_COUNT_THRESHOLD                      (5 * 1000 / FANM_TASK_PERIOD) /* 5s */
 
-#define FANM_GET_OILE_TEMP(X)                                 Dummy_GetTemp(X)                                    
+#define FANM_GET_OILE_TEMP()                                  SENSOR_GetSensorAdcTempValue(SENSOR_OIL1_OUTLET_TEMP_CH) > SENSOR_GetSensorAdcTempValue(SENSOR_OIL2_OUTLET_TEMP_CH) \
+                                                            ? SENSOR_GetSensorAdcTempValue(SENSOR_OIL1_OUTLET_TEMP_CH) : SENSOR_GetSensorAdcTempValue(SENSOR_OIL2_OUTLET_TEMP_CH)
 #define FANM_SEND_MODBUS(addr, cmd, data, data_len)           ModbusM_Send(MODBUS_CHANNEL_FAN, addr, cmd, data, data_len)
 #define FANM_GET_MODBUS_READY()                               ModbusM_GetReadyStatus(MODBUS_CHANNEL_FAN)
 #define FANM_DEBUG(fmt, ...) 	                              LOG_DEBUG(LOG_MODULE_RS485, fmt, ##__VA_ARGS__)

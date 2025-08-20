@@ -28,7 +28,6 @@
 |    Macro Definition
 |******************************************************************************/
 #define CPDRVIF_CP_ADC1                 MCAL_ADC_CHANNEL_1
-#define CPDRVIF_CP_ADC2                 MCAL_ADC_CHANNEL_2
 #define CPDRVIF_CP_ADC_CH_NUM           MCAL_ADC_CHANNEL_NUM_MAX
 #define CpDrvif_CpAdVolCollEnable       Mcal_Adc_ConvCollection_Enable              /* enable collection cp ad vol */
 #define CpDrvif_CpAdVolCollDisable      Mcal_Adc_ConvCollection_Disable             /* disable collection cp ad vol */
