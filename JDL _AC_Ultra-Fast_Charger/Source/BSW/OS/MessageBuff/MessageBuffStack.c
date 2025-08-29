@@ -39,7 +39,7 @@ uint16_t MessageBuff_StackSendMessage(MessageBuffM_t *message, uint8_t ISR)
 }
 
 
-MessageBuffStatus_Enum_t MessageBuff_StackReceiveMessage(MessageBuffM_t *message, uint8_t ISR)
+MessageBuffStatus_Enum_t MessageBuff_StackReceiveMessage(MessageBuffM_t *message, uint32_t* Rcvsize, uint8_t ISR)
 {
     if (message == NULL || message->handle == NULL || message->Rcvbuffer == NULL)
     {
@@ -50,19 +50,19 @@ MessageBuffStatus_Enum_t MessageBuff_StackReceiveMessage(MessageBuffM_t *message
     if (xNextLength == 0)
     {
         // No message available
-        message->Rcvsize = 0;
+        *Rcvsize = 0;
         return MESSAGE_BUFF_EMPTY;
     }
-    message->Rcvsize = xNextLength;
+
     if (ISR)
     {
         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-        (void)xMessageBufferReceiveFromISR(message->handle, message->Rcvbuffer, message->Rcvsize, &xHigherPriorityTaskWoken);
+        *Rcvsize = xMessageBufferReceiveFromISR(message->handle, message->Rcvbuffer, message->Rcvsize, &xHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
     else
     {
-        (void)xMessageBufferReceive(message->handle, message->Rcvbuffer, message->Rcvsize, 0);
+        *Rcvsize = xMessageBufferReceive(message->handle, message->Rcvbuffer, message->Rcvsize, 0);
     }
 
     return MESSAGE_BUFF_OK;

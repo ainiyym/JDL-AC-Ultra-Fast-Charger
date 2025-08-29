@@ -57,6 +57,7 @@ void AppTask_MainTask(void *pvParameters)
 	TickType_t xLastWakeTime;
 	const TickType_t xPeriod = pdMS_TO_TICKS( 1 );
 
+    SYSM_printf("AppTask_MainTask creat success \r\n");
 	xLastWakeTime = xTaskGetTickCount();
 
     OS_Init();

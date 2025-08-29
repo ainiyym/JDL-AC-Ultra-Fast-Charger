@@ -12,13 +12,16 @@
 #include "STD_SysM.h"
 #include "AppTask_MainTask.h"
 #include "AppTask_TaskInfo.h"
+#include "AppTask_4gTask.h"
 
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
-#define MAIN_TASK_STACK_SIZE (5u * 1024u / 4u)
+#define MAIN_TASK_STACK_SIZE (6u * 1024u / 4u)
 #define OS_TIMER_TASK_STACK_SIZE (1u * 1024u / 4u)
 #define TASK_INFO_TASK_STACK_SIZE (4u * 1024u / 4u)
+#define TASK_4G_TASK_STACK_SIZE (4u * 1024u / 4u)
+#define TASK_AT_TASK_STACK_SIZE (2u * 1024u / 4u)
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
@@ -39,6 +42,10 @@ static StaticTask_t Main_StaticTask;
 /* os timer  task handle */
 TaskHandle_t OsTimer_Task_Handle = NULL;
 
+/* 4G  task handle */
+TaskHandle_t M4g_Task_Handle = NULL;
+TaskHandle_t AtTask_Handle = NULL;
+
 #ifdef ENABLE_TASKINFO_TASK
 TaskHandle_t TaskInfo_StaticTask = NULL;
 #endif
@@ -57,15 +64,19 @@ TaskHandle_t TaskInfo_StaticTask = NULL;
 
 int main(void)
 {
-    SYSM_InitZero(); 
+    SYSM_InitZero();
     /* Infinite loop */
     xTaskCreateStatic(
-        AppTask_MainTask, "MainTask", MAIN_TASK_STACK_SIZE, NULL, TASK_START_PRIO_5, Main_Stack, &Main_StaticTask);
+        AppTask_MainTask, "MainTask", MAIN_TASK_STACK_SIZE, NULL, TASK_START_PRIO_6, Main_Stack, &Main_StaticTask);
     xTaskCreate(
-        OSTimerTask_MainTask, "OSTimerTask", OS_TIMER_TASK_STACK_SIZE, (void *)NULL, TASK_START_PRIO_4, &OsTimer_Task_Handle);
+        OSTimerTask_MainTask, "OSTimerTask", OS_TIMER_TASK_STACK_SIZE, (void *)NULL, TASK_START_PRIO_5, &OsTimer_Task_Handle);
 #ifdef ENABLE_TASKINFO_TASK
     xTaskCreate(
         AppTask_TaskInfo, "TaskInfo", TASK_INFO_TASK_STACK_SIZE, NULL, TASK_START_PRIO_1, &TaskInfo_StaticTask);
 #endif
-	  vTaskStartScheduler();
-}     
+    xTaskCreate(
+        M4gTask_MainTask, "M4gTask", TASK_4G_TASK_STACK_SIZE, NULL, TASK_START_PRIO_3, &M4g_Task_Handle);
+    xTaskCreate(
+        AtTask_MainTask, "AtTask", TASK_AT_TASK_STACK_SIZE, NULL, TASK_START_PRIO_4, &AtTask_Handle);
+    vTaskStartScheduler();
+}

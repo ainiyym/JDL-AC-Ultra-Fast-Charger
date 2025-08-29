@@ -33,7 +33,7 @@ typedef struct {
 extern MessageBuffM_t Message_Handle[MESSAGE_USART_MAX_NUMBER];
 
 extern uint16_t MessageBuff_StackSendMessage(MessageBuffM_t *message, uint8_t ISR);
-extern MessageBuffStatus_Enum_t MessageBuff_StackReceiveMessage(MessageBuffM_t *message, uint8_t ISR);
+extern MessageBuffStatus_Enum_t MessageBuff_StackReceiveMessage(MessageBuffM_t *message, uint32_t* Rcvsize, uint8_t ISR);
 extern void MessageBuff_StackInit(void);
 
 #endif // MessageBuffSTACK_H

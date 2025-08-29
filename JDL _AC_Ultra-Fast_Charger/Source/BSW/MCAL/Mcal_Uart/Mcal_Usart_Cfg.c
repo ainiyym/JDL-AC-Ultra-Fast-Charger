@@ -92,12 +92,34 @@ McalUsart_BufCfg_t  const McalUsart_BufferCfg[MCAL_USART_MAX_NUMBER] =
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
+void McalUsart_ReInit(McalUsartChannel_Enum_t UsartNum, McalUart_ReConfig_t *config)
+{
+  if (UsartNum < MCAL_USART_MAX_NUMBER && config != NULL)
+  {
+    UART_HandleTypeDef *huart = (UART_HandleTypeDef *)&McalUsart_NumMapUsart[UsartNum].UsartBase;
+
+    if (HAL_OK == HAL_UART_DeInit(huart))
+    {
+      huart->Init.BaudRate = config->baud_rate;
+      huart->Init.WordLength = config->data_width;
+      huart->Init.StopBits = config->stop_bits;
+      huart->Init.Parity = config->parity;
+      huart->Init.Mode = config->mode;
+      huart->Init.HwFlowCtl = config->flow_control;
+      if (HAL_OK != HAL_UART_Init(huart))
+      {
+        Error_Handler();
+      }
+    }
+  }
+}
+
 void McalUsart_CycBuffCfgInit(void)
 {
   uint32_t CycBufRet;
   uint8_t i;
 
-  /* 初始化接收环形缓冲区 */
+  /* 初始化接收缓冲 */
   for (i = MCAL_USART1_CH; i < MCAL_USART_MAX_NUMBER; i++)
   {
     McalUsart_Ctrl[i].RcvIntSwapBufSize = McalUsart_BufferCfg[i].RcvBufLen;
@@ -105,7 +127,7 @@ void McalUsart_CycBuffCfgInit(void)
   }
 
   /* 4G和LOG使用发送缓冲区 */
-  for (i = MCAL_USART1_CH; i < MCAL_USART4_CH; i++)
+  for (i = MCAL_USART1_CH; i < MCAL_USART_MAX_NUMBER; i++)
   {
     McalUsart_Ctrl[i].SendBuf = McalUsart_BufferCfg[i].SendBuf;
     McalUsart_Ctrl[i].SendBufLen = McalUsart_BufferCfg[i].SendBufLen;
@@ -118,7 +140,7 @@ void McalUsart_CycBuffCfgInit(void)
       SYSM_printf("MCAL_CYCBUF_OPEN_CHAN failed for USART%d\r\n", i);
     }
   }
-    for (i = MESSAGE_USART1_CH; i <= MESSAGE_USART5_CH; i++)
+    for (i = MESSAGE_USART1_CH; i < MCAL_USART_MAX_NUMBER; i++)
     {
       Message_Handle[i].Sendbuffer = McalUsart_Ctrl[i].RcvIntSwapBuf;
     }
@@ -291,9 +313,9 @@ uint32_t Mcal_Usart_AppReceiveData(uint32_t USART, uint8_t *data, uint32_t size)
   {
     Message_Handle[*channel].Rcvbuffer = data;
     Message_Handle[*channel].Rcvsize = size;
-    if (MESSAGE_BUFF_OK == MessageBuff_StackReceiveMessage(&Message_Handle[*channel], 0))
+    if (MESSAGE_BUFF_OK != MessageBuff_StackReceiveMessage(&Message_Handle[*channel], &RetDataLen, 0))
     {
-       RetDataLen = (uint32_t)Message_Handle[*channel].Rcvsize;
+       RetDataLen = 0;
     }
   }
 

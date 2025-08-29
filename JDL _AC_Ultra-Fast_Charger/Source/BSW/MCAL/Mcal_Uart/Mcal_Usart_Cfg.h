@@ -55,6 +55,16 @@ typedef struct
   uint32_t SendBufLen; /* 发送缓冲区长度 */
   uint32_t RcvBufLen; /* 接收缓冲区长度 */
 }McalUsart_BufCfg_t;
+
+typedef struct
+{
+  uint32_t baud_rate;
+  uint32_t data_width;
+  uint32_t parity;
+  uint32_t stop_bits;
+  uint32_t flow_control;
+  uint32_t mode;
+} McalUart_ReConfig_t;
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
@@ -90,6 +100,7 @@ typedef struct
 /*******************************************************************************
 |    Extern functions Declaration
 |******************************************************************************/
+extern void McalUsart_ReInit(McalUsartChannel_Enum_t UsartNum, McalUart_ReConfig_t *config);
 extern void McalUsart_CycBuffCfgInit(void);
 // USART initialization
 extern void Mcal_Usart_Init(void);

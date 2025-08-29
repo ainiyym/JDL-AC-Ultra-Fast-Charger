@@ -87,6 +87,7 @@ typedef enum LogModule
     LOG_MODULE_RFID,
     LOG_MODULE_BTRCTR,
     LOG_MODULE_RS485,
+    LOG_MODULE_AT,
     
 	LOG_MODULE_SYSM,
 	LOG_MODULE_MCAL,
