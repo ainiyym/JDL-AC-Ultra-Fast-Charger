@@ -15,7 +15,6 @@ typedef struct oob_s
 {
     char *     prefix;
     char *     postfix;
-    char *     oobinputdata;
     uint32_t   reallen;
     uint32_t   maxlen;
     at_recv_cb cb;
@@ -34,18 +33,17 @@ typedef struct oob_s
 #include "infra_list.h"
 typedef struct at_task_s
 {
-    slist_t   next;
-    void *    smpr;
-    char *    command;
-    char *    rsp;
-    char *    rsp_prefix;
-    char *    rsp_success_postfix;
-    char *    rsp_fail_postfix;
-    uint32_t  rsp_prefix_len;
-    uint32_t  rsp_success_postfix_len;
-    uint32_t  rsp_fail_postfix_len;
-    uint32_t  rsp_offset;
-    uint32_t  rsp_len;
+    slist_t       next;
+    void *        smpr;
+    char *        command;
+    char *        rsp_prefix;
+    char *        rsp_success_postfix;
+    char *        rsp_fail_postfix;
+    uint32_t      rsp_prefix_len;
+    uint32_t      rsp_success_postfix_len;
+    uint32_t      rsp_fail_postfix_len;
+    at_recv_cb    rsp_success_callback;
+    at_recv_cb    rsp_fail_callback;
 } at_task_t;
 #endif
 
@@ -56,14 +54,10 @@ typedef struct
 {
     uart_dev_t *_pstuart;
     int         _timeout;
-    char *      _default_recv_prefix;
     char *      _default_recv_success_postfix;
     char *      _default_recv_fail_postfix;
-    char *      _send_delimiter;
-    int         _recv_prefix_len;
     int         _recv_success_postfix_len;
     int         _recv_fail_postfix_len;
-    int         _send_delim_size;
     oob_t       _oobs[OOB_MAX];
     int         _oobs_num;
     void *      at_uart_recv_mutex;
@@ -151,22 +145,13 @@ static void at_set_timeout(int timeout)
     at._timeout = timeout;
 }
 
-static void at_set_recv_delimiter(const char *recv_prefix,
-                                  const char *recv_success_postfix,
+static void at_set_recv_delimiter(const char *recv_success_postfix,
                                   const char *recv_fail_postfix)
 {
-    at._default_recv_prefix          = (char *)recv_prefix;
     at._default_recv_success_postfix = (char *)recv_success_postfix;
     at._default_recv_fail_postfix    = (char *)recv_fail_postfix;
-    at._recv_prefix_len              = strlen(recv_prefix);
     at._recv_success_postfix_len     = strlen(recv_success_postfix);
     at._recv_fail_postfix_len        = strlen(recv_fail_postfix);
-}
-
-static void at_set_send_delimiter(const char *delimiter)
-{
-    at._send_delimiter  = (char *)delimiter;
-    at._send_delim_size = strlen(delimiter);
 }
 
 static int at_init_task_mutex()
@@ -230,10 +215,8 @@ static void at_worker_uart_send_mutex_deinit()
 
 int at_parser_init(void)
 {
-    char *recv_prefix = AT_RECV_PREFIX;
     char *recv_success_postfix = AT_RECV_SUCCESS_POSTFIX;
     char *recv_fail_postfix = AT_RECV_FAIL_POSTFIX;
-    char *send_delimiter = AT_SEND_DELIMITER;
     int  timeout = AT_UART_TIMEOUT_MS;
 #if !AT_SINGLE_TASK
 #if !defined (USE_USER_OS)
@@ -258,8 +241,7 @@ int at_parser_init(void)
     memset(at._oobs, 0, sizeof(oob_t) * OOB_MAX);
 
     at_set_timeout(timeout);
-    at_set_recv_delimiter(recv_prefix, recv_success_postfix, recv_fail_postfix);
-    at_set_send_delimiter(send_delimiter);
+    at_set_recv_delimiter(recv_success_postfix, recv_fail_postfix);
 
     if (at_init_uart_recv_mutex() != 0) {
         atpsr_err("at_uart_recv_mutex init fail \r\n");
@@ -320,28 +302,25 @@ static int at_recvfrom_lower(uart_dev_t *uart, void *data, uint32_t expect_size,
     return ret;
 }
 
+static int at_recv_check_lower(uart_dev_t *uart, uint32_t *recv_size)
+{
+    int ret = -1;
+
+    ret = HAL_AT_Uart_Recv_Check(uart, recv_size);
+
+    return ret;
+}
+
 #if AT_SINGLE_TASK
-int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
-                       const char *data, int datalen,
-                       char *replybuf, int bufsize,
+int at_send_wait_reply(const char *cmd, int cmdlen,
+                       at_recv_cb success_callback, at_recv_cb fail_callback,
                        const atcmd_config_t *atcmdconfig)
 {
-    int intval_ms = AT_CMD_DATA_INTERVAL_MS;
-
-    if (at_send_no_reply(cmd, cmdlen, delimiter) < 0) {
+    if (at_send_no_reply(cmd, cmdlen) < 0) {
         return -1;
     }
 
-    if (data && datalen) {
-        if (intval_ms > 0)
-            HAL_SleepMs(intval_ms);
-
-        if (at_send_no_reply(data, datalen, false) < 0) {
-            return -1;
-        }
-    }
-
-    if (at_yield(replybuf, bufsize, atcmdconfig, at._timeout) <  0) {
+    if (at_yield(success_callback, fail_callback, atcmdconfig, at._timeout) <  0) {
         return -1;
     }
 
@@ -384,13 +363,11 @@ static int at_worker_task_del(at_task_t *tsk)
     return 0;
 }
 
-int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
-                       const char *data, int datalen,
-                       char *replybuf, int bufsize,
+int at_send_wait_reply(const char *cmd, int cmdlen,
+                       at_recv_cb success_callback, at_recv_cb fail_callback,
                        const atcmd_config_t *atcmdconfig)
 { 
     int ret = 0;
-    int intval_ms = AT_CMD_DATA_INTERVAL_MS;
     at_task_t *tsk;
 
     if (inited == 0) {
@@ -399,11 +376,6 @@ int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
     }
 
     if (NULL == cmd || cmdlen <= 0) {
-        atpsr_err("%s invalid input \r\n", __FUNCTION__);
-        return -1;
-    }
-
-    if (NULL == replybuf || 0 == bufsize) {
         atpsr_err("%s invalid input \r\n", __FUNCTION__);
         return -1;
     }
@@ -445,8 +417,8 @@ int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
     }
 
     tsk->command = (char *)cmd;
-    tsk->rsp     = replybuf;
-    tsk->rsp_len = bufsize;
+    tsk->rsp_success_callback     = success_callback;
+    tsk->rsp_fail_callback        = fail_callback;
 
     at_worker_task_add(tsk);
 
@@ -454,24 +426,6 @@ int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
                                at._timeout, true)) != 0) {
         atpsr_err("uart send command failed");
         goto end;
-    }
-
-    if (delimiter) {
-        if ((ret = at_sendto_lower(at._pstuart, (void *)at._send_delimiter,
-                    strlen(at._send_delimiter), at._timeout, false)) != 0) {
-            atpsr_err("uart send delimiter failed");
-            goto end;
-        }
-    }
-
-    if (data && datalen > 0) {
-        if (intval_ms > 0)
-            HAL_SleepMs(intval_ms);
-
-        if ((ret = at_sendto_lower(at._pstuart, (void *)data, datalen, at._timeout, true)) != 0) {
-            atpsr_err("uart send delimiter failed");
-            goto end;
-        }
     }
 
     if ((ret = HAL_SemaphoreWait(tsk->smpr, TASK_DEFAULT_WAIT_TIME)) != 0) {
@@ -486,7 +440,7 @@ end:
 }
 #endif
 
-int at_send_no_reply(const char *data, int datalen, bool delimiter)
+int at_send_no_reply(const char *data, int datalen)  
 {
     int ret = 0;
 
@@ -508,31 +462,40 @@ int at_send_no_reply(const char *data, int datalen, bool delimiter)
         return -1;
     }
 
-    if (delimiter) {
-        if ((ret = at_sendto_lower(at._pstuart, (void *)at._send_delimiter,
-                    strlen(at._send_delimiter), at._timeout, false)) != 0) {
-            atpsr_err("uart send delimiter failed");
-            HAL_MutexUnlock(at.at_uart_send_mutex);
-            return -1;
-        }
-    }
     HAL_MutexUnlock(at.at_uart_send_mutex);
 
     return ret;
 }
 
-#if AT_SINGLE_TASK
-static int at_getc(char *c, int timeout_ms)
+static int at_recv_check(uart_dev_t *uart, uint32_t *recv_size)
 {
-    int      ret = 0;
-    char     data;
-    uint32_t recv_size = 0;
+    int ret = 0;
 
-    if (NULL == c) {
+    if (uart == NULL || recv_size == NULL)
+    {
         return -1;
     }
 
-    if (inited == 0) {
+    HAL_MutexLock(at.at_uart_recv_mutex);
+    ret = at_recv_check_lower(uart, recv_size);
+    HAL_MutexUnlock(at.at_uart_recv_mutex);
+
+    return ret;
+}
+
+static int at_getc(char *c, int timeout_ms)
+{
+    int ret = 0;
+    char data;
+    uint32_t recv_size = 0;
+
+    if (NULL == c)
+    {
+        return -1;
+    }
+
+    if (inited == 0)
+    {
         atpsr_err("at have not init yet\r\n");
         return -1;
     }
@@ -541,9 +504,11 @@ static int at_getc(char *c, int timeout_ms)
     ret = at_recvfrom_lower(at._pstuart, (void *)&data, 1, &recv_size, timeout_ms);
     HAL_MutexUnlock(at.at_uart_recv_mutex);
 
-    if (ret != 0) {
+    if (ret != 0)
+    {
 #ifdef WORKAROUND_DEVELOPERBOARD_DMA_UART
-        if (ret == 1) {
+        if (ret == 1)
+        {
             HAL_UART_Deinit(at._pstuart);
             at_init_uart();
         }
@@ -551,14 +516,16 @@ static int at_getc(char *c, int timeout_ms)
         return -1;
     }
 
-    if (recv_size == 1) {
+    if (recv_size == 1)
+    {
         *c = data;
         return 0;
-    } else {
+    }
+    else
+    {
         return -1;
     }
 }
-#endif
 
 uint32_t at_read(char *outbuf, uint32_t readsize)
 {
@@ -583,18 +550,18 @@ uint32_t at_read(char *outbuf, uint32_t readsize)
     return recv_size;
 }
 
-int at_register_callback(const char *prefix, const char *postfix, char *recvbuf,
-                         int bufsize, at_recv_cb cb, void *arg)
+int at_register_callback(const char *prefix, const char *postfix,
+                         int ppcing_data_len, at_recv_cb cb, void *arg)
 {
     oob_t *oob = NULL;
     int    i   = 0;
 
-    if (bufsize < 0 || bufsize >= RECV_BUFFER_SIZE || NULL == prefix) {
+    if (ppcing_data_len < 0 || ppcing_data_len >= RECV_BUFFER_SIZE || NULL == prefix) {
         atpsr_err("%s invalid input \r\n", __func__);
         return -1;
     }
 
-    if (NULL != postfix && (NULL == recvbuf || 0 == bufsize)) {
+    if (NULL != postfix && 0 == ppcing_data_len) {
         atpsr_err("%s invalid postfix input \r\n", __func__);
         return -1;
     }
@@ -615,11 +582,7 @@ int at_register_callback(const char *prefix, const char *postfix, char *recvbuf,
 
     oob = &(at._oobs[at._oobs_num++]);
 
-    oob->oobinputdata = recvbuf;  
-    if (oob->oobinputdata != NULL) {
-        memset(oob->oobinputdata, 0, bufsize);
-    }
-    oob->maxlen  = bufsize;
+    oob->maxlen  = ppcing_data_len;
     oob->prefix  = (char *)prefix;
     oob->postfix = (char *)postfix;
     oob->cb      = cb;
@@ -635,6 +598,7 @@ static void at_scan_for_callback(char c, char *buf, int *index)
 {
     int k;
     oob_t *oob = NULL;
+    char *recvbuf = NULL;
     int offset = *index;
 
     if (!buf || offset < 0)
@@ -663,35 +627,37 @@ static void at_scan_for_callback(char c, char *buf, int *index)
                 {
                     int len = strlen(oob->prefix) - 1;
                     len = len > 0 ? len : 0;
-                    memset(oob->oobinputdata, 0, oob->maxlen);
-                    memcpy(oob->oobinputdata, oob->prefix, len);
-                    oob->reallen += len;
+                    recvbuf = (char *)HAL_Malloc(oob->maxlen);
+                    if (recvbuf != NULL)
+                    {
+                        memset(recvbuf, 0, oob->maxlen);
+                        memcpy(recvbuf, oob->prefix, len);
+                        oob->reallen += len;
+                    }
                 }
 
                 if (oob->reallen < oob->maxlen)
                 {
-                    oob->oobinputdata[oob->reallen] = c;
+                    recvbuf[oob->reallen] = c;
                     oob->reallen++;
                     if ((oob->reallen >=
                          strlen(oob->prefix) + strlen(oob->postfix)) &&
-                        (strncmp(oob->oobinputdata + oob->reallen -
+                        (strncmp(recvbuf + oob->reallen -
                                      strlen(oob->postfix),
                                  oob->postfix,
                                  strlen(oob->postfix)) == 0))
                     {
                         /*recv postfix*/
-                        oob->cb(oob->arg, oob->oobinputdata, oob->reallen);
-                        memset(oob->oobinputdata, 0, oob->reallen);
-                        oob->reallen = 0;
-                        memset(buf, 0, offset);
-                        offset = 0;
+                        oob->cb(oob->arg, recvbuf, oob->reallen);
+                        goto recvbuf_free;
                     }
                 }
-                else
+                else 
                 {
                     atpsr_err("invalid oob %s input , for oversize %s \r\n",
-                              oob->prefix, oob->oobinputdata);
-                    memset(oob->oobinputdata, 0, oob->reallen);
+                              oob->prefix, recvbuf);
+recvbuf_free:
+                    HAL_Free(recvbuf);
                     oob->reallen = 0;
                     memset(buf, 0, offset);
                     offset = 0;
@@ -713,7 +679,7 @@ static void at_scan_for_callback(char c, char *buf, int *index)
 }
 
 #if AT_SINGLE_TASK
-int at_yield(char *replybuf, int bufsize, const atcmd_config_t *atcmdconfig,
+int at_yield(at_recv_cb success_callback, at_recv_cb fail_callback, const atcmd_config_t *atcmdconfig,
              int timeout_ms)
 {
     int        offset                  = 0;
@@ -731,11 +697,6 @@ int at_yield(char *replybuf, int bufsize, const atcmd_config_t *atcmdconfig,
 
     if (!inited) {
         atpsr_err("AT parser has not inited!\r\n");
-        return -1;
-    }
-
-    if (replybuf != NULL && bufsize <= 0) {
-        atpsr_err("buffer size %d unmatched!\r\n", bufsize);
         return -1;
     }
 
@@ -773,8 +734,7 @@ int at_yield(char *replybuf, int bufsize, const atcmd_config_t *atcmdconfig,
             rsp_prefix     = atcmdconfig->reply_prefix;
             rsp_prefix_len = strlen(rsp_prefix);
         } else {
-            rsp_prefix     = at._default_recv_prefix;
-            rsp_prefix_len = at._recv_prefix_len;
+
         }
 
         if (NULL != atcmdconfig && NULL != atcmdconfig->reply_success_postfix) {
@@ -827,47 +787,69 @@ int at_yield(char *replybuf, int bufsize, const atcmd_config_t *atcmdconfig,
 #else
 void *at_worker(void *arg)
 {
-    static uint8_t init_once = 0;
-    uint32_t rcv_data_len = 0;
     int offset = 0;
+    uint32_t check_size = 0;
+    char* rsp = NULL;
+    uint32_t rsp_offset = 0;
+    int ret = 0;
     int at_task_empty = 0;
-    int at_task_reponse_begin = 0;
+    int at_task_response_begin = 0;
+    int memcpy_size = 0;
     int rsp_prefix_len = 0;
     int rsp_success_postfix_len = 0;
     int rsp_fail_postfix_len = 0;
-    at_task_t *tsk;
     char c = 0;
+    at_task_t *tsk;
     char *buf = NULL;
     char *rsp_prefix = NULL;
     char *rsp_success_postfix = NULL;
     char *rsp_fail_postfix = NULL;
+    at_recv_cb rsp_success_callback = NULL;
+    at_recv_cb rsp_fail_callback = NULL;
 
-    if (0 == init_once)
+    buf = at_rx_buf;
+    if (NULL == buf)
     {
-        atpsr_debug("at_work started.");
-
-        buf = at_rx_buf;
-        if (NULL == buf)
-        {
-            atpsr_err("AT worker fail to malloc ,task exist \r\n");
-            return NULL;
-        }
-
-        memset(buf, 0, RECV_BUFFER_SIZE);
-        inited = 1;
-        init_once = 1;
-    }
-
-    rcv_data_len = at_read(buf, RECV_BUFFER_SIZE);
-
-    if (rcv_data_len > RECV_BUFFER_SIZE)
-    {
-        atpsr_err("Fatal error, AT uart rcv buff overflow");
+        atpsr_err("at_rx_buf null ,task exist \r\n");
         return NULL;
     }
-    while (rcv_data_len != offset)
+
+    memset(buf, 0, RECV_BUFFER_SIZE);
+    inited = 1;
+
+    if (at_recv_check(at._pstuart, &check_size) != 0)
     {
-        c = buf[offset++];
+        return NULL;
+    }
+
+    if (check_size > 0)
+    {
+        rsp = (char*)HAL_Malloc(check_size);
+        if (NULL == rsp)
+        {
+            atpsr_err("AT worker fail to malloc check_size ,task exist \r\n");
+            return NULL;
+        }
+    }
+
+    memset(rsp, 0, check_size);
+
+    while (check_size > 0)
+    {
+        ret = at_getc(&c, at._timeout);
+        if (ret != 0)
+        {
+            continue;
+        }
+        check_size--;
+        if (offset + 1 >= RECV_BUFFER_SIZE)
+        {
+            atpsr_err("Fatal error, no one is handling AT uart");
+            goto check_buffer;
+        }
+        buf[offset++] = c;
+        buf[offset] = 0;
+
         at_scan_for_callback(c, buf, &offset);
 
         HAL_MutexLock(at.task_mutex);
@@ -893,8 +875,8 @@ void *at_worker(void *arg)
         }
         else
         {
-            rsp_prefix = at._default_recv_prefix;
-            rsp_prefix_len = at._recv_prefix_len;
+            rsp_prefix = NULL;
+            rsp_prefix_len = 0;
         }
 
         if (NULL != tsk->rsp_success_postfix &&
@@ -920,54 +902,95 @@ void *at_worker(void *arg)
             rsp_fail_postfix_len = at._recv_fail_postfix_len;
         }
 
-        if (offset >= rsp_prefix_len && at_task_reponse_begin == 0 &&
-            (strncmp(buf + offset - rsp_prefix_len, rsp_prefix,
-                     rsp_prefix_len) == 0))
+        if (NULL != tsk->rsp_success_callback)
         {
-            at_task_reponse_begin = 1;
+            rsp_success_callback = tsk->rsp_success_callback;
+        }
+        else
+        {
+            rsp_success_callback = NULL;
         }
 
-        if (at_task_reponse_begin == 1)
+        if (NULL != tsk->rsp_fail_callback)
         {
-            if (tsk->rsp_offset < tsk->rsp_len)
-            {
-                tsk->rsp[tsk->rsp_offset] = c;
-                tsk->rsp_offset++;
+            rsp_fail_callback = tsk->rsp_fail_callback;
+        }
+        else
+        {
+            rsp_fail_callback = NULL;
+        }
 
-                if ((tsk->rsp_offset >= rsp_success_postfix_len &&
-                     strncmp(
-                         tsk->rsp + tsk->rsp_offset - rsp_success_postfix_len,
-                         rsp_success_postfix, rsp_success_postfix_len) == 0) ||
-                    (tsk->rsp_offset >= rsp_fail_postfix_len &&
-                     strncmp(tsk->rsp + tsk->rsp_offset - rsp_fail_postfix_len,
-                             rsp_fail_postfix, rsp_fail_postfix_len) == 0))
+        if (NULL != rsp_prefix)
+        {
+            if (offset >= rsp_prefix_len && at_task_response_begin == 0 &&
+                (strncmp(buf + offset - rsp_prefix_len, rsp_prefix,
+                         rsp_prefix_len) == 0))
+            {
+                at_task_response_begin = 1;
+            }
+        }
+        else
+        {
+            at_task_response_begin = 1;
+        }
+
+        if (at_task_response_begin == 1)
+        {
+            if (rsp_offset < (check_size - (offset - 1)))
+            {
+                if (rsp_offset >= rsp_success_postfix_len &&
+                    strncmp(rsp + rsp_offset - rsp_success_postfix_len,
+                        rsp_success_postfix, rsp_success_postfix_len) == 0)
                 {
-                    HAL_SemaphorePost(tsk->smpr);
-                    at_task_reponse_begin = 0;
-                    memcpy(buf, &buf[offset], rcv_data_len - offset);
-                    rcv_data_len -= (offset - 1);
-                    offset = 0;
+                    if (rsp_success_callback != NULL)
+                    {
+                        rsp_success_callback(tsk->command, rsp, rsp_offset);
+                        goto free_and_reset;
+                    }
+                }
+                else if (rsp_offset >= rsp_fail_postfix_len &&
+                         strncmp(rsp + rsp_offset - rsp_fail_postfix_len,
+                                 rsp_fail_postfix, rsp_fail_postfix_len) == 0)
+                {
+                    if (rsp_fail_callback != NULL)
+                    {
+                        rsp_fail_callback(tsk->command, rsp, rsp_offset);
+                        goto free_and_reset;
+                    }
+                }
+                else
+                {
+                    rsp[rsp_offset] = c;
+                    rsp_offset++;
                 }
             }
             else
             {
-                memset(tsk->rsp, 0, tsk->rsp_len);
-                strcpy(tsk->rsp, rsp_fail_postfix);
-                HAL_SemaphorePost(tsk->smpr);
-                at_task_reponse_begin = 0;
-                memcpy(buf, &buf[offset], rcv_data_len - offset);
-                rcv_data_len -= (offset - 1);
-                offset = 0;
+                if (rsp_fail_callback != NULL)
+                {
+                    rsp_fail_callback(tsk->command, rsp, rsp_offset);
+free_and_reset:
+                    HAL_Free(rsp);
+                    HAL_SemaphorePost(tsk->smpr);
+                    at_task_response_begin = 0;
+                    memset(buf, 0, offset);
+                    offset = 0;
+                }
             }
         }
     }
-
 check_buffer:
     /* in case buffer is full */
-    if (offset == rcv_data_len)
+    if (offset > (RECV_BUFFER_SIZE - 2))
     {
-        rcv_data_len = 0;
-        offset = 0;
+        memcpy_size = rsp_prefix_len > rsp_success_postfix_len
+                          ? rsp_prefix_len
+                          : rsp_success_postfix_len;
+        memcpy_size = memcpy_size > rsp_fail_postfix_len
+                          ? memcpy_size
+                          : rsp_fail_postfix_len;
+        memmove(buf, buf + offset - memcpy_size, memcpy_size);
+        offset = memcpy_size;
     }
 
     return NULL;

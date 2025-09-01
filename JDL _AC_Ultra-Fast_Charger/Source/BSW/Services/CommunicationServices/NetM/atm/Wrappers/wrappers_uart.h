@@ -16,5 +16,6 @@ int32_t HAL_AT_Uart_Send(uart_dev_t *uart, const void *data,
 int32_t HAL_AT_Uart_Recv(uart_dev_t *uart, void *data, uint32_t expect_size,
                          uint32_t *recv_size, uint32_t timeout);
 
+int32_t HAL_AT_Uart_Recv_Check(uart_dev_t *uart, uint32_t *recv_size);
 
 #endif

@@ -299,6 +299,13 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef *huart, uint16_t Size)
   }
 }
 
+uint32_t Mcal_Usart_AppCheckData(uint32_t USART)
+{
+  const MessageBuffChannel_Enum_t *channel = &Mcal_UsartMapChannel[USART];
+
+  return (uint32_t)MessageBuff_CheckMessage(&Message_Handle[*channel]);
+}
+
 // 串口接收数据函数
 uint32_t Mcal_Usart_AppReceiveData(uint32_t USART, uint8_t *data, uint32_t size)
 {

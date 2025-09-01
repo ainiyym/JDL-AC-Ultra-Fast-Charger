@@ -109,6 +109,7 @@ extern void Mcal_Usart_IT_Enable(void);
 // USART disable
 extern void Mcal_Usart_Disable(void);
 // USART receive data
+extern uint32_t Mcal_Usart_AppCheckData(uint32_t USART);
 extern uint32_t Mcal_Usart_AppReceiveData(uint32_t USART, uint8_t *data, uint32_t size);
 // USART send data
 extern McalRetVal_t Mcal_Usart_AppSendData(uint32_t USART, uint8_t *data, uint32_t size);

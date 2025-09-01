@@ -38,6 +38,10 @@ uint16_t MessageBuff_StackSendMessage(MessageBuffM_t *message, uint8_t ISR)
     return message_sent_len;
 }
 
+size_t MessageBuff_CheckMessage(MessageBuffM_t *message)
+{
+    return xMessageBufferNextLengthBytes(message->handle);
+}
 
 MessageBuffStatus_Enum_t MessageBuff_StackReceiveMessage(MessageBuffM_t *message, uint32_t* Rcvsize, uint8_t ISR)
 {

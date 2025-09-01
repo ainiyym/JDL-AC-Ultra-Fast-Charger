@@ -20,10 +20,8 @@
 #define AT_UART_TIMEOUT_MS   1000
 
 /* Delimiter */
-#define AT_RECV_PREFIX          "\r\n"
 #define AT_RECV_SUCCESS_POSTFIX "OK\r\n"
 #define AT_RECV_FAIL_POSTFIX    "ERROR\r\n"
-#define AT_SEND_DELIMITER       "\r"
 
 #if defined(AT_TCP_HAL_SIM800)
 #define AT_CMD_DATA_INTERVAL_MS 50
@@ -66,26 +64,21 @@ int at_parser_init(void);
  *
  * @param cmd at command sending buf. MUST not be NULL.
  * @param cmdlen at command length.
- * @param delimiter whether sending delimiter, usually value is true
- * @param data data sending buf. NULL if no data.
- * @param datalen data length. Zero if no data.
- * @param replybuf reply buffer. MUST not be NULL.
- * @param bufsize reply buffer size
- * @param atcmdconfig AT cmd reply format config. Use default if NULL 
+ * @param success_callback success callback function. MUST not be NULL.
+ * @param fail_callback fail callback function. MUST not be NULL.
+ * @param atcmdconfig AT cmd reply format config. Use default if NULL
  */
-int at_send_wait_reply(const char *cmd, int cmdlen, bool delimiter,
-                       const char *data, int datalen,
-                       char *replybuf, int bufsize,
+int at_send_wait_reply(const char *cmd, int cmdlen,
+                       at_recv_cb success_callback, at_recv_cb fail_callback,
                        const atcmd_config_t *atcmdconfig);
 
 /**
- * at send (format: data + delimiter) and does not wait reply
+ * at send (format: data) and does not wait reply
  *
  * @param data sending buffer.
  * @param datalen sending length.
- * @param delimiter whether sending delimiter, usually value is false
  */
-int at_send_no_reply(const char *data, int datalen, bool delimiter);
+int at_send_no_reply(const char *data, int datalen);
 
 
 /**
@@ -102,13 +95,12 @@ uint32_t at_read(char *outbuf, uint32_t readsize);
  *
  * @param prefix interested string. Must not be NULL.
  * @param postfix intersted postfix. NULL if postfix not provided.
- * @param recvbuf recv data buffer provided by caller, NULL if postfix not provided
- * @param bufsize buffer size for recv data, zero if postfix not provided
+ * @param ppcing_data_len buffer size for recv data, zero if postfix not provided
  * @param cb callback handle function. Must not be NULL.
  * @param arg callback handle function args. NULL if not used.
  */
-int at_register_callback(const char *prefix, const char *postfix, char *recvbuf,
-                         int bufsize, at_recv_cb cb, void *arg);
+int at_register_callback(const char *prefix, const char *postfix,
+                         int ppcing_data_len, at_recv_cb cb, void *arg);
 
 
 /**

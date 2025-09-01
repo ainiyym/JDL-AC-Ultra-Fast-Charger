@@ -58,3 +58,17 @@ int32_t HAL_AT_Uart_Recv(uart_dev_t *uart, void *data, uint32_t expect_size, uin
     
     return 0;
 }
+
+int32_t HAL_AT_Uart_Recv_Check(uart_dev_t *uart, uint32_t *recv_size)
+{
+    if (uart == NULL || recv_size == NULL)
+    {
+        return -1;
+    }
+
+    McalUsartChannel_Enum_t Port = (McalUsartChannel_Enum_t)uart->port;
+
+    *recv_size = Mcal_Usart_AppCheckData(Port);
+
+    return 0;
+}

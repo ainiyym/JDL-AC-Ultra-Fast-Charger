@@ -3,8 +3,9 @@
 #include <stdarg.h>
 #include "infra_types.h"
 #include "infra_defs.h"
+#include "STD_LogService.h"
 
-#define HAL_Printf(fmt, ...) LOG_TRACE(LOG_MODULE_SYSM, fmt, ##__VA_ARGS__)
+#define HAL_Printf(fmt, ...) LOG_TRACE(LOG_MODULE_AT, fmt, ##__VA_ARGS__)
 
 void *HAL_Malloc(uint32_t size);
 
