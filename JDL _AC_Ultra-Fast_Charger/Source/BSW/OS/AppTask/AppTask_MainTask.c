@@ -9,7 +9,7 @@
 #include"OS.h"
 #include"STD_OS_Timer.h"
 #include "ScheduleTable.h"
-#include "MessageBuffStack.h"
+#include "StreamBuffer.h"
 /******************************************************************************
  *                      Macro Definitions
  ******************************************************************************/
@@ -74,7 +74,7 @@ void AppTask_MainTask(void *pvParameters)
 
 void OSTimerTask_MainTask(void *pvParameters)
 {
-    MessageBuff_StackInit();
+    StreamBuff_StackInit();
     SYSM_printf("OSTimerTask_MainTask start \r\n");
     while (1)
     {

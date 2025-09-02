@@ -11,6 +11,7 @@
 #include "AppTask_4gTask.h"
 #include "AppTask_MainTask.h"
 #include "at_parser.h"
+#include "YeeComxxx.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -85,7 +86,7 @@ void AtTask_MainTask(void *pvParameters)
 
 	xLastWakeTime = xTaskGetTickCount();
     SYSM_printf("AtTask creat success \r\n");
-	at_parser_init();
+	YeeCom_Init();
 	while (1)
 	{
 		APPTASK_MAINTASK_RUN_START();

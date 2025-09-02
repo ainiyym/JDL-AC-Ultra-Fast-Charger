@@ -51,7 +51,7 @@ const YeeCom_AT_OobCmd_ParameterCfg YeeCom_At_Cmd_OobParam[] =
     {YEECOM_AT_OOB_CMD_POWER_ON,            "+EIND:",       "\r\n",   YEECOM_OOB_CMD_POWER_ON_BUF_LEN,           YeeCom_At_OOB_Power_On_Callback, NULL},
     {YEECOM_AT_OOB_CMD_SIM_READY,           "+CSIM:",       "\r\n",   YEECOM_OOB_CMD_NET_READY_BUF_LEN,          YeeCom_At_OOB_Net_Ready_Callback, NULL},
     {YEECOM_AT_OOB_CMD_RESET,               "+SYSTEM:",     "\r\n",   YEECOM_OOB_CMD_RESET_BUF_LEN,              YeeCom_At_OOB_Net_Reset_Callback, NULL},
-    {YEECOM_AT_OOB_CMD_DATA_PASSTHROUGH,    "+SYSTEM:",     "\r\n",   YEECOM_OOB_CMD_DATA_PASSTHROUGH_BUF_LEN,   YeeCom_At_OOB_Data_Passthrough_Callback, NULL},
+    {YEECOM_AT_OOB_CMD_DATA_PASSTHROUGH,    "RCVPORT",      "\r\n",   YEECOM_OOB_CMD_DATA_PASSTHROUGH_BUF_LEN,   YeeCom_At_OOB_Data_Passthrough_Callback, NULL},
 };
 
 /* AT set parameter command table */
@@ -202,5 +202,6 @@ void YeeCom_MainFunc(void)
 void YeeCom_Init(void)
 {
 	memset((uint8_t*)(&gv_YeeComxxx), 0u, (uint16_t)(sizeof(gv_YeeComxxx) / sizeof(uint8_t)));
+    at_parser_init();
     YeeCom_OobRegister();
 }

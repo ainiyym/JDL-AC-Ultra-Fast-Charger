@@ -157,37 +157,126 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>244</LineNumber>
+          <LineNumber>9</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134269042</Address>
+          <Address>134289026</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\BSW\MCAL\Mcal_Uart\Mcal_Usart_Cfg.c</Filename>
+          <Filename>.\Source\BSW\Services\CommunicationServices\NetM\YeeComQ560H\YeeComxxx_Callback.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/MCAL/Mcal_Uart/Mcal_Usart_Cfg.c\244</Expression>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/Services/CommunicationServices/NetM/YeeComQ560H/YeeComxxx_Callback.c\9</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>1011</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134292878</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>.\Source\BSW\Services\CommunicationServices\NetM\atm\at_parser.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/Services/CommunicationServices/NetM/atm/at_parser.c\1011</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>662</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134291868</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>.\Source\BSW\Services\CommunicationServices\NetM\atm\at_parser.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/Services/CommunicationServices/NetM/atm/at_parser.c\662</Expression>
+        </Bp>
+        <Bp>
+          <Number>3</Number>
+          <Type>0</Type>
+          <LineNumber>627</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134291644</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>.\Source\BSW\Services\CommunicationServices\NetM\atm\at_parser.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/Services/CommunicationServices/NetM/atm/at_parser.c\627</Expression>
+        </Bp>
+        <Bp>
+          <Number>4</Number>
+          <Type>0</Type>
+          <LineNumber>668</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134291880</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>.\Source\BSW\Services\CommunicationServices\NetM\atm\at_parser.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/Services/CommunicationServices/NetM/atm/at_parser.c\668</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>recv_size</ItemText>
+          <ItemText>at</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>*channel</ItemText>
+        </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>offset</ItemText>
+        </Ww>
+        <Ww>
+          <count>3</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>c</ItemText>
+        </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>at_rx_buf</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>recvbuf</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>at</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>
           <count>0</count>
           <WinNumber>2</WinNumber>
-          <ItemText>huart1</ItemText>
-        </Ww>
-        <Ww>
-          <count>1</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>McalUsart_Ctrl</ItemText>
+          <ItemText>Message_Handle</ItemText>
         </Ww>
       </WatchWindow2>
       <MemoryWindow1>
@@ -877,7 +966,7 @@
 
   <Group>
     <GroupName>Source/BSW/MCAL/Test</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1889,7 +1978,7 @@
 
   <Group>
     <GroupName>freeRTOSTast</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1976,8 +2065,8 @@
   </Group>
 
   <Group>
-    <GroupName>FreeRTOS/messagebuff</GroupName>
-    <tvExp>0</tvExp>
+    <GroupName>FreeRTOS/user</GroupName>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1988,8 +2077,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\Source\BSW\OS\MessageBuff\MessageBuffStack.c</PathWithFileName>
-      <FilenameWithoutPath>MessageBuffStack.c</FilenameWithoutPath>
+      <PathWithFileName>.\Source\BSW\OS\StreamBuffer\streamBuffer.c</PathWithFileName>
+      <FilenameWithoutPath>streamBuffer.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -2105,7 +2194,7 @@
 
   <Group>
     <GroupName>at/yeecom</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

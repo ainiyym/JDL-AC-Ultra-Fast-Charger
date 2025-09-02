@@ -12,7 +12,7 @@
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "MessageBuffStack.h"
+#include "StreamBuffer.h"
 #include "Mcal_Usart_Cfg.h"
 #include "STD_SysM.h"
 /*******************************************************************************
@@ -57,11 +57,11 @@ const McalUsart_NumMapUsart_t  McalUsart_NumMapUsart[MCAL_USART_MAX_NUMBER] =
         {MCAL_USART5_CH, &huart5}
     };
 
-const MessageBuffChannel_Enum_t Mcal_UsartMapChannel[MCAL_USART_MAX_NUMBER] = {
-    MESSAGE_USART1_CH, /* 4G */
-    MESSAGE_USART2_CH, /* LOG */
-    MESSAGE_USART4_CH, /* Meter */
-    MESSAGE_USART5_CH  /* Fan speeder */
+const StreamBuffChannel_Enum_t Mcal_UsartMapChannel[MCAL_USART_MAX_NUMBER] = {
+    STREAM_USART1_CH, /* 4G */
+    STREAM_USART2_CH, /* LOG */
+    STREAM_USART4_CH, /* Meter */
+    STREAM_USART5_CH  /* Fan speeder */
 };
 
 McalUsart_BufCfg_t  const McalUsart_BufferCfg[MCAL_USART_MAX_NUMBER] =
@@ -140,7 +140,7 @@ void McalUsart_CycBuffCfgInit(void)
       SYSM_printf("MCAL_CYCBUF_OPEN_CHAN failed for USART%d\r\n", i);
     }
   }
-    for (i = MESSAGE_USART1_CH; i < MCAL_USART_MAX_NUMBER; i++)
+    for (i = STREAM_USART1_CH; i < MCAL_USART_MAX_NUMBER; i++)
     {
       Message_Handle[i].Sendbuffer = McalUsart_Ctrl[i].RcvIntSwapBuf;
     }
@@ -244,11 +244,11 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef *huart, uint16_t Size)
     if (ActiveCtrl->RcvIntSwapBufDataCnt > 0)
     {
       // 交换缓冲区数据搬移到接收环形缓冲区
-      Message_Handle[MESSAGE_USART1_CH].Sendsize = ActiveCtrl->RcvIntSwapBufDataCnt;
-      message_sent_len =  MessageBuff_StackSendMessage(&Message_Handle[MESSAGE_USART1_CH], 1);
+      Message_Handle[STREAM_USART1_CH].Sendsize = ActiveCtrl->RcvIntSwapBufDataCnt;
+      message_sent_len =  StreamBuff_SendMessage(&Message_Handle[STREAM_USART1_CH], 1);
       if (message_sent_len != ActiveCtrl->RcvIntSwapBufDataCnt)
       {
-        MCAL_ERROR("MessageBuff_StackSendMessage failed for USART1, sent %d bytes, expected %d bytes\r\n", message_sent_len, ActiveCtrl->RcvIntSwapBufDataCnt);
+        MCAL_ERROR("StreamBuff_SendMessage failed for USART1, sent %d bytes, expected %d bytes\r\n", message_sent_len, ActiveCtrl->RcvIntSwapBufDataCnt);
       }
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart1, ActiveCtrl->RcvIntSwapBuf, ActiveCtrl->RcvIntSwapBufSize); // 重新开始DMA接收
@@ -261,11 +261,11 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef *huart, uint16_t Size)
     if (ActiveCtrl->RcvIntSwapBufDataCnt > 0)
     {
       // 交换缓冲区数据搬移到接收环形缓冲区
-      Message_Handle[MESSAGE_USART2_CH].Sendsize = ActiveCtrl->RcvIntSwapBufDataCnt;
-      message_sent_len =  MessageBuff_StackSendMessage(&Message_Handle[MESSAGE_USART2_CH], 1);
+      Message_Handle[STREAM_USART2_CH].Sendsize = ActiveCtrl->RcvIntSwapBufDataCnt;
+      message_sent_len =  StreamBuff_SendMessage(&Message_Handle[STREAM_USART2_CH], 1);
       if (message_sent_len != ActiveCtrl->RcvIntSwapBufDataCnt)
       {
-        MCAL_ERROR("MessageBuff_StackSendMessage failed for USART2, sent %d bytes, expected %d bytes\r\n", message_sent_len, ActiveCtrl->RcvIntSwapBufDataCnt);
+        MCAL_ERROR("StreamBuff_SendMessage failed for USART2, sent %d bytes, expected %d bytes\r\n", message_sent_len, ActiveCtrl->RcvIntSwapBufDataCnt);
       }
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart2, ActiveCtrl->RcvIntSwapBuf, ActiveCtrl->RcvIntSwapBufSize); // 重新开始DMA接收
@@ -274,11 +274,11 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef *huart, uint16_t Size)
   {
     ActiveCtrl = &McalUsart_Ctrl[MCAL_USART4_CH];
     ActiveCtrl->RcvIntSwapBufDataCnt = Size;
-    Message_Handle[MESSAGE_USART4_CH].Sendsize = ActiveCtrl->RcvIntSwapBufDataCnt;
-    message_sent_len =  MessageBuff_StackSendMessage(&Message_Handle[MESSAGE_USART4_CH], 1);
+    Message_Handle[STREAM_USART4_CH].Sendsize = ActiveCtrl->RcvIntSwapBufDataCnt;
+    message_sent_len =  StreamBuff_SendMessage(&Message_Handle[STREAM_USART4_CH], 1);
     if (message_sent_len != ActiveCtrl->RcvIntSwapBufDataCnt)
     {
-      MCAL_ERROR("MessageBuff_StackSendMessage failed for USART4, sent %d bytes, expected %d bytes\r\n", message_sent_len, ActiveCtrl->RcvIntSwapBufDataCnt);
+      MCAL_ERROR("StreamBuff_SendMessage failed for USART4, sent %d bytes, expected %d bytes\r\n", message_sent_len, ActiveCtrl->RcvIntSwapBufDataCnt);
     }
     HAL_UARTEx_ReceiveToIdle_IT(McalUsart_NumMapUsart[MCAL_USART4_CH].UsartBase, ActiveCtrl->RcvIntSwapBuf, ActiveCtrl->RcvIntSwapBufSize);
   }
@@ -286,11 +286,11 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef *huart, uint16_t Size)
   {
     ActiveCtrl = &McalUsart_Ctrl[MCAL_USART5_CH];
     ActiveCtrl->RcvIntSwapBufDataCnt = Size;
-    Message_Handle[MESSAGE_USART5_CH].Sendsize = ActiveCtrl->RcvIntSwapBufDataCnt;
-    message_sent_len =  MessageBuff_StackSendMessage(&Message_Handle[MESSAGE_USART5_CH], 1);
+    Message_Handle[STREAM_USART5_CH].Sendsize = ActiveCtrl->RcvIntSwapBufDataCnt;
+    message_sent_len =  StreamBuff_SendMessage(&Message_Handle[STREAM_USART5_CH], 1);
     if (message_sent_len != ActiveCtrl->RcvIntSwapBufDataCnt)
     {
-      MCAL_ERROR("MessageBuff_StackSendMessage failed for USART5, sent %d bytes, expected %d bytes\r\n", message_sent_len, ActiveCtrl->RcvIntSwapBufDataCnt);
+      MCAL_ERROR("StreamBuff_SendMessage failed for USART5, sent %d bytes, expected %d bytes\r\n", message_sent_len, ActiveCtrl->RcvIntSwapBufDataCnt);
     }
     HAL_UARTEx_ReceiveToIdle_IT(McalUsart_NumMapUsart[MCAL_USART5_CH].UsartBase, ActiveCtrl->RcvIntSwapBuf, ActiveCtrl->RcvIntSwapBufSize);
   }
@@ -301,16 +301,16 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef *huart, uint16_t Size)
 
 uint32_t Mcal_Usart_AppCheckData(uint32_t USART)
 {
-  const MessageBuffChannel_Enum_t *channel = &Mcal_UsartMapChannel[USART];
+  const StreamBuffChannel_Enum_t *channel = &Mcal_UsartMapChannel[USART];
 
-  return (uint32_t)MessageBuff_CheckMessage(&Message_Handle[*channel]);
+  return (uint32_t)StreamBuff_CheckMessage(&Message_Handle[*channel]);
 }
 
 // 串口接收数据函数
 uint32_t Mcal_Usart_AppReceiveData(uint32_t USART, uint8_t *data, uint32_t size)
 {
   uint32_t RetDataLen = 0;
-  const MessageBuffChannel_Enum_t *channel = &Mcal_UsartMapChannel[USART];
+  const StreamBuffChannel_Enum_t *channel = &Mcal_UsartMapChannel[USART];
 
   if (data == NULL || size == 0)
   {
@@ -320,7 +320,7 @@ uint32_t Mcal_Usart_AppReceiveData(uint32_t USART, uint8_t *data, uint32_t size)
   {
     Message_Handle[*channel].Rcvbuffer = data;
     Message_Handle[*channel].Rcvsize = size;
-    if (MESSAGE_BUFF_OK != MessageBuff_StackReceiveMessage(&Message_Handle[*channel], &RetDataLen, 0))
+    if (STREAM_BUFF_OK != StreamBuff_ReceiveMessage(&Message_Handle[*channel], &RetDataLen, 0))
     {
        RetDataLen = 0;
     }
