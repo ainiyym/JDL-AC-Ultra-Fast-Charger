@@ -13,6 +13,7 @@
 #include "AppTask_MainTask.h"
 #include "AppTask_TaskInfo.h"
 #include "AppTask_4gTask.h"
+#include "AppTask_CorePrintTask.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -22,6 +23,7 @@
 #define TASK_INFO_TASK_STACK_SIZE (4u * 1024u / 4u)
 #define TASK_4G_TASK_STACK_SIZE (4u * 1024u / 4u)
 #define TASK_AT_TASK_STACK_SIZE (2u * 1024u / 4u)
+#define TASK_CORE_PRINT_TASK_STACK_SIZE (1.5 * 1024u / 4u)
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
@@ -50,6 +52,8 @@ TaskHandle_t AtTask_Handle = NULL;
 TaskHandle_t TaskInfo_StaticTask = NULL;
 #endif
 
+static TaskHandle_t CorePrintTaskHandle = NULL;
+
 /*******************************************************************************
 |    Table Const Definition
 |******************************************************************************/
@@ -65,18 +69,21 @@ TaskHandle_t TaskInfo_StaticTask = NULL;
 int main(void)
 {
     SYSM_InitZero();
+    CorePrint_TaskInit();
     /* Infinite loop */
     xTaskCreateStatic(
-        AppTask_MainTask, "MainTask", MAIN_TASK_STACK_SIZE, NULL, TASK_START_PRIO_6, Main_Stack, &Main_StaticTask);
+        AppTask_MainTask, "MainTask", MAIN_TASK_STACK_SIZE, NULL, TASK_START_PRIO_8, Main_Stack, &Main_StaticTask);
     xTaskCreate(
-        OSTimerTask_MainTask, "OSTimerTask", OS_TIMER_TASK_STACK_SIZE, (void *)NULL, TASK_START_PRIO_5, &OsTimer_Task_Handle);
+        OSTimerTask_MainTask, "OSTimerTask", OS_TIMER_TASK_STACK_SIZE, (void *)NULL, TASK_START_PRIO_7, &OsTimer_Task_Handle);
 #ifdef ENABLE_TASKINFO_TASK
     xTaskCreate(
         AppTask_TaskInfo, "TaskInfo", TASK_INFO_TASK_STACK_SIZE, NULL, TASK_START_PRIO_1, &TaskInfo_StaticTask);
 #endif
     xTaskCreate(
-        M4gTask_MainTask, "M4gTask", TASK_4G_TASK_STACK_SIZE, NULL, TASK_START_PRIO_3, &M4g_Task_Handle);
+        CorePrint_Task, "CorePrintTask", TASK_CORE_PRINT_TASK_STACK_SIZE, NULL, TASK_START_PRIO_3, &CorePrintTaskHandle);
     xTaskCreate(
-        AtTask_MainTask, "AtTask", TASK_AT_TASK_STACK_SIZE, NULL, TASK_START_PRIO_4, &AtTask_Handle);
+        M4gTask_MainTask, "M4gTask", TASK_4G_TASK_STACK_SIZE, NULL, TASK_START_PRIO_4, &M4g_Task_Handle);
+    xTaskCreate(
+        AtTask_MainTask, "AtTask", TASK_AT_TASK_STACK_SIZE, NULL, TASK_START_PRIO_5, &AtTask_Handle);
     vTaskStartScheduler();
 }

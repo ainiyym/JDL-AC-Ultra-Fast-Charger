@@ -148,10 +148,10 @@ static void Task1ms(void)
 static void Task5ms(void)
 {
     /* 5ms task code */
-    Mcal_USARTIf_Send_MainFunction(); // Call the main function for serial port transmission
     CPM_5msMainFunction();
     RELAYM_5msMainFunction();
     SENSOR_5msMainFunction();
+    LogService_Print_Task(NULL);
 }
 
 static void Task10ms(void)

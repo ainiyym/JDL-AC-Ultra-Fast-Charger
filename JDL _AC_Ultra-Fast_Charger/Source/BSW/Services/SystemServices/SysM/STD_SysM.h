@@ -16,6 +16,7 @@
 |******************************************************************************/
 
 #include "STD_SysM_Cfg.h"
+#include "AppTask_CorePrintTask.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -60,7 +61,6 @@ extern void SYSM_10msMainFunction(void);
 extern void SYSM_RunningLedHandle(void);
 
 extern void SYSM_ImmediatelyResetManage(void);
-extern int SYSM_printf(const char *format, ...);
 extern void SYSM_SetCpVolMode(SysConnector_Num_Enum ch, uint8_t mode);
 extern uint8_t SYSM_GetCpVolMode(SysConnector_Num_Enum ch);
 extern uint8_t SYSM_GetResetPrepareStatus(void);

@@ -54,35 +54,36 @@ void FreeRTOS_Sleep(int msec)
  */
 void AppTask_MainTask(void *pvParameters)
 {
-	TickType_t xLastWakeTime;
-	const TickType_t xPeriod = pdMS_TO_TICKS( 1 );
-
-    SYSM_printf("AppTask_MainTask creat success \r\n");
-	xLastWakeTime = xTaskGetTickCount();
+    TickType_t xLastWakeTime;
+    const TickType_t xPeriod = pdMS_TO_TICKS(1);
+    xLastWakeTime = xTaskGetTickCount();
 
     OS_Init();
+    Core_printf("AppTask_MainTask creat success \r\n");
+
     while (1)
     {
-        APPTASK_MAINTASK_RUN_START(); 
+        APPTASK_MAINTASK_RUN_START();
         Scheduler_ISRCb();
-    	Mcal_SYSTICK_Counter_Increase();
-		OS_Schedule();
-        APPTASK_MAINTASK_RUN_END(); 
-		vTaskDelayUntil( &xLastWakeTime, xPeriod );
+        Mcal_SYSTICK_Counter_Increase();
+        OS_Schedule();
+        APPTASK_MAINTASK_RUN_END();
+        vTaskDelayUntil(&xLastWakeTime, xPeriod);
     }
 }
 
 void OSTimerTask_MainTask(void *pvParameters)
 {
     StreamBuff_StackInit();
-    SYSM_printf("OSTimerTask_MainTask start \r\n");
+    Core_printf("OSTimerTask_MainTask start \r\n");
+
     while (1)
     {
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-        APPTASK_MAINTASK_RUN_START(); 
+        APPTASK_MAINTASK_RUN_START();
         OS_SoftTimerSoftTimerINT_CB();
-		OS_TimerTask();
-        APPTASK_MAINTASK_RUN_END(); 
+        OS_TimerTask();
+        APPTASK_MAINTASK_RUN_END();
     }
 }
 /* EOF */

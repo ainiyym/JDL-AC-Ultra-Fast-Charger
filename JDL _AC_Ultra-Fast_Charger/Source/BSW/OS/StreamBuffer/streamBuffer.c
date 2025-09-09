@@ -14,7 +14,7 @@ uint16_t StreamBuff_SendMessage(StreamBuffM_t *message, uint8_t ISR)
 
     if (message == NULL || message->handle == NULL || message->Sendbuffer == NULL)
     {
-        SYSM_printf("Invalid message Rcvbuffer handle or Sendbuffer.\r\n");
+        Core_printf("Invalid message Rcvbuffer handle or Sendbuffer.\r\n");
         return 0;
     }
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -47,7 +47,7 @@ StreamBuffStatus_Enum_t StreamBuff_ReceiveMessage(StreamBuffM_t *message, uint32
 {
     if (message == NULL || message->handle == NULL || message->Rcvbuffer == NULL)
     {
-        SYSM_printf("Invalid message Rcvbuffer handle or Rcvbuffer.\r\n");
+        Core_printf("Invalid message Rcvbuffer handle or Rcvbuffer.\r\n");
         return STREAM_BUFF_ERROR;
     }
     size_t xNextLength = StreamBuff_CheckMessage(message);
@@ -55,7 +55,7 @@ StreamBuffStatus_Enum_t StreamBuff_ReceiveMessage(StreamBuffM_t *message, uint32
     {
         // No message available
         *Rcvsize = 0;
-        return STREAM_BUFF_EMPTY;
+        return STREAM_BUFF_EMPTY; 
     }
 
     if (ISR)
@@ -81,7 +81,7 @@ void StreamBuff_StackInit(void)
         Message_Handle[i].handle = xStreamBufferCreate(STREAM_BUFFER_SIZE, 1);
         if (Message_Handle[i].handle == NULL)
         {
-           SYSM_printf("Failed to create StreamBuff[%d]. \r\n", i);
+           Core_printf("Failed to create StreamBuff[%d]. \r\n", i);
         }
     }
 }

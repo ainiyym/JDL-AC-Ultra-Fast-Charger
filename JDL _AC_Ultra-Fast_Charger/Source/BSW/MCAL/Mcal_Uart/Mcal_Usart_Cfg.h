@@ -19,14 +19,8 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
-#define MCAL_USART1_CH_SEND_CYCBUF_LEN (1024U)
 #define MCAL_USART1_CH_RCV_CYCBUF_LEN (1024U)
-#define MCAL_USART1_CH_SEND_BUF_LEN (1024U)
-
-#define MCAL_USART2_CH_SEND_CYCBUF_LEN (1024U)
 #define MCAL_USART2_CH_RCV_CYCBUF_LEN (1024U)
-#define MCAL_USART2_CH_SEND_BUF_LEN (1024U)
-
 #define MCAL_USART4_CH_RCV_CYCBUF_LEN (256U)
 #define MCAL_USART5_CH_RCV_CYCBUF_LEN (256U)
 /*******************************************************************************
@@ -49,10 +43,6 @@ typedef struct
 typedef struct
 {
   uint8_t UsartNum; /* USART通道号 */
-  uint8_t *SendCycBuf; /* 发送环形缓冲区 */
-  uint32_t SendCycBufLen; /* 发送环形缓冲区长度 */
-  uint8_t *SendBuf; /* 发送缓冲区 */
-  uint32_t SendBufLen; /* 发送缓冲区长度 */
   uint32_t RcvBufLen; /* 接收缓冲区长度 */
 }McalUsart_BufCfg_t;
 
@@ -78,15 +68,10 @@ typedef struct
 |******************************************************************************/
 typedef struct
 {
-  uint8_t SendCycBufID;
   uint8_t Send_Lock;
-
   uint16_t RcvIntSwapBufDataCnt;
   uint8_t* RcvIntSwapBuf; // 交换缓冲区,动态分配
   uint16_t RcvIntSwapBufSize;
-
-  uint8_t *SendBuf;
-  uint32_t SendBufLen;
   uint32_t SenLen;
 } McalUsart_Ctrol_t;
 /*******************************************************************************
@@ -113,8 +98,6 @@ extern uint32_t Mcal_Usart_AppCheckData(uint32_t USART);
 extern uint32_t Mcal_Usart_AppReceiveData(uint32_t USART, uint8_t *data, uint32_t size);
 // USART send data
 extern McalRetVal_t Mcal_Usart_AppSendData(uint32_t USART, uint8_t *data, uint32_t size);
-// USART send main function
-extern void Mcal_USARTIf_Send_MainFunction(void);
 // USART send interrupt callback
 extern void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
 #endif

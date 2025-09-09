@@ -15,6 +15,10 @@
 #include "stdio.h"
 #include "STD_Lib.h"
 #include "STD_LogService.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
+#include "queue.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -44,15 +48,20 @@ Log(Critical, LOG_LEVEL_CRITICAL)
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
+typedef struct
+{
+    uint8_t message[LOGSERVICE_BUF_MAX_SIZE+1];
+    uint16_t length;
+} Log_item_t;
 
 /*******************************************************************************
 |    Static local KAM variables Declaration
 |******************************************************************************/
+static QueueHandle_t LogQueue = NULL;
 
 /*******************************************************************************
 |    Static local variables Declaration
 |******************************************************************************/
-static uint8_t gv_LogBuf[LOGSERVICE_BUF_MAX_SIZE + 1];
 static uint8_t gv_ucLogStatus = 0;
 /* Initial configuration module and level log output control */
 static LogServiceCtrl_Struct gv_stLogServiceCtrl = {  (  LOG_STATE_ON  << LOG_MODULE_XXX)
@@ -142,26 +151,28 @@ const char *LogService_Get_Module_Name(uint32_t lv_ulModuleIdx)
 
 static void LogSevice_Args(Log_Module_Enum module, Log_Level_Enum level, const char *fmt, va_list args)
 {
-	uint32_t lv_ulLogSize = 0;
+    Log_item_t item;
+    BaseType_t xResult;
 
-	if((module < LOG_MODULE_MAX) && (gv_stLogServiceCtrl.ulLogModule_32 & (1 << module)) && (gv_stLogServiceCtrl.ulLogLevel & (1 << level)))
-	{
-		lv_ulLogSize = vsnprintf((char *)gv_LogBuf, LOGSERVICE_BUF_MAX_SIZE, fmt, args); 
-        if(lv_ulLogSize > LOGSERVICE_BUF_MAX_SIZE)
+    // Critical section
+    if ((module < LOG_MODULE_MAX) && (gv_stLogServiceCtrl.ulLogModule_32 & (1 << module)) && (gv_stLogServiceCtrl.ulLogLevel & (1 << level)))
+    {
+        item.length = vsnprintf((char *)item.message, LOGSERVICE_BUF_MAX_SIZE, fmt, args);
+        if (item.length > LOGSERVICE_BUF_MAX_SIZE)
         {
-            gv_LogBuf[LOGSERVICE_BUF_MAX_SIZE - 1] = 0; 
+            item.message[LOGSERVICE_BUF_MAX_SIZE - 1] = 0;
         }
         else
         {
-            gv_LogBuf[lv_ulLogSize] = 0; 
+            item.message[item.length] = 0;
         }
-		if(gv_ucLogStatus != 0)
-		{
-            Mcal_Usart_AppSendData(LOG_SERVICE_USART_CH, gv_LogBuf, lv_ulLogSize);
-		}
-	}
-	else
-	{;}
+        xResult = xQueueSend(LogQueue, &item, 0);
+        if (xResult != pdPASS)
+        {
+            // Queue full, discard print content
+            Core_printf("Log queue full, discarded log: %s", item.message);
+        }
+    }
 }
 
 void LogService_Set_Module(Log_Module_Enum Module, bool Enable)
@@ -179,14 +190,6 @@ void LogService_Set_Module(Log_Module_Enum Module, bool Enable)
                 gv_stLogServiceCtrl.ulLogModule_32 &= ~(1 << Module);
             }
         }
-        else
-        {
-            ;
-        }
-    }
-    else
-    {
-        ;
     }
 }
 
@@ -205,115 +208,72 @@ void LogService_Set_Level(Log_Level_Enum Level, bool Enable)
                 gv_stLogServiceCtrl.ulLogLevel &= ~(1 << Level);
             }
         }
-        else
-        {
-            ;
-        }
-    }
-    else
-    {
-        ;
-    }
-}
-
-void LogService_Disable_All_Module(void)
-{
-    gv_stLogServiceCtrl.ulLogModule_32_Backup = gv_stLogServiceCtrl.ulLogModule_32;
-    gv_stLogServiceCtrl.ulLogModule_32 = 0;
-    gv_stLogServiceCtrl.ulLogDisable_Cnt++;
-}
-
-void LogService_Restore_All_Module(void)
-{
-    gv_stLogServiceCtrl.ulLogDisable_Cnt--;
-    if (gv_stLogServiceCtrl.ulLogDisable_Cnt <= 0)
-    {
-        gv_stLogServiceCtrl.ulLogModule_32 = gv_stLogServiceCtrl.ulLogModule_32_Backup;
-    }
-    else
-    {
-        ;
     }
 }
 
 void LogService_Init_Module_Status(uint32_t lv_ulStatus)
 {
-    gv_stLogServiceCtrl.ulLogModule_32_Backup = gv_stLogServiceCtrl.ulLogModule_32;
     gv_stLogServiceCtrl.ulLogModule_32 = lv_ulStatus;
 }
 
 void LogService_Init_Level_Status(uint32_t lv_ulStatus)
 {
-    gv_stLogServiceCtrl.ulLogLevel_Backup = gv_stLogServiceCtrl.ulLogLevel;
     gv_stLogServiceCtrl.ulLogLevel = lv_ulStatus;
 }
 
-void LogService_Set_Module_Init_Value(uint8_t *lv_ucInitArr)
+void LogService_Print_Hex_Array(Log_Module_Enum module, const uint8_t *hexArray, uint32_t len, uint8_t appendNewline)
 {
-    if (NULL != lv_ucInitArr)
-    {
-        LIB_Copy(gv_stLogServiceCtrl.ucLogModuleInit_Value, lv_ucInitArr, 10);
-    }
-    else
-    {
-        ;
-    }
-}
+    if ((module >= LOG_MODULE_MAX) || !(gv_stLogServiceCtrl.ulLogModule_32 & (1 << module)) || !hexArray || len == 0)
+        return;
 
-void LogService_Set_Level_Init_Value(uint8_t *lv_ucInitArr)
-{
-    if (NULL != lv_ucInitArr)
-    {
-        LIB_Copy(gv_stLogServiceCtrl.ucLogLevelInit_Value, lv_ucInitArr, 10);
-    }
-    else
-    {
-        ;
-    }
-}
+    uint8_t buf[LOGSERVICE_HEX_BUF_MAX_SIZE];
+    uint32_t idx = 0;
+    BaseType_t xResult;
 
-void LogService_Print_Hex_Array(Log_Module_Enum module, uint8_t *lv_ucHexArray, uint32_t lv_ulLen, uint8_t lv_ucR)
-{
-    if ((module < LOG_MODULE_MAX) && (gv_stLogServiceCtrl.ulLogModule_32 & (1 << module)))
+    for (uint32_t i = 0; i < len && (idx + 3) < LOGSERVICE_HEX_BUF_MAX_SIZE; i++)
     {
-        uint8_t lv_ucBuf[LOGSERVICE_HEX_BUF_MAX_SIZE];
-        uint32_t lv_ulIdx = 0;
+        int written = snprintf((char *)&buf[idx], LOGSERVICE_HEX_BUF_MAX_SIZE - idx, "%02X ", hexArray[i]);
+        if (written <= 0) break;
+        idx += written;
+    }
 
-        if ((NULL != lv_ucHexArray) && (0 != lv_ulLen) && (lv_ulLen < (LOGSERVICE_HEX_BUF_MAX_SIZE / 3)))
+    if (appendNewline && idx < LOGSERVICE_HEX_BUF_MAX_SIZE)
+        buf[idx++] = '\n';
+
+    if (gv_ucLogStatus && idx > 0)
+    {
+        Log_item_t item;
+        item.length = (idx < LOGSERVICE_BUF_MAX_SIZE) ? idx : LOGSERVICE_BUF_MAX_SIZE - 1;
+        memcpy(item.message, buf, item.length);
+        item.message[item.length] = 0;
+        // You may want to send item to queue or handle it as needed
+        xResult = xQueueSend(LogQueue, &item, 0);
+        if (xResult != pdPASS)
         {
-            for (uint32_t i = 0; i < lv_ulLen; i++)
-            {
-                sprintf((char *)&lv_ucBuf[lv_ulIdx], "%02X ", lv_ucHexArray[i]);
-                lv_ulIdx += 3;
-            }
-
-            if (lv_ucR > 0)
-            {
-                lv_ucBuf[lv_ulIdx] = '\n';
-                lv_ulIdx++;
-            }
-            else
-            {
-                ;
-            }
-        }
-        else
-        {
-            ;
-        }
-        if (gv_ucLogStatus != 0)
-        {
-            Mcal_Usart_AppSendData(LOG_SERVICE_USART_CH, lv_ucBuf, lv_ulIdx);
+            // Queue full, discard print content
+            Core_printf("Log queue full, discarded log: %s", item.message);
         }
     }
 }
 
 void LogService_SetLogEnable(void)
 {
+    LogQueue = xQueueCreate(LOGSERVICE_QUEUE_LENGTH, sizeof(Log_item_t));
     gv_ucLogStatus = 1;
 }
 
 void LogService_SetLogDisable(void)
 {
     gv_ucLogStatus = 0;
+}
+
+void LogService_Print_Task(void *pvParameters)
+{
+    Log_item_t item;
+
+    // Process all messages in the log queue
+    while (xQueueReceive(LogQueue, &item, 0) == pdPASS)
+    {
+        HAL_UART_Transmit(&huart2, (uint8_t *)item.message, item.length, 25);
+    }
 }

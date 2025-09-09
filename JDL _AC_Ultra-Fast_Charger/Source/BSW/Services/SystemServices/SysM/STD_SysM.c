@@ -11,6 +11,9 @@
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
 #include "STD_SysM.h"
 #include "Mcal_App.h"
 #include "Comm.h"
@@ -40,22 +43,22 @@
 |******************************************************************************/
 typedef struct
 {
-	uint8_t CpStatus[SYS_CONNECTOR_NUM_MAX]; /* Cp状态 */
-	uint8_t EVSEStatus[SYS_CONNECTOR_NUM_MAX]; /* EVSE状态 */
-	uint8_t StopChargingReason[SYS_CONNECTOR_NUM_MAX]; /* 停止充电原因 */
-	uint32_t ul10msCnt; /* 计数器 */
+	uint8_t CpStatus[SYS_CONNECTOR_NUM_MAX]; /* Cp status */
+	uint8_t EVSEStatus[SYS_CONNECTOR_NUM_MAX]; /* EVSE status */
+	uint8_t StopChargingReason[SYS_CONNECTOR_NUM_MAX]; /* Stop charging reason */
+	uint32_t ul10msCnt; /* Counter */
 }SysM_BasicInfo_Struct;
 
 
 typedef struct
 {
-	SysM_BasicInfo_Struct basic_ctrl_info; /* 基本控制信息 */
-	uint8_t ucSysReady10msCnt;	   /* 系统就绪状态计数器 */
-	uint8_t ucCpOutMode[SYS_CONNECTOR_NUM_MAX];           /* CP输出模式 */
+	SysM_BasicInfo_Struct basic_ctrl_info; /* Basic control info */
+	uint8_t ucSysReady10msCnt;	   /* System ready status counter */
+	uint8_t ucCpOutMode[SYS_CONNECTOR_NUM_MAX];           /* CP output mode */
 	uint8_t ucLowPowerShutdownFlag;
 	uint8_t ucLowPowerShutdownCnt;
-	uint8_t usRemoteResetFlag; /* 0: No reset request; 1: Reset immediately; 2:Reset when the conditons are satisfied.*/
-	uint32_t ulSystemStatus[SYS_CONNECTOR_NUM_MAX];   /* 系统状态字。位表示，位定义见STD_SysM_SysStatus_t，1：表示存在定义状态； 0：表示不存在。*/
+	uint8_t usRemoteResetFlag; /* 0: No reset request; 1: Reset immediately; 2:Reset when the conditions are satisfied.*/
+	uint32_t ulSystemStatus[SYS_CONNECTOR_NUM_MAX];   /* System status word. Bitwise, definition see STD_SysM_SysStatus_t, 1: defined status exists; 0: does not exist.*/
 } SysM_Struct;
 /*******************************************************************************
 |    Static local KAM variables Declaration
@@ -86,17 +89,12 @@ void SYSM_InitMemory( void )
 }
 
 /****************************************************************************************
- *函数名称  : void SYSM_InitZero( void )
-
- *参数      : void
-
- *返回值    : void
-
- *描述      : 系统0阶段初始化，系统内核、时钟初始化
-
- *编辑时间  :
-
- *备注      : 初版
+ * Function Name  : void SYSM_InitZero( void )
+ * Parameter      : void
+ * Return Value   : void
+ * Description    : System phase 0 initialization, kernel and clock initialization
+ * Edit Time      :
+ * Remark         : Initial version
  *****************************************************************************************/
 void SYSM_InitZero(void)
 {
@@ -106,21 +104,16 @@ void SYSM_InitZero(void)
 	/* Configure the system clock */
 	SystemClock_Config();
 	Mcal_Dma_Init();
- 	Mcal_Usart_Init();
+	Mcal_Usart_Init();
 }
 
 /****************************************************************************************
- *函数名称  : void SYSM_InitOne( void )
-
- *参数      : void
-
- *返回值    : void
-
- *描述      : 系统1阶段初始化，内存初始化
-
- *编辑时间  :
-
- *备注      : 初版
+ * Function Name  : void SYSM_InitOne( void )
+ * Parameter      : void
+ * Return Value   : void
+ * Description    : System phase 1 initialization, memory initialization
+ * Edit Time      :
+ * Remark         : Initial version
  *****************************************************************************************/
 void SYSM_InitOne(void)
 {
@@ -132,17 +125,12 @@ void SYSM_InitOne(void)
 }
 
 /****************************************************************************************
- *函数名称  : void SYSM_InitTwo( void )
-
- *参数      : void
-
- *返回值    : void
-
- *描述      :系统2阶段初始化，Can通信初始化
-
- *编辑时间  :
-
- *备注      : 初版
+ * Function Name  : void SYSM_InitTwo( void )
+ * Parameter      : void
+ * Return Value   : void
+ * Description    : System phase 2 initialization, CAN communication initialization
+ * Edit Time      :
+ * Remark         : Initial version
  *****************************************************************************************/
 void SYSM_InitTwo( void )
 {
@@ -152,13 +140,11 @@ void SYSM_InitTwo( void )
 	FIFO_InitMemory();
 	/* Initialize the peripherals */
 	MCALAPP_PeripheralInit();
-	/* Enable logging service */
-	LogService_SetLogEnable();
 	/* print user info */
 	SYSM_ShowUserInfo();
 	/* print reset source */
 	Mcal_McuCheck_Rst();
-	/* App init memery */
+	/* App init memory */
 	ERRHDL_InitMemory(); 
 	Comm_Init();
 	ModbusM_Init();
@@ -176,17 +162,12 @@ void SYSM_InitTwo( void )
 }
 
 /****************************************************************************************
- *函数名称  : void SYSM_InitThree( void )
-
- *参数      : void
-
- *返回值    : void
-
- *描述      :系统3阶段初始化，系统加载、电机加载启动
-
- *编辑时间  :
-
- *备注      : 初版
+ * Function Name  : void SYSM_InitThree( void )
+ * Parameter      : void
+ * Return Value   : void
+ * Description    : System phase 3 initialization, system loading and motor startup
+ * Edit Time      :
+ * Remark         : Initial version
  *****************************************************************************************/
 void SYSM_InitThree(void)
 {
@@ -208,17 +189,12 @@ static void SYSM_ShowUserInfo(void)
 }
 
 /****************************************************************************************
- *函数名称  : void SYSM_SleepShutdown(void)
-
- *参数      : void
-
- *返回值    : void
-
- *描述      : 睡眠前关闭外部设备
-
- *编辑时间  :
-
- *备注      : 初版
+ * Function Name  : void SYSM_SleepShutdown(void)
+ * Parameter      : void
+ * Return Value   : void
+ * Description    : Shutdown external devices before sleep
+ * Edit Time      :
+ * Remark         : Initial version
  *****************************************************************************************/
 void SYSM_SleepShutdown(void)
 {
@@ -226,17 +202,12 @@ void SYSM_SleepShutdown(void)
 }
 
 /****************************************************************************************
- *函数名称  : void SYSM_WakeupRestart( void )
-
- *参数      : void
-
- *返回值    : void
-
- *描述      : 唤醒后初始化
-
- *编辑时间  :
-
- *备注      : 初版
+ * Function Name  : void SYSM_WakeupRestart( void )
+ * Parameter      : void
+ * Return Value   : void
+ * Description    : Initialization after wakeup
+ * Edit Time      :
+ * Remark         : Initial version
  *****************************************************************************************/
 void SYSM_WakeupRestart( void )
 {
@@ -244,45 +215,34 @@ void SYSM_WakeupRestart( void )
 }
 
 /****************************************************************************************
- *函数名称  : uint8_t SYSM_GetResetPrepareStatus(void)
-
- *参数      : void
-
- *返回值    : 0~1
-
- *描述      :返回复位准备状态，系统必须在复位准备状态
-                     为真的情况下才可工作
-
- *编辑时间  :
-
- *备注      : 初版
+ * Function Name  : uint8_t SYSM_GetResetPrepareStatus(void)
+ * Parameter      : void
+ * Return Value   : 0~1
+ * Description    : Return reset preparation status, system must be in reset preparation status to work
+ * Edit Time      :
+ * Remark         : Initial version
  *****************************************************************************************/
 uint8_t SYSM_GetResetPrepareStatus(void)
 {
-    uint8_t ReStatus = FALSE;
+	uint8_t ReStatus = FALSE;
 
-    if((stSysM.ucSysReady10msCnt > SYSM_RESET_PREPARE_MAX_CNT))
-    {
-        ReStatus = TRUE ;
-    }
-    else
-    {
-    }
-    return (ReStatus);
+	if((stSysM.ucSysReady10msCnt > SYSM_RESET_PREPARE_MAX_CNT))
+	{
+		ReStatus = TRUE ;
+	}
+	else
+	{
+	}
+	return (ReStatus);
 }
 
 /****************************************************************************************
- *函数名称  : void SYSM_SetSysStatusBit(SysConnector_Num_Enum ch, uint32_t SysStatusMask, uint8_t Mode)
-
- *参数      :
-
- *返回值    :
-
- *描述      :设置指定状态位为1(Mode==1)或为0(Mode==0)
-
- *编辑时间  :
-
- *备注      : 初版
+ * Function Name  : void SYSM_SetSysStatusBit(SysConnector_Num_Enum ch, uint32_t SysStatusMask, uint8_t Mode)
+ * Parameter      :
+ * Return Value   :
+ * Description    : Set specified status bit to 1 (Mode==1) or 0 (Mode==0)
+ * Edit Time      :
+ * Remark         : Initial version
  *****************************************************************************************/
 void SYSM_SetSysStatusBit(SysConnector_Num_Enum ch, uint32_t SysStatusMask, uint8_t Mode)
 {
@@ -296,17 +256,12 @@ void SYSM_SetSysStatusBit(SysConnector_Num_Enum ch, uint32_t SysStatusMask, uint
 
 
 /****************************************************************************************
- *函数名称  : void SYSM_GetSysStatusBit(uint32_t SysStatusMask, uint8_t Mode)
-
- *参数      :
-
- *返回值    : 0：状态位为0；1：状态位为1。
-
- *描述      :返回指定状态位状态。
-
- *编辑时间  :
-
- *备注      : 初版
+ * Function Name  : void SYSM_GetSysStatusBit(uint32_t SysStatusMask, uint8_t Mode)
+ * Parameter      :
+ * Return Value   : 0: status bit is 0; 1: status bit is 1.
+ * Description    : Return specified status bit status.
+ * Edit Time      :
+ * Remark         : Initial version
  *****************************************************************************************/
 uint8_t SYSM_GetSysStatusBit(SysConnector_Num_Enum ch, uint32_t SysStatusMask)
 {
@@ -319,17 +274,12 @@ uint8_t SYSM_GetSysStatusBit(SysConnector_Num_Enum ch, uint32_t SysStatusMask)
 }
 
 /****************************************************************************************
- *函数名称  : uint32_t SYSM_GetSysStatus(SysConnector_Num_Enum ch)
-
- *参数      :
-
- *返回值    :
-
- *描述      :获取系统状态字
-
- *编辑时间  :
-
- *备注      : 初版
+ * Function Name  : uint32_t SYSM_GetSysStatus(SysConnector_Num_Enum ch)
+ * Parameter      :
+ * Return Value   :
+ * Description    : Get system status word
+ * Edit Time      :
+ * Remark         : Initial version
  *****************************************************************************************/
 uint32_t SYSM_GetSysStatus(SysConnector_Num_Enum ch)
 {
@@ -337,17 +287,12 @@ uint32_t SYSM_GetSysStatus(SysConnector_Num_Enum ch)
 }
 
 /****************************************************************************************
- *函数名称  : uint8_t SYSM_CheckSysStatus(SysConnector_Num_Enum ch, uint32_t SysStatusMask, uint8_t Mode)
-
- *参数      :
-
- *返回值    : 指定状态位是否全为1(Mode==1)或全为0(Mode==0)返回TRUE，否则返回FALSE.
-
- *描述      : 检测指定状态位是否全为1(Mode==1)或全为0(Mode==0)
-
- *编辑时间  :
-
- *备注      : 初版
+ * Function Name  : uint8_t SYSM_CheckSysStatus(SysConnector_Num_Enum ch, uint32_t SysStatusMask, uint8_t Mode)
+ * Parameter      :
+ * Return Value   : If specified status bits are all 1 (Mode==1) or all 0 (Mode==0), return TRUE, otherwise return FALSE.
+ * Description    : Check if specified status bits are all 1 (Mode==1) or all 0 (Mode==0)
+ * Edit Time      :
+ * Remark         : Initial version
  *****************************************************************************************/
 uint8_t SYSM_CheckSysStatus(SysConnector_Num_Enum ch, uint32_t SysStatusMask, uint8_t Mode)
 {
@@ -371,17 +316,12 @@ uint8_t SYSM_CheckSysStatus(SysConnector_Num_Enum ch, uint32_t SysStatusMask, ui
 	return Ret;
 }
 /****************************************************************************************
- *函数名称  : void SYSM_ShutDownMCtrl( void )
-
- *参数      : void
-
- *返回值    : void
-
- *描述      :系统掉电管理函数
-
- *编辑时间  :
-
- *备注      : 初版
+ * Function Name  : void SYSM_ShutDownMCtrl( void )
+ * Parameter      : void
+ * Return Value   : void
+ * Description    : System power-down management function
+ * Edit Time      :
+ * Remark         : Initial version
  *****************************************************************************************/
 void SYSM_ShutDownMCtrl(void)
 {
@@ -389,17 +329,12 @@ void SYSM_ShutDownMCtrl(void)
 }
 
 /****************************************************************************************
- *函数名称  : void SYSM_StandbyStatusCtrl( void )
-
- *参数      : void
-
- *返回值     : void
-
- *描述      :系统待机状态管理函数
-
- *编辑时间  :
-
- *备注      : 初版
+ * Function Name  : void SYSM_StandbyStatusCtrl( void )
+ * Parameter      : void
+ * Return Value   : void
+ * Description    : System standby status management function
+ * Edit Time      :
+ * Remark         : Initial version
  *****************************************************************************************/
 static void SYSM_StandbyStatusCtrl(void)
 {
@@ -407,12 +342,12 @@ static void SYSM_StandbyStatusCtrl(void)
 }
 
 /****************************************************************************************
- *函数名称  : static void SYSM_RemoteResetManage(void)
- *参数      : void
- *返回值    :
- *描述      : 管理异步复位，在条件满足是触发复位。
- *编辑时间  :
- *备注      : 初版
+ * Function Name  : static void SYSM_RemoteResetManage(void)
+ * Parameter      : void
+ * Return Value   :
+ * Description    : Manage asynchronous reset, trigger reset when conditions are met.
+ * Edit Time      :
+ * Remark         : Initial version
  *****************************************************************************************/
 static void SYSM_RemoteResetManage(void)
 {
@@ -420,12 +355,12 @@ static void SYSM_RemoteResetManage(void)
 }
 
 /****************************************************************************************
- *函数名称  : static void SYSM_ShowBasicInfo(void)
- *参数      : void
- *返回值    :
- *描述      : 打印系统基本信息。
- *编辑时间  :
- *备注      : 初版
+ * Function Name  : static void SYSM_ShowBasicInfo(void)
+ * Parameter      : void
+ * Return Value   :
+ * Description    : Print basic system information.
+ * Edit Time      :
+ * Remark         : Initial version
  *****************************************************************************************/
 static void SYSM_ShowBasicInfo(void)
 {
@@ -479,33 +414,14 @@ void SYSM_ImmediatelyResetManage(void)
 	Mcal_MCU_SysRestart();
 }
 
-int SYSM_printf(const char *format, ...)
-{
-	va_list arg;
-	char SendBuff[251] = {0};
-	uint16_t rv;
-
-	va_start(arg, format);
-	rv = (uint16_t)vsnprintf((char *)SendBuff, sizeof(SendBuff), (char *)format, arg);
-	va_end(arg);
-
-#ifdef ENABLE_TASKINFO_TASK
-	HAL_UART_Transmit(&huart2, (uint8_t *)SendBuff, rv, 0xffff);
-#else
-	HAL_UART_Transmit_DMA(&huart2, (uint8_t *)SendBuff, rv);
-#endif
-	vTaskDelay(pdMS_TO_TICKS(10));
-	return rv;
-}
-
 void SYSM_SetCpVolMode(SysConnector_Num_Enum ch, uint8_t mode)
 {
-    stSysM.ucCpOutMode[ch] = mode;
+	stSysM.ucCpOutMode[ch] = mode;
 }
 
 uint8_t SYSM_GetCpVolMode(SysConnector_Num_Enum ch)
 {
-    return (uint8_t)stSysM.ucCpOutMode[ch];
+	return (uint8_t)stSysM.ucCpOutMode[ch];
 }
 
 static void SYSM_OutPutDefaultCurrManage(void)
@@ -535,17 +451,12 @@ static void SYSM_OutPutDefaultCurrManage(void)
 }
 
 /****************************************************************************************
- *函数名称  : void SYSM_10msMainFunction( void )
-
- *参数      : void
-
- *返回值    : void
-
- *描述      :系统管理运行周期10ms调度函数
-
- *编辑时间  :
-
- *备注      : 初版
+ * Function Name  : void SYSM_10msMainFunction( void )
+ * Parameter      : void
+ * Return Value   : void
+ * Description    : System management 10ms periodic scheduling function
+ * Edit Time      :
+ * Remark         : Initial version
  *****************************************************************************************/
 void SYSM_10msMainFunction(void)
 {
@@ -555,7 +466,7 @@ void SYSM_10msMainFunction(void)
 
 	SYSM_RemoteResetManage();
 
-	SYSM_ShowBasicInfo();
+	// SYSM_ShowBasicInfo();
 
 	SYSM_OutPutDefaultCurrManage();
 }

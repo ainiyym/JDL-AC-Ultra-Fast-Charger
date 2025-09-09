@@ -71,13 +71,13 @@ typedef enum LogModule
     LOG_MODULE_XXX = 0x00,
     LOG_MODULE_AUTHM,
     LOG_MODULE_NOAUTH,
-	LOG_MODULE_ENERGY,
+    LOG_MODULE_ENERGY,
     LOG_MODULE_CURRM,
     LOG_MODULE_VOLTM,
     LOG_MODULE_EVSEM,
     LOG_MODULE_HMI,
-	LOG_MODULE_CCP,
-	LOG_MODULE_CAN,
+    LOG_MODULE_CCP,
+    LOG_MODULE_CAN,
     LOG_MODULE_CP,
     LOG_MODULE_SWITCHM,
     LOG_MODULE_METER,
@@ -88,26 +88,21 @@ typedef enum LogModule
     LOG_MODULE_BTRCTR,
     LOG_MODULE_RS485,
     LOG_MODULE_AT,
-    
-	LOG_MODULE_SYSM,
-	LOG_MODULE_MCAL,
-	LOG_MODULE_MAX,
+
+    LOG_MODULE_SYSM,
+    LOG_MODULE_MCAL,
+    LOG_MODULE_MAX,
 }Log_Module_Enum;
 
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
-
-typedef struct 
+typedef struct
 {
-	uint32_t ulLogModule_32;  	/* log Module Output Enable */
-	uint32_t ulLogLevel;			/* Log Level Output Enable */
-	uint32_t ulLogModule_32_Backup;  	
-	uint32_t ulLogLevel_Backup;	
-	uint32_t ulLogDisable_Cnt;
-	uint8_t  ucLogModuleInit_Value[10]; /* the EEPROM log_Module Cache config setting value */
-	uint8_t  ucLogLevelInit_Value[10];	/* the EEPROM log_Level Cache config setting value */
-}LogServiceCtrl_Struct;
+    uint32_t ulLogModule_32; /* log Module Output Enable */
+    uint32_t ulLogLevel;     /* Log Level Output Enable */
+    uint32_t ulLogDisable_Cnt;
+} LogServiceCtrl_Struct;
 
 /*******************************************************************************
 |    Table Definition
@@ -128,16 +123,11 @@ extern void LogCritical_Ex(Log_Module_Enum module, const char *fmt, ...);
 
 extern void LogService_Set_Module(Log_Module_Enum Module, bool Enable);
 extern void LogService_Set_Level(Log_Level_Enum Level, bool Enable);
-extern void LogService_Disable_All_Module(void);
-extern void LogService_Restore_All_Module(void);
 
-extern void LogService_Set_Module_Init_Value(uint8_t *lv_ucInitArr);
-extern void LogService_Set_Level_Init_Value(uint8_t *lv_ucInitArr);
-extern void LogService_Setting_Init(void);
-
-extern void LogService_Print_Hex_Array(Log_Module_Enum module, uint8_t *lv_ucHexArray, uint32_t lv_ulLen, uint8_t lv_ucR);
+extern void LogService_Print_Hex_Array(Log_Module_Enum module, const uint8_t *hexArray, uint32_t len, uint8_t appendNewline);
 
 extern void LogService_SetLogEnable(void);
 extern void LogService_SetLogDisable(void);
+extern void LogService_Print_Task(void *pvParameters);
 #endif
 

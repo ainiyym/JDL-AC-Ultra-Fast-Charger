@@ -313,7 +313,7 @@ uint32_t Mcal_Can_Receive_Msg(Mcal_CanRxChannel_Enum_t Channel, uint8_t *data, u
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *CanNum)
 {
   uint8_t chNum = 0;
-  // MCAL_DEBUG("%s \r\n", __func__);
+  // Core_printf("%s \r\n", __func__);
   for (chNum = 0; chNum < MCAL_CAN_RX_MAX_NUMBER; chNum++)
   {
     if (CanNum == Mcal_CanFilterCfgTable[chNum].CanHandle && CAN_RX_FIFO0 == Mcal_CanFilterCfgTable[chNum].FilterConfig.FilterFIFOAssignment)
@@ -327,7 +327,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *CanNum)
           MCAL_CYCBUF_WRITE(Mcal_CanCtrl.Buf[MCAL_CAN_RX_TEST].RcvCycBufID, Mcal_CanCtrl.rcvData, Mcal_CanCtrl.RxHeader.DLC);
         }else
         {
-          MCAL_ERROR("%s ID:%x RcvErr!\n\r", __FUNCTION__, MCAL_CAN_RX_TEST_ID);
+          Core_printf("%s ID:%x RcvErr!\n\r", __FUNCTION__, MCAL_CAN_RX_TEST_ID);
         }
       }
       /* Check if the received message is from CNA1_MCU_STATUS3 */
@@ -339,7 +339,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *CanNum)
         }
         else
         {
-          MCAL_ERROR("%s ID:0x%x DLC Fault! Rcv dlc len:%d\n\r", __FUNCTION__, MCAL_RX_MCU_STATUS3_ID, Mcal_CanCtrl.RxHeader.DLC);
+          Core_printf("%s ID:0x%x DLC Fault! Rcv dlc len:%d\n\r", __FUNCTION__, MCAL_RX_MCU_STATUS3_ID, Mcal_CanCtrl.RxHeader.DLC);
         }
         break;
       }
@@ -355,7 +355,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *CanNum)
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *CanNum)
 {
   uint8_t chNum = 0;
-  // MCAL_DEBUG("%s \r\n", __func__);
+  // Core_printf("%s \r\n", __func__);
   for (chNum = 0; chNum < MCAL_CAN_RX_MAX_NUMBER; chNum++)
   {
     if (CanNum == Mcal_CanFilterCfgTable[chNum].CanHandle && CAN_RX_FIFO1 == Mcal_CanFilterCfgTable[chNum].FilterConfig.FilterFIFOAssignment)
@@ -375,7 +375,7 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *CanNum)
         }
         else
         {
-          MCAL_ERROR("%s ID:0x%x DLC Fault! Rcv dlc len:%d\n\r", __FUNCTION__, MCAL_RX_MCU_STATUS3_ID, Mcal_CanCtrl.RxHeader.DLC);
+          Core_printf("%s ID:0x%x DLC Fault! Rcv dlc len:%d\n\r", __FUNCTION__, MCAL_RX_MCU_STATUS3_ID, Mcal_CanCtrl.RxHeader.DLC);
         }
       }
       else

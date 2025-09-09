@@ -179,7 +179,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 
     // AO = SwitchM_Get74hct4851dOutputStatusCallBack(SWITCHM_74HCT4851D_MULTIPLEX_ADC0);
     // AdVol = HAL_ADC_GetValue(&hadc1);
-    // MCAL_DEBUG("--conv--AO :%d VOL:%d \r\n", AO, AdVol);
+    // Core_printf("--conv--AO :%d VOL:%d \r\n", AO, AdVol);
     if (hadc == &hadc1)
     {
         switch (SwitchM_Get74hct4851dOutputStatusCallBack(SWITCHM_74HCT4851D_MULTIPLEX_ADC0))

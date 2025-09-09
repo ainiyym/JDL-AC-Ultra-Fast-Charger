@@ -389,7 +389,7 @@ static void BTRCTR_PowerDownInfor(void)
     uint32_t ulAdVolValue = 0u;
     /* 下电流程 */
 
-    SYSM_printf("\r\nStart Power Down!\r\n");
+    Core_printf("\r\nStart Power Down!\r\n");
 
     /*关相关外设*/
     BTRCTR_DisableAllMode();
@@ -413,7 +413,7 @@ static void BTRCTR_PowerDownInfor(void)
         LIB_StatusFilter(&gv_stBtrCtr.stPowerDown, BTRV_POWERDOWN_FILTER_TIME);
         if (gv_stBtrCtr.stPowerDown.ucValidStatus == STD_TRUE)
         {
-            SYSM_printf("\r\n下电恢复计数\r\n");
+            Core_printf("\r\n下电恢复计数\r\n");
             gv_stBtrCtr.ucPowerDownStatusCnt++;
             if (gv_stBtrCtr.ucPowerDownStatusCnt > BTRCTR_DELAY_1S)
             {
