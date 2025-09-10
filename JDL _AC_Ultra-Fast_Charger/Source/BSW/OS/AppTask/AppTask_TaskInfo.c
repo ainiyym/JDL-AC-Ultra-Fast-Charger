@@ -10,7 +10,7 @@
 /******************************************************************************
  *                      Macro Definitions
  ******************************************************************************/
-#define TASK_LOG_PRINTF_SIZE (128)
+#define TASK_LOG_PRINTF_SIZE (80)
 
 /******************************************************************************
  *                      Constants
@@ -26,7 +26,7 @@
 /**
  * @brief:栈信息
  */
-static char TaskListinfo[TASK_LOG_PRINTF_SIZE * 8];
+static char TaskListinfo[TASK_LOG_PRINTF_SIZE * 8 + 300];
 
 /******************************************************************************
  *                      Function definitions
@@ -37,7 +37,6 @@ extern int Core_printf(const char *format, ...);
  */
 static void AppPrintTaskInfo(void)
 {
-
     uint32_t uii              = 0;
     uint32_t task_info_num    = 0;
     uint32_t task_info_remain = 0;

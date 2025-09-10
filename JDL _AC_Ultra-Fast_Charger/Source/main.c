@@ -20,10 +20,10 @@
 |******************************************************************************/
 #define MAIN_TASK_STACK_SIZE (6u * 1024u / 4u)
 #define OS_TIMER_TASK_STACK_SIZE (1u * 1024u / 4u)
-#define TASK_INFO_TASK_STACK_SIZE (4u * 1024u / 4u)
+#define TASK_INFO_TASK_STACK_SIZE (1u * 1024u / 4u)
 #define TASK_4G_TASK_STACK_SIZE (4u * 1024u / 4u)
 #define TASK_AT_TASK_STACK_SIZE (2u * 1024u / 4u)
-#define TASK_CORE_PRINT_TASK_STACK_SIZE (1.5 * 1024u / 4u)
+#define TASK_CORE_PRINT_TASK_STACK_SIZE (4 * 1024u / 4u)
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
@@ -52,7 +52,7 @@ TaskHandle_t AtTask_Handle = NULL;
 TaskHandle_t TaskInfo_StaticTask = NULL;
 #endif
 
-static TaskHandle_t CorePrintTaskHandle = NULL;
+TaskHandle_t CorePrintTaskHandle = NULL;
 
 /*******************************************************************************
 |    Table Const Definition
@@ -66,7 +66,7 @@ static TaskHandle_t CorePrintTaskHandle = NULL;
 |    Function Source Code
 |******************************************************************************/
 
-int main(void)
+int main(void) 
 {
     SYSM_InitZero();
     CorePrint_TaskInit();

@@ -171,11 +171,19 @@ void Mcal_Usart_Disable(void)
   }
 }
 
+// extern SemaphoreHandle_t uart_tx_semaphore;
 // UART transmit complete interrupt callback function
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
-  __HAL_UART_CLEAR_FLAG(huart, UART_FLAG_TC); // Clear the "Send Completed" flag
+  if (huart == &huart2)
+  {
+    // BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
+    // // Release semaphore
+    // xSemaphoreGiveFromISR(uart_tx_semaphore, &xHigherPriorityTaskWoken);
+
+    // portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+  }
   if (huart == &huart4)
   {
     McalUsart_Ctrl[MCAL_USART4_CH].Send_Lock = 0;
@@ -184,6 +192,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
   {
     McalUsart_Ctrl[MCAL_USART5_CH].Send_Lock = 0;
   }
+  __HAL_UART_CLEAR_FLAG(huart, UART_FLAG_TC); // Clear the "Send Completed" flag
 }
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)

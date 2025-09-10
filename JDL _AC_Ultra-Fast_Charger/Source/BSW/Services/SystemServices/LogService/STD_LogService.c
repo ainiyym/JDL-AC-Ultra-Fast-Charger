@@ -152,7 +152,7 @@ const char *LogService_Get_Module_Name(uint32_t lv_ulModuleIdx)
 static void LogSevice_Args(Log_Module_Enum module, Log_Level_Enum level, const char *fmt, va_list args)
 {
     Log_item_t item;
-    BaseType_t xResult;
+    uint16_t xResult;
 
     // Critical section
     if ((module < LOG_MODULE_MAX) && (gv_stLogServiceCtrl.ulLogModule_32 & (1 << module)) && (gv_stLogServiceCtrl.ulLogLevel & (1 << level)))
@@ -166,8 +166,8 @@ static void LogSevice_Args(Log_Module_Enum module, Log_Level_Enum level, const c
         {
             item.message[item.length] = 0;
         }
-        xResult = xQueueSend(LogQueue, &item, 0);
-        if (xResult != pdPASS)
+        xResult = Core_Printf_AddItem((const char *)item.message);
+        if (xResult != item.length)
         {
             // Queue full, discard print content
             Core_printf("Log queue full, discarded log: %s", item.message);
@@ -228,7 +228,7 @@ void LogService_Print_Hex_Array(Log_Module_Enum module, const uint8_t *hexArray,
 
     uint8_t buf[LOGSERVICE_HEX_BUF_MAX_SIZE];
     uint32_t idx = 0;
-    BaseType_t xResult;
+    uint16_t xResult;
 
     for (uint32_t i = 0; i < len && (idx + 3) < LOGSERVICE_HEX_BUF_MAX_SIZE; i++)
     {
@@ -242,16 +242,11 @@ void LogService_Print_Hex_Array(Log_Module_Enum module, const uint8_t *hexArray,
 
     if (gv_ucLogStatus && idx > 0)
     {
-        Log_item_t item;
-        item.length = (idx < LOGSERVICE_BUF_MAX_SIZE) ? idx : LOGSERVICE_BUF_MAX_SIZE - 1;
-        memcpy(item.message, buf, item.length);
-        item.message[item.length] = 0;
-        // You may want to send item to queue or handle it as needed
-        xResult = xQueueSend(LogQueue, &item, 0);
-        if (xResult != pdPASS)
+        xResult = Core_Printf_AddItem((const char *)buf);
+        if (xResult != idx)
         {
             // Queue full, discard print content
-            Core_printf("Log queue full, discarded log: %s", item.message);
+            Core_printf("Log queue full, discarded log: %s", buf);
         }
     }
 }

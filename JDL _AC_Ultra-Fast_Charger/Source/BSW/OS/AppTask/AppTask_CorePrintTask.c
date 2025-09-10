@@ -12,12 +12,11 @@
 #include "stdio.h"
 #include "AppTask_CorePrintTask.h"
 #include "STD_LogService.h"
+#include "Mcal_Gpio_Cfg.h"
 
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
-#define PRINT_QUEUE_LENGTH 20
-#define PRINT_ITEM_SIZE    128
 
 /*******************************************************************************
 |    Enum Definition
@@ -61,11 +60,30 @@ void CorePrint_TaskInit(void)
 {
     printQueue = xQueueCreate(PRINT_QUEUE_LENGTH, sizeof(print_item_t));
 	LogService_SetLogEnable();
+    // uart_tx_semaphore = xSemaphoreCreateBinary();
 }
 
 uint8_t CorePrint_IsEmpty(void)
 {
     return (printQueue == NULL || uxQueueMessagesWaiting(printQueue) == 0);
+}
+
+uint16_t Core_Printf_AddItem(const char *message)
+{
+    print_item_t item;
+    strncpy(item.message, message, sizeof(item.message));
+    item.length = strlen(item.message);
+
+    if (printQueue != NULL)
+    {
+        if (xQueueSend(printQueue, &item, 0) != pdPASS)
+        {
+            // Queue full, discard print content
+            Mcal_Gpio_SetPin(LED3_GPIO_Port, LED3_Pin);
+            return 0;
+        }
+    }
+    return item.length;
 }
 
 // General print function (supports task and interrupt calls)
@@ -113,9 +131,9 @@ int Core_printf(const char *format, ...)
     if (xResult != pdPASS)
     {
         // Queue full, discard print content
+	    Mcal_Gpio_SetPin(LED3_GPIO_Port, LED3_Pin);
         return 0;
     }
-
     return item.length;
 }
 
@@ -132,12 +150,12 @@ void CorePrint_Task(void *pvParameters)
     Core_printf("CorePrint_Task create success.\r\n");
     while (1)
     {
-        // Process all messages in the print queue
         while (xQueueReceive(printQueue, &item, 0) == pdPASS)
         {
+            // Notification received, process the queue
             HAL_UART_Transmit(&huart2, (uint8_t *)item.message, item.length, 25);
         }
-        vTaskDelay(pdMS_TO_TICKS(20)); // Adjust delay as needed
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 /* EOL */

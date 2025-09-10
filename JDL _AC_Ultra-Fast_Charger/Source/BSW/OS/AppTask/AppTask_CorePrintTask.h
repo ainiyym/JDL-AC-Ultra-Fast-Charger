@@ -26,6 +26,8 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
+#define PRINT_QUEUE_LENGTH 20
+#define PRINT_ITEM_SIZE    128
 
 /*******************************************************************************
 |    Enum Definition
@@ -47,5 +49,6 @@ extern void CorePrint_Task(void *pvParameters);
 extern void AppPrint_Task(void *pvParameters);
 extern int Core_printf(const char *format, ...);
 extern uint8_t CorePrint_IsEmpty(void);
+extern uint16_t Core_Printf_AddItem(const char *message);
 #endif /* APPTASK_4GTASK_H */
 /* EOL */

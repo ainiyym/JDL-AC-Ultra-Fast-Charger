@@ -18,6 +18,7 @@
 //#include "system_init.h"
 #include "STD_Types.h"
 #include "Mcal_Usart_Cfg.h"
+#include "AppTask_CorePrintTask.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -29,9 +30,10 @@
 
 #define LOG_SERVICE_MODULE_ENABLE
 
-#define LOGSERVICE_BUF_MAX_SIZE      (256)
-#define LOGSERVICE_HEX_BUF_MAX_SIZE  (128)
-#define LOGSERVICE_QUEUE_LENGTH      (15)
+#define LOGSERVICE_BUF_MAX_SIZE      (PRINT_ITEM_SIZE)
+#define LOGSERVICE_HEX_BUF_MAX_SIZE  (PRINT_ITEM_SIZE)
+#define LOGSERVICE_QUEUE_LENGTH      (PRINT_QUEUE_LENGTH - 5)
+
 /******************************************************************************* 
 |    Enum Definition
 |******************************************************************************/

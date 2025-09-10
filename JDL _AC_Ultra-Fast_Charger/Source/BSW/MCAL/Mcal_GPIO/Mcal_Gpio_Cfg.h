@@ -46,6 +46,8 @@
 #define AS2_GPIO_Port GPIOE
 #define LED2_Pin GPIO_PIN_9
 #define LED2_GPIO_Port GPIOC
+#define LED3_Pin GPIO_PIN_8
+#define LED3_GPIO_Port GPIOC
 
 #define TEST_E1_Port GPIOB
 #define TEST_E1_Pin GPIO_PIN_1
