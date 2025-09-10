@@ -1,15 +1,10 @@
 #ifndef _YEECOM_XXX_AT_H_
 #define _YEECOM_XXX_AT_H_
-#include "stdint.h"
-#include "string.h"
-#include "stdlib.h"
-#include "at_parser.h"
-#include "wrappers_os.h"
 
 #define YEECOM_OOB_CMD_POWER_ON_BUF_LEN                 (15u)
 #define YEECOM_OOB_CMD_NET_READY_BUF_LEN                (30u)
 #define YEECOM_OOB_CMD_RESET_BUF_LEN                    (20u)
-#define YEECOM_OOB_CMD_DATA_PASSTHROUGH_BUF_LEN         (512u)
+#define YEECOM_OOB_CMD_DATA_PASSTHROUGH_BUF_LEN         (222u)
 
 typedef enum
 {
@@ -19,19 +14,19 @@ typedef enum
 
 typedef enum
 {
-    YEECOM_WORING_TCP,
-    YEECOM_WORING_UDP,
-    YEECOM_WORING_TCPS,
-    YEECOM_WORING_HTTP,
-    YEECOM_WORING_MQTT,
-    YEECOM_WORING_MQTT_ALI_IOT,
-    YEECOM_WORING_MQTT_ONENET,
-    YEECOM_WORING_MQTT_IOT,
-    YEECOM_WORING_HTTPS,
-    YEECOM_WORING_MQTTS,
-    YEECOM_WORING_WEBSOCKET,
-    YEECOM_WORING_WSS,
-    YEECOM_WORING_X
+    YEECOM_WORKING_TCP = 0,
+    YEECOM_WORKING_UDP = 1,
+    YEECOM_WORKING_TCPS = 2,
+    YEECOM_WORKING_HTTP = 8,
+    YEECOM_WORKING_MQTT = 9,
+    YEECOM_WORKING_MQTT_ALI_IOT = 10,
+    YEECOM_WORKING_MQTT_ONENET = 11,
+    YEECOM_WORKING_MQTT_IOT = 12,
+    YEECOM_WORKING_HTTPS = 13,
+    YEECOM_WORKING_MQTTS = 14,
+    YEECOM_WORKING_WEBSOCKET = 19,
+    YEECOM_WORKING_WSS = 20,
+    YEECOM_WORKING_X
 } YeeCom_WorkingMode_E; /* DTU working mode ENUM */
 
 typedef enum
@@ -67,15 +62,7 @@ typedef enum
     YEECOM_AT_CMD_DEBUG_MODE, /* DTU Debug mode */
     YEECOM_AT_CMD_USART_CFG, /* Serial port parameter configuration */
     YEECOM_AT_CMD_USART_FRAME_INTERVAL_TIME, /* Serial port data frame interval time */
+    YEECOM_AT_CMD_DEVICE_RESET, /* Device reset */
 } YeeCom_AT_Cmd;
-
-typedef enum
-{
-    YEECOM_AT_OOB_CMD_POWER_ON, /* OOB: power on */
-    YEECOM_AT_OOB_CMD_SIM_READY, /* OOB: sim ready */
-    YEECOM_AT_OOB_CMD_RESET, /* OOB: reset */
-    YEECOM_AT_OOB_CMD_DATA_PASSTHROUGH, /* OOB: data passthrough */
-} YeeCom_AT_Oob_enum;
-
 
 #endif

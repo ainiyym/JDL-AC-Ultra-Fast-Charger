@@ -11,7 +11,7 @@
 #include "AppTask_4gTask.h"
 #include "AppTask_MainTask.h"
 #include "at_parser.h"
-#include "YeeComxxx.h"
+#include "YeeComxxx_Device.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -62,11 +62,11 @@ void M4gTask_MainTask(void *pvParameters)
 	const TickType_t xPeriod = pdMS_TO_TICKS(50);
 
 	xLastWakeTime = xTaskGetTickCount();
-    SYSM_printf("M4gTask creat success \r\n");
+    Core_printf("M4gTask creat success \r\n");
 	while (1)
 	{
 		APPTASK_MAINTASK_RUN_START();
-
+		YeeCom_MainFunc();
 		APPTASK_MAINTASK_RUN_END();
 		vTaskDelayUntil(&xLastWakeTime, xPeriod);
 	}
@@ -82,10 +82,10 @@ void M4gTask_MainTask(void *pvParameters)
 void AtTask_MainTask(void *pvParameters)
 {
 	TickType_t xLastWakeTime;
-	const TickType_t xPeriod = pdMS_TO_TICKS(33);
+	const TickType_t xPeriod = pdMS_TO_TICKS(1);
 
 	xLastWakeTime = xTaskGetTickCount();
-    SYSM_printf("AtTask creat success \r\n");
+    Core_printf("AtTask creat success \r\n");
 	YeeCom_Init();
 	while (1)
 	{

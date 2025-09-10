@@ -200,18 +200,21 @@ void HAL_SemaphorePost(void *sem)
  */
 int HAL_SemaphoreWait(void *sem, uint32_t timeout_ms)
 {
-    BaseType_t ret = 0;
-    QueueHandle_t queue;
-    if (sem == NULL) {
-        return -1;
+    if (sem == NULL)
+    {
+        return -1; // Error case 1: semaphore is NULL
     }
 
-    queue = (QueueHandle_t)sem;
-    ret = xSemaphoreTake(queue, timeout_ms);
-    if (pdPASS != ret) {
-        return -1;
+    QueueHandle_t queue = (QueueHandle_t)sem;
+    TickType_t timeout_ticks = (timeout_ms == 0) ? 0 : pdMS_TO_TICKS(timeout_ms);
+
+    BaseType_t ret = xSemaphoreTake(queue, timeout_ticks);
+
+    if (pdPASS != ret)
+    {
+        return -1; // Error case 2: failed to take semaphore (timeout or other error)
     }
-    return 0;
+    return 0; // Success
 }
 
 /**

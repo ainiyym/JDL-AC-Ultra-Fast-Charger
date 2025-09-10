@@ -1,4 +1,5 @@
 #include "YeeComxxx_Callback.h"
+#include "YeeComxxx_Device.h"
 
 /* oob cmd */
 void YeeCom_At_OOB_Power_On_Callback(void *arg, char *buf, int buflen)
@@ -40,12 +41,12 @@ void YeeCom_At_OOB_Power_On_Callback(void *arg, char *buf, int buflen)
 
             if (status == 128)
             {
-                YeeCom_SetDeviceStatus(YEECOM_AT_OOB_CMD_POWER_ON, 1);
+                YeeCom_SetDeviceState(YEECOM_POWER_ON, 1);
                 YeeCom_Log("Device is powered on\r\n");
             }
             else
             {
-                YeeCom_SetDeviceStatus(YEECOM_AT_OOB_CMD_POWER_ON, 0);
+                YeeCom_SetDeviceState(YEECOM_POWER_ON, 0);
                 YeeCom_Log("Device is powered off\r\n");
             }
         }
@@ -78,14 +79,12 @@ void YeeCom_At_OOB_Net_Ready_Callback(void *arg, char *buf, int buflen)
             if (strstr(status_str, "SMS Ready") != NULL)
             {
                 // sim is ready
-                YeeCom_SetDeviceStatus(YEECOM_AT_OOB_CMD_SIM_READY, 1);
+                YeeCom_SetDeviceState(YEECOM_SIM_READY, 1);
                 YeeCom_Log("sim is ready\r\n");
             }
             else
             {
-                // sim is not ready
-                YeeCom_SetDeviceStatus(YEECOM_AT_OOB_CMD_SIM_READY, 0);
-                YeeCom_Log("sim is not ready\r\n");
+                YeeCom_Log("<%s> %s\r\n", __func__, status_str);
             }
         }
     }
@@ -111,20 +110,31 @@ void YeeCom_At_OOB_Net_Reset_Callback(void *arg, char *buf, int buflen)
         }
         if (current > start)
         {
-            char status_str[10] = {0};
+            char status_str[15] = {0};
             size_t len = current - start < sizeof(status_str) - 1 ? current - start : sizeof(status_str) - 1;
             memcpy(status_str, start, len);
-            if (strstr(status_str, "RESET :") != NULL)
+            if (strstr(status_str, "RESET 12") != NULL)
             {
-                // reset
-                YeeCom_SetDeviceStatus(YEECOM_AT_OOB_CMD_RESET, 1);
-                YeeCom_Log("yeeCOM RESET: %s\r\n", status_str);
+                YeeCom_SetDeviceState(YEECOM_DEVICE_RESET_POWER_ON, 1);
+            }
+            else if(strstr(status_str, "RESET 4") != NULL)
+            {
+                YeeCom_SetDeviceState(YEECOM_DEVICE_RESET_CMD, 1);
+            }
+            else if(strstr(status_str, "RESET 5") != NULL)
+            {
+                YeeCom_SetDeviceState(YEECOM_DEVICE_RESET_CH, 1);
             }
             else
             {
-                // reset
-                YeeCom_SetDeviceStatus(YEECOM_AT_OOB_CMD_RESET, 0);
+  
             }
+
+            if (strstr(status_str, "RESET") != NULL)
+            {
+                YeeCom_SetDeviceState(YEECOM_DEVICE_RESET, 1);
+            }
+            YeeCom_Log("<%s>: %s\r\n", __func__, status_str);
         }
     }
 }
@@ -138,11 +148,73 @@ void YeeCom_At_OOB_Data_Passthrough_Callback(void *arg, char *buf, int buflen)
 void YeeCom_At_Set_SERVERn_Callback(void *arg, char *buf, int buflen)
 {
     // Handle the received server response success
+    if (NULL != strstr(buf, "OK\r\n"))
+    {
+        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_CFG_CENTER, 1);
+    }
+    else
+    {
+        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_CFG_CENTER, 0);
+    }
+    YeeCom_Log("<%s> %s\r\n", __func__,  buf);
 }
 
-void YeeCom_At_Set_Parameter_Callback(void *arg, char *buf, int buflen)
+void YeeCom_At_Set_GPRSMode_Callback(void *arg, char *buf, int buflen)
 {
-    // Handle the received server response success
+    // Handle the received GPRSMode response success
+    if (NULL != strstr(buf, "OK\r\n"))
+    {
+        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_GPRS_MODE, 1);
+    }
+    else
+    {
+        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_GPRS_MODE, 0);
+    }
+    YeeCom_Log("<%s> %s\r\n", __func__,  buf);
+}
+
+void YeeCom_At_Set_CHMode_Callback(void *arg, char *buf, int buflen)
+{
+    // Handle the received CH mode response success
+    if (NULL != strstr(buf, "OK\r\n"))
+    {
+        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_CH_MODE, 1);
+    }
+    else
+    {
+        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_CH_MODE, 0);
+    }
+    YeeCom_Log("<%s> %s\r\n", __func__,  buf);
+}
+
+void YeeCom_At_Set_DebugMode_Callback(void *arg, char *buf, int buflen)
+{
+    // Handle the received Debug mode response success
+}
+
+void YeeCom_At_Set_USART_Callback(void *arg, char *buf, int buflen)
+{
+    // Handle the received USART response success
+}
+
+void YeeCom_At_Set_DFI_Callback(void *arg, char *buf, int buflen)
+{
+    // Handle the received DFI response success
+}
+
+void YeeCom_At_Set_RESET_Callback(void *arg, char *buf, int buflen)
+{
+    // Handle the received OOB response success
+    if (NULL != strstr(buf, "OK\r\n"))
+    {
+        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_RESET, 1);
+        YeeCom_Log("<%s>  OK\r\n", __func__);
+    }
+    else
+    {
+        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_RESET, 0);
+        YeeCom_Log("<%s> %s\r\n", __func__,  buf);
+    }
 }
 
 /* at get cmd */

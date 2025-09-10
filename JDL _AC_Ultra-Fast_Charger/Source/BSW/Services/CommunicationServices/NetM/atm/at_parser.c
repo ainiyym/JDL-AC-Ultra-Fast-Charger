@@ -50,8 +50,7 @@ typedef struct at_task_s
     uint32_t      rsp_prefix_len;
     uint32_t      rsp_success_postfix_len;
     uint32_t      rsp_fail_postfix_len;
-    at_recv_cb    rsp_success_callback;
-    at_recv_cb    rsp_fail_callback;
+    at_recv_cb    rsp_cb;
 } at_task_t;
 #endif
 
@@ -78,7 +77,7 @@ typedef struct
 #endif
 } at_parser_t;
 
-#define TASK_DEFAULT_WAIT_TIME 5000
+#define TASK_DEFAULT_WAIT_TIME (5000)
 
 #ifndef AT_WORKER_STACK_SIZE
 #define AT_WORKER_STACK_SIZE   1024
@@ -93,10 +92,10 @@ typedef struct
 #endif
 
 #ifdef AT_DEBUG_MODE
-#define atpsr_err(...)               do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define atpsr_warning(...)           do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define atpsr_info(...)              do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
-#define atpsr_debug(...)             do{HAL_Printf(__VA_ARGS__);HAL_Printf("\r\n");}while(0)
+#define atpsr_err(...)               do{HAL_Printf(__VA_ARGS__);}while(0)
+#define atpsr_warning(...)           do{HAL_Printf(__VA_ARGS__);}while(0)
+#define atpsr_info(...)              do{HAL_Printf(__VA_ARGS__);}while(0)
+#define atpsr_debug(...)             do{HAL_Printf(__VA_ARGS__);}while(0)
 #else
 #define atpsr_err(...)
 #define atpsr_warning(...)
@@ -109,7 +108,7 @@ static uart_dev_t at_uart;
 
 static at_parser_t at;
 
-#define RECV_BUFFER_SIZE 512
+#define RECV_BUFFER_SIZE 255
 static char at_rx_buf[RECV_BUFFER_SIZE+1];
 
 #if !AT_SINGLE_TASK
@@ -322,15 +321,14 @@ static int at_recv_check_lower(uart_dev_t *uart, uint32_t *recv_size)
 }
 
 #if AT_SINGLE_TASK
-int at_send_wait_reply(const char *cmd, int cmdlen,
-                       at_recv_cb success_callback, at_recv_cb fail_callback,
-                       const atcmd_config_t *atcmdconfig)
+int at_send_wait_reply(const char *cmd, int cmdlen, int _timeout,
+                       at_recv_cb cb,const atcmd_config_t *atcmdconfig)
 {
     if (at_send_no_reply(cmd, cmdlen) < 0) {
         return -1;
     }
 
-    if (at_yield(success_callback, fail_callback, atcmdconfig, at._timeout) <  0) {
+    if (at_yield(cb, atcmdconfig, at._timeout) <  0) {
         return -1;
     }
 
@@ -373,9 +371,8 @@ static int at_worker_task_del(at_task_t *tsk)
     return 0;
 }
 
-int at_send_wait_reply(const char *cmd, int cmdlen,
-                       at_recv_cb success_callback, at_recv_cb fail_callback,
-                       const atcmd_config_t *atcmdconfig)
+int at_send_wait_reply(const char *cmd, int cmdlen, int _timeout,
+                       at_recv_cb cb,const atcmd_config_t *atcmdconfig)
 { 
     int ret = 0;
     at_task_t *tsk;
@@ -427,8 +424,7 @@ int at_send_wait_reply(const char *cmd, int cmdlen,
     }
 
     tsk->command = (char *)cmd;
-    tsk->rsp_success_callback     = success_callback;
-    tsk->rsp_fail_callback        = fail_callback;
+    tsk->rsp_cb     = cb;
 
     at_worker_task_add(tsk);
 
@@ -438,10 +434,11 @@ int at_send_wait_reply(const char *cmd, int cmdlen,
         goto end;
     }
 
-    if ((ret = HAL_SemaphoreWait(tsk->smpr, TASK_DEFAULT_WAIT_TIME)) != 0) {
-        atpsr_err("sem_wait failed");
+    if ((ret = HAL_SemaphoreWait(tsk->smpr, _timeout)) != 0) 
+    {
+        atpsr_err("tsk->command:%s sem_wait failed\r\n", tsk->command);
         goto end;
-    }   
+    }
 
 end:
     at_worker_task_del(tsk);
@@ -499,7 +496,7 @@ static int at_getc(char *c, int timeout_ms)
     char data;
     uint32_t recv_size = 0;
 
-    if (NULL == c)
+    if (NULL == c)    
     {
         return -1;
     }
@@ -599,7 +596,7 @@ int at_register_callback(const char *prefix, const char *postfix,
     oob->arg     = arg;
     oob->reallen = 0;
 
-    atpsr_debug("New oob registered (%s)", oob->prefix);
+    atpsr_debug("New oob registered (%s)\r\n", oob->prefix);
 
     return 0;
 }
@@ -691,7 +688,7 @@ recvbuf_free:
 }
 
 #if AT_SINGLE_TASK
-int at_yield(at_recv_cb success_callback, at_recv_cb fail_callback, const atcmd_config_t *atcmdconfig,
+int at_yield(at_recv_cb cb, const atcmd_config_t *atcmdconfig,
              int timeout_ms)
 {
     int        offset                  = 0;
@@ -851,7 +848,7 @@ static void at_work_data_oversize_processing(uint16_t offset, char *prefix, char
 
 static void at_work_cmd_data_processing(char c, uint16_t offset, char *prefix, char *success_postfix, char *fail_postfix)
 {
-    char rsp[128] = {0};
+    static char rsp[256] = {0};
     static uint16_t rsp_offset = 0;
     int at_task_empty = 0;
     int at_task_response_begin = 0;
@@ -860,8 +857,7 @@ static void at_work_cmd_data_processing(char c, uint16_t offset, char *prefix, c
     int fail_postfix_len = 0;
     at_task_t *tsk;
     char *buf = NULL;
-    at_recv_cb rsp_success_callback = NULL;
-    at_recv_cb rsp_fail_callback = NULL;
+    at_recv_cb rsp_cb = NULL;
 
     buf = at_rx_buf;
     HAL_MutexLock(at.task_mutex);
@@ -876,7 +872,7 @@ static void at_work_cmd_data_processing(char c, uint16_t offset, char *prefix, c
     /* if no task, continue recv */
     if (at_task_empty)
     {
-        atpsr_debug("No task in queue.");
+        // atpsr_debug("No task in queue.");
         return;
     }
 
@@ -914,22 +910,13 @@ static void at_work_cmd_data_processing(char c, uint16_t offset, char *prefix, c
         fail_postfix_len = at._recv_fail_postfix_len;
     }
 
-    if (NULL != tsk->rsp_success_callback)
+    if (NULL != tsk->rsp_cb)
     {
-        rsp_success_callback = tsk->rsp_success_callback;
+        rsp_cb = tsk->rsp_cb;
     }
     else
     {
-        rsp_success_callback = NULL;
-    }
-
-    if (NULL != tsk->rsp_fail_callback)
-    {
-        rsp_fail_callback = tsk->rsp_fail_callback;
-    }
-    else
-    {
-        rsp_fail_callback = NULL;
+        rsp_cb = NULL;
     }
 
     if (NULL != prefix)
@@ -938,12 +925,14 @@ static void at_work_cmd_data_processing(char c, uint16_t offset, char *prefix, c
             (strncmp(buf + offset - prefix_len, prefix,
                      prefix_len) == 0))
         {
+            atpsr_debug("<%s> Found prefix: %.*s\r\n", __func__, prefix_len, buf + offset - prefix_len);
             at_task_response_begin = 1;
         }
     }
     else if (at._oob_processing == 0)
     {
         at_task_response_begin = 1;
+        atpsr_debug("<%s> NOT Found OOB data\r\n", __func__);
     }
     else
     {
@@ -952,47 +941,43 @@ static void at_work_cmd_data_processing(char c, uint16_t offset, char *prefix, c
 
     if (at_task_response_begin == 1)
     {
-        if (rsp_offset < 128)
+        if (rsp_offset < sizeof(rsp) - 1)
         {
-            if (rsp_offset >= success_postfix_len &&
-                strncmp(rsp + rsp_offset - success_postfix_len,
-                        success_postfix, success_postfix_len) == 0)
+            rsp[rsp_offset++] = c;
+            rsp[rsp_offset] = '\0';
+
+            if ((rsp_offset >= success_postfix_len &&
+                 strncmp(rsp + rsp_offset - success_postfix_len,
+                         success_postfix, success_postfix_len) == 0) ||
+                (rsp_offset >= fail_postfix_len &&
+                 strncmp(rsp + rsp_offset - fail_postfix_len,
+                         fail_postfix, fail_postfix_len) == 0))
             {
-                if (rsp_success_callback != NULL)
+                if (rsp_cb != NULL)
                 {
-                    rsp_success_callback(tsk->command, rsp, rsp_offset);
-                    goto task_reset;
+                    rsp_cb(tsk->command, rsp, rsp_offset);
                 }
-            }
-            else if (rsp_offset >= fail_postfix_len &&
-                     strncmp(rsp + rsp_offset - fail_postfix_len,
-                             fail_postfix, fail_postfix_len) == 0)
-            {
-                if (rsp_fail_callback != NULL)
-                {
-                    rsp_fail_callback(tsk->command, rsp, rsp_offset);
-                    goto task_reset;
-                }
-            }
-            else
-            {
-                rsp[rsp_offset] = c;
-                rsp_offset++;
-            }
-        }
-        else
-        {
-            if (rsp_fail_callback != NULL)
-            {
-                rsp_fail_callback(tsk->command, rsp, rsp_offset);
-            task_reset:
                 HAL_SemaphorePost(tsk->smpr);
                 at_task_response_begin = 0;
                 memset(buf, 0, offset);
                 offset = 0;
                 rsp_offset = 0;
                 memset(rsp, 0, sizeof(rsp));
+                return;
             }
+        }
+        else
+        {
+            if (rsp_cb != NULL)
+            {
+                rsp_cb(tsk->command, rsp, rsp_offset);
+            }
+            HAL_SemaphorePost(tsk->smpr);
+            at_task_response_begin = 0;
+            memset(buf, 0, offset);
+            offset = 0;
+            rsp_offset = 0;
+            memset(rsp, 0, sizeof(rsp));
         }
     }
 }

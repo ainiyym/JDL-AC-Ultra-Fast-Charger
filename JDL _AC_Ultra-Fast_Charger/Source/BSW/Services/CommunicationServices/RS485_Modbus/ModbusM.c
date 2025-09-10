@@ -156,7 +156,7 @@ static void ModbusM_Timeout_Handler(ModbusChannel_t Channel)
 	{
 		ModbusRtu[Channel].state = MODBUS_STATE_REC_ERR;
 	}
-	MODBUS_ERROR("%s ERR!!!\r\n", __func__);
+	// MODBUS_ERROR("%s ERR!!!\r\n", __func__);
 }
 
 static void ModbusM_ClearTimeout_Handler(ModbusChannel_t Channel)

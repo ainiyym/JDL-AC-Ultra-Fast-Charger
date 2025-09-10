@@ -1,6 +1,5 @@
 #ifndef _YEECOM_XXX_CALLBACK_H_
 #define _YEECOM_XXX_CALLBACK_H_
-#include "YeeComxxx.h"
 #include "stdint.h"
 #include "string.h"
 #include "STD_LogService.h"
@@ -16,7 +15,12 @@ void YeeCom_At_OOB_Data_Passthrough_Callback(void *arg, char *buf, int buflen);
 
 /* at set cmd */
 void YeeCom_At_Set_SERVERn_Callback(void *arg, char *buf, int buflen);
-void YeeCom_At_Set_Parameter_Callback(void *arg, char *buf, int buflen);
+void YeeCom_At_Set_GPRSMode_Callback(void *arg, char *buf, int buflen);
+void YeeCom_At_Set_CHMode_Callback(void *arg, char *buf, int buflen);
+void YeeCom_At_Set_DebugMode_Callback(void *arg, char *buf, int buflen);
+void YeeCom_At_Set_USART_Callback(void *arg, char *buf, int buflen);
+void YeeCom_At_Set_DFI_Callback(void *arg, char *buf, int buflen);
+void YeeCom_At_Set_RESET_Callback(void *arg, char *buf, int buflen);
 
 /* at get cmd */
 void YeeCom_At_Get_SERVERnCallback(void *arg, char *buf, int buflen);

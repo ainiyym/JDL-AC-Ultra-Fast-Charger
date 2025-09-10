@@ -64,13 +64,12 @@ int at_parser_init(void);
  *
  * @param cmd at command sending buf. MUST not be NULL.
  * @param cmdlen at command length.
- * @param success_callback success callback function. MUST not be NULL.
- * @param fail_callback fail callback function. MUST not be NULL.
+ * @param _timeout timeout in milliseconds. Use default if 0
+ * @param cb callback function. MUST not be NULL.
  * @param atcmdconfig AT cmd reply format config. Use default if NULL
  */
-int at_send_wait_reply(const char *cmd, int cmdlen,
-                       at_recv_cb success_callback, at_recv_cb fail_callback,
-                       const atcmd_config_t *atcmdconfig);
+int at_send_wait_reply(const char *cmd, int cmdlen, int _timeout,
+                       at_recv_cb cb,const atcmd_config_t *atcmdconfig);
 
 /**
  * at send (format: data) and does not wait reply

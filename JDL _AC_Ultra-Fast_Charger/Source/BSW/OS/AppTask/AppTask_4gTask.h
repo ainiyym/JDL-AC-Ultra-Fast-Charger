@@ -10,6 +10,7 @@
 /* polyspace:begin<MISRA-C3:2.5:Not a defect:Justified> Normal. */
 /* polyspace<MISRA-C3:21.1:Not a defect:Justified> Normal. */
 #define APPTASK_4GTASK_H
+
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
