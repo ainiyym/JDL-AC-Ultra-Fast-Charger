@@ -238,7 +238,7 @@ extern uint32_t SystemCoreClock;
  * items the queue can hold) used to send commands to the timer task.  See
  * https://www.freertos.org/RTOS-software-timer-service-daemon-task.html  Only used
  * if configUSE_TIMERS is set to 1. */
-#define configTIMER_QUEUE_LENGTH        10
+#define configTIMER_QUEUE_LENGTH        5
 
 /******************************************************************************/
 /* Event Group related definitions. *******************************************/
@@ -284,7 +284,7 @@ extern uint32_t SystemCoreClock;
  * or heap_4.c are included in the build.  This value is defaulted to 4096 bytes but
  * it must be tailored to each application.  Note the heap will appear in the .bss
  * section.  See https://www.freertos.org/a00111.html. */
-#define configTOTAL_HEAP_SIZE                        ((size_t)(20*1024))
+#define configTOTAL_HEAP_SIZE                        ((size_t)(30*1024))
 
 /* Set configAPPLICATION_ALLOCATED_HEAP to 1 to have the application allocate
  * the array used as the FreeRTOS heap.  Set to 0 to have the linker allocate the
@@ -420,8 +420,8 @@ extern volatile uint32_t CPU_RunTime;
  * number of the failing assert (for example, "vAssertCalled( __FILE__, __LINE__ )"
  * or it can simple disable interrupts and sit in a loop to halt all execution
  * on the failing line for viewing in a debugger. */
-extern int SYSM_printf(const char *format, ...);
-#define vAssertCalled(char, int) SYSM_printf("Error:%s,%d\r\n", char, int);
+extern int Core_printf(const char *format, ...);
+#define vAssertCalled(char, int) Core_printf("Error:%s,%d\r\n", char, int);
 #define configASSERT(x)                       \
     do                                        \
     {                                         \

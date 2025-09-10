@@ -151,7 +151,6 @@ static void Task5ms(void)
     CPM_5msMainFunction();
     RELAYM_5msMainFunction();
     SENSOR_5msMainFunction();
-    LogService_Print_Task(NULL);
 }
 
 static void Task10ms(void)
