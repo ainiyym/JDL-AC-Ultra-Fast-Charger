@@ -35,7 +35,7 @@
 #include <stdbool.h>
 #include <sfud_cfg.h>
 #include "sfud_flash_def.h"
-#include "STD_LogService.h"
+#include "AppTask_CorePrintTask.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,14 +44,14 @@ extern "C" {
 /* debug print function. Must be implement by user. */
 #ifdef SFUD_DEBUG_MODE
 #ifndef SFUD_DEBUG
-#define SFUD_DEBUG(...) LOG_DEBUG(LOG_MODULE_NVM, __VA_ARGS__)
+#define SFUD_DEBUG(...) Core_printf(__VA_ARGS__)
 #endif /* SFUD_DEBUG */
 #else
-#define SFUD_DEBUG(...) LOG_DEBUG(LOG_MODULE_NVM, __VA_ARGS__)
+#define SFUD_DEBUG(...) Core_printf(__VA_ARGS__)
 #endif /* SFUD_DEBUG_MODE */
 
 #ifndef SFUD_INFO
-#define SFUD_INFO(...)  LOG_INFO(LOG_MODULE_NVM, __VA_ARGS__)
+#define SFUD_INFO(...)  Core_printf(__VA_ARGS__)
 #endif
 
 /* assert for developer. */

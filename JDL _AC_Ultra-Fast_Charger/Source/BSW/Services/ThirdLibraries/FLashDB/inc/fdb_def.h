@@ -26,17 +26,17 @@ extern "C" {
 
 /* the KV max name length must less then it */
 #ifndef FDB_KV_NAME_MAX
-#define FDB_KV_NAME_MAX                64
+#define FDB_KV_NAME_MAX                24
 #endif
 
 /* the KV cache table size, it will improve KV search speed when using cache */
 #ifndef FDB_KV_CACHE_TABLE_SIZE
-#define FDB_KV_CACHE_TABLE_SIZE        64
+#define FDB_KV_CACHE_TABLE_SIZE        0
 #endif
 
 /* the sector cache table size, it will improve KV save speed when using cache */
 #ifndef FDB_SECTOR_CACHE_TABLE_SIZE
-#define FDB_SECTOR_CACHE_TABLE_SIZE    8
+#define FDB_SECTOR_CACHE_TABLE_SIZE    0
 #endif
 
 #if (FDB_KV_CACHE_TABLE_SIZE > 0) && (FDB_SECTOR_CACHE_TABLE_SIZE > 0)
@@ -56,9 +56,10 @@ extern "C" {
 #define FDB_WRITE_GRAN 1
 #endif
 
-/* log function. default FDB_PRINT macro is printf() */
+extern int Core_printf(const char *format, ...);
+/* log function. default FDB_PRINT macro is Core_printf() */
 #ifndef FDB_PRINT
-#define FDB_PRINT(...)                 printf(__VA_ARGS__)
+#define FDB_PRINT(...)                 Core_printf(__VA_ARGS__)
 #endif
 #define FDB_LOG_PREFIX1()              FDB_PRINT("[FlashDB]" FDB_LOG_TAG)
 #define FDB_LOG_PREFIX2()              FDB_PRINT(" ")

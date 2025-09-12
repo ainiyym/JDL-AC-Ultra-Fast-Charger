@@ -56,10 +56,4 @@ extern "C"
  *
  */
 
-#define BSP_USING_UART1
-#define BSP_UART1_TX_PIN       "PA9"
-#define BSP_UART1_RX_PIN       "PA10"
-
-/*-------------------------- UART CONFIG END --------------------------*/
-
 #endif /* __BOARD_H__ */

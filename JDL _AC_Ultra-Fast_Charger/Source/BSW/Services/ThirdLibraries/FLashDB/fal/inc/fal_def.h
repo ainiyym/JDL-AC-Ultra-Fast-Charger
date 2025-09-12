@@ -13,7 +13,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include "STD_LogService.h"
+#include "AppTask_CorePrintTask.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
@@ -41,7 +41,7 @@
 #endif
 
 #ifndef FAL_REALLOC
-#define FAL_REALLOC                    realloc
+// #define FAL_REALLOC                    realloc
 #endif
 
 #ifndef FAL_FREE
@@ -49,7 +49,7 @@
 #endif
 
 #ifndef FAL_PRINTF
-#define FAL_PRINTF(...)       LOG_DEBUG(LOG_MODULE_NVM, __VA_ARGS__)
+#define FAL_PRINTF(...)                Core_printf(__VA_ARGS__)
 #endif
 
 #ifndef FAL_DEBUG

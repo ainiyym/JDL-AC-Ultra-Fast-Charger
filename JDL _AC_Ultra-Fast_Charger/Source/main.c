@@ -20,7 +20,7 @@
 |    Macro Definition
 |******************************************************************************/
 #define INIT_TASK_STACK_SIZE (1u * 1024u / 4u)
-#define MAIN_TASK_STACK_SIZE (10u * 1024u / 4u)
+#define MAIN_TASK_STACK_SIZE (7u * 1024u / 4u)
 #define OS_TIMER_TASK_STACK_SIZE (1u * 1024u / 4u)
 #define TASK_INFO_TASK_STACK_SIZE (1u * 1024u / 4u)
 #define TASK_4G_TASK_STACK_SIZE (4u * 1024u / 4u)
@@ -77,19 +77,19 @@ static BaseType_t init_basic_services(void)
     return pdPASS;
 }
 
-static BaseType_t init_tasks(void)
+static BaseType_t init_otherTasks(void)
 {
     OS_Init();
     StreamBuff_StackInit();
     YeeCom_Init();
-    Core_printf("[Init] task initialized\n");
+    Core_printf("[Init] other task initialized\n");
     return pdPASS;
 }
 
 static BaseType_t init_middleware(void)
 {
     /* fdb Init*/
-	// fdb_init();
+	fdb_init();
     Core_printf("[Init] FlashDB initialized\n");
 
     return pdPASS;
@@ -110,13 +110,13 @@ static void init_task(void *argument)
 
     // 初始化步骤2: task
     Core_printf("[Init] Step 2: Task\n");
-    if (init_tasks() != pdPASS)
+    if (init_otherTasks() != pdPASS)
     {
         Core_printf("[Init] ERROR: Tasks failed\n");
         vTaskDelete(NULL);
         return;
     }
-
+    
     // 初始化步骤3: 中间件（如FlashDB）
     Core_printf("[Init] Step 3: Middleware\n");
     if (init_middleware() != pdPASS)

@@ -44,9 +44,7 @@ extern void tsdb_sample(fdb_tsdb_t tsdb);
 static void lock(fdb_db_t db)
 {
     if (xSemaphore != NULL) {
-        if (xSemaphoreTake(xSemaphore, portMAX_DELAY) == pdTRUE) {
-            /* Successfully obtained the semaphore */
-        }
+        xSemaphoreTake(xSemaphore, portMAX_DELAY);
     }
 }
 
@@ -69,13 +67,13 @@ extern int spi_flash_init(void);
 int fdb_init(void)
 {
     spi_flash_init();
+
     xSemaphore = xSemaphoreCreateMutex();
     if (xSemaphore == NULL)
     {
         /* Mutex creation failed */
         return -1;
     }
-
     fdb_err_t result;
 
 #ifdef FDB_USING_KVDB
@@ -110,7 +108,7 @@ int fdb_init(void)
         kvdb_type_blob_sample(&kvdb);
     }
 #endif /* FDB_USING_KVDB */
-# if 0
+
 #ifdef FDB_USING_TSDB
     { /* TSDB Sample */
         /* set the lock and unlock function if you want */
@@ -138,6 +136,5 @@ int fdb_init(void)
         tsdb_sample(&tsdb);
     }
 #endif /* FDB_USING_TSDB */
-#endif
     return 0;
 }

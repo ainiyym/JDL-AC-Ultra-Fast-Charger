@@ -28,7 +28,7 @@
 
 /* the flash write granularity, unit: bit
  * only support 1(nor flash)/ 8(stm32f2/f4)/ 32(stm32f1) */
-#define FDB_WRITE_GRAN                 8
+#define FDB_WRITE_GRAN                 1
 
 /* MCU Endian Configuration, default is Little Endian Order. */
 /* #define FDB_BIG_ENDIAN  */ 
@@ -37,6 +37,6 @@
 /* #define FDB_PRINT(...)              my_printf(__VA_ARGS__) */
 
 /* print debug information */
-#define FDB_DEBUG_ENABLE
+// #define FDB_DEBUG_ENABLE
 
 #endif /* _FDB_CFG_H_ */
