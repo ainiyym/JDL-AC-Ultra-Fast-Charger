@@ -59,8 +59,6 @@ static QueueHandle_t printQueue = NULL;
 void CorePrint_TaskInit(void)
 {
     printQueue = xQueueCreate(PRINT_QUEUE_LENGTH, sizeof(print_item_t));
-	LogService_SetLogEnable();
-    // uart_tx_semaphore = xSemaphoreCreateBinary();
 }
 
 uint8_t CorePrint_IsEmpty(void)
@@ -147,7 +145,7 @@ int Core_printf(const char *format, ...)
 void CorePrint_Task(void *pvParameters)
 {
     print_item_t item;
-    Core_printf("CorePrint_Task create success.\r\n");
+
     while (1)
     {
         while (xQueueReceive(printQueue, &item, 0) == pdPASS)

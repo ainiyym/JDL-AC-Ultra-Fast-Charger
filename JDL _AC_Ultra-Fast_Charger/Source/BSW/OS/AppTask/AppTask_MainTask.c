@@ -5,11 +5,7 @@
 #include "string.h"
 #include "stdio.h"
 #include "AppTask_MainTask.h"
-#include "Mcal_SysTick.h"
-#include"OS.h"
-#include"STD_OS_Timer.h"
-#include "ScheduleTable.h"
-#include "StreamBuffer.h"
+
 /******************************************************************************
  *                      Macro Definitions
  ******************************************************************************/
@@ -30,8 +26,6 @@ EventGroupHandle_t UsartEvent_Handle = NULL;
 /******************************************************************************
  *                      Function definitions
  ******************************************************************************/
-
-
 /**
  * @brief 系统延时
  *
@@ -58,11 +52,8 @@ void AppTask_MainTask(void *pvParameters)
     const TickType_t xPeriod = pdMS_TO_TICKS(1);
     xLastWakeTime = xTaskGetTickCount();
 
-    OS_Init();
-    Core_printf("AppTask_MainTask creat success \r\n");
-
     while (1)
-    {
+    {        
         APPTASK_MAINTASK_RUN_START();
         Scheduler_ISRCb();
         Mcal_SYSTICK_Counter_Increase();
@@ -72,10 +63,10 @@ void AppTask_MainTask(void *pvParameters)
     }
 }
 
+extern void Mcal_GpTime_AdcCollection_Start(void);
 void OSTimerTask_MainTask(void *pvParameters)
 {
-    StreamBuff_StackInit();
-    Core_printf("OSTimerTask_MainTask start \r\n");
+    Mcal_GpTime_AdcCollection_Start();
 
     while (1)
     {

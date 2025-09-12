@@ -84,6 +84,7 @@ static LogServiceCtrl_Struct gv_stLogServiceCtrl = {  (  LOG_STATE_ON  << LOG_MO
 													  | (LOG_STATE_ON  << LOG_MODULE_BTRCTR)
                                                       | (LOG_STATE_ON  << LOG_MODULE_RS485)
                                                       | (LOG_STATE_ON  << LOG_MODULE_AT)
+                                                      | (LOG_STATE_ON  << LOG_MODULE_NVM)
 													  | (LOG_STATE_ON  << LOG_MODULE_SYSM)
 													  | (LOG_STATE_ON  << LOG_MODULE_MCAL),
 
@@ -122,6 +123,7 @@ static const char* const gv_LogModule_Name[] =
 		"BTRCTR",
         "RS485",
         "AT",
+        "NVM",
 		"SYSM",
 		"MCAL",
 };
@@ -226,7 +228,7 @@ void LogService_Print_Hex_Array(Log_Module_Enum module, const uint8_t *hexArray,
     if ((module >= LOG_MODULE_MAX) || !(gv_stLogServiceCtrl.ulLogModule_32 & (1 << module)) || !hexArray || len == 0)
         return;
 
-    uint8_t buf[LOGSERVICE_HEX_BUF_MAX_SIZE];
+    uint8_t buf[LOGSERVICE_HEX_BUF_MAX_SIZE + 1];
     uint32_t idx = 0;
     uint16_t xResult;
 

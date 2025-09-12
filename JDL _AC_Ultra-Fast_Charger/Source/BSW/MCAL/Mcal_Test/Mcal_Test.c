@@ -333,205 +333,7 @@ void MCAL_TestIIC(void)
 	}
 }
 
-/*FLASH常用命令*/
-#define W25X_WriteEnable                0x06
-#define W25X_WriteDisable               0x04
-#define W25X_ReadStatusReg              0x05
-#define W25X_WriteStatusReg             0x01
-#define W25X_ReadData                   0x03
-#define W25X_FastReadData               0x0B
-#define W25X_FastReadDual               0x3B
-#define W25X_PageProgram                0x02
-#define W25X_BlockErase                 0xD8
-#define W25X_SectorErase                0x20
-#define W25X_ChipErase                  0xC7
-#define W25X_PowerDown                  0xB9
-#define W25X_ReleasePowerDown           0xAB
-#define W25X_DeviceID                   0xAB
-#define W25X_ManufactDeviceID           0x90
-#define W25X_JedecDeviceID              0x9F
-/*其它*/
-#define W25Qx_TIMEOUT_VALUE             1000
-#define sFLASH_ID                       0XEF4017
-#define Dummy_Byte                      0xFF
-
-#define W25Q128FV_BULK_ERASE_MAX_TIME         250000
-#define W25Q128FV_SECTOR_ERASE_MAX_TIME       3000
-#define W25Q128FV_SUBSECTOR_ERASE_MAX_TIME    800
-
-/* Flag Status Register */
-#define W25Q128FV_FSR_BUSY                    ((uint8_t)0x01)    /*!< busy */
-#define W25Q128FV_FSR_WREN                    ((uint8_t)0x02)    /*!< write enable */
-#define W25Q128FV_FSR_QE                      ((uint8_t)0x02)    /*!< quad enable */
-
-#define W25Qx_OK                              ((uint8_t)0x00)
-#define W25Qx_ERROR                           ((uint8_t)0x01)
-#define W25Qx_BUSY                            ((uint8_t)0x02)
-#define W25Qx_TIMEOUT				    	  ((uint8_t)0x03)
-
-#define W25Qx_Enable()                  Mcal_Gpio_ResetPin(W25_CS_GPIO_Port, W25_CS_Pin)
-#define W25Qx_Disable()                 Mcal_Gpio_SetPin(W25_CS_GPIO_Port, W25_CS_Pin)
-
-static uint8_t Mcal_W25Qx_GetStatus(void)
-{
-    uint8_t cmd[] = {W25X_ReadStatusReg};
-    uint8_t status;
-
-    W25Qx_Enable();
-    /* Send the read status command */
-    Mcal_SpiDrv_SendData(MCAL_SPI1_W25Q64_CH, cmd, 1, W25Qx_TIMEOUT_VALUE);
-    /* Reception of the data */
-    Mcal_SpiDrv_ReadData(MCAL_SPI1_W25Q64_CH, &status, 1, W25Qx_TIMEOUT_VALUE);
-    W25Qx_Disable();
-
-    /* Check the value of the register */
-    if ((status & W25Q128FV_FSR_BUSY) != 0)
-    {
-        return W25Qx_BUSY;
-    }
-    else
-    {
-        return W25Qx_OK;
-    }
-}
-
-static uint8_t Mcal_W25Qx_WriteEnable(void)
-{
-    uint8_t cmd[] = {W25X_WriteEnable};
-    uint32_t tickstart = Mcal_SYSTICK_Get_Counter();
-
-    /*Select the FLASH: Chip Select low */
-    W25Qx_Enable();
-    /* Send the read ID command */
-    Mcal_SpiDrv_SendData(MCAL_SPI1_W25Q64_CH, cmd, 1, W25Qx_TIMEOUT_VALUE);
-    /*Deselect the FLASH: Chip Select high */
-    W25Qx_Disable();
-
-    /* Wait the end of Flash writing */
-    while (Mcal_W25Qx_GetStatus() == W25Qx_BUSY)
-        ;
-    {
-        /* Check for the Timeout */
-        if ((Mcal_SYSTICK_Get_Counter() - tickstart) > W25Qx_TIMEOUT_VALUE)
-        {
-            return W25Qx_TIMEOUT;
-        }
-    }
-
-    return W25Qx_OK;
-}
-
-static void Mcal_W25Qx_Read_ID(uint8_t *ID)
-{
-    uint8_t cmd[4] = {W25X_ManufactDeviceID, Dummy_Byte, Dummy_Byte, 0x00};
-
-    W25Qx_Enable();
-    /* Send the read ID command */
-    Mcal_SpiDrv_SendData(MCAL_SPI1_W25Q64_CH, cmd, 4, W25Qx_TIMEOUT_VALUE);
-    /* Reception of the data */
-    Mcal_SpiDrv_ReadData(MCAL_SPI1_W25Q64_CH, ID, 2, W25Qx_TIMEOUT_VALUE);
-    W25Qx_Disable();
-}
-
-static uint8_t Mcal_W25Q64_ReadReg(uint8_t* pData, uint32_t ReadAddr, uint32_t Size)
-{
-    uint8_t cmd[4];
-
-    /* Configure the command */
-    cmd[0] = W25X_ReadData;
-    cmd[1] = (uint8_t)(ReadAddr >> 16);
-    cmd[2] = (uint8_t)(ReadAddr >> 8);
-    cmd[3] = (uint8_t)(ReadAddr);
-
-    W25Qx_Enable();
-    /* Send the read ID command */
-    Mcal_SpiDrv_SendData(MCAL_SPI1_W25Q64_CH, cmd, 4, W25Qx_TIMEOUT_VALUE);
-    /* Reception of the data */
-    if (Mcal_SpiDrv_ReadData(MCAL_SPI1_W25Q64_CH, pData, Size, W25Qx_TIMEOUT_VALUE) != MCAL_RET_SUCCESS)
-    {
-        return W25Qx_ERROR;
-    }
-    W25Qx_Disable();
-
-    return W25Qx_OK;
-}
-
-static uint8_t Mcal_W25Qx_Erase_Block(uint32_t Address)
-{
-	uint8_t cmd[4];
-	uint32_t tickstart = Mcal_SYSTICK_Get_Counter();
-	cmd[0] = W25X_SectorErase;
-	cmd[1] = (uint8_t)(Address >> 16);
-	cmd[2] = (uint8_t)(Address >> 8);
-	cmd[3] = (uint8_t)(Address);
-	
-	/* Enable write operations */
-    if(W25Qx_OK != Mcal_W25Qx_WriteEnable())
-    {
-        return W25Qx_ERROR;
-    }
-	
-	/*Select the FLASH: Chip Select low */
-	W25Qx_Enable();
-	/* Send the read ID command */
-	Mcal_SpiDrv_SendData(MCAL_SPI1_W25Q64_CH, cmd, 4, W25Qx_TIMEOUT_VALUE);	
-	/*Deselect the FLASH: Chip Select high */
-	W25Qx_Disable();
-	
-	/* Wait the end of Flash writing */
-	while(Mcal_W25Qx_GetStatus() == W25Qx_BUSY);
-	
-		/* Check for the Timeout */
-    if((Mcal_SYSTICK_Get_Counter() - tickstart) > W25Q128FV_SECTOR_ERASE_MAX_TIME)
-    {        
-			return W25Qx_TIMEOUT;
-    }
-	
-	return W25Qx_OK;
-}
-
-static uint8_t W25Q64_WriteReg(uint8_t *pData, uint32_t WriteAddr, uint32_t Size)
-{
-    uint8_t cmd[4];
-    uint32_t tickstart = Mcal_SYSTICK_Get_Counter();
-
-    /* Configure the command */
-    cmd[0] = W25X_PageProgram;
-    cmd[1] = (uint8_t)(WriteAddr >> 16);
-    cmd[2] = (uint8_t)(WriteAddr >> 8);
-    cmd[3] = (uint8_t)(WriteAddr);
-
-    /* Enable write operations */
-    if(W25Qx_OK != Mcal_W25Qx_WriteEnable())
-    {
-        return W25Qx_ERROR;
-    }
-
-    W25Qx_Enable();
-    /* Send the command */
-    if (Mcal_SpiDrv_SendData(MCAL_SPI1_W25Q64_CH, cmd, 4, W25Qx_TIMEOUT_VALUE) != MCAL_RET_SUCCESS)
-    {
-        return W25Qx_ERROR;
-    }
-
-    /* Transmission of the data */
-    if (Mcal_SpiDrv_SendData(MCAL_SPI1_W25Q64_CH, pData, Size, W25Qx_TIMEOUT_VALUE) != MCAL_RET_SUCCESS)
-    {
-        return W25Qx_ERROR;
-    }
-    W25Qx_Disable();
-    /* Wait the end of Flash writing */
-    while (Mcal_W25Qx_GetStatus() == W25Qx_BUSY);
-    
-    /* Check for the Timeout */
-    if ((Mcal_SYSTICK_Get_Counter() - tickstart) > W25Qx_TIMEOUT_VALUE)
-    {
-        return W25Qx_TIMEOUT;
-    }
-
-    return W25Qx_OK;
-}
-
+#if 0
 void Mcal_Test_Spi(void)
 {
     uint16_t DeviceID = 0;
@@ -543,7 +345,7 @@ void Mcal_Test_Spi(void)
     {
         case 0:
             /* 获取 Flash Device ID */
-            Mcal_W25Qx_Read_ID((uint8_t*)&DeviceID);
+            W25Q64_Read_ID((uint8_t*)&DeviceID);
             MCAL_DEBUG("Manufacturer Device ID is 0x%X\r\n", DeviceID);
             step++;
             break;
@@ -554,7 +356,7 @@ void Mcal_Test_Spi(void)
                 MCAL_DEBUG("case1 sector 0 data:\r\n");
                 MCAL_PRINT_HEX(Buff, 8, 1);
             }
-            if (W25Qx_OK == Mcal_W25Qx_Erase_Block(0x00))
+            if (W25Qx_OK == W25Q64_Erase_Block(0x00))
             {
                 MCAL_DEBUG("SPI Erase Block ok\r\n");
 
@@ -580,6 +382,7 @@ void Mcal_Test_Spi(void)
             break;
     }
 }
+#endif
 
 void Mcal_Test_Adc(void)
 {

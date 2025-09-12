@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F107xC</Define>
               <Undefine></Undefine>
-              <IncludePath>.\Source\APP\AuthM;.\Source\APP\CurrM;.\Source\APP\EnergyM;.\Source\APP\EvseM;.\Source\APP\HmiM;.\Source\APP\RfidAuthM;.\Source\APP\TempM;.\Source\APP\VoltM;.\Source\BSW\ComplexDrivers\CP;.\Source\BSW\ComplexDrivers\Meter;.\Source\BSW\ComplexDrivers\PE;.\Source\BSW\ComplexDrivers\PE;.\Source\BSW\ComplexDrivers\RCD;.\Source\BSW\ComplexDrivers\Relay;.\Source\BSW\ComplexDrivers\RFID;.\Source\BSW\ComplexDrivers\Sensor;.\Source\BSW\ECUAL\Communication\NetDrv;.\Source\BSW\ECUAL\Communication\UartDRv;.\Source\BSW\ECUAL\Crypto\CryptoDrv;.\Source\BSW\ECUAL\IO\LedDrv;.\Source\BSW\ECUAL\IO\PowerDrv;.\Source\BSW\ECUAL\IO\SwitchM;.\Source\BSW\MCAL;.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Inc;.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Inc\Legacy;.\Source\BSW\MCAL\HAL\CMSIS\Include;.\Source\BSW\MCAL\HAL\CMSIS\Device\ST\STM32F1xx\Include;.\Source\Core\Inc;.\Source\BSW\MCAL\Mcal_Adc;.\Source\BSW\MCAL\Mcal_Common;.\Source\BSW\MCAL\Mcal_Dma;.\Source\BSW\MCAL\Mcal_GPIO;.\Source\BSW\MCAL\Mcal_Gpt;.\Source\BSW\MCAL\Mcal_I2c;.\Source\BSW\MCAL\Mcal_Icu;.\Source\BSW\MCAL\Mcal_InEep;.\Source\BSW\MCAL\Mcal_InFls;.\Source\BSW\MCAL\Mcal_Mcu;.\Source\BSW\MCAL\Mcal_Test;.\Source\BSW\MCAL\Mcal_Uart;.\Source\BSW\MCAL\Mcal_Can;.\Source\BSW\OS\ScheduleTable;.\Source\BSW\OS;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Rand;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_CycBuff;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Fifo;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Filter;.\Source\BSW\Services\SystemServices\Libs;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Lib;.\Source\BSW\Services\SystemServices\LogService;.\Source\BSW\MCAL\Mcal_Wdg;.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Inc;.\Source\BSW\MCAL\Mcal_Spi;.\Source\BSW\Services\CommunicationServices\Ccp;.\Source\BSW\Services\CommunicationServices\Ccp\Ccp;.\Source\APP\EvseM;.\Source\APP\SwitchM;.\Source;.\Source\APP\ErrorHandler;.\Source\BSW\Services\SystemServices\SysM;.\Source\APP\NoAuthenM;.\Source\BSW\ComplexDrivers\Battery;.\Source\APP;.\Source\APP\CanM;.\Source\APP\CanM\CanM_EvseM;.\Source\APP\CanM\CanM_MsgM;.\Source\APP\MatlabUtilityToolFiles;.\Source\APP\VoltM;.\Source\BSW\OS\FreeRTOS\include;.\Source\BSW\OS\FreeRTOS\portable\RVDS\ARM_CM3;.\Source\BSW\OS\AppTask;.\Source\BSW\Services\CommunicationServices\RS485_Modbus;.\Source\BSW\Services\SystemServices\Libs\Crc;.\Source\BSW\OS\StreamBuffer;.\Source\APP\FanM;.\Source\BSW\ComplexDrivers\SensorM;.\Source\BSW\Services\CommunicationServices\NetM\atm;.\Source\BSW\Services\CommunicationServices\NetM\atm\Infra;.\Source\BSW\Services\CommunicationServices\NetM\atm\Wrappers;.\Source\BSW\Services\CommunicationServices\NetM\YeeComQ560H;.\Source\BSW\Services\CommunicationServices\NetM\TCP</IncludePath>
+              <IncludePath>.\Source\APP\AuthM;.\Source\APP\CurrM;.\Source\APP\EnergyM;.\Source\APP\EvseM;.\Source\APP\HmiM;.\Source\APP\RfidAuthM;.\Source\APP\TempM;.\Source\APP\VoltM;.\Source\BSW\ComplexDrivers\CP;.\Source\BSW\ComplexDrivers\Meter;.\Source\BSW\ComplexDrivers\PE;.\Source\BSW\ComplexDrivers\PE;.\Source\BSW\ComplexDrivers\RCD;.\Source\BSW\ComplexDrivers\Relay;.\Source\BSW\ComplexDrivers\RFID;.\Source\BSW\ComplexDrivers\Sensor;.\Source\BSW\ECUAL\Communication\NetDrv;.\Source\BSW\ECUAL\Communication\UartDRv;.\Source\BSW\ECUAL\Crypto\CryptoDrv;.\Source\BSW\ECUAL\IO\LedDrv;.\Source\BSW\ECUAL\IO\PowerDrv;.\Source\BSW\ECUAL\IO\SwitchM;.\Source\BSW\MCAL;.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Inc;.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Inc\Legacy;.\Source\BSW\MCAL\HAL\CMSIS\Include;.\Source\BSW\MCAL\HAL\CMSIS\Device\ST\STM32F1xx\Include;.\Source\Core\Inc;.\Source\BSW\MCAL\Mcal_Adc;.\Source\BSW\MCAL\Mcal_Common;.\Source\BSW\MCAL\Mcal_Dma;.\Source\BSW\MCAL\Mcal_GPIO;.\Source\BSW\MCAL\Mcal_Gpt;.\Source\BSW\MCAL\Mcal_I2c;.\Source\BSW\MCAL\Mcal_Icu;.\Source\BSW\MCAL\Mcal_InEep;.\Source\BSW\MCAL\Mcal_InFls;.\Source\BSW\MCAL\Mcal_Mcu;.\Source\BSW\MCAL\Mcal_Test;.\Source\BSW\MCAL\Mcal_Uart;.\Source\BSW\MCAL\Mcal_Can;.\Source\BSW\OS\ScheduleTable;.\Source\BSW\OS;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Rand;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_CycBuff;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Fifo;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Filter;.\Source\BSW\Services\SystemServices\Libs;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Lib;.\Source\BSW\Services\SystemServices\LogService;.\Source\BSW\MCAL\Mcal_Wdg;.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Inc;.\Source\BSW\MCAL\Mcal_Spi;.\Source\BSW\Services\CommunicationServices\Ccp;.\Source\BSW\Services\CommunicationServices\Ccp\Ccp;.\Source\APP\EvseM;.\Source\APP\SwitchM;.\Source;.\Source\APP\ErrorHandler;.\Source\BSW\Services\SystemServices\SysM;.\Source\APP\NoAuthenM;.\Source\BSW\ComplexDrivers\Battery;.\Source\APP;.\Source\APP\CanM;.\Source\APP\CanM\CanM_EvseM;.\Source\APP\CanM\CanM_MsgM;.\Source\APP\MatlabUtilityToolFiles;.\Source\APP\VoltM;.\Source\BSW\OS\FreeRTOS\include;.\Source\BSW\OS\FreeRTOS\portable\RVDS\ARM_CM3;.\Source\BSW\OS\AppTask;.\Source\BSW\Services\CommunicationServices\RS485_Modbus;.\Source\BSW\Services\SystemServices\Libs\Crc;.\Source\BSW\OS\StreamBuffer;.\Source\APP\FanM;.\Source\BSW\ComplexDrivers\SensorM;.\Source\BSW\Services\CommunicationServices\NetM\atm;.\Source\BSW\Services\CommunicationServices\NetM\atm\Infra;.\Source\BSW\Services\CommunicationServices\NetM\atm\Wrappers;.\Source\BSW\Services\CommunicationServices\NetM\YeeComQ560H;.\Source\BSW\Services\CommunicationServices\NetM\TCP;.\Source\APP\FlashDB;.\Source\BSW\Services\ThirdLibraries\FLashDB\drivers;.\Source\BSW\Services\ThirdLibraries\FLashDB\fal\inc;.\Source\BSW\Services\ThirdLibraries\FLashDB\inc;.\Source\BSW\Services\ThirdLibraries\FLashDB\sfud\inc;.\Source\BSW\Services\ThirdLibraries\FLashDB\Applications</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1240,6 +1240,96 @@
               <FileName>YeeComxxx_Device.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Source\BSW\Services\CommunicationServices\NetM\YeeComQ560H\YeeComxxx_Device.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>FlashDB</GroupName>
+          <Files>
+            <File>
+              <FileName>drv_spi_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\Services\ThirdLibraries\FLashDB\drivers\drv_spi_flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>fal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\Services\ThirdLibraries\FLashDB\fal\src\fal.c</FilePath>
+            </File>
+            <File>
+              <FileName>fal_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\Services\ThirdLibraries\FLashDB\fal\src\fal_flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>fal_flash_sfud_port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\Services\ThirdLibraries\FLashDB\fal\src\fal_flash_sfud_port.c</FilePath>
+            </File>
+            <File>
+              <FileName>fal_partition.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\Services\ThirdLibraries\FLashDB\fal\src\fal_partition.c</FilePath>
+            </File>
+            <File>
+              <FileName>fdb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\Services\ThirdLibraries\FLashDB\fdb\fdb.c</FilePath>
+            </File>
+            <File>
+              <FileName>fdb_kvdb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\Services\ThirdLibraries\FLashDB\fdb\fdb_kvdb.c</FilePath>
+            </File>
+            <File>
+              <FileName>fdb_tsdb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\Services\ThirdLibraries\FLashDB\fdb\fdb_tsdb.c</FilePath>
+            </File>
+            <File>
+              <FileName>fdb_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\Services\ThirdLibraries\FLashDB\fdb\fdb_utils.c</FilePath>
+            </File>
+            <File>
+              <FileName>kvdb_basic_sample.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\Services\ThirdLibraries\FLashDB\samples\kvdb_basic_sample.c</FilePath>
+            </File>
+            <File>
+              <FileName>kvdb_type_blob_sample.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\Services\ThirdLibraries\FLashDB\samples\kvdb_type_blob_sample.c</FilePath>
+            </File>
+            <File>
+              <FileName>kvdb_type_string_sample.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\Services\ThirdLibraries\FLashDB\samples\kvdb_type_string_sample.c</FilePath>
+            </File>
+            <File>
+              <FileName>tsdb_sample.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\Services\ThirdLibraries\FLashDB\samples\tsdb_sample.c</FilePath>
+            </File>
+            <File>
+              <FileName>sfud_port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\Services\ThirdLibraries\FLashDB\sfud\port\sfud_port.c</FilePath>
+            </File>
+            <File>
+              <FileName>sfud.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\Services\ThirdLibraries\FLashDB\sfud\src\sfud.c</FilePath>
+            </File>
+            <File>
+              <FileName>sfud_sfdp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\Services\ThirdLibraries\FLashDB\sfud\src\sfud_sfdp.c</FilePath>
+            </File>
+            <File>
+              <FileName>fdbM.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\BSW\Services\ThirdLibraries\FLashDB\Applications\fdbM.c</FilePath>
             </File>
           </Files>
         </Group>

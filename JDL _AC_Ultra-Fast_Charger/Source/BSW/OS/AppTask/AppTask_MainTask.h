@@ -31,6 +31,11 @@ extern "C" {
 #include "semphr.h"
 #include "queue.h"
 #include "event_groups.h"
+#include "Mcal_SysTick.h"
+#include "OS.h"
+#include "STD_OS_Timer.h"
+#include "ScheduleTable.h"
+#include "StreamBuffer.h"
 #include "Mcal_Gpio_Cfg.h"
 
 /******************************************************************************

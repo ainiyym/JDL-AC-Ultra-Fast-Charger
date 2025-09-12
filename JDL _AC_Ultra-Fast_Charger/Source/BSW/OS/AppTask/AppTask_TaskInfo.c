@@ -26,8 +26,9 @@
 /**
  * @brief:栈信息
  */
-static char TaskListinfo[TASK_LOG_PRINTF_SIZE * 8 + 300];
+#define TASK_INFO_BUFFER_SIZE (TASK_LOG_PRINTF_SIZE * 7 + 300)
 
+static char TaskListinfo[TASK_INFO_BUFFER_SIZE];
 /******************************************************************************
  *                      Function definitions
  ******************************************************************************/
@@ -37,60 +38,57 @@ extern int Core_printf(const char *format, ...);
  */
 static void AppPrintTaskInfo(void)
 {
-    uint32_t uii              = 0;
-    uint32_t task_info_num    = 0;
-    uint32_t task_info_remain = 0;
+    uint32_t task_info_num = 0;
+    size_t task_list_len = 0;
 
-    Core_printf("FreeHeapSize:%d\r\n", xPortGetFreeHeapSize());
-    Core_printf("Minimum HeapSize:%d\r\n", xPortGetMinimumEverFreeHeapSize());
+    // 打印堆信息
+    Core_printf("FreeHeapSize: %d\r\n", xPortGetFreeHeapSize());
+    Core_printf("Minimum HeapSize: %d\r\n", xPortGetMinimumEverFreeHeapSize());
 
+    // 获取任务列表信息
     memset(TaskListinfo, 0, sizeof(TaskListinfo));
     vTaskList(TaskListinfo);
-	
-    task_info_num    = strlen(TaskListinfo) / TASK_LOG_PRINTF_SIZE;
-    task_info_remain = strlen(TaskListinfo) % TASK_LOG_PRINTF_SIZE;
 
-    Core_printf("g_task_info[%d:%d],task_info_num:%d,task_info_remain:%d\r\n", sizeof(TaskListinfo), strlen(TaskListinfo),
-              task_info_num, task_info_remain);
-	
-    if (task_info_remain != 0)
+    task_list_len = strlen(TaskListinfo);
+    task_info_num = (task_list_len + TASK_LOG_PRINTF_SIZE - 1) / TASK_LOG_PRINTF_SIZE; // 向上取整
+
+    Core_printf("Task info buffer[%d:%d], chunks: %d\r\n",
+                sizeof(TaskListinfo), task_list_len, task_info_num);
+
+    // 打印任务列表头
+    Core_printf("Task Name    State   Pri   FreeStack   Task#\r\n");
+
+    // 分段打印任务信息
+    for (uint32_t i = 0; i < task_info_num; i++)
     {
-        task_info_num++;
+        const char *chunk_start = &TaskListinfo[i * TASK_LOG_PRINTF_SIZE];
+        Core_printf("%.*s", TASK_LOG_PRINTF_SIZE, chunk_start);
     }
 
-    Core_printf("tk_name   tk_state  tk_pri tk_freestack tk_num\r\n");
+    Core_printf("Task list info end\r\n\r\n");
 
-    for (uii = 0; uii < task_info_num; uii++)
-    {
-        Core_printf("%s", &TaskListinfo[uii * TASK_LOG_PRINTF_SIZE]);
-    }
-	
-    Core_printf("task list info end\r\n");
-
+    // 获取任务运行时间统计
     memset(TaskListinfo, 0, sizeof(TaskListinfo));
     vTaskGetRunTimeStats(TaskListinfo);
-	
-    task_info_num    = strlen(TaskListinfo) / TASK_LOG_PRINTF_SIZE;
-    task_info_remain = strlen(TaskListinfo) % TASK_LOG_PRINTF_SIZE;
-	
-    Core_printf("g_task_info[%d:%d],task_info_num:%d,task_info_remain:%d\r\n", sizeof(TaskListinfo), strlen(TaskListinfo),
-              task_info_num, task_info_remain);
-	
-    if (task_info_remain != 0)
+
+    task_list_len = strlen(TaskListinfo);
+    task_info_num = (task_list_len + TASK_LOG_PRINTF_SIZE - 1) / TASK_LOG_PRINTF_SIZE; // 向上取整
+
+    Core_printf("Task stats buffer[%d:%d], chunks: %d\r\n",
+                sizeof(TaskListinfo), task_list_len, task_info_num);
+
+    // 打印运行时间统计头
+    Core_printf("Task Name        Run Time        CPU Usage\r\n");
+
+    // 分段打印运行时间统计
+    for (uint32_t i = 0; i < task_info_num; i++)
     {
-        task_info_num++;
+        const char *chunk_start = &TaskListinfo[i * TASK_LOG_PRINTF_SIZE];
+        Core_printf("%.*s", TASK_LOG_PRINTF_SIZE, chunk_start);
     }
 
-    Core_printf("task_name     running_time 	 task_cpu_used\r\n");
-	
-    for (uii = 0; uii < task_info_num; uii++)
-    {
-        Core_printf("%s", &TaskListinfo[uii * TASK_LOG_PRINTF_SIZE]);
-    }
-
-    Core_printf("task cpu info end\r\n");
+    Core_printf("Task CPU info end\r\n");
 }
-
 
 /**
  * @brief 启动任务
@@ -105,7 +103,6 @@ void AppTask_TaskInfo(void *pvParameters)
     const TickType_t xPeriod = pdMS_TO_TICKS(10000);
 
     xLastWakeTime = xTaskGetTickCount();
-    Core_printf("TaskInfo creat success \r\n");
 
     while (1)
     {

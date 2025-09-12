@@ -29,6 +29,7 @@
 #include "ModbusM.h"
 #include "FanM.h"
 #include "Sensor.h"
+
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -48,7 +49,6 @@ typedef struct
 	uint8_t StopChargingReason[SYS_CONNECTOR_NUM_MAX]; /* Stop charging reason */
 	uint32_t ul10msCnt; /* Counter */
 }SysM_BasicInfo_Struct;
-
 
 typedef struct
 {
@@ -100,7 +100,6 @@ void SYSM_InitZero(void)
 {
 	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
 	HAL_Init();
-
 	/* Configure the system clock */
 	SystemClock_Config();
 	Mcal_Dma_Init();
@@ -174,7 +173,6 @@ void SYSM_InitThree(void)
 	Mcal_Usart_IT_Enable();
 	Mcal_Can_Enable();
 	SwitchM_SoftTimerStart74hct4851d_Enable();
-	Mcal_GpTime_AdcCollection_Start();
 	Mcal_Adc_SoftTimer_Enable();
 	ERRHDL_Enable();
 	CURR_Enable();

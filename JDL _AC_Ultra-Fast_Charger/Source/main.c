@@ -7,9 +7,10 @@
 //* Author: JDLzhou
 //* 
 //****************************************************************************************/
-
-#include"stdint.h"
+#include "main.h"
+#include "stdint.h"
 #include "STD_SysM.h"
+#include "fdbM.h"
 #include "AppTask_MainTask.h"
 #include "AppTask_TaskInfo.h"
 #include "AppTask_4gTask.h"
@@ -18,7 +19,8 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
-#define MAIN_TASK_STACK_SIZE (6u * 1024u / 4u)
+#define INIT_TASK_STACK_SIZE (1u * 1024u / 4u)
+#define MAIN_TASK_STACK_SIZE (10u * 1024u / 4u)
 #define OS_TIMER_TASK_STACK_SIZE (1u * 1024u / 4u)
 #define TASK_INFO_TASK_STACK_SIZE (1u * 1024u / 4u)
 #define TASK_4G_TASK_STACK_SIZE (4u * 1024u / 4u)
@@ -31,15 +33,16 @@
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
- 
+
 /*******************************************************************************
 |    Static local variables Declaration  
-
 |******************************************************************************/
 #if (configSUPPORT_STATIC_ALLOCATION == 1)
 static StackType_t  Main_Stack[MAIN_TASK_STACK_SIZE];
 static StaticTask_t Main_StaticTask;
 #endif
+
+TaskHandle_t init_task_handle = NULL;
 
 /* os timer  task handle */
 TaskHandle_t OsTimer_Task_Handle = NULL;
@@ -65,25 +68,95 @@ TaskHandle_t CorePrintTaskHandle = NULL;
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
+static BaseType_t init_basic_services(void)
+{
+    // 初始化日志服务
+	LogService_SetLogEnable();
+    // uart_tx_semaphore = xSemaphoreCreateBinary();
+    Core_printf("[Init] Log service initialized\n");
+    return pdPASS;
+}
+
+static BaseType_t init_tasks(void)
+{
+    OS_Init();
+    StreamBuff_StackInit();
+    YeeCom_Init();
+    Core_printf("[Init] task initialized\n");
+    return pdPASS;
+}
+
+static BaseType_t init_middleware(void)
+{
+    /* fdb Init*/
+	// fdb_init();
+    Core_printf("[Init] FlashDB initialized\n");
+
+    return pdPASS;
+}
+
+static void init_task(void *argument)
+{
+    Core_printf("[Init] Task started\n");
+
+    // 初始化步骤1: 基础服务
+    Core_printf("[Init] Step 1: Basic services\n");
+    if (init_basic_services() != pdPASS)
+    {
+        Core_printf("[Init] ERROR: Basic services failed\n");
+        vTaskDelete(NULL);
+        return;
+    }
+
+    // 初始化步骤2: task
+    Core_printf("[Init] Step 2: Task\n");
+    if (init_tasks() != pdPASS)
+    {
+        Core_printf("[Init] ERROR: Tasks failed\n");
+        vTaskDelete(NULL);
+        return;
+    }
+
+    // 初始化步骤3: 中间件（如FlashDB）
+    Core_printf("[Init] Step 3: Middleware\n");
+    if (init_middleware() != pdPASS)
+    {
+        Core_printf("[Init] ERROR: Middleware failed\n");
+        vTaskDelete(NULL);
+        return;
+    }
+
+    // 初始化步骤4: 创建应用任务
+    xTaskCreateStatic(
+        AppTask_MainTask, "MainTask", MAIN_TASK_STACK_SIZE, NULL, TASK_START_PRIO_8, Main_Stack, &Main_StaticTask);
+    xTaskCreate(
+        OSTimerTask_MainTask, "OSTimerTask", OS_TIMER_TASK_STACK_SIZE, (void *)NULL, TASK_START_PRIO_7, &OsTimer_Task_Handle);
+    xTaskCreate(
+        M4gTask_MainTask, "M4gTask", TASK_4G_TASK_STACK_SIZE, NULL, TASK_START_PRIO_4, &M4g_Task_Handle);
+    xTaskCreate(
+        AtTask_MainTask, "AtTask", TASK_AT_TASK_STACK_SIZE, NULL, TASK_START_PRIO_5, &AtTask_Handle);
+#ifdef ENABLE_TASKINFO_TASK
+    xTaskCreate(
+        AppTask_TaskInfo, "TaskInfo", TASK_INFO_TASK_STACK_SIZE, NULL, TASK_START_PRIO_1, &TaskInfo_StaticTask);
+#endif
+    vTaskDelay(pdMS_TO_TICKS(50));
+    
+    // 标记初始化完成
+    Core_printf("[Init] All initialization complete\n");
+
+    // 删除初始化任务
+    Core_printf("[Init] Deleting initialization task\n");
+    vTaskDelete(NULL);
+}
 
 int main(void) 
 {
     SYSM_InitZero();
     CorePrint_TaskInit();
     /* Infinite loop */
-    xTaskCreateStatic(
-        AppTask_MainTask, "MainTask", MAIN_TASK_STACK_SIZE, NULL, TASK_START_PRIO_8, Main_Stack, &Main_StaticTask);
     xTaskCreate(
-        OSTimerTask_MainTask, "OSTimerTask", OS_TIMER_TASK_STACK_SIZE, (void *)NULL, TASK_START_PRIO_7, &OsTimer_Task_Handle);
-#ifdef ENABLE_TASKINFO_TASK
-    xTaskCreate(
-        AppTask_TaskInfo, "TaskInfo", TASK_INFO_TASK_STACK_SIZE, NULL, TASK_START_PRIO_1, &TaskInfo_StaticTask);
-#endif
+        init_task, "InitTask", INIT_TASK_STACK_SIZE, NULL, TASK_START_PRIO_9, &init_task_handle);
     xTaskCreate(
         CorePrint_Task, "CorePrintTask", TASK_CORE_PRINT_TASK_STACK_SIZE, NULL, TASK_START_PRIO_3, &CorePrintTaskHandle);
-    xTaskCreate(
-        M4gTask_MainTask, "M4gTask", TASK_4G_TASK_STACK_SIZE, NULL, TASK_START_PRIO_4, &M4g_Task_Handle);
-    xTaskCreate(
-        AtTask_MainTask, "AtTask", TASK_AT_TASK_STACK_SIZE, NULL, TASK_START_PRIO_5, &AtTask_Handle);
     vTaskStartScheduler();
 }
