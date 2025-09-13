@@ -57,7 +57,6 @@ typedef struct
 /*******************************************************************************
 |    Static local KAM variables Declaration
 |******************************************************************************/
-static QueueHandle_t LogQueue = NULL;
 
 /*******************************************************************************
 |    Static local variables Declaration
@@ -255,7 +254,6 @@ void LogService_Print_Hex_Array(Log_Module_Enum module, const uint8_t *hexArray,
 
 void LogService_SetLogEnable(void)
 {
-    LogQueue = xQueueCreate(LOGSERVICE_QUEUE_LENGTH, sizeof(Log_item_t));
     gv_ucLogStatus = 1;
 }
 
@@ -264,13 +262,3 @@ void LogService_SetLogDisable(void)
     gv_ucLogStatus = 0;
 }
 
-void LogService_Print_Task(void *pvParameters)
-{
-    Log_item_t item;
-
-    // Process all messages in the log queue
-    while (xQueueReceive(LogQueue, &item, 0) == pdPASS)
-    {
-        HAL_UART_Transmit(&huart2, (uint8_t *)item.message, item.length, 25);
-    }
-}

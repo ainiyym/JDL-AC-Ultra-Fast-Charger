@@ -129,6 +129,5 @@ extern void LogService_Print_Hex_Array(Log_Module_Enum module, const uint8_t *he
 
 extern void LogService_SetLogEnable(void);
 extern void LogService_SetLogDisable(void);
-extern void LogService_Print_Task(void *pvParameters);
 #endif
 

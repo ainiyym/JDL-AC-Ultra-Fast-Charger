@@ -44,10 +44,9 @@ int fal_flash_init(void)
         {
             device_table[i]->ops.init();
         }
-        log_d("Flash device | %s | initialized finish.\r\n", device_table[i]->name);
-        log_d("addr: 0x%08lx\r\n", device_table[i]->addr);
-        log_d("len: 0x%08x\r\n", device_table[i]->len);
-        log_d("blk_size: 0x%08x\r\n", device_table[i]->blk_size);
+        log_d("Flash device | %s | addr: 0x%08lx | len: 0x%08x | blk_size: 0x%08x |initialized finish.\r\n",
+                device_table[i]->name, device_table[i]->addr, device_table[i]->len,
+                device_table[i]->blk_size);
     }
 
     init_ok = 1;

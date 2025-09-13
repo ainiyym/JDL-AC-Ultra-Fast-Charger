@@ -74,20 +74,42 @@ static size_t partition_table_len = 0;
  */
 void fal_show_part_table(void)
 {
-    size_t i;
+    char *item1 = "name", *item2 = "flash_dev";
+    size_t i, part_name_max = strlen(item1), flash_dev_name_max = strlen(item2);
     const struct fal_partition *part;
 
-    log_i("FAL partition table:");
-    log_i("Name\tFlashDev\tOffset\t\tLength");
+    if (partition_table_len)
+    {
+        for (i = 0; i < partition_table_len; i++)
+        {
+            part = &partition_table[i];
+            if (strlen(part->name) > part_name_max)
+            {
+                part_name_max = strlen(part->name);
+            }
+            if (strlen(part->flash_name) > flash_dev_name_max)
+            {
+                flash_dev_name_max = strlen(part->flash_name);
+            }
+        }
+    }
+    log_i("==================== FAL partition table ====================\r\n");
+    log_i("| %-*.*s | %-*.*s |   offset   |    length  |\r\n", part_name_max, FAL_DEV_NAME_MAX, item1, flash_dev_name_max,
+          FAL_DEV_NAME_MAX, item2);
+    log_i("-------------------------------------------------------------\r\n");
     for (i = 0; i < partition_table_len; i++)
     {
+
 #ifdef FAL_PART_HAS_TABLE_CFG
         part = &partition_table[i];
 #else
         part = &partition_table[partition_table_len - i - 1];
 #endif
-        log_i("%s\t%s\t0x%08lx\t0x%08x", part->name, part->flash_name, part->offset, part->len);
+
+        log_i("| %-*.*s | %-*.*s | 0x%08lx | 0x%08x |\r\n", part_name_max, FAL_DEV_NAME_MAX, part->name, flash_dev_name_max,
+              FAL_DEV_NAME_MAX, part->flash_name, part->offset, part->len);
     }
+    log_i("=============================================================\r\n");
 }
 
 static int check_and_update_part_cache(const struct fal_partition *table, size_t len)

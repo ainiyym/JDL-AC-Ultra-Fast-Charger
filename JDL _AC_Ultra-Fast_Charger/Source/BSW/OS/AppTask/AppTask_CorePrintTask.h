@@ -26,8 +26,11 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
-#define PRINT_QUEUE_LENGTH 20
-#define PRINT_ITEM_SIZE    128
+// 配置参数
+#define PRINT_QUEUE_LENGTH         32
+#define PRINT_MAX_MESSAGE_SIZE     256
+#define PRINT_BATCH_SIZE           4
+#define PRINT_BUFFER_TIMEOUT_MS    20
 
 /*******************************************************************************
 |    Enum Definition
@@ -36,6 +39,11 @@
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
+typedef struct
+{
+    char *message;
+    uint16_t length;
+} print_item_t;
 
 /*******************************************************************************
 |    Table Definition
@@ -50,5 +58,6 @@ extern void AppPrint_Task(void *pvParameters);
 extern int Core_printf(const char *format, ...);
 extern uint8_t CorePrint_IsEmpty(void);
 extern uint16_t Core_Printf_AddItem(const char *message);
+extern int Core_Print_Immediate(const char *format, ...);
 #endif /* APPTASK_4GTASK_H */
 /* EOL */

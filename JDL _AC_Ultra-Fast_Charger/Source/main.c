@@ -126,24 +126,34 @@ static void init_task(void *argument)
         return;
     }
 
+    vTaskDelay(pdMS_TO_TICKS(100));
+
     // 初始化步骤4: 创建应用任务
     xTaskCreateStatic(
         AppTask_MainTask, "MainTask", MAIN_TASK_STACK_SIZE, NULL, TASK_START_PRIO_8, Main_Stack, &Main_StaticTask);
+    vTaskDelay(pdMS_TO_TICKS(10));
+
     xTaskCreate(
         OSTimerTask_MainTask, "OSTimerTask", OS_TIMER_TASK_STACK_SIZE, (void *)NULL, TASK_START_PRIO_7, &OsTimer_Task_Handle);
+    vTaskDelay(pdMS_TO_TICKS(10));
+
     xTaskCreate(
         M4gTask_MainTask, "M4gTask", TASK_4G_TASK_STACK_SIZE, NULL, TASK_START_PRIO_4, &M4g_Task_Handle);
+    vTaskDelay(pdMS_TO_TICKS(10));
+
     xTaskCreate(
         AtTask_MainTask, "AtTask", TASK_AT_TASK_STACK_SIZE, NULL, TASK_START_PRIO_5, &AtTask_Handle);
+    vTaskDelay(pdMS_TO_TICKS(10));
+
 #ifdef ENABLE_TASKINFO_TASK
     xTaskCreate(
         AppTask_TaskInfo, "TaskInfo", TASK_INFO_TASK_STACK_SIZE, NULL, TASK_START_PRIO_1, &TaskInfo_StaticTask);
+    vTaskDelay(pdMS_TO_TICKS(10));
 #endif
-    vTaskDelay(pdMS_TO_TICKS(50));
     
     // 标记初始化完成
     Core_printf("[Init] All initialization complete\n");
-
+ 
     // 删除初始化任务
     Core_printf("[Init] Deleting initialization task\n");
     vTaskDelete(NULL);
