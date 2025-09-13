@@ -201,7 +201,19 @@ int Core_printf(const char *format, ...)
     }
 
     // 分配消息内存
-    item->message = print_malloc(PRINT_MAX_MESSAGE_SIZE);
+    va_start(arg, format);
+    // 使用vsnprintf(NULL, 0, ...) 来计算所需长度
+    int needed_length = vsnprintf(NULL, 0, format, arg) + 1; // +1 for null terminator
+    va_end(arg);
+
+    if (needed_length <= 0)
+    {
+        vPortFree(item);
+        return 0;
+    }
+
+    // 动态分配所需大小的内存
+    item->message = print_malloc(needed_length);
     if (item->message == NULL)
     {
         vPortFree(item);
@@ -210,15 +222,8 @@ int Core_printf(const char *format, ...)
 
     // 格式化消息
     va_start(arg, format);
-    item->length = vsnprintf(item->message, PRINT_MAX_MESSAGE_SIZE, format, arg);
+    item->length = vsnprintf(item->message, needed_length, format, arg);
     va_end(arg);
-
-    // 确保字符串正确终止
-    if (item->length >= PRINT_MAX_MESSAGE_SIZE)
-    {
-        item->length = PRINT_MAX_MESSAGE_SIZE - 1;
-        item->message[PRINT_MAX_MESSAGE_SIZE - 1] = '\0';
-    }
 
     // 检查是否在中断上下文中调用
     if (xPortIsInsideInterrupt())
