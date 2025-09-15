@@ -101,11 +101,11 @@ int fdb_init(void)
         }
 
         /* run basic KV samples */
-        kvdb_basic_sample(&kvdb);
+        // kvdb_basic_sample(&kvdb);
         /* run string KV samples */
-        kvdb_type_string_sample(&kvdb);
+        // kvdb_type_string_sample(&kvdb);
         /* run blob KV samples */
-        kvdb_type_blob_sample(&kvdb);
+        // kvdb_type_blob_sample(&kvdb);
     }
 #endif /* FDB_USING_KVDB */
 
@@ -133,7 +133,7 @@ int fdb_init(void)
         }
 
         /* run TSDB sample */
-        tsdb_sample(&tsdb);
+        // tsdb_sample(&tsdb);
     }
 #endif /* FDB_USING_TSDB */
     return 0;

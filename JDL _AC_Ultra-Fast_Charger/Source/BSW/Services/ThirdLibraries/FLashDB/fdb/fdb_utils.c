@@ -18,6 +18,7 @@
 
 #define FDB_LOG_TAG "[utils]"
 
+#if 0
 static const uint32_t crc32_table[] =
 {
     0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,
@@ -87,6 +88,31 @@ uint32_t fdb_calc_crc32(uint32_t crc, const void *buf, size_t size)
 
     return crc ^ ~0U;
 }
+#else
+uint32_t fdb_calc_crc32(uint32_t crc, const void *buf, size_t size)
+{
+    const uint8_t *p = (const uint8_t *)buf;
+    crc = crc ^ ~0U;
+
+    for (size_t i = 0; i < size; i++)
+    {
+        crc ^= p[i];
+        for (int j = 0; j < 8; j++)
+        {
+            if (crc & 1)
+            {
+                crc = (crc >> 1) ^ 0xEDB88320;
+            }
+            else
+            {
+                crc = crc >> 1;
+            }
+        }
+    }
+
+    return crc ^ ~0U;
+}
+#endif
 
 size_t _fdb_set_status(uint8_t status_table[], size_t status_num, size_t status_index)
 {
