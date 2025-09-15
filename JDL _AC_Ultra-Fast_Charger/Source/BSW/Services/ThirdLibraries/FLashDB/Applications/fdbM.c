@@ -30,7 +30,7 @@ static struct fdb_default_kv_node default_kv_table[] = {
         {"boot_time", &boot_time, sizeof(boot_time)},    /* int array type KV */
 };
 /* KVDB object */
-static struct fdb_kvdb kvdb = { 0 };
+struct fdb_kvdb kvdb = { 0 };
 /* TSDB object */
 struct fdb_tsdb tsdb = { 0 };
 /* counts for simulated timestamp */
@@ -47,7 +47,7 @@ static void lock(fdb_db_t db)
         xSemaphoreTake(xSemaphore, portMAX_DELAY);
     }
 }
-
+ 
 static void unlock(fdb_db_t db)
 {
     if (xSemaphore != NULL) {

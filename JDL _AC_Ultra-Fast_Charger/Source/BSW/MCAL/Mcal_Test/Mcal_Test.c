@@ -7,6 +7,7 @@
 #include "SwitchM.h"
 #include "STD_MosDrv.h"
 #include "STD_EvseM.h"
+#include "flashdb_wrapper.h"
 
 void Mcal_Usart_Test(void)
 {
@@ -279,7 +280,7 @@ void MCAL_TestIIC(void)
 			{
 				Step = EEP_STEP_2;
 				MCAL_DEBUG("init read data:\r\n");
-				MCAL_PRINT_HEX(Buffer, 8, 1);
+				MCAL_PRINT_HEX(Buffer, 8, 1); 
 			}
 		}
 		break;
@@ -463,10 +464,70 @@ void Mcal_test_1ms(void)
     // SwitchM_74hct4851dControlCallBack();
 }
 
+void Mcal_Test_FlashDB_Get(void)
+{
+    // Test getting a KV
+    char buffer[64];
+    size_t actual_len;
+    fdb_wrapper_kv_get(&kvdb, "test_key", buffer, sizeof(buffer), &actual_len);
+    MCAL_DEBUG("Get KV: %s\r\n", buffer);
+}
+
+void Mcal_Test_FlashDB_Set(void)
+{
+    // Test setting a KV
+    const char *value = "Hello, FlashDB!";
+    fdb_wrapper_kv_set(&kvdb, "test_key", value);
+    MCAL_DEBUG("Set KV: %s\r\n", value);
+}
+
+void Mcal_Test_FlashDB_Del(void)
+{
+    // Test deleting a KV
+    fdb_wrapper_kv_del(&kvdb, "test_key");
+}
+
+void Mcal_Test_StateMachine(void)
+{
+    static uint8_t step = 0;
+    static uint8_t cnt = 0;
+
+    switch (step)
+    {
+    case 0:
+        // Initial state
+        Mcal_Test_FlashDB_Get();
+        cnt = 0;
+        step++;
+        break;
+
+    case 1:
+        if (cnt++ == 100)
+        {
+            Mcal_Test_FlashDB_Set();
+            cnt = 0;
+            step++;
+        }
+        break;
+
+    case 2:
+        if (cnt++ == 200)
+        {
+            Mcal_Test_FlashDB_Get();
+            step++;
+        }
+        break;
+
+    default:
+        break;
+    }
+}
+
 /* Run MCAL tests */
 void Mcal_Test_Run(void)
 {
     /* TODO: Add test code here */
+    // Mcal_Test_StateMachine();
     // Mcal_Usart_Test();
 	// Mcal_CP_Test();
     // Mcal_Gpio_Test();

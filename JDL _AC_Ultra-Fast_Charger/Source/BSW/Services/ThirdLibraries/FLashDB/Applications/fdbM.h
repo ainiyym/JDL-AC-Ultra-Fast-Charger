@@ -7,9 +7,11 @@
 //* Author: zhousong
 //* 
 /*******************************************************************************/
-
 #ifndef _FDB_M_H_
 #define _FDB_M_H_
+
+extern struct fdb_kvdb kvdb;
+extern struct fdb_tsdb tsdb;
 
 extern int fdb_init(void);
 

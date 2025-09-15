@@ -29,16 +29,19 @@ void kvdb_basic_sample(fdb_kvdb_t kvdb)
         /* get the "boot_count" KV value */
         fdb_kv_get_blob(kvdb, "boot_count", fdb_blob_make(&blob, &boot_count, sizeof(boot_count)));
         /* the blob.saved.len is more than 0 when get the value successful */
-        if (blob.saved.len > 0) {
+        if (blob.saved.len)
+        {
             FDB_INFO("get the 'boot_count' value is %d\r\n", boot_count);
-        } else {
+        }
+        else
+        {
             FDB_INFO("get the 'boot_count' failed\r\n");
         }
     }
-
+ 
     { /* CHANGE the KV value */
         /* increase the boot count */
-        boot_count ++;
+        boot_count++;
         /* change the "boot_count" KV's value */
         fdb_kv_set_blob(kvdb, "boot_count", fdb_blob_make(&blob, &boot_count, sizeof(boot_count)));
         FDB_INFO("set the 'boot_count' value to %d\r\n", boot_count);

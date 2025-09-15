@@ -12,6 +12,10 @@
 #ifndef _FDB_DEF_H_
 #define _FDB_DEF_H_
 
+#include "AppTask_CorePrintTask.h"
+#include <stdint.h>
+#include "stdbool.h"
+#include <stddef.h>
 #ifdef FDB_USING_NATIVE_ASSERT
 #include <assert.h>
 #endif
@@ -56,7 +60,6 @@ extern "C" {
 #define FDB_WRITE_GRAN 1
 #endif
 
-extern int Core_printf(const char *format, ...);
 /* log function. default FDB_PRINT macro is Core_printf() */
 #ifndef FDB_PRINT
 #define FDB_PRINT(...)                 Core_printf(__VA_ARGS__)
