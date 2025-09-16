@@ -476,7 +476,7 @@ void Mcal_Test_FlashDB_Get(void)
 void Mcal_Test_FlashDB_Set(void)
 {
     // Test setting a KV
-    const char *value = "Hello, FlashDB!";
+    const char *value = "Hello, FlashDB!!!!";
     fdb_wrapper_kv_set(&kvdb, "test_key", value);
     MCAL_DEBUG("Set KV: %s\r\n", value);
 }
@@ -495,10 +495,13 @@ void Mcal_Test_StateMachine(void)
     switch (step)
     {
     case 0:
-        // Initial state
-        Mcal_Test_FlashDB_Get();
-        cnt = 0;
-        step++;
+        if (cnt++ == 100)
+        {
+            // Initial state
+            Mcal_Test_FlashDB_Get();
+            cnt = 0;
+            step++;
+        }
         break;
 
     case 1:
@@ -511,7 +514,7 @@ void Mcal_Test_StateMachine(void)
         break;
 
     case 2:
-        if (cnt++ == 200)
+        if (cnt++ == 100)
         {
             Mcal_Test_FlashDB_Get();
             step++;

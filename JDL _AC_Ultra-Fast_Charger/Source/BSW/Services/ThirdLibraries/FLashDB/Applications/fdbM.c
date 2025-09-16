@@ -107,7 +107,7 @@ int fdb_init(void)
         /* run blob KV samples */
         // kvdb_type_blob_sample(&kvdb);
     }
-#endif /* FDB_USING_KVDB */
+#endif /* FDB_USING_KVDB */ 
 
 #ifdef FDB_USING_TSDB
     { /* TSDB Sample */

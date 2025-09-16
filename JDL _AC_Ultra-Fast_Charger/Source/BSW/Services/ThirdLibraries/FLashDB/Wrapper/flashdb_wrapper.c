@@ -105,6 +105,35 @@ fdb_wrapper_err_t fdb_wrapper_kv_set_data(fdb_kvdb_t db, const char *key, const 
 }
 
 /**
+ * Peek the length of an KV value by key name.
+ *
+ * @param db database object
+ * @param key KV name
+ * @param actual_len actual length of the value retrieved
+ * @return value
+ */
+fdb_wrapper_err_t fdb_wrapper_kv_Peek(fdb_kvdb_t db, const char *key, size_t *actual_len)
+{
+    if (!key || !actual_len)
+    {
+        return FDB_WRAPPER_INVALID_PARAM;
+    }
+
+    struct fdb_blob blob;
+    size_t len = fdb_kv_get_blob(db, key, fdb_blob_make(&blob, NULL, 0));
+    if (len > 0)
+    {
+        *actual_len = len;
+    }
+    else
+    {
+        *actual_len = 0;
+        return FDB_WRAPPER_PEEK_ERROR;
+    }
+    return FDB_WRAPPER_OK;
+}
+
+/**
  * Get an KV value by key name.
  *
  * @note this function is NOT supported reentrant
@@ -143,9 +172,9 @@ fdb_wrapper_err_t fdb_wrapper_kv_get(fdb_kvdb_t db, const char *key, void *buffe
  *
  * @param db database object
  * @param key KV name
- * @param blob blob object
- * @param value_buf value buffer
- * @param buf_len buffer length
+ * @param buffer value buffer
+ * @param buffer_size buffer length
+ * @param actual_len actual length of the value retrieved
  *
  * @return the actually get size on successful
  */
@@ -196,18 +225,18 @@ fdb_wrapper_err_t fdb_wrapper_kv_del(fdb_kvdb_t db, const char *key)
 
 bool fdb_wrapper_kv_exist(fdb_kvdb_t db, const char *key)
 {
-    if (!key)
+    if (!db || !key)
     {
         return false;
     }
 
-    struct fdb_blob blob;
-    size_t len = fdb_kv_get_blob(db, key, fdb_blob_make(&blob, NULL, 0)); 
+    /* get KV info */
+    struct fdb_kv kv;
 
-    return (len != 0);
+    return fdb_kv_get_obj(db, key, &kv) != NULL;
 }
 
-// 遍历接口
+// Get the count of all KVs in the database
 uint32_t fdb_wrapper_kv_count(fdb_kvdb_t db)
 {
     struct fdb_kv_iterator iterator;

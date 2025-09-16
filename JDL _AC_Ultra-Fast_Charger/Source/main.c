@@ -10,7 +10,7 @@
 #include "main.h"
 #include "stdint.h"
 #include "STD_SysM.h"
-#include "fdbM.h"
+#include "FlashDB_AppM.h"
 #include "AppTask_MainTask.h"
 #include "AppTask_TaskInfo.h"
 #include "AppTask_4gTask.h"
@@ -89,7 +89,7 @@ static BaseType_t init_otherTasks(void)
 static BaseType_t init_middleware(void)
 {
     /* fdb Init*/
-	fdb_init();
+    FlashDB_AppM_Init();
     Core_printf("[Init] FlashDB initialized\n");
 
     return pdPASS;

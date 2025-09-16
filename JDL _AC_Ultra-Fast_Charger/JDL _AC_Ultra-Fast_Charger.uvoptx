@@ -157,50 +157,40 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>55</LineNumber>
+          <LineNumber>1258</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134228662</Address>
+          <Address>134285036</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\BSW\OS\AppTask\AppTask_TaskInfo.c</Filename>
+          <Filename>.\Source\BSW\Services\ThirdLibraries\FLashDB\fdb\fdb_kvdb.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/OS/AppTask/AppTask_TaskInfo.c\55</Expression>
+          <Expression>\\\Source/BSW/Services/ThirdLibraries/FLashDB/fdb/fdb_kvdb.c\1258</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>received_items</ItemText>
+          <ItemText>kv_hdr</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>item</ItemText>
+          <ItemText>kv</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>dma_buffer</ItemText>
+          <ItemText>calc_crc32</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>memory_pool</ItemText>
-        </Ww>
-        <Ww>
-          <count>4</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>boot_count</ItemText>
-        </Ww>
-        <Ww>
-          <count>5</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>blob.saved.len</ItemText>
+          <ItemText>key</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -2418,6 +2408,18 @@
       <bDave2>0</bDave2>
       <PathWithFileName>.\Source\BSW\Services\ThirdLibraries\FLashDB\Wrapper\flashdb_wrapper.c</PathWithFileName>
       <FilenameWithoutPath>flashdb_wrapper.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>44</GroupNumber>
+      <FileNumber>151</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\Source\APP\FlashDBM\FlashDB_AppM.c</PathWithFileName>
+      <FilenameWithoutPath>FlashDB_AppM.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
