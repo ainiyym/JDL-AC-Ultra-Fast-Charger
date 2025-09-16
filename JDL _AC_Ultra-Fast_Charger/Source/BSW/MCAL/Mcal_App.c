@@ -51,8 +51,6 @@ void MCALAPP_PeripheralInit(void)
 {
   /* Initialize all configured peripherals */
   Mcal_Gpio_Init();
-  Mcal_Dma_Init();
-  Mcal_Usart_Init();
   // Mcal_Usart_Init();
   Mcal_GptDrv_Init();
   Mcal_Can_Init();

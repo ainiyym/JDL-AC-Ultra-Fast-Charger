@@ -157,18 +157,34 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>1258</LineNumber>
+          <LineNumber>93</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134285036</Address>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>.\Source\APP\FlashDBM\FlashDB_AppM.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>121</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134294110</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\BSW\Services\ThirdLibraries\FLashDB\fdb\fdb_kvdb.c</Filename>
+          <Filename>.\Source\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\\Source/BSW/Services/ThirdLibraries/FLashDB/fdb/fdb_kvdb.c\1258</Expression>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/main.c\121</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -191,6 +207,16 @@
           <count>3</count>
           <WinNumber>1</WinNumber>
           <ItemText>key</ItemText>
+        </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>cfg</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>blob</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>

@@ -77,12 +77,10 @@ static BaseType_t init_basic_services(void)
     return pdPASS;
 }
 
-static BaseType_t init_otherTasks(void)
+static BaseType_t init_MainTasks(void)
 {
     OS_Init();
-    StreamBuff_StackInit();
-    YeeCom_Init();
-    Core_printf("[Init] other task initialized\n");
+    Core_printf("[Init] Main tasks initialized\n");
     return pdPASS;
 }
 
@@ -90,8 +88,17 @@ static BaseType_t init_middleware(void)
 {
     /* fdb Init*/
     FlashDB_AppM_Init();
-    Core_printf("[Init] FlashDB initialized\n");
+    /* Stream buffer Init*/
+    StreamBuff_StackInit();
+    Core_printf("[Init] middleware initialized\n");
+    return pdPASS;
+}
 
+static BaseType_t init_application_tasks(void)
+{
+    at_parser_init();
+    YeeCom_Init();
+    Core_printf("[Init] Application tasks initialized\n");
     return pdPASS;
 }
 
@@ -108,11 +115,11 @@ static void init_task(void *argument)
         return;
     }
 
-    // 初始化步骤2: task
-    Core_printf("[Init] Step 2: Task\n");
-    if (init_otherTasks() != pdPASS)
+    // 初始化步骤2: Main Tasks
+    Core_printf("[Init] Step 2: Main Tasks\n");
+    if (init_MainTasks() != pdPASS)
     {
-        Core_printf("[Init] ERROR: Tasks failed\n");
+        Core_printf("[Init] ERROR: Main Tasks failed\n");
         vTaskDelete(NULL);
         return;
     }
@@ -122,6 +129,13 @@ static void init_task(void *argument)
     if (init_middleware() != pdPASS)
     {
         Core_printf("[Init] ERROR: Middleware failed\n");
+        vTaskDelete(NULL);
+        return;
+    }
+
+    if (init_application_tasks() != pdPASS)
+    {
+        Core_printf("[Init] ERROR: Application tasks failed\n");
         vTaskDelete(NULL);
         return;
     }

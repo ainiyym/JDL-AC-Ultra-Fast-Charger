@@ -1,5 +1,6 @@
 #include "YeeComxxx_Device.h"
 #include "YeeComxxx_Device_Cfg.h"
+#include "FlashDB_AppM.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
@@ -40,7 +41,10 @@ typedef struct
     SemaphoreHandle_t SendMutex;                    /* SendMutex for thread safety */
 } YeeComxxx_Struct;
 
+static void YeeCom_SetDeviceInitFlag(bool flag);
+
 static YeeComxxx_Struct gv_YeeComxxx;
+extern uint8_t YeeComxxx_Device_Init_Flag;
 
 uint8_t YeeCom_AtCmd_Send(YeeCom_AT_Cmd_Get_Param_Type cmd_type, YeeCom_AT_Cmd cmd, const char *format, ...)
 {
@@ -304,7 +308,6 @@ static void YeeCom_CfgParameter(void)
     {
         YeeCom_SetDeviceState(YEECOM_DEVICE_RESET_CH, 0);
         YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_CH_MODE, 0);
-        YeeCom_SetDeviceState(YEECOM_SIM_READY, 0);
         YeeCom_SetCmd(YEECOM_AT_CMD_GPRS_MODE);
         // Configure default GPRS mode
         YeeCom_ClearTimeout();
@@ -316,9 +319,10 @@ static void YeeCom_CfgParameter(void)
     while (YeeCom_GetDeviceParameters(YEECOM_DEVICE_PARAM_GPRS_MODE))
     {
         YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_GPRS_MODE, 0);
-        YeeCom_SetDeviceState(YEECOM_DEVICE_RESET, 0);
         // All parameters are configured successfully
         YeeCom_SetState(YEECOM_STATE_READY);
+        YeeCom_SetDeviceState(YEECOM_DEVICE_RESET, 0);
+        YeeCom_SetDeviceInitFlag(true);
 
         YeeCom_Log("<%s> YeeComxxxState goto ready..\r\n", __func__);
         YeeCom_ClearTimeout();
@@ -381,20 +385,16 @@ static void YeeCom_ErrorHandle(void)
     }
 }
 
-static void YeeCom_ReadyModeMonitoring(void)
+static void YeeCom_ReadyHandle(void)
 {
     while (YeeCom_GetDeviceState(YEECOM_DEVICE_RESET))
     {
-        YeeCom_SetDeviceState(YEECOM_DEVICE_RESET, 0);
-        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_RESET, 0);
-        YeeCom_SetState(YEECOM_STATE_LOADING);
-        YeeCom_SetLoadStep(YEECOM_LOAD_STEP2);
-        gv_YeeComxxx.ErrorCnt = 0;
+        YeeCom_ResetDevice();
         YeeCom_Log("<%s> YeeComxxx reset..\r\n", __func__);
         return;
     }
-    // Handle ready state
-    if (YeeCom_GetDeviceState(YEECOM_SIM_READY))
+
+    if (YeeComxxx_Device_Init_Flag && YeeCom_GetDeviceState(YEECOM_SIM_READY))
     {
         YeeCom_SetDeviceState(YEECOM_NET_READY, 1);
     }
@@ -404,9 +404,10 @@ static void YeeCom_ReadyModeMonitoring(void)
     }
 }
 
-static void YeeCom_ReadyHandle(void)
+static void YeeCom_SetDeviceInitFlag(bool flag)
 {
-    YeeCom_ReadyModeMonitoring();
+    YeeComxxx_Device_Init_Flag = flag;
+    FlashDB_WriteValue(FLASHDB_KV_M4G_DEVICE_INIT_FLAG, (uint8_t *)&YeeComxxx_Device_Init_Flag, sizeof(YeeComxxx_Device_Init_Flag));
 }
 
 void YeeCom_MainFunc(void)
@@ -442,6 +443,19 @@ void YeeCom_Init(void)
         YeeCom_Err("Error: Failed to create YeeCom mutex\r\n");
         return;
     }
-    at_parser_init();
     YeeCom_OobRegister();
+    FlashDB_ReadValue(FLASHDB_KV_M4G_DEVICE_INIT_FLAG, (uint8_t*)&YeeComxxx_Device_Init_Flag, sizeof(YeeComxxx_Device_Init_Flag), NULL);
+    YeeCom_Log("<%s> YeeComxxx_Device_Init_Flag: %d\r\n", __func__, YeeComxxx_Device_Init_Flag);
+    if (1 != YeeComxxx_Device_Init_Flag)
+    {
+        if (0 != YeeComxxx_Device_Init_Flag)
+        {
+            YeeCom_SetDeviceInitFlag(false);
+        }
+        YeeCom_SetState(YEECOM_STATE_LOADING);
+    }
+    else
+    {
+        YeeCom_SetState(YEECOM_STATE_READY);
+    }
 }

@@ -49,7 +49,8 @@ typedef struct
 /*******************************************************************************
 |    Static local variables Declaration
 |******************************************************************************/
-static uint8_t M4G_Device_Init_Flag = 0;
+uint8_t YeeComxxx_Device_Init_Flag = 0;
+char SN[16] = "33030300000001";
 
 /*******************************************************************************
 |    Global variables Declaration
@@ -60,8 +61,8 @@ static uint8_t M4G_Device_Init_Flag = 0;
 |******************************************************************************/
 static FlashDB_AppKvDBDefaultCfg_t FlashDB_AppKvDBDefaultCfgTable[] = 
 {
-	{FLASHDB_KV_M4G_DEVICE_INIT_FLAG, 	&kvdb, 		"M4G_Device_Init_Flag",			FLASHDB_TYPE_INT, 					(uint8_t*)&M4G_Device_Init_Flag,					1},
-	{FLASHDB_KV_SN, 					&kvdb, 		"SN", 							FLASHDB_TYPE_STRING,				(char*)"33030300000001",							0},
+	{FLASHDB_KV_M4G_DEVICE_INIT_FLAG, 	&kvdb, 		"M4G_Device_Init_Flag",			FLASHDB_TYPE_INT, 					(uint8_t*)&YeeComxxx_Device_Init_Flag,					1},
+	{FLASHDB_KV_SN, 					&kvdb, 		"SN", 							FLASHDB_TYPE_STRING,				(char*)SN,												0},
 };
 
 /*******************************************************************************
@@ -88,7 +89,7 @@ int FlashDB_AppM_Init(void)
 	{
 		if (fdb_wrapper_kv_exist(FlashDB_AppKvDBDefaultCfgTable[i].kvdb, FlashDB_AppKvDBDefaultCfgTable[i].key))
 		{
-			FLASHDB_TRACE("FlashDB KVDB exist! key=%s\r\n", FlashDB_AppKvDBDefaultCfgTable[i].key);
+			FLASHDB_TRACE("FlashDB KVDB is exist key=%s\r\n", FlashDB_AppKvDBDefaultCfgTable[i].key);
 		}
 		else
 		{
@@ -148,11 +149,9 @@ FlashDB_ReturnType_t FlashDB_ReadValue(FlashDB_App_KvDB_Enum kv_id, void *value,
 			wrapper_ret = fdb_wrapper_kv_get_blob(cfg->kvdb, key, &read_val, sizeof(read_val), &len);
 			if (wrapper_ret != FDB_WRAPPER_OK)
 			{
-				*actual_len = 0;
 				return FLASHDB_ERR_GET_FAIL; // Read failed
 			}
 			*(int32_t *)value = read_val;
-			*actual_len = len;
 			break;
 		} 
 		case FLASHDB_TYPE_FLOAT:
@@ -161,11 +160,9 @@ FlashDB_ReturnType_t FlashDB_ReadValue(FlashDB_App_KvDB_Enum kv_id, void *value,
 			wrapper_ret = fdb_wrapper_kv_get_blob(cfg->kvdb, key, &read_val, sizeof(read_val), &len);
 			if (wrapper_ret != FDB_WRAPPER_OK)
 			{
-				*actual_len = 0;
 				return FLASHDB_ERR_GET_FAIL; // Read failed
 			}
 			*(float *)value = read_val;
-			*actual_len = len;
 			break;
 		}
 		case FLASHDB_TYPE_STRING:
@@ -174,16 +171,13 @@ FlashDB_ReturnType_t FlashDB_ReadValue(FlashDB_App_KvDB_Enum kv_id, void *value,
 			wrapper_ret = fdb_wrapper_kv_get(cfg->kvdb, key, read_val, sizeof(read_val), &len);
 			if (wrapper_ret != FDB_WRAPPER_OK)
 			{
-				*actual_len = 0;
 				return FLASHDB_ERR_GET_FAIL; // Read failed
 			}
 			if (len >= buff_size)
 			{
-				*actual_len = 0;
 				return FLASHDB_ERR_OUT_OF_MEMORY; // Provided buffer too small
 			}
 			strcpy((char *)value, read_val);
-			*actual_len = len;
 			break;
 		}
 		case FLASHDB_TYPE_BLOB:
@@ -191,15 +185,16 @@ FlashDB_ReturnType_t FlashDB_ReadValue(FlashDB_App_KvDB_Enum kv_id, void *value,
 			wrapper_ret = fdb_wrapper_kv_get_blob(cfg->kvdb, key, value, buff_size, &len);
 			if (wrapper_ret != FDB_WRAPPER_OK)
 			{
-				*actual_len = 0;
 				return FLASHDB_ERR_GET_FAIL; // Read failed
 			}
-			*actual_len = len;
 			break;
 		}
-
 		default:
 			return FLASHDB_ERR_INVALID_PARAM; // Unsupported type
+	}
+	if (actual_len)
+	{
+		*actual_len = len;
 	}
 
 	return FLASHDB_OK;

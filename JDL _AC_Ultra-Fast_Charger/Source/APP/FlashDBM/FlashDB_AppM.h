@@ -44,8 +44,8 @@ typedef enum
 
 typedef enum
 {
-    FLASHDB_KV_SN = 0,
-    FLASHDB_KV_M4G_DEVICE_INIT_FLAG
+    FLASHDB_KV_M4G_DEVICE_INIT_FLAG,
+    FLASHDB_KV_SN
 } FlashDB_App_KvDB_Enum;
 /*******************************************************************************
 |    Typedef Definition
