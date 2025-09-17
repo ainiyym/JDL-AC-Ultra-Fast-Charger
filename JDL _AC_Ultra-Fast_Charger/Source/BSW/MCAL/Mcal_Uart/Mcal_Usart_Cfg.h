@@ -85,7 +85,6 @@ typedef struct
 /*******************************************************************************
 |    Extern functions Declaration
 |******************************************************************************/
-extern void McalUsart_ReInit(McalUsartChannel_Enum_t UsartNum, McalUart_ReConfig_t *config);
 extern void McalUsart_CycBuffCfgInit(void);
 // USART initialization
 extern void Mcal_Usart_Init(void);

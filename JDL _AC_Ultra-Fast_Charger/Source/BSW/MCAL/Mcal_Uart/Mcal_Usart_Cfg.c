@@ -82,28 +82,6 @@ McalUsart_BufCfg_t  const McalUsart_BufferCfg[MCAL_USART_MAX_NUMBER] =
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-void McalUsart_ReInit(McalUsartChannel_Enum_t UsartNum, McalUart_ReConfig_t *config)
-{
-  if (UsartNum < MCAL_USART_MAX_NUMBER && config != NULL)
-  {
-    UART_HandleTypeDef *huart = (UART_HandleTypeDef *)&McalUsart_NumMapUsart[UsartNum].UsartBase;
-
-    if (HAL_OK == HAL_UART_DeInit(huart))
-    {
-      huart->Init.BaudRate = config->baud_rate;
-      huart->Init.WordLength = config->data_width;
-      huart->Init.StopBits = config->stop_bits;
-      huart->Init.Parity = config->parity;
-      huart->Init.Mode = config->mode;
-      huart->Init.HwFlowCtl = config->flow_control;
-      if (HAL_OK != HAL_UART_Init(huart))
-      {
-        Error_Handler();
-      }
-    }
-  }
-}
-
 void McalUsart_CycBuffCfgInit(void)
 {
   uint8_t i;

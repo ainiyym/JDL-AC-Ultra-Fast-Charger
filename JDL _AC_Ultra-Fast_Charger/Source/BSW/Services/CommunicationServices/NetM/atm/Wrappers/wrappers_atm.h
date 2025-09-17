@@ -29,26 +29,6 @@ extern "C" {
 
 #if defined(AT_PARSER_ENABLED)
 
-
-/**
- * Initialises a UART interface
- *
- *
- * @param[in]  uart  the interface which should be initialised
- *
- * @return  0 : on success, EIO : if an error occurred with any step
- */
-int32_t HAL_AT_Uart_Init(uart_dev_t *uart);
-  
-/**
- * Deinitialises a UART interface
- *
- * @param[in]  uart  the interface which should be deinitialised
- *
- * @return  0 : on success, EIO : if an error occurred with any step
- */
-int32_t HAL_AT_Uart_Deinit(uart_dev_t *uart);
-
 /**
  * Transmit data on a UART interface
  *

@@ -141,7 +141,7 @@ void Scheduler_run(void)
 static void Task1ms(void) 
 {
     /* 1ms task code */
-    Comm_GetCcpPrd();
+    // Comm_GetCcpPrd();
     // Mcal_test_1ms();
 }
 	

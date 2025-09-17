@@ -29,7 +29,7 @@
 #include "ModbusM.h"
 #include "FanM.h"
 #include "Sensor.h"
-
+#include "YeeComxxx_Device.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -145,7 +145,7 @@ void SYSM_InitTwo( void )
 	Mcal_McuCheck_Rst();
 	/* App init memory */
 	ERRHDL_InitMemory(); 
-	Comm_Init();
+	// Comm_Init();
 	ModbusM_Init();
 	FanM_Init();
 	SwitchM_Init();
@@ -410,6 +410,7 @@ static void SYSM_ShowBasicInfo(void)
 void SYSM_ImmediatelyResetManage(void)
 {
 	Mcal_MCU_SysRestart();
+	YeeCom_DeviceRestart();
 }
 
 void SYSM_SetCpVolMode(SysConnector_Num_Enum ch, uint8_t mode)

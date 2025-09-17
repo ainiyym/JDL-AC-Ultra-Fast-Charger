@@ -436,7 +436,7 @@ extern int Core_printf(const char *format, ...);
  * the build, or 0 to exclude the named feature from the build. */
 #define configUSE_TASK_NOTIFICATIONS           1
 #define configUSE_MUTEXES                      1
-#define configUSE_RECURSIVE_MUTEXES            1
+#define configUSE_RECURSIVE_MUTEXES            0
 #define configUSE_COUNTING_SEMAPHORES          1
 #define configUSE_QUEUE_SETS                   10
 #define configUSE_APPLICATION_TASK_TAG         0
@@ -444,22 +444,22 @@ extern int Core_printf(const char *format, ...);
 /* Set the following INCLUDE_* constants to 1 to incldue the named API function,
  * or 0 to exclude the named API function.  Most linkers will remove unused
  * functions even when the constant is 1. */
-#define INCLUDE_vTaskPrioritySet               1
-#define INCLUDE_uxTaskPriorityGet              1
+#define INCLUDE_vTaskPrioritySet               0
+#define INCLUDE_uxTaskPriorityGet              0
 #define INCLUDE_vTaskDelete                    1
 #define INCLUDE_vTaskSuspend                   1
-#define INCLUDE_xResumeFromISR                 1
+#define INCLUDE_xResumeFromISR                 0
 #define INCLUDE_vTaskDelayUntil                1
 #define INCLUDE_vTaskDelay                     1
-#define INCLUDE_xTaskGetSchedulerState         1
+#define INCLUDE_xTaskGetSchedulerState         0
 #define INCLUDE_xTaskGetCurrentTaskHandle      1
 #define INCLUDE_uxTaskGetStackHighWaterMark    1
 #define INCLUDE_xTaskGetIdleTaskHandle         0
-#define INCLUDE_eTaskGetState                  1
+#define INCLUDE_eTaskGetState                  0
 #define INCLUDE_xEventGroupSetBitFromISR       0
-#define INCLUDE_xTimerPendFunctionCall         1
+#define INCLUDE_xTimerPendFunctionCall         0
 #define INCLUDE_xTaskAbortDelay                0
 #define INCLUDE_xTaskGetHandle                 0
-#define INCLUDE_xTaskResumeFromISR             1
+#define INCLUDE_xTaskResumeFromISR             0
 
 #endif /* FREERTOS_CONFIG_H */

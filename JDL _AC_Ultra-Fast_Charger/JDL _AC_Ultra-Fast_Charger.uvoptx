@@ -2328,54 +2328,6 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\Source\BSW\Services\ThirdLibraries\FLashDB\samples\kvdb_basic_sample.c</PathWithFileName>
-      <FilenameWithoutPath>kvdb_basic_sample.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>43</GroupNumber>
-      <FileNumber>143</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>.\Source\BSW\Services\ThirdLibraries\FLashDB\samples\kvdb_type_blob_sample.c</PathWithFileName>
-      <FilenameWithoutPath>kvdb_type_blob_sample.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>43</GroupNumber>
-      <FileNumber>144</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>.\Source\BSW\Services\ThirdLibraries\FLashDB\samples\kvdb_type_string_sample.c</PathWithFileName>
-      <FilenameWithoutPath>kvdb_type_string_sample.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>43</GroupNumber>
-      <FileNumber>145</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>.\Source\BSW\Services\ThirdLibraries\FLashDB\samples\tsdb_sample.c</PathWithFileName>
-      <FilenameWithoutPath>tsdb_sample.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>43</GroupNumber>
-      <FileNumber>146</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
       <PathWithFileName>.\Source\BSW\Services\ThirdLibraries\FLashDB\sfud\port\sfud_port.c</PathWithFileName>
       <FilenameWithoutPath>sfud_port.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
@@ -2383,7 +2335,7 @@
     </File>
     <File>
       <GroupNumber>43</GroupNumber>
-      <FileNumber>147</FileNumber>
+      <FileNumber>143</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -2395,7 +2347,7 @@
     </File>
     <File>
       <GroupNumber>43</GroupNumber>
-      <FileNumber>148</FileNumber>
+      <FileNumber>144</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -2407,7 +2359,7 @@
     </File>
     <File>
       <GroupNumber>43</GroupNumber>
-      <FileNumber>149</FileNumber>
+      <FileNumber>145</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -2427,7 +2379,7 @@
     <RteFlg>0</RteFlg>
     <File>
       <GroupNumber>44</GroupNumber>
-      <FileNumber>150</FileNumber>
+      <FileNumber>146</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -2439,7 +2391,7 @@
     </File>
     <File>
       <GroupNumber>44</GroupNumber>
-      <FileNumber>151</FileNumber>
+      <FileNumber>147</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>

@@ -364,7 +364,7 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *CanNum)
       /* Check if the received message is from CAN1_RX_CCP */
       if (Mcal_CanCtrl.RxHeader.DLC > 0 && Mcal_CanCtrl.RxHeader.StdId == MCAL_CAN1_CCP_RX_ID)
       {
-        Ccp_CanDrv_ReceiveCallback(Mcal_CanCtrl.RxHeader.StdId, Mcal_CanCtrl.rcvData, Mcal_CanCtrl.RxHeader.DLC);
+        // Ccp_CanDrv_ReceiveCallback(Mcal_CanCtrl.RxHeader.StdId, Mcal_CanCtrl.rcvData, Mcal_CanCtrl.RxHeader.DLC);
       }
       /* Check if the received message is from CAN2_MCU_STATUS3 */
       else if (Mcal_CanCtrl.RxHeader.DLC > 0 && Mcal_CanCtrl.RxHeader.ExtId == MCAL_RX_MCU_STATUS3_ID)

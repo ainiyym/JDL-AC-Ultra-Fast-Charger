@@ -872,7 +872,7 @@ static void at_work_cmd_data_processing(char c, uint16_t offset, char *prefix, c
     /* if no task, continue recv */
     if (at_task_empty)
     {
-        // atpsr_debug("No task in queue.");
+        // atpsr_debug("No task in queue.\r\n");
         return;
     }
 

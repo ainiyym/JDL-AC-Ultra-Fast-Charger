@@ -2,7 +2,7 @@
  * File: Mcal_Test.c
  * Description: MCAL Test Source File
  */
-
+#if 0
 #include "Mcal_Test.h"
 #include "SwitchM.h"
 #include "STD_MosDrv.h"
@@ -334,7 +334,6 @@ void MCAL_TestIIC(void)
 	}
 }
 
-#if 0
 void Mcal_Test_Spi(void)
 {
     uint16_t DeviceID = 0;
@@ -383,7 +382,6 @@ void Mcal_Test_Spi(void)
             break;
     }
 }
-#endif
 
 void Mcal_Test_Adc(void)
 {
@@ -525,7 +523,7 @@ void Mcal_Test_StateMachine(void)
         break;
     }
 }
-
+#endif
 /* Run MCAL tests */
 void Mcal_Test_Run(void)
 {

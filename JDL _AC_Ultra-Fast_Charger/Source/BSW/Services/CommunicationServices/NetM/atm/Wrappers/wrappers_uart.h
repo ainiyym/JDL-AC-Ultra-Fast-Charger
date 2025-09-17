@@ -4,12 +4,6 @@
 #include "infra_types.h"
 #include "infra_defs.h"
 
-
-
-int32_t HAL_AT_Uart_Init(uart_dev_t *uart);
-
-int32_t HAL_AT_Uart_Deinit(uart_dev_t *uart);
-
 int32_t HAL_AT_Uart_Send(uart_dev_t *uart, const void *data,
                          uint32_t size, uint32_t timeout);
 
