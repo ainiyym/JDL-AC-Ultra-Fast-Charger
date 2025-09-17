@@ -62,7 +62,11 @@ typedef enum
     YEECOM_AT_CMD_DEBUG_MODE, /* DTU Debug mode */
     YEECOM_AT_CMD_USART_CFG, /* Serial port parameter configuration */
     YEECOM_AT_CMD_USART_FRAME_INTERVAL_TIME, /* Serial port data frame interval time */
-    YEECOM_AT_CMD_DEVICE_RESET, /* Device reset */
+    YEECOM_AT_CMD_DEVICE_RESET, /* Device reset to default configuration */
+    YEECOM_AT_CMD_DEVICE_RESTART, /* Device restart cmd */
+    YEECOM_AT_CMD_ICCID, /* Get SIM ICCID */
+    YEECOM_AT_CMD_IMEI, /* Get device IMEI */
+    YEECOM_AT_CMD_RSSI, /* Get device RSSI */
 } YeeCom_AT_Cmd;
 
 #endif

@@ -10,7 +10,7 @@ const YeeCom_AT_OobCmd_ParameterCfg YeeCom_At_Cmd_OobParam[YEECOM_AT_CMD_OOBPARA
 };
 
 /* AT set parameter command table */
-const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Set_Param[] =
+const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Set_Param[YEECOM_AT_CMD_SET_PARAM_COUNT] =
 {
     { YEECOM_AT_CMD_WORKING_MODE,                  "AT*SERVER%d=%d,%s,%d#\r\n",         { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_SERVERn_Callback } },
     { YEECOM_AT_CMD_GPRS_MODE,                     "AT*GPRSMODE=%d#\r\n",               { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_GPRSMode_Callback } },
@@ -19,10 +19,11 @@ const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Set_Param[] =
     { YEECOM_AT_CMD_USART_CFG,                     "AT*UART=%d,%d,%d,%d,%d#\r\n",       { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_USART_Callback } },
     { YEECOM_AT_CMD_USART_FRAME_INTERVAL_TIME,     "AT*DFI=%d#\r\n",                    { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_DFI_Callback } }, /* "Unit: ms" */
     { YEECOM_AT_CMD_DEVICE_RESET,                  "AT*RESET=%d#\r\n",                  { NULL,           "OK\r\n",    "ERROR\r\n", 30000,         YeeCom_At_Set_RESET_Callback } },
+    { YEECOM_AT_CMD_DEVICE_RESTART,                "AT*RESTART#\r\n",                   { NULL,           "OK\r\n",    "ERROR\r\n", 30000,         YeeCom_At_Set_RESTART_Callback } },
 };
 
 /* AT get parameter command table */
-const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Get_Param[] =
+const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Get_Param[YEECOM_AT_CMD_GET_PARAM_COUNT] =
 {
     { YEECOM_AT_CMD_WORKING_MODE,                  "AT*SERVER%d?\r\n",                  { "+SERVER\r\n",   "OK\r\n",    NULL,       200,              YeeCom_At_Get_SERVERnCallback } },
     { YEECOM_AT_CMD_GPRS_MODE,                     "AT*GPRSMODE?\r\n",                  { "+GPRSMODE\r\n", "OK\r\n",    NULL,       200,              YeeCom_At_Get_GPRSMODECallback } },
@@ -30,4 +31,7 @@ const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Get_Param[] =
     { YEECOM_AT_CMD_DEBUG_MODE,                    "AT*DBGMODE?\r\n",                   { "+DBGMODE\r\n",  "OK\r\n",    NULL,       200,              YeeCom_At_Get_DBGMODECallback } },
     { YEECOM_AT_CMD_USART_CFG,                     "AT*UART?\r\n",                      { "+UART\r\n",     "OK\r\n",    NULL,       200,              YeeCom_At_Get_UARTCallback } },
     { YEECOM_AT_CMD_USART_FRAME_INTERVAL_TIME,     "AT*DFI?\r\n",                       { "+DFI\r\n",      "OK\r\n",    NULL,       200,              YeeCom_At_Get_DFICallback } },
+    { YEECOM_AT_CMD_ICCID,                         "AT*ICCID?\r\n",                     { "+ICCID\r\n",    "OK\r\n",    NULL,       2000,             YeeCom_At_Get_ICCIDCallback } },
+    { YEECOM_AT_CMD_IMEI,                          "AT*IMEI?\r\n",                      { "+IMEI\r\n",     "OK\r\n",    NULL,       2000,             YeeCom_At_Get_IMEICallback } },
+    { YEECOM_AT_CMD_RSSI,                          "AT*CSQ?\r\n",                       { "+CSQ\r\n",      "OK\r\n",    NULL,       2000,             YeeCom_At_Get_RSSICallback } },
 };

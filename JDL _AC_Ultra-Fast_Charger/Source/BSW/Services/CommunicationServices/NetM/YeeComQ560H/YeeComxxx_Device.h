@@ -5,7 +5,6 @@
 typedef enum
 {
     YEECOM_POWER_ON,
-    YEECOM_SIM_READY,
     YEECOM_DEVICE_RESET,
     YEECOM_DEVICE_RESET_POWER_ON,
     YEECOM_DEVICE_RESET_CMD,
@@ -16,6 +15,7 @@ typedef enum
 typedef enum
 {
     YEECOM_DEVICE_PARAM_RESET,
+    YEECOM_DEVICE_PARAM_RESTART,
     YEECOM_DEVICE_PARAM_CFG_CENTER,
     YEECOM_DEVICE_PARAM_CH_MODE,
     YEECOM_DEVICE_PARAM_GPRS_MODE
@@ -24,6 +24,12 @@ typedef enum
 extern void YeeCom_SetDeviceState(YeeCom_Device_Status_t id, uint8_t status);
 extern uint8_t YeeCom_GetDeviceState(YeeCom_Device_Status_t id);
 extern void YeeCom_SetDeviceParameters(YeeCom_Device_Param_t id, uint8_t status);
+extern void YeeCom_DeviceRestart(void);
+extern void YeeCom_SetDeviceInfo_sim(uint8_t sim_status);
+extern void YeeCom_SetDeviceInfo_rssi(uint16_t rssi);
+extern void YeeCom_SetDeviceInfo_iccid(const char* iccid);
+extern void YeeCom_SetDeviceInfo_imei(const char* imei);
+extern void YeeCom_GetDeviceInfo(uint8_t* sim_status, uint16_t* rssi, char* iccid, char* imei);
 extern void YeeCom_Init(void);
 extern void YeeCom_MainFunc(void);
 extern uint8_t YeeCom_AtCmd_Send(YeeCom_AT_Cmd_Get_Param_Type cmd_type, YeeCom_AT_Cmd cmd, const char *format, ...);

@@ -79,8 +79,7 @@ void YeeCom_At_OOB_Net_Ready_Callback(void *arg, char *buf, int buflen)
             if (strstr(status_str, "SMS Ready") != NULL)
             {
                 // sim is ready
-                YeeCom_SetDeviceState(YEECOM_SIM_READY, 1);
-                YeeCom_Log("sim is ready\r\n");
+                YeeCom_SetDeviceInfo_sim(1);
             }
             else
             {
@@ -217,6 +216,21 @@ void YeeCom_At_Set_RESET_Callback(void *arg, char *buf, int buflen)
     }
 }
 
+void YeeCom_At_Set_RESTART_Callback(void *arg, char *buf, int buflen)
+{
+    // Handle the received OOB response success
+    if (NULL != strstr(buf, "OK\r\n"))
+    {
+        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_RESTART, 1);
+        YeeCom_Log("<%s>  OK\r\n", __func__);
+    }
+    else
+    {
+        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_RESTART, 0);
+        YeeCom_Log("<%s> %s\r\n", __func__,  buf);
+    }
+}
+
 /* at get cmd */
 void YeeCom_At_Get_SERVERnCallback(void *arg, char *buf, int buflen)
 {
@@ -246,4 +260,85 @@ void YeeCom_At_Get_UARTCallback(void *arg, char *buf, int buflen)
 void YeeCom_At_Get_DFICallback(void *arg, char *buf, int buflen)
 {
     // Handle the received CH mode response success
+}
+
+void YeeCom_At_Get_ICCIDCallback(void *arg, char *buf, int buflen)
+{
+    const char *start = buf;
+    const char *current = buf;
+
+    const char *reset_pos = strstr(buf, "+ICCID:");
+    if (reset_pos != NULL)
+    {
+        start = reset_pos + strlen("+ICCID:");
+        while (*start == ' ')
+        {
+            start++;
+        }
+        current = start;
+        while (*current != '\r' && *current != '\n' && *current != '\0')
+        {
+            current++;
+        }
+        if (current > start)
+        {
+            char iccid[21] = {0};
+            strncpy(iccid, start, current - start);
+            YeeCom_SetDeviceInfo_iccid(iccid);
+        }
+    }
+}
+
+void YeeCom_At_Get_IMEICallback(void *arg, char *buf, int buflen)
+{
+    const char *start = buf;
+    const char *current = buf;
+
+    const char *reset_pos = strstr(buf, "+IMEI:");
+    if (reset_pos != NULL)
+    {
+        start = reset_pos + strlen("+IMEI:");
+        while (*start == ' ')
+        {
+            start++;
+        }
+        current = start;
+        while (*current != '\r' && *current != '\n' && *current != '\0')
+        {
+            current++;
+        }
+        if (current > start)
+        {
+            char imei[16] = {0};
+            strncpy(imei, start, current - start);
+            YeeCom_SetDeviceInfo_imei(imei);
+        }
+    }
+}
+
+void YeeCom_At_Get_RSSICallback(void *arg, char *buf, int buflen)
+{
+    const char *start = buf;
+    const char *current = buf;
+
+    const char *reset_pos = strstr(buf, "+CSQ:");
+    if (reset_pos != NULL)
+    {
+        start = reset_pos + strlen("+CSQ:");
+        while (*start == ' ')
+        {
+            start++;
+        }
+        current = start;
+        while (*current != '\r' && *current != '\n' && *current != '\0')
+        {
+            current++;
+        }
+        if (current > start)
+        {
+            char rssi[5] = {0};
+            strncpy(rssi, start, current - start);
+            YeeCom_SetDeviceInfo_rssi(atoi(rssi));
+        }
+    }
 }

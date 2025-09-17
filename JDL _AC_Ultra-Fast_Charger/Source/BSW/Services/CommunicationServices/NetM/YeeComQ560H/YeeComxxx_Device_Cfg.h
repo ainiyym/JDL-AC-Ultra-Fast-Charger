@@ -10,6 +10,11 @@
 #define YEECOM_DEFAULT_REMOTE_PORT              (1883u)
 #define YEECOM_DEFAULT_NET_TYPE                 (YEECOM_WORKING_MQTT)
 
+#define YEECOM_ICCID_LENGTH                     (20U)
+#define YEECOM_IMEI_LENGTH                      (15U)
+
+#define YEECOM_PERIODIC_TASK_PERIOD             (60000 / YEECOM_PERIOD_MS)   // 60s
+
 #define YEECOM_ATOMIC_SETH_BIT(REG, BIT)        ATOMIC_SETH_BIT(REG, BIT)
 #define YEECOM_ATOMIC_CLR_BIT(REG, BIT)         ATOMIC_CLEARH_BIT(REG, BIT)
 

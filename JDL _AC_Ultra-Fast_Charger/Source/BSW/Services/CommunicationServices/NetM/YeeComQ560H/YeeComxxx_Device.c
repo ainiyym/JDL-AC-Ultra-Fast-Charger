@@ -11,6 +11,7 @@
 typedef enum
 {
     YEECOM_STATE_LOADING,
+    YEECOM_STATE_GETTING_CONST_INFO,
     YEECOM_STATE_READY,
     YEECOM_STATE_ERROR
 } YeeComState_Enum;
@@ -39,11 +40,21 @@ typedef struct
     uint8_t ErrorState;                             /* Error state */
     uint16_t TimerCnt;                              /* Timer cnt */
     SemaphoreHandle_t SendMutex;                    /* SendMutex for thread safety */
-} YeeComxxx_Struct;
+} YeeComxxx_Struct; 
+
+typedef struct
+{
+    uint8_t SimReadyStatus;                         /* device sim is valid:1 ,invalid:0 */
+    uint16_t Rssi;                                  /* Signal Strength */
+    char* ICCID[YEECOM_ICCID_LENGTH + 1];           /* SIM ICCID */
+    char* IMEI[YEECOM_IMEI_LENGTH + 1];             /* device imei */            
+}YeeComxxx_DeviceInfo_struct;
+
 
 static void YeeCom_SetDeviceInitFlag(bool flag);
 
 static YeeComxxx_Struct gv_YeeComxxx;
+static YeeComxxx_DeviceInfo_struct gv_YeeComxxx_device_info;
 extern uint8_t YeeComxxx_Device_Init_Flag;
 
 uint8_t YeeCom_AtCmd_Send(YeeCom_AT_Cmd_Get_Param_Type cmd_type, YeeCom_AT_Cmd cmd, const char *format, ...)
@@ -53,32 +64,43 @@ uint8_t YeeCom_AtCmd_Send(YeeCom_AT_Cmd_Get_Param_Type cmd_type, YeeCom_AT_Cmd c
     const char *str = NULL;
     at_recv_cb cb = NULL;
     const atcmd_config_t *atcmdconfig = NULL;
+    YeeCom_AT_Cmd_ParameterCfg* atcmd_param = NULL;
     uint16_t atcmd_len = 0;
     uint16_t reply_timeout = 0;
 
     switch (cmd_type)
     {
         case YEECOM_AT_CMD_GET:
-            str = YeeCom_At_Cmd_Get_Param[cmd].str;
-            cb = YeeCom_At_Cmd_Get_Param[cmd].rcvCfg.recv_cb;
-            reply_timeout = YeeCom_At_Cmd_Get_Param[cmd].rcvCfg.reply_timeout;
-            atcmdconfig = &(atcmd_config_t){(char *)YeeCom_At_Cmd_Get_Param[cmd].rcvCfg.prefix,
-                                   (char *)YeeCom_At_Cmd_Get_Param[cmd].rcvCfg.reply_success_postfix,
-                                   (char *)YeeCom_At_Cmd_Get_Param[cmd].rcvCfg.reply_fail_postfix};
+            for (YeeCom_AT_Cmd  id = YEECOM_AT_CMD_WORKING_MODE; id < YEECOM_AT_CMD_GET_PARAM_COUNT; id++)
+            {
+                if (YeeCom_At_Cmd_Get_Param[id].cmd == cmd)
+                {
+                    atcmd_param = (YeeCom_AT_Cmd_ParameterCfg *)&YeeCom_At_Cmd_Get_Param[id];
+                    break;
+                }
+            }
             break;
         case YEECOM_AT_CMD_SET:
-            str = YeeCom_At_Cmd_Set_Param[cmd].str;
-            cb = YeeCom_At_Cmd_Set_Param[cmd].rcvCfg.recv_cb;
-            reply_timeout = YeeCom_At_Cmd_Set_Param[cmd].rcvCfg.reply_timeout;
-            atcmdconfig = &(atcmd_config_t){(char *)YeeCom_At_Cmd_Set_Param[cmd].rcvCfg.prefix,
-                                   (char *)YeeCom_At_Cmd_Set_Param[cmd].rcvCfg.reply_success_postfix,
-                                   (char *)YeeCom_At_Cmd_Set_Param[cmd].rcvCfg.reply_fail_postfix};
+            for (YeeCom_AT_Cmd id = YEECOM_AT_CMD_WORKING_MODE; id < YEECOM_AT_CMD_SET_PARAM_COUNT; id++)
+            {
+                if (YeeCom_At_Cmd_Set_Param[id].cmd == cmd)
+                {
+                    atcmd_param = (YeeCom_AT_Cmd_ParameterCfg *)&YeeCom_At_Cmd_Set_Param[id];
+                    break;
+                }
+            }
             break;
         default:
             ret = 1;
             break;
     }
 
+    str = atcmd_param->str;
+    cb = atcmd_param->rcvCfg.recv_cb;
+    reply_timeout = atcmd_param->rcvCfg.reply_timeout;
+    atcmdconfig = &(atcmd_config_t){(char *)atcmd_param->rcvCfg.prefix,
+                                    (char *)atcmd_param->rcvCfg.reply_success_postfix,
+                                    (char *)atcmd_param->rcvCfg.reply_fail_postfix};
     if (xSemaphoreTake(gv_YeeComxxx.SendMutex, pdMS_TO_TICKS(1000)) == pdTRUE)
     {
         memset(gv_YeeComxxx.AtCmdSendBuf, 0, YEECOM_AT_CMD_SEND_BUF_SIZE);
@@ -93,7 +115,7 @@ uint8_t YeeCom_AtCmd_Send(YeeCom_AT_Cmd_Get_Param_Type cmd_type, YeeCom_AT_Cmd c
             xSemaphoreGive(gv_YeeComxxx.SendMutex);
             return 2;
         }
-        YeeCom_Log("<%s> Send AT cmd: %s", __func__, gv_YeeComxxx.AtCmdSendBuf);
+        YeeCom_Log("<%s> Send AT cmd:%s", __func__, gv_YeeComxxx.AtCmdSendBuf);
         ret = at_send_wait_reply((const char *)gv_YeeComxxx.AtCmdSendBuf, (int)atcmd_len, reply_timeout, cb, atcmdconfig);
         xSemaphoreGive(gv_YeeComxxx.SendMutex);
     }
@@ -178,6 +200,66 @@ uint8_t YeeCom_GetDeviceState(YeeCom_Device_Status_t id)
     return (gv_YeeComxxx.Device.DeviceState >> id) & 0x01;
 }
 
+void YeeCom_DeviceRestart(void)
+{
+    YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_RESTART, 0);
+    YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_DEVICE_RESTART, NULL);
+}
+
+void YeeCom_SetDeviceInfo_sim(uint8_t sim_status)
+{
+    gv_YeeComxxx_device_info.SimReadyStatus = sim_status;
+    YeeCom_Log("<%s> SIM Ready Status: %d\r\n", __func__, gv_YeeComxxx_device_info.SimReadyStatus);
+}
+
+void YeeCom_SetDeviceInfo_rssi(uint16_t rssi)
+{
+    gv_YeeComxxx_device_info.Rssi = rssi;
+    YeeCom_Log("<%s> RSSI: %d\r\n", __func__, gv_YeeComxxx_device_info.Rssi);
+}
+
+void YeeCom_SetDeviceInfo_iccid(const char* iccid)
+{
+    if (iccid != NULL)
+    {
+        memcpy(gv_YeeComxxx_device_info.ICCID, iccid, YEECOM_ICCID_LENGTH);
+        gv_YeeComxxx_device_info.ICCID[YEECOM_ICCID_LENGTH] = '\0';
+        YeeCom_Log("<%s> ICCID: %s\r\n", __func__, gv_YeeComxxx_device_info.ICCID);
+    }
+}
+
+void YeeCom_SetDeviceInfo_imei(const char* imei)
+{
+    if (imei != NULL)
+    {
+        memcpy(gv_YeeComxxx_device_info.IMEI, imei, YEECOM_IMEI_LENGTH);
+        gv_YeeComxxx_device_info.IMEI[YEECOM_IMEI_LENGTH] = '\0';
+        YeeCom_Log("<%s> IMEI: %s\r\n", __func__, gv_YeeComxxx_device_info.IMEI);
+    }
+}
+
+void YeeCom_GetDeviceInfo(uint8_t* sim_status, uint16_t* rssi, char* iccid, char* imei)
+{
+    if (sim_status != NULL)
+    {
+        *sim_status = gv_YeeComxxx_device_info.SimReadyStatus;
+    }
+    if (rssi != NULL)
+    {
+        *rssi = gv_YeeComxxx_device_info.Rssi;
+    }
+    if (iccid != NULL)
+    {
+        memcpy(iccid, gv_YeeComxxx_device_info.ICCID, YEECOM_ICCID_LENGTH);
+        iccid[YEECOM_ICCID_LENGTH] = '\0';
+    }
+    if (imei != NULL)
+    {
+        memcpy(imei, gv_YeeComxxx_device_info.IMEI, YEECOM_IMEI_LENGTH);
+        imei[YEECOM_IMEI_LENGTH] = '\0';
+    }
+}
+
 static uint8_t YeeCom_GetDeviceParameters(YeeCom_Device_Param_t id)
 {
     return (gv_YeeComxxx.Device.ParameterState >> id) & 0x01;
@@ -197,6 +279,7 @@ static void YeeCom_ResetDevice(void)
 {
     gv_YeeComxxx.Device.DeviceState = 0;
     gv_YeeComxxx.Device.ParameterState = 0;
+    gv_YeeComxxx_device_info.SimReadyStatus = 0;
 }
 
 static void YeeCom_OobRegister(void)
@@ -218,6 +301,12 @@ static void YeeCom_OobRegister(void)
         }
         
     }
+}
+
+static void YeeCom_SetDeviceInitFlag(bool flag)
+{
+    YeeComxxx_Device_Init_Flag = flag;
+    FlashDB_WriteValue(FLASHDB_KV_M4G_DEVICE_INIT_FLAG, (uint8_t *)&YeeComxxx_Device_Init_Flag, sizeof(YeeComxxx_Device_Init_Flag));
 }
 
 static void YeeCom_ParameterTimeoutJudgy(uint16_t reply_timeout)
@@ -263,28 +352,31 @@ static void YeeCom_DeviceReset(void)
 
 static void YeeCom_SetDefaultCenterWorkingMode(void)
 {
+    YeeCom_ClearTimeout();
     YeeCom_ParameterTimeoutJudgy(YeeCom_At_Cmd_Set_Param[YEECOM_AT_CMD_WORKING_MODE].rcvCfg.reply_timeout);
     YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_WORKING_MODE, NULL, 0, YEECOM_DEFAULT_NET_TYPE, YEECOM_DEFAULT_REMOTE_IP, YEECOM_DEFAULT_REMOTE_PORT);
 }
 
 static void YeeCom_SetDefaultCHMode(void)
 {
+    YeeCom_ResetDevice();
+    YeeCom_ClearTimeout();
     YeeCom_ParameterTimeoutJudgy(YeeCom_At_Cmd_Set_Param[YEECOM_AT_CMD_CH_MODE].rcvCfg.reply_timeout);
     YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_CH_MODE, NULL, YEECOM_CENTRAL_MODE_MULTI_HOMED_CONNECTION_STANDALONE);
 }
 
 static void YeeCom_SetDefaultGPRSMode(void)
 {
+    YeeCom_ClearTimeout();
     YeeCom_ParameterTimeoutJudgy(YeeCom_At_Cmd_Set_Param[YEECOM_AT_CMD_GPRS_MODE].rcvCfg.reply_timeout);
     YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_GPRS_MODE, NULL, YEECOM_ONLINE_MODE_WAKE_ONLINE);
 }
 
 static void YeeCom_CfgParameter(void)
 {
-    while (YeeCom_GetDeviceState(YEECOM_DEVICE_RESET_CMD) && YeeCom_GetDeviceState(YEECOM_SIM_READY))
+    while (YeeCom_GetDeviceState(YEECOM_DEVICE_RESET_CMD) && gv_YeeComxxx_device_info.SimReadyStatus)
     {
         YeeCom_SetDeviceState(YEECOM_DEVICE_RESET_CMD, 0);
-        YeeCom_SetDeviceState(YEECOM_SIM_READY, 0);
         YeeCom_SetCmd(YEECOM_AT_CMD_WORKING_MODE);
         // Configure device parameters
         YeeCom_ClearTimeout();
@@ -304,7 +396,7 @@ static void YeeCom_CfgParameter(void)
         YeeCom_Log("<%s> cmd: %d\r\n", __func__, gv_YeeComxxx.CurrentCmd);
         break;
     }
-    while (YeeCom_GetDeviceState(YEECOM_DEVICE_RESET_CH) && YeeCom_GetDeviceParameters(YEECOM_DEVICE_PARAM_CH_MODE) && YeeCom_GetDeviceState(YEECOM_SIM_READY))
+    while (YeeCom_GetDeviceState(YEECOM_DEVICE_RESET_CH) && YeeCom_GetDeviceParameters(YEECOM_DEVICE_PARAM_CH_MODE) && gv_YeeComxxx_device_info.SimReadyStatus)
     {
         YeeCom_SetDeviceState(YEECOM_DEVICE_RESET_CH, 0);
         YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_CH_MODE, 0);
@@ -320,11 +412,8 @@ static void YeeCom_CfgParameter(void)
     {
         YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_GPRS_MODE, 0);
         // All parameters are configured successfully
-        YeeCom_SetState(YEECOM_STATE_READY);
-        YeeCom_SetDeviceState(YEECOM_DEVICE_RESET, 0);
-        YeeCom_SetDeviceInitFlag(true);
-
-        YeeCom_Log("<%s> YeeComxxxState goto ready..\r\n", __func__);
+        YeeCom_SetState(YEECOM_STATE_GETTING_CONST_INFO);
+        YeeCom_Log("<%s> YeeComxxxState goto get const_info\r\n", __func__);
         YeeCom_ClearTimeout();
         break;
     }
@@ -389,25 +478,45 @@ static void YeeCom_ReadyHandle(void)
 {
     while (YeeCom_GetDeviceState(YEECOM_DEVICE_RESET))
     {
+        YeeCom_SetDeviceState(YEECOM_NET_READY, 0);
         YeeCom_ResetDevice();
         YeeCom_Log("<%s> YeeComxxx reset..\r\n", __func__);
         return;
     }
 
-    if (YeeComxxx_Device_Init_Flag && YeeCom_GetDeviceState(YEECOM_SIM_READY))
+    if (YeeComxxx_Device_Init_Flag && gv_YeeComxxx_device_info.SimReadyStatus)
     {
         YeeCom_SetDeviceState(YEECOM_NET_READY, 1);
     }
-    else
+}
+
+static void YeeCom_GetDeviceConstInfoHandle(void)
+{
+    if (gv_YeeComxxx_device_info.SimReadyStatus)
     {
-        YeeCom_SetDeviceState(YEECOM_NET_READY, 0);
+        // Get device constant information such as ICCID, IMEI, RSSI, etc.
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_ICCID, NULL);
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_IMEI, NULL);
+        YeeCom_SetState(YEECOM_STATE_READY);
+        YeeCom_SetDeviceState(YEECOM_DEVICE_RESET, 0);
+        YeeCom_SetDeviceInitFlag(true);
+        YeeCom_Log("<%s> YeeComxxxState goto ready..\r\n", __func__);
     }
 }
 
-static void YeeCom_SetDeviceInitFlag(bool flag)
+static void YeeCom_PeriodicHandle(void)
 {
-    YeeComxxx_Device_Init_Flag = flag;
-    FlashDB_WriteValue(FLASHDB_KV_M4G_DEVICE_INIT_FLAG, (uint8_t *)&YeeComxxx_Device_Init_Flag, sizeof(YeeComxxx_Device_Init_Flag));
+    // Handle periodic tasks
+    if(1 == YeeComxxx_Device_Init_Flag && YEECOM_STATE_READY == gv_YeeComxxx.YeeComxxxState)
+    {
+        while (gv_YeeComxxx.TimerCnt > YEECOM_PERIODIC_TASK_PERIOD) // 60s
+        {
+            YeeCom_ClearTimeout();
+            // Get RSSI periodically
+            YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_RSSI, NULL);
+            break;
+        }
+    }
 }
 
 void YeeCom_MainFunc(void)
@@ -417,6 +526,11 @@ void YeeCom_MainFunc(void)
         case YEECOM_STATE_LOADING:
         {
             YeeCom_LoadHandle();
+            break;
+        }
+        case YEECOM_STATE_GETTING_CONST_INFO:
+        {
+            YeeCom_GetDeviceConstInfoHandle();
             break;
         }
         case YEECOM_STATE_READY:
@@ -432,11 +546,13 @@ void YeeCom_MainFunc(void)
         default:
             break;
     }
+    YeeCom_PeriodicHandle();
 }
 
 void YeeCom_Init(void)
 {
-	memset((uint8_t*)(&gv_YeeComxxx), 0u, (uint16_t)(sizeof(gv_YeeComxxx) / sizeof(uint8_t)));
+    memset((uint8_t *)(&gv_YeeComxxx), 0u, (uint16_t)(sizeof(gv_YeeComxxx) / sizeof(uint8_t)));
+    memset((uint8_t *)(&gv_YeeComxxx_device_info), 0u, (uint16_t)(sizeof(gv_YeeComxxx_device_info) / sizeof(uint8_t)));
     gv_YeeComxxx.SendMutex = xSemaphoreCreateMutex();
     if (gv_YeeComxxx.SendMutex == NULL)
     {
@@ -456,6 +572,6 @@ void YeeCom_Init(void)
     }
     else
     {
-        YeeCom_SetState(YEECOM_STATE_READY);
+        YeeCom_SetState(YEECOM_STATE_GETTING_CONST_INFO);
     }
 }
