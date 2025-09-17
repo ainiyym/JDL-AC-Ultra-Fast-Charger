@@ -271,7 +271,7 @@ void YeeCom_At_Get_ICCIDCallback(void *arg, char *buf, int buflen)
     if (reset_pos != NULL)
     {
         start = reset_pos + strlen("+ICCID:");
-        while (*start == ' ')
+        while (*start == ' ' || *start == ':')
         {
             start++;
         }
@@ -298,7 +298,7 @@ void YeeCom_At_Get_IMEICallback(void *arg, char *buf, int buflen)
     if (reset_pos != NULL)
     {
         start = reset_pos + strlen("+IMEI:");
-        while (*start == ' ')
+        while (*start == ' ' || *start == ':')
         {
             start++;
         }
@@ -325,7 +325,7 @@ void YeeCom_At_Get_RSSICallback(void *arg, char *buf, int buflen)
     if (reset_pos != NULL)
     {
         start = reset_pos + strlen("+CSQ:");
-        while (*start == ' ')
+        while (*start == ' ' || *start == ':')
         {
             start++;
         }

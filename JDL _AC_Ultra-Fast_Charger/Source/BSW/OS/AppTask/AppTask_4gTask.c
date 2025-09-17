@@ -62,7 +62,7 @@ void M4gTask_MainTask(void *pvParameters)
 
 	while (1)
 	{
-		// YeeCom_MainFunc();
+		YeeCom_MainFunc();
 		vTaskDelayUntil(&xLastWakeTime, xPeriod);
 	}
 }

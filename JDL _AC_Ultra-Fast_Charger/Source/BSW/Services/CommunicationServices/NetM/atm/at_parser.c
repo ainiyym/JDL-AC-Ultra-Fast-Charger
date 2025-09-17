@@ -816,7 +816,7 @@ static void at_work_idle(void)
     }
 }
 
-static void at_work_data_oversize_processing(uint16_t offset, char *prefix, char *success_postfix, char *fail_postfix)
+static void at_work_data_oversize_processing(uint16_t* offset, char *prefix, char *success_postfix, char *fail_postfix)
 {
     char *buf = NULL;
     int memcpy_size = 0;
@@ -832,7 +832,7 @@ static void at_work_data_oversize_processing(uint16_t offset, char *prefix, char
     if (fail_postfix != NULL)
         rsp_fail_postfix_len = strlen(fail_postfix);
 
-    if (offset > (RECV_BUFFER_SIZE - 2))
+    if (*offset > (RECV_BUFFER_SIZE - 2))
     {
         memcpy_size = rsp_prefix_len > rsp_success_postfix_len
                           ? rsp_prefix_len
@@ -840,10 +840,17 @@ static void at_work_data_oversize_processing(uint16_t offset, char *prefix, char
         memcpy_size = memcpy_size > rsp_fail_postfix_len
                           ? memcpy_size
                           : rsp_fail_postfix_len;
-        memmove(buf, buf + offset - memcpy_size, memcpy_size);
-        offset = memcpy_size;
+        memmove(buf, buf + *offset - memcpy_size, memcpy_size);
+        *offset = memcpy_size;
     }
     at._parser_status = AT_PARSER_IDLE;
+}
+
+static void at_cleanup_response(char* buf, uint16_t offset, char* rsp, uint16_t* rsp_offset)
+{
+    memset(buf, 0, offset);
+    *rsp_offset = 0;
+    memset(rsp, 0, sizeof(rsp));
 }
 
 static void at_work_cmd_data_processing(char c, uint16_t offset, char *prefix, char *success_postfix, char *fail_postfix)
@@ -851,11 +858,11 @@ static void at_work_cmd_data_processing(char c, uint16_t offset, char *prefix, c
     static char rsp[256] = {0};
     static uint16_t rsp_offset = 0;
     int at_task_empty = 0;
-    int at_task_response_begin = 0;
+    static int at_task_response_begin = 0;
     int prefix_len = 0;
     int success_postfix_len = 0;
     int fail_postfix_len = 0;
-    at_task_t *tsk;
+    at_task_t *tsk = NULL;
     char *buf = NULL;
     at_recv_cb rsp_cb = NULL;
 
@@ -866,57 +873,56 @@ static void at_work_cmd_data_processing(char c, uint16_t offset, char *prefix, c
     if (!at_task_empty)
     {
         tsk = slist_first_entry(&at.task_l, at_task_t, next);
+        if (NULL != tsk->rsp_prefix && 0 != tsk->rsp_prefix_len)
+        {
+            prefix = tsk->rsp_prefix;
+            prefix_len = tsk->rsp_prefix_len;
+        }
+        else
+        {
+            prefix = NULL;
+            prefix_len = 0;
+        }
+
+        if (NULL != tsk->rsp_success_postfix &&
+            0 != tsk->rsp_success_postfix_len)
+        {
+            success_postfix = tsk->rsp_success_postfix;
+            success_postfix_len = tsk->rsp_success_postfix_len;
+        }
+        else
+        {
+            success_postfix = at._default_recv_success_postfix;
+            success_postfix_len = at._recv_success_postfix_len;
+        }
+
+        if (NULL != tsk->rsp_fail_postfix && 0 != tsk->rsp_fail_postfix_len)
+        {
+            fail_postfix = tsk->rsp_fail_postfix;
+            fail_postfix_len = tsk->rsp_fail_postfix_len;
+        }
+        else
+        {
+            fail_postfix = at._default_recv_fail_postfix;
+            fail_postfix_len = at._recv_fail_postfix_len;
+        }
+
+        if (NULL != tsk->rsp_cb)
+        {
+            rsp_cb = tsk->rsp_cb;
+        }
+        else
+        {
+            rsp_cb = NULL;
+        }
     }
     HAL_MutexUnlock(at.task_mutex);
 
     /* if no task, continue recv */
-    if (at_task_empty)
+    if (at_task_empty || tsk == NULL)
     {
         // atpsr_debug("No task in queue.\r\n");
         return;
-    }
-
-    if (NULL != tsk->rsp_prefix && 0 != tsk->rsp_prefix_len)
-    {
-        prefix = tsk->rsp_prefix;
-        prefix_len = tsk->rsp_prefix_len;
-    }
-    else
-    {
-        prefix = NULL;
-        prefix_len = 0;
-    }
-
-    if (NULL != tsk->rsp_success_postfix &&
-        0 != tsk->rsp_success_postfix_len)
-    {
-        success_postfix = tsk->rsp_success_postfix;
-        success_postfix_len = tsk->rsp_success_postfix_len;
-    }
-    else
-    {
-        success_postfix = at._default_recv_success_postfix;
-        success_postfix_len = at._recv_success_postfix_len;
-    }
-
-    if (NULL != tsk->rsp_fail_postfix && 0 != tsk->rsp_fail_postfix_len)
-    {
-        fail_postfix = tsk->rsp_fail_postfix;
-        fail_postfix_len = tsk->rsp_fail_postfix_len;
-    }
-    else
-    {
-        fail_postfix = at._default_recv_fail_postfix;
-        fail_postfix_len = at._recv_fail_postfix_len;
-    }
-
-    if (NULL != tsk->rsp_cb)
-    {
-        rsp_cb = tsk->rsp_cb;
-    }
-    else
-    {
-        rsp_cb = NULL;
     }
 
     if (NULL != prefix)
@@ -925,64 +931,80 @@ static void at_work_cmd_data_processing(char c, uint16_t offset, char *prefix, c
             (strncmp(buf + offset - prefix_len, prefix,
                      prefix_len) == 0))
         {
-            atpsr_debug("<%s> Found prefix: %.*s\r\n", __func__, prefix_len, buf + offset - prefix_len);
+            strcpy(rsp, prefix);
+            rsp_offset += prefix_len;
             at_task_response_begin = 1;
+            atpsr_debug("<%s> Found prefix: %.*s\r\n", __func__, prefix_len, buf + offset - prefix_len);
+            return;
         }
     }
-    else if (at._oob_processing == 0)
+    else if (at._oob_processing == 0 && at_task_response_begin == 0)
     {
         at_task_response_begin = 1;
+        rsp_offset = 0;
         atpsr_debug("<%s> NOT Found OOB data\r\n", __func__);
     }
     else
     {
-        at_task_response_begin = 0;
+        return;
     }
 
     if (at_task_response_begin == 1)
     {
-        if (rsp_offset < sizeof(rsp) - 1)
+        if (rsp_offset < sizeof(rsp) - 2)
         {
             rsp[rsp_offset++] = c;
-            rsp[rsp_offset] = '\0';
+            rsp[rsp_offset] = 0;
 
-            if ((rsp_offset >= success_postfix_len &&
-                 strncmp(rsp + rsp_offset - success_postfix_len,
-                         success_postfix, success_postfix_len) == 0) ||
-                (rsp_offset >= fail_postfix_len &&
-                 strncmp(rsp + rsp_offset - fail_postfix_len,
-                         fail_postfix, fail_postfix_len) == 0))
+            int response_complete = 0;
+            if (tsk->rsp_success_postfix != NULL &&
+                rsp_offset >= success_postfix_len &&
+                strcmp(rsp + rsp_offset - success_postfix_len,
+                       success_postfix) == 0)
             {
+                response_complete = 1;
+            }
+            else if (tsk->rsp_fail_postfix != NULL &&
+                     rsp_offset >= fail_postfix_len &&
+                     strcmp(rsp + rsp_offset - fail_postfix_len,
+                            fail_postfix) == 0)
+            {
+                response_complete = 1;
+            }
+
+            if (response_complete == 1)
+            {
+                HAL_MutexLock(at.task_mutex);
                 if (rsp_cb != NULL)
                 {
                     rsp_cb(tsk->command, rsp, rsp_offset);
                 }
                 HAL_SemaphorePost(tsk->smpr);
+                HAL_MutexUnlock(at.task_mutex);
+
                 at_task_response_begin = 0;
-                memset(buf, 0, offset);
-                offset = 0;
-                rsp_offset = 0;
-                memset(rsp, 0, sizeof(rsp));
-                return;
+                at_cleanup_response(buf, offset, rsp, &rsp_offset);
+                atpsr_debug("<%s> Response complete\r\n", __func__);
             }
         }
         else
         {
+            HAL_MutexLock(at.task_mutex);
             if (rsp_cb != NULL)
             {
                 rsp_cb(tsk->command, rsp, rsp_offset);
             }
             HAL_SemaphorePost(tsk->smpr);
+            HAL_MutexUnlock(at.task_mutex);
+
             at_task_response_begin = 0;
-            memset(buf, 0, offset);
-            offset = 0;
-            rsp_offset = 0;
-            memset(rsp, 0, sizeof(rsp));
+            at_cleanup_response(buf, offset, rsp, &rsp_offset);
+            atpsr_err("Response oversize, break\r\n");
         }
     }
 }
 
-static void at_work_data_processing(uint16_t offset, char *prefix, char *success_postfix, char *fail_postfix)
+static void at_work_data_processing(uint16_t* offset, char *prefix, char *success_postfix, char *fail_postfix)
 {
     int ret = 0;
     char c = 0;
@@ -998,17 +1020,17 @@ static void at_work_data_processing(uint16_t offset, char *prefix, char *success
             at._parser_status = AT_PARSER_IDLE;
             break;
         }
-        if (offset >= RECV_BUFFER_SIZE)
+        if (*offset >= RECV_BUFFER_SIZE)
         {
             atpsr_err("Fatal error, no one is handling AT uart");
             at._parser_status = AT_PARSER_DATA_OVERSIZE_PROCESSING;
             break;
         }
-        buf[offset++] = c;
-        buf[offset] = 0;
+        buf[(*offset)++] = c;
+        buf[*offset] = 0;
 
-        at_scan_for_callback(c, buf, &offset);
-        at_work_cmd_data_processing(c, offset, prefix, success_postfix, fail_postfix);
+        at_scan_for_callback(c, buf, offset);
+        at_work_cmd_data_processing(c, *offset, prefix, success_postfix, fail_postfix);
     }
 }
 
@@ -1028,10 +1050,10 @@ void *at_worker(void *arg)
         at_work_idle();
         break;
     case AT_PARSER_DATA_PROCESSING:
-        at_work_data_processing(offset, rsp_prefix, rsp_success_postfix, rsp_fail_postfix);
+        at_work_data_processing(&offset, rsp_prefix, rsp_success_postfix, rsp_fail_postfix);
         break;
     case AT_PARSER_DATA_OVERSIZE_PROCESSING:
-        at_work_data_oversize_processing(offset, rsp_prefix, rsp_success_postfix, rsp_fail_postfix);
+        at_work_data_oversize_processing(&offset, rsp_prefix, rsp_success_postfix, rsp_fail_postfix);
         break;
     default:
         at_parser_state = AT_PARSER_INIT; 

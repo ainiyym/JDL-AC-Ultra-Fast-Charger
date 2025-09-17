@@ -507,9 +507,9 @@ static void YeeCom_GetDeviceConstInfoHandle(void)
 static void YeeCom_PeriodicHandle(void)
 {
     // Handle periodic tasks
-    if(1 == YeeComxxx_Device_Init_Flag && YEECOM_STATE_READY == gv_YeeComxxx.YeeComxxxState)
+    if(1 == YeeCom_GetDeviceState(YEECOM_NET_READY))
     {
-        while (gv_YeeComxxx.TimerCnt > YEECOM_PERIODIC_TASK_PERIOD) // 60s
+        while (gv_YeeComxxx.TimerCnt++ > YEECOM_PERIODIC_TASK_PERIOD) // 60s
         {
             YeeCom_ClearTimeout();
             // Get RSSI periodically
