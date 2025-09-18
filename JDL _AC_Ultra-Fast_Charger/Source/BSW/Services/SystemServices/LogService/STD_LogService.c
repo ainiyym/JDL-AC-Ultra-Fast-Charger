@@ -83,6 +83,7 @@ static LogServiceCtrl_Struct gv_stLogServiceCtrl = {  (  LOG_STATE_ON  << LOG_MO
 													  | (LOG_STATE_ON  << LOG_MODULE_BTRCTR)
                                                       | (LOG_STATE_ON  << LOG_MODULE_RS485)
                                                       | (LOG_STATE_ON  << LOG_MODULE_AT)
+                                                      | (LOG_STATE_ON  << LOG_MODULE_CLOUDNETM)
                                                       | (LOG_STATE_ON  << LOG_MODULE_NVM)
 													  | (LOG_STATE_ON  << LOG_MODULE_SYSM)
 													  | (LOG_STATE_ON  << LOG_MODULE_MCAL),
@@ -122,6 +123,7 @@ static const char* const gv_LogModule_Name[] =
 		"BTRCTR",
         "RS485",
         "AT",
+        "CLOUDNETM",
         "NVM",
 		"SYSM",
 		"MCAL",

@@ -15,7 +15,7 @@
 #include "AppTask_TaskInfo.h"
 #include "AppTask_4gTask.h"
 #include "AppTask_CorePrintTask.h"
-
+#include "MessageBuffer.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -90,6 +90,9 @@ static BaseType_t init_middleware(void)
     FlashDB_AppM_Init();
     /* Stream buffer Init*/
     StreamBuff_StackInit();
+    /* Message buffer Init*/
+    MessageBuffer_CreateInstance();
+
     Core_printf("[Init] middleware initialized\n");
     return pdPASS;
 }
