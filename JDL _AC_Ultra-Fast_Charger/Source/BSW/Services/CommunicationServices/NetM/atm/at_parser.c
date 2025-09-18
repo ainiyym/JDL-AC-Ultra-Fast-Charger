@@ -946,7 +946,7 @@ static void at_work_cmd_data_processing(char c, uint16_t offset, char *prefix, c
     }
     else
     {
-        return;
+        
     }
 
     if (at_task_response_begin == 1)
