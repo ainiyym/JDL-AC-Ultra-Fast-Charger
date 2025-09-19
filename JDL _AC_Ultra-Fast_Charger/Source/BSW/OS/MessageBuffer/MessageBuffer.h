@@ -77,7 +77,7 @@ extern MessageBuffer_Comm_System_t* MessageBuffer_APP_And_NET; // APP ↔ NET, a
 |    Global Function Prototypes
 |******************************************************************************/
 extern BaseType_t MessageBuffer_SendMessage(MessageBuffer_Comm_System_t *comm, MessageBuffer_type_t type, const uint8_t *data, uint16_t data_len, uint8_t dest, TickType_t timeout);
-extern BaseType_t MessageBuffer_ReceiveMessage(MessageBuffer_Comm_System_t *comm, uint8_t *data_buf, size_t buf_size, uint16_t *received_len, uint8_t dest, TickType_t timeout);
+extern BaseType_t MessageBuffer_ReceiveMessage(MessageBuffer_Comm_System_t *comm, MessageBuffer_type_t* type, uint8_t *data_buf, size_t buf_size, uint16_t *received_len, uint8_t dest, TickType_t timeout);
 extern void MessageBuffer_CreateInstance(void);
 extern void MessageBuffer_Deinit(MessageBuffer_Comm_System_t *comm);
 #endif /* __MESSAGEBUFFER_H */

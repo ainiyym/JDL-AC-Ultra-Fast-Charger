@@ -5,6 +5,7 @@
 #include "string.h"
 #include "stdio.h"
 #include "AppTask_MainTask.h"
+#include "Mcal_Test.h"
 
 /******************************************************************************
  *                      Macro Definitions

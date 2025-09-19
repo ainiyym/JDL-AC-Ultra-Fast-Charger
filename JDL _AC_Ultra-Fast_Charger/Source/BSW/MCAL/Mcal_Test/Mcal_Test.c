@@ -2,8 +2,8 @@
  * File: Mcal_Test.c
  * Description: MCAL Test Source File
  */
-#if 0
 #include "Mcal_Test.h"
+#if 0
 #include "SwitchM.h"
 #include "STD_MosDrv.h"
 #include "STD_EvseM.h"
@@ -27,7 +27,7 @@ void Mcal_CP_Test(void)
     static uint8_t cnt = 0;
     //	  float duty = 0;
     //    uint32_t Frequency = 0;
-    //   uint32_t CaptureValue[2] = {0};
+    //   uint32_t CaptureValue[MESSAGE_BUFFER_ID_APP2] = {0};
     //    static float dutyLast  = 0;
     //    static uint32_t FrequencyLast = 0;
 
@@ -96,7 +96,7 @@ void Mcal_CP_Test(void)
         }
         break;
     case 6:
-        // ‰ΩøËÉΩÁõ∏ÂÖ≥ÂÆöÊó∂Âô®ÂäüËÉΩ
+        //  πƒ‹œ‡πÿ∂® ±∆˜π¶ƒ‹
 #if 0
             Mcal_GptDrrv_Icu_It_GetValue(MCAL_GPT_PWM_CAPTURE1_TEST, &CaptureValue[0]);
             if(CaptureValue[0] != 0)
@@ -109,7 +109,7 @@ void Mcal_CP_Test(void)
                 MCAL_DEBUG("Capture1 Value: %lu\r\n", CaptureValue[1]);
             }
            
-            //Ëé∑ÂèñÈ¢ëÁéáÂíåÂç†Á©∫ÊØî
+            //ªÒ»°∆µ¬ ∫Õ’ºø’±»
             Mcal_GptDrrv_Icu_It_GetFrequency(MCAL_GPT_PWM_CAPTURE1_TEST, &Frequency);
             Mcal_GptDrrv_Icu_It_GetDutyCycle(MCAL_GPT_PWM_CAPTURE1_TEST, &duty);
             if(Frequency != FrequencyLast)
@@ -344,7 +344,7 @@ void Mcal_Test_Spi(void)
     switch (step)
     {
         case 0:
-            /* Ëé∑Âèñ Flash Device ID */
+            /* ªÒ»° Flash Device ID */
             W25Q64_Read_ID((uint8_t*)&DeviceID);
             MCAL_DEBUG("Manufacturer Device ID is 0x%X\r\n", DeviceID);
             step++;
@@ -485,45 +485,313 @@ void Mcal_Test_FlashDB_Del(void)
     fdb_wrapper_kv_del(&kvdb, "test_key");
 }
 
-void Mcal_Test_StateMachine(void)
+static const uint8_t test_data_normal[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+static const uint8_t test_data_oversize[300] = {0}; // 300◊÷Ω⁄£¨≥¨π˝256µƒœﬁ÷∆
+
+// ≤‚ ‘…œœ¬ŒƒΩ·ππ
+typedef struct {
+    test_state_t current_state;
+    test_state_t next_state;
+    test_result_t overall_result;
+    uint32_t test_counter;
+    uint32_t pass_count;
+    uint32_t fail_count;
+    MessageBuffer_Comm_System_t *comm_system;
+    TickType_t start_time;
+    uint32_t timeout_ms;
+} test_context_t;
+
+// ≥ı ºªØ≤‚ ‘…œœ¬Œƒ
+static void init_test_context(test_context_t *context, MessageBuffer_Comm_System_t *comm_system) {
+    context->current_state = TEST_STATE_IDLE;
+    context->next_state = TEST_STATE_INIT;
+    context->overall_result = TEST_RESULT_IN_PROGRESS;
+    context->test_counter = 0;
+    context->pass_count = 0;
+    context->fail_count = 0;
+    context->comm_system = comm_system;
+    context->start_time = xTaskGetTickCount();
+    context->timeout_ms = 10000; // 10√Î◊‹≥¨ ±
+}
+
+// ◊¥Ã¨ª˙¥¶¿Ì∫Ø ˝ 
+static test_result_t process_test_state(test_context_t *context)
 {
-    static uint8_t step = 0;
-    static uint8_t cnt = 0;
+    BaseType_t result;
+    MessageBuffer_type_t received_type;
+    uint8_t receive_buffer[256];
+    uint16_t received_length;
 
-    switch (step)
+    switch (context->current_state)
     {
-    case 0:
-        if (cnt++ == 100)
-        {
-            // Initial state
-            Mcal_Test_FlashDB_Get();
-            cnt = 0;
-            step++;
-        }
-        break;
+        case TEST_STATE_IDLE:
+            MCAL_INFO("≤‚ ‘◊¥Ã¨: IDLE -> INIT\r\n");
+            context->current_state = TEST_STATE_INIT;
+            break;
 
-    case 1:
-        if (cnt++ == 100)
-        {
-            Mcal_Test_FlashDB_Set();
-            cnt = 0;
-            step++;
-        }
-        break;
+        case TEST_STATE_INIT:
+            MCAL_INFO("≤‚ ‘◊¥Ã¨: INIT - ≥ı ºªØ≤‚ ‘ª∑æ≥\r\n");
+            MCAL_INFO("◊Ó¥Ûœ˚œ¢¥Û–°: %u ◊÷Ω⁄\r\n", context->comm_system->max_message_size);
+            MCAL_INFO("ª∫≥Â«¯ø’º‰: APP1->APP2: %u, APP2->APP1: %u\r\n",
+                    xMessageBufferSpacesAvailable(context->comm_system->app1_to_app2_buf),
+                    xMessageBufferSpacesAvailable(context->comm_system->app2_to_app1_buf));
+            context->next_state = TEST_STATE_SEND_NORMAL;
+            context->current_state = TEST_STATE_SEND_NORMAL;
+            break;
 
-    case 2:
-        if (cnt++ == 100)
-        {
-            Mcal_Test_FlashDB_Get();
-            step++;
-        }
-        break;
+        // ...existing code...
+        case TEST_STATE_SEND_NORMAL:
+            MCAL_INFO("≤‚ ‘◊¥Ã¨: SEND_NORMAL - ≤‚ ‘’˝≥£œ˚œ¢∑¢ÀÕ\r\n");
+            result = MessageBuffer_SendMessage(context->comm_system, MESSAGE_BUFFER_TYPE_DATA,
+                            test_data_normal, sizeof(test_data_normal),
+                            MESSAGE_BUFFER_ID_APP2, pdMS_TO_TICKS(100));
 
-    default:
-        break;
+            if (result == pdPASS)
+            {
+                MCAL_INFO("? ’˝≥£œ˚œ¢∑¢ÀÕ≥…π¶: ≥§∂»=%u\r\n", sizeof(test_data_normal));
+                context->pass_count++;
+                context->next_state = TEST_STATE_RECEIVE_NORMAL;
+            }
+            else
+            {
+                MCAL_INFO("? ’˝≥£œ˚œ¢∑¢ÀÕ ß∞‹\r\n");
+                context->fail_count++;
+                context->next_state = TEST_STATE_ERROR;
+            }
+            context->current_state = context->next_state;
+            break;
+
+        case TEST_STATE_RECEIVE_NORMAL:
+            MCAL_INFO("≤‚ ‘◊¥Ã¨: RECEIVE_NORMAL - ≤‚ ‘’˝≥£œ˚œ¢Ω” ’\r\n");
+            result = MessageBuffer_ReceiveMessage(context->comm_system,
+                                &received_type, receive_buffer, sizeof(receive_buffer),
+                                &received_length, MESSAGE_BUFFER_ID_APP2, pdMS_TO_TICKS(500));
+
+            if (result == pdPASS && received_type == MESSAGE_BUFFER_TYPE_DATA && received_length == sizeof(test_data_normal) &&
+                memcmp(receive_buffer, test_data_normal, received_length) == 0)
+            {
+                MCAL_INFO("? ’˝≥£œ˚œ¢Ω” ’≥…π¶: ¿‡–Õ=%d, ≥§∂»=%u\r\n", MESSAGE_BUFFER_TYPE_DATA, received_length);
+                context->pass_count++;
+                context->next_state = TEST_STATE_SEND_OVERSIZE;
+            }
+            else
+            {
+                MCAL_INFO("? ’˝≥£œ˚œ¢Ω” ’ ß∞‹: Ω·π˚=%d, ¿‡–Õ=%d, ≥§∂»=%u\r\n",
+                        result, received_type, received_length);
+                context->fail_count++;
+                context->next_state = TEST_STATE_ERROR;
+            }
+            context->current_state = context->next_state;
+            break;
+
+        case TEST_STATE_SEND_OVERSIZE:
+            MCAL_INFO("≤‚ ‘◊¥Ã¨: SEND_OVERSIZE - ≤‚ ‘≥¨≥§œ˚œ¢∑¢ÀÕ£®”¶ ß∞‹£©\r\n");
+            result = MessageBuffer_SendMessage(context->comm_system, MESSAGE_BUFFER_TYPE_DATA,
+                            test_data_oversize, sizeof(test_data_oversize),
+                            MESSAGE_BUFFER_ID_APP2, pdMS_TO_TICKS(100));
+
+            if (result == pdFAIL)
+            {
+                MCAL_INFO("? ≥¨≥§œ˚œ¢’˝»∑æ‹æ¯: ≥§∂»=%u > ◊Ó¥Û=%u\r\n",
+                        sizeof(test_data_oversize), context->comm_system->max_message_size);
+                context->pass_count++;
+                context->next_state = TEST_STATE_SEND_ZERO_LENGTH;
+            }
+            else
+            {
+                MCAL_INFO("? ≥¨≥§œ˚œ¢Œ¥±ª’˝»∑æ‹æ¯\r\n");
+                context->fail_count++;
+                context->next_state = TEST_STATE_ERROR;
+            }
+            context->current_state = context->next_state;
+            break;
+
+        case TEST_STATE_SEND_ZERO_LENGTH:
+            MCAL_INFO("≤‚ ‘◊¥Ã¨: SEND_ZERO_LENGTH - ≤‚ ‘¡„≥§∂»œ˚œ¢\r\n");
+            result = MessageBuffer_SendMessage(context->comm_system, MESSAGE_BUFFER_TYPE_CTRL,
+                            NULL, 0, MESSAGE_BUFFER_ID_APP2, pdMS_TO_TICKS(100));
+
+            if (result == pdPASS)
+            {
+                MCAL_INFO("? ¡„≥§∂»œ˚œ¢∑¢ÀÕ≥…π¶\r\n");
+                context->pass_count++;
+
+                // —È÷§¡„≥§∂»œ˚œ¢Ω” ’
+                result = MessageBuffer_ReceiveMessage(context->comm_system,
+                                    &received_type, receive_buffer, sizeof(receive_buffer),
+                                    &received_length, MESSAGE_BUFFER_ID_APP2, pdMS_TO_TICKS(100));
+
+                if (result == pdPASS && received_type == MESSAGE_BUFFER_TYPE_CTRL && received_length == 0)
+                {
+                    MCAL_INFO("? ¡„≥§∂»œ˚œ¢Ω” ’≥…π¶\r\n");
+                    context->pass_count++;
+                    context->next_state = TEST_STATE_RECEIVE_TIMEOUT;
+                }
+                else
+                {
+                    MCAL_INFO("? ¡„≥§∂»œ˚œ¢Ω” ’ ß∞‹\r\n");
+                    context->fail_count++;
+                    context->next_state = TEST_STATE_ERROR;
+                }
+            }
+            else
+            {
+                MCAL_INFO("? ¡„≥§∂»œ˚œ¢∑¢ÀÕ ß∞‹\r\n");
+                context->fail_count++;
+                context->next_state = TEST_STATE_ERROR;
+            }
+            context->current_state = context->next_state;
+            break;
+
+        case TEST_STATE_RECEIVE_TIMEOUT:
+            MCAL_INFO("≤‚ ‘◊¥Ã¨: RECEIVE_TIMEOUT - ≤‚ ‘Ω” ’≥¨ ±\r\n");
+            TickType_t start_time = xTaskGetTickCount();
+            result = MessageBuffer_ReceiveMessage(context->comm_system, &received_type,
+                                receive_buffer, sizeof(receive_buffer),
+                                &received_length, MESSAGE_BUFFER_ID_APP2, pdMS_TO_TICKS(100));
+
+            TickType_t elapsed_time = xTaskGetTickCount() - start_time;
+
+            if (result == pdFAIL && elapsed_time >= pdMS_TO_TICKS(100))
+            {
+                MCAL_INFO("? Ω” ’≥¨ ±≤‚ ‘≥…π¶: ∫ƒ ±=%lu ms\r\n",
+                        pdTICKS_TO_MS(elapsed_time));
+                context->pass_count++;
+                context->next_state = TEST_STATE_STRESS_TEST;
+            }
+            else
+            {
+                MCAL_INFO("? Ω” ’≥¨ ±≤‚ ‘ ß∞‹: Ω·π˚=%d, ∫ƒ ±=%lu ms\r\n",
+                        result, pdTICKS_TO_MS(elapsed_time));
+                context->fail_count++;
+                context->next_state = TEST_STATE_ERROR;
+            }
+            context->current_state = context->next_state;
+            break;
+
+        case TEST_STATE_STRESS_TEST:
+            MCAL_INFO("≤‚ ‘◊¥Ã¨: STRESS_TEST - —π¡¶≤‚ ‘\r\n");
+            static uint32_t stress_count = 0;
+            uint8_t stress_data[32];
+
+            // …˙≥…≤‚ ‘ ˝æ›
+            for (int i = 0; i < sizeof(stress_data); i++)
+            {
+                stress_data[i] = (stress_count + i) & 0xFF;
+            }
+
+            result = MessageBuffer_SendMessage(context->comm_system, MESSAGE_BUFFER_TYPE_DATA,
+                            stress_data, sizeof(stress_data), MESSAGE_BUFFER_ID_APP2, pdMS_TO_TICKS(50));
+
+            if (result == pdPASS)
+            {
+                result = MessageBuffer_ReceiveMessage(context->comm_system, &received_type,
+                                    receive_buffer, sizeof(receive_buffer),
+                                    &received_length,MESSAGE_BUFFER_ID_APP2, pdMS_TO_TICKS(50));
+
+                if (result == pdPASS && received_length == sizeof(stress_data) &&
+                    memcmp(receive_buffer, stress_data, received_length) == 0)
+                {
+                    stress_count++;
+                    if (stress_count >= 30)
+                    {
+                        MCAL_INFO("? —π¡¶≤‚ ‘ÕÍ≥…: %u ¥Œ—≠ª∑\r\n", stress_count);
+                        context->pass_count++;
+                        context->next_state = TEST_STATE_COMPLETE;
+                    }
+                    else
+                    {
+                        MCAL_INFO("—π¡¶≤‚ ‘Ω¯∂»: %u/10\r\n", stress_count);
+                        // ºÃ–¯—π¡¶≤‚ ‘
+                        vTaskDelay(pdMS_TO_TICKS(10));
+                    }
+                }
+                else
+                {
+                    MCAL_INFO("? —π¡¶≤‚ ‘Ω” ’ ß∞‹\r\n");
+                    context->fail_count++;
+                    context->next_state = TEST_STATE_ERROR;
+                }
+            }
+            else
+            {
+                MCAL_INFO("? —π¡¶≤‚ ‘∑¢ÀÕ ß∞‹\r\n");
+                context->fail_count++;
+                context->next_state = TEST_STATE_ERROR;
+            }
+            context->current_state = context->next_state;
+            break;
+
+        case TEST_STATE_COMPLETE:
+            MCAL_INFO("≤‚ ‘◊¥Ã¨: COMPLETE - À˘”–≤‚ ‘ÕÍ≥…\r\n");
+            context->overall_result = (context->fail_count == 0) ? TEST_RESULT_PASS : TEST_RESULT_FAIL;
+            break;
+
+        case TEST_STATE_ERROR:
+            MCAL_INFO("≤‚ ‘◊¥Ã¨: ERROR - ≤‚ ‘π˝≥Ã÷–∑¢…˙¥ÌŒÛ\r\n");
+            context->overall_result = TEST_RESULT_FAIL;
+            break;
+
+        default:
+            MCAL_INFO("Œ¥÷™≤‚ ‘◊¥Ã¨: %d\r\n", context->current_state);
+            context->overall_result = TEST_RESULT_FAIL;
+            break;
     }
+
+    context->test_counter++;
+    return context->overall_result;
+}
+
+// ¥Ú”°≤‚ ‘◊‹Ω·
+void print_test_summary(const test_context_t *context)
+{
+    MCAL_INFO("≤‚ ‘◊‹Ω·:\r\n");
+    MCAL_INFO("◊‹≤‚ ‘ ˝: %lu\r\n", context->test_counter);
+    MCAL_INFO("Õ®π˝ ˝: %lu\r\n", context->pass_count);
+    MCAL_INFO(" ß∞‹ ˝: %lu\r\n", context->fail_count);
+    MCAL_INFO("Õ®π˝¬ : %.1f%%\r\n",
+              (context->pass_count + context->fail_count) > 0 ? (float)context->pass_count / (context->pass_count + context->fail_count) * 100.0f : 0.0f);
+}
+
+// ÷˜≤‚ ‘∫Ø ˝
+test_result_t run_comm_test(MessageBuffer_Comm_System_t *comm_system)
+{
+    test_context_t context;
+
+    MCAL_INFO("ø™ ºÕ®–≈Ω”ø⁄≤‚ ‘...\r\n");
+    MCAL_INFO("==========================================\r\n");
+
+    init_test_context(&context, comm_system);
+
+    // ◊¥Ã¨ª˙—≠ª∑
+    while (context.overall_result == TEST_RESULT_IN_PROGRESS)
+    {
+        test_result_t result = process_test_state(&context);
+
+        // ºÏ≤È≥¨ ±
+        TickType_t elapsed_time = xTaskGetTickCount() - context.start_time;
+        if (pdTICKS_TO_MS(elapsed_time) > context.timeout_ms)
+        {
+            MCAL_INFO("≤‚ ‘≥¨ ±: “—‘À–– %lu ms\r\n", pdTICKS_TO_MS(elapsed_time));
+            context.overall_result = TEST_RESULT_FAIL;
+            break;
+        }
+
+        // ∂Ã‘›—”≥Ÿ£¨»√≥ˆCPU
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+
+    // ¥Ú”°≤‚ ‘◊‹Ω·
+    print_test_summary(&context);
+
+    MCAL_INFO("==========================================\r\n");
+    MCAL_INFO("≤‚ ‘ÕÍ≥…: %s\r\n",
+              context.overall_result == TEST_RESULT_PASS ? "PASS" : "FAIL");
+
+    return context.overall_result;
 }
 #endif
+
 /* Run MCAL tests */
 void Mcal_Test_Run(void)
 {

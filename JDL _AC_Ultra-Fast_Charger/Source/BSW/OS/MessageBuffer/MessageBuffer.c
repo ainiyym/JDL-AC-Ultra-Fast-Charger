@@ -159,77 +159,83 @@ BaseType_t MessageBuffer_SendMessage(MessageBuffer_Comm_System_t *comm, MessageB
 }
 
 // receive message
-BaseType_t MessageBuffer_ReceiveMessage(MessageBuffer_Comm_System_t *comm,uint8_t *data_buf, size_t buf_size,
+BaseType_t MessageBuffer_ReceiveMessage(MessageBuffer_Comm_System_t *comm, MessageBuffer_type_t *type,
+										uint8_t *data_buf, size_t buf_size,
 										uint16_t *received_len, uint8_t dest, TickType_t timeout)
 {
-
 	MessageBufferHandle_t source_buf;
 
-	// ensure target and source are set correctly
-	if (dest == MESSAGE_BUFFER_ID_APP2)
+	// 1. Verify the target ID and obtain the source buffer
+	switch (dest)
 	{
-		source_buf = comm->app1_to_app2_buf;
-	}
-	else if (dest == MESSAGE_BUFFER_ID_APP1)
-	{
-		source_buf = comm->app2_to_app1_buf;
-	}
-	else
-	{
-		MESSAGE_BUFFER_ERROR("<%s %d> Invalid destination ID\r\n", __func__, __LINE__);
+		case MESSAGE_BUFFER_ID_APP2:
+			source_buf = comm->app1_to_app2_buf;
+			break;
+		case MESSAGE_BUFFER_ID_APP1:
+			source_buf = comm->app2_to_app1_buf;
+			break;
+		default:
+			MESSAGE_BUFFER_ERROR("<%s %d> Invalid destination ID\r\n", __func__, __LINE__);
 		return pdFAIL;
 	}
 
-	// Read the message header to obtain the message length
-	MessageBuffer_header_t header;
-	size_t bytes_read = xMessageBufferReceive(source_buf, &header, sizeof(MessageBuffer_header_t), timeout);
-
-	if (bytes_read != sizeof(MessageBuffer_header_t))
+	// 1. Allocate temporary buffer
+	size_t total_size = comm->max_message_size + sizeof(MessageBuffer_header_t);
+	uint8_t *message_buf = pvPortMalloc(total_size);
+	if (message_buf == NULL)
 	{
-		MESSAGE_BUFFER_ERROR("<%s %d> Failed to read message header\r\n", __func__, __LINE__);
+		MESSAGE_BUFFER_ERROR("<%s %d> Memory allocation failed\r\n", __func__, __LINE__);
 		return pdFAIL;
 	}
 
-	// read message data
-	if (header.length > 0)
+	// 2. Read message body
+	size_t bytes_read = xMessageBufferReceive(source_buf, message_buf, total_size, timeout);
+
+	// 3. check Read message header
+	MessageBuffer_header_t* header = NULL;
+	header = (MessageBuffer_header_t *)message_buf;
+
+	// 4. Verify message type
+	if (header->type != MESSAGE_BUFFER_TYPE_DATA && header->type != MESSAGE_BUFFER_TYPE_CTRL)
 	{
-		if (header.length > comm->max_message_size)
-		{
-			MESSAGE_BUFFER_ERROR("<%s %d> Invalid message (possibly corrupted)\r\n", __func__, __LINE__);
-			return pdFAIL; // Invalid message (possibly corrupted)
-		}
-
-		if (header.length > buf_size)
-		{
-			// buffer too small, skip this message
-			uint8_t temp;
-			for (uint16_t i = 0; i < header.length; i++)
-			{
-				xMessageBufferReceive(source_buf, &temp, 1, pdMS_TO_TICKS(100));
-			}
-			MESSAGE_BUFFER_ERROR("<%s %d> Buffer too small for message data\r\n", __func__, __LINE__);
-			return pdFAIL;
-		}
-
-		bytes_read = xMessageBufferReceive(source_buf, data_buf, header.length, timeout);
-		if (bytes_read != header.length)
-		{
-			MESSAGE_BUFFER_ERROR("<%s %d> Failed to read complete message data\r\n", __func__, __LINE__);
-			return pdFAIL;
-		}
-
-		// verify checksum
-		uint16_t calculated_cs = MessageBuffer_Checksum(data_buf, header.length);
-		if (calculated_cs != header.checksum)
-		{
-			MESSAGE_BUFFER_ERROR("<%s %d> Checksum mismatch\r\n", __func__, __LINE__);
-			return pdFAIL;
-		}
+		MESSAGE_BUFFER_ERROR("<%s %d> Invalid message type: %d\r\n", __func__, __LINE__, header->type);
+		return pdFAIL;
 	}
 
-	// return message info
-	if (received_len != NULL)
-		*received_len = header.length;
+	// 5. Verify message length
+	if (header->length > comm->max_message_size)
+	{
+		MESSAGE_BUFFER_ERROR("<%s %d> Invalid message length: %u\r\n", __func__, __LINE__, header->length);
+		return pdFAIL;
+	}
+
+	// 6. Verify the checksum of the message body
+	uint16_t calculated_cs = MessageBuffer_Checksum(message_buf + sizeof(MessageBuffer_header_t), header->length);
+	if (calculated_cs != header->checksum)
+	{
+		MESSAGE_BUFFER_ERROR("<%s %d> Checksum mismatch\r\n", __func__, __LINE__);
+		return pdFAIL;
+	}
+
+	// 7. Copy message body to user buffer
+	if (buf_size < header->length)
+	{
+		MESSAGE_BUFFER_ERROR("<%s %d> User buffer too small\r\n", __func__, __LINE__);
+		return pdFAIL;
+	}
+	if (header->length > 0 && data_buf != NULL)
+	{
+		memcpy(data_buf, message_buf + sizeof(MessageBuffer_header_t), header->length);
+	}
+
+	// 8. Return message information
+	if (type)
+		*type = header->type;
+	if (received_len)
+		*received_len = header->length;
+
+	// 9. free temporary buffer
+	vPortFree(message_buf);
 
 	return pdPASS;
 }
