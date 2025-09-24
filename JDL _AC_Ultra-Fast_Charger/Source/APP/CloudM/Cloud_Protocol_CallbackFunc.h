@@ -1,20 +1,19 @@
 //******************************************************************************
-//* File Name: CloudNet_Cfg.h
+//* File Name: Cloud_Protocol_CallbackFunc.h
 //* Project Name: JDL _AC_Ultra-Fast_Charger
 //* Version: v1.0
 //* Date: 2025-08-18 10:00:00
 //* Author: JDLzhou
-//* Description: FanM module header file
+//* Description: clould protocol callbackfunc module header file
 /*******************************************************************************/
-#if !defined (__CLOUDNET_CFG_H)
+#if !defined (__CLOUD_PROTOCOL_CALLBACK_FUNC_H)
 /* polyspace:begin<MISRA-C3:2.5:Not a defect:Justified> Normal. */
 /* polyspace<MISRA-C3:21.1:Not a defect:Justified> Normal. */
-#define __CLOUDNET_CFG_H
+#define __CLOUD_PROTOCOL_CALLBACK_FUNC_H
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "stdint.h"
-#include "STD_LogService.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -23,10 +22,7 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
-#define CLOUDNETM_DEBUG(fmt, ...) 	LOG_DEBUG(LOG_MODULE_CLOUDNETM, fmt, ##__VA_ARGS__)
-#define CLOUDNETM_ERROR(fmt, ...) 	LOG_ERROR(LOG_MODULE_CLOUDNETM, fmt, ##__VA_ARGS__)
 
-#define CLOUDNETM_TASK_PERIOD								(50U)
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
@@ -42,6 +38,15 @@
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-
-#endif /* __CLOUDNET_CFG_H */
+void Cloud_Protocol_0x01_Callback(void *arg);
+void Cloud_Protocol_0x02_Callback(void *arg, uint8_t *msg, uint16_t msglen);
+void Cloud_Protocol_0x03_Callback(void *arg);
+void Cloud_Protocol_0x04_Callback(void *arg, uint8_t *msg, uint16_t msglen);
+void Cloud_Protocol_0x05_Callback(void *arg);
+void Cloud_Protocol_0x06_Callback(void *arg, uint8_t *msg, uint16_t msglen);
+void Cloud_Protocol_0x09_Callback(void *arg);
+void Cloud_Protocol_0x0A_Callback(void *arg, uint8_t *msg, uint16_t msglen);
+void Cloud_Protocol_0x12_Callback(void *arg, uint8_t *msg, uint16_t msglen);
+void Cloud_Protocol_0x13_Callback(void *arg);
+#endif /* __CLOUD_PROTOCOL_CALLBACK_FUNC_H */
 /* EOL */

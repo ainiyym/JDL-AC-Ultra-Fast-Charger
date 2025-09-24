@@ -3,19 +3,13 @@
 #include "stdint.h"
 #include "string.h"
 #include "stdlib.h"
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
-#include "queue.h"
+#include "Tcp_Cfg.h"
 
 
 typedef enum {
     TCP_STATE_DISCONNECTED = 0,
     TCP_STATE_CONNECTING,
-    TCP_STATE_CONNECTED,
-    TCP_STATE_SENDING,
-    TCP_STATE_RECEIVING,
-    TCP_STATE_ERROR
+    TCP_STATE_CONNECTED
 } tcp_state_t;
 
 typedef struct
@@ -32,9 +26,19 @@ typedef struct
     SemaphoreHandle_t mutex;       // Mutex for thread safety
 } tcp_manager_t;
 
-extern tcp_manager_t* tcp_create(void);
-extern void tcp_destroy(tcp_manager_t *manager);
-extern uint8_t tcp_connect(tcp_manager_t *manager);
-extern void tcp_disconnect(tcp_manager_t *manager);
-extern uint8_t tcp_send_data(tcp_manager_t *manager, const uint8_t *data, size_t length);
+typedef struct
+{
+    uint8_t socket_id;
+    char ip[16];
+    uint16_t port;
+}tcp_paramater;
+
+extern tcp_paramater Cloud_Tcp_Parameter[TCP_ID_MAXIMUM];
+
+extern void tcp_init(void);
+extern void tcp_destroy(tcp_id_enum manager_id);
+extern uint8_t tcp_connect(tcp_id_enum manager_id);
+extern void tcp_disconnect(tcp_id_enum manager_id);
+extern void tcp_set_conn_state(tcp_id_enum manager_id, tcp_state_t state);
+extern uint8_t tcp_send_data(tcp_id_enum manager_id, const uint8_t *data, size_t length);
 #endif

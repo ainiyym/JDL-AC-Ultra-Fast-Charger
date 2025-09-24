@@ -59,6 +59,8 @@ typedef enum
     YEECOM_AT_CMD_WORKING_MODE, /* DTU working mode */
     YEECOM_AT_CMD_GPRS_MODE, /* DTU online mode */
     YEECOM_AT_CMD_CH_MODE, /* DTU Central mode */
+    YEECOM_AT_CMD_HBTIME, /* DTU Heartbeat time */
+    YEECOM_AT_CMD_HBHEAD, /* DTU Heartbeat packet header */
     YEECOM_AT_CMD_DEBUG_MODE, /* DTU Debug mode */
     YEECOM_AT_CMD_USART_CFG, /* Serial port parameter configuration */
     YEECOM_AT_CMD_USART_FRAME_INTERVAL_TIME, /* Serial port data frame interval time */

@@ -1,15 +1,25 @@
 #include "Tcp.h"
-#include "Tcp_Cfg.h"
-
-#define MAX_TCP_CONNECTIONS 3
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
 
 static uint8_t tcp_connect_count = 0U; // Connection count
+static tcp_manager_t* tcp_manager[TCP_ID_MAXIMUM] = {NULL};
+
+tcp_paramater Cloud_Tcp_Parameter[TCP_ID_MAXIMUM] =
+{
+    {
+        .socket_id = TCP_ID_PROTOCOL,
+        .ip = CLOUD_PROTOCOL_IP,
+        .port = CLOUD_PROTOCOL_PORT
+    }
+};
 
 /**
  * @brief Create a TCP connection manager
  * @return Returns a tcp_manager_t handler on success, NULL on failure
  */
-tcp_manager_t* tcp_create(void)
+static tcp_manager_t* tcp_create(void)
 {
     tcp_manager_t *manager = pvPortMalloc(sizeof(tcp_manager_t));
     if (manager == NULL)
@@ -27,7 +37,7 @@ tcp_manager_t* tcp_create(void)
 
     memset(manager, 0, sizeof(tcp_manager_t));
 
-    if (tcp_connect_count < MAX_TCP_CONNECTIONS)
+    if (tcp_connect_count < TCP_ID_MAXIMUM)
     {
         tcp_connect_count++;
     }
@@ -50,13 +60,16 @@ tcp_manager_t* tcp_create(void)
 }
 
 // Destroy TCP manager
-void tcp_destroy(tcp_manager_t *manager)
+void tcp_destroy(tcp_id_enum manager_id)
 {
+    tcp_manager_t *manager = tcp_manager[manager_id];
+    tcp_manager[manager_id] = NULL;
+
     if (manager == NULL)
         return;
 
     // Close connections
-    tcp_disconnect(manager);
+    tcp_disconnect(manager_id);
 
     // Delete mutex
     if (manager->mutex != NULL)
@@ -65,14 +78,19 @@ void tcp_destroy(tcp_manager_t *manager)
     }
 
     // Free memory
+    if (manager->tcp_conn != NULL)
+    {
+        vPortFree(manager->tcp_conn);
+    }
     vPortFree(manager);
     tcp_connect_count--;
     Tcp_Trace("TCP manager destroyed\r\n");
 }
 
 // Create TCP connection
-uint8_t tcp_connect(tcp_manager_t *manager)
+uint8_t tcp_connect(tcp_id_enum manager_id)
 {
+    tcp_manager_t *manager = tcp_manager[manager_id];
     if (xSemaphoreTake(manager->mutex, pdMS_TO_TICKS(1000)) == pdTRUE)
     {
         // Set connection parameters
@@ -94,8 +112,9 @@ uint8_t tcp_connect(tcp_manager_t *manager)
     }
 }
 
-void tcp_disconnect(tcp_manager_t *manager)
+void tcp_disconnect(tcp_id_enum manager_id)
 {
+    tcp_manager_t *manager = tcp_manager[manager_id];
     if (xSemaphoreTake(manager->mutex, pdMS_TO_TICKS(1000)) == pdTRUE)
     {
         at_tcp_connection_t *conn = manager->tcp_conn;
@@ -105,9 +124,22 @@ void tcp_disconnect(tcp_manager_t *manager)
     }
 }
 
-uint8_t tcp_send_data(tcp_manager_t *manager, const uint8_t *data, size_t length)
+void tcp_set_conn_state(tcp_id_enum manager_id, tcp_state_t state)
+{
+    tcp_manager_t *manager = tcp_manager[manager_id];
+    if (xSemaphoreTake(manager->mutex, pdMS_TO_TICKS(1000)) == pdTRUE)
+    {
+        at_tcp_connection_t *conn = manager->tcp_conn;
+        conn->state = state;
+
+        xSemaphoreGive(manager->mutex);
+    }
+}
+
+uint8_t tcp_send_data(tcp_id_enum manager_id, const uint8_t *data, size_t length)
 {
     uint8_t ret = 0;
+    tcp_manager_t *manager = tcp_manager[manager_id];
 
     if (xSemaphoreTake(manager->mutex, pdMS_TO_TICKS(500)) == pdTRUE)
     {
@@ -124,11 +156,35 @@ uint8_t tcp_send_data(tcp_manager_t *manager, const uint8_t *data, size_t length
 
         xSemaphoreGive(manager->mutex);
 
-        return ret;
+        if (ret != 0)
+        {
+            Tcp_Err("Error: Failed to send data over TCP connection %d\r\n", conn->conn_id);
+            return 2;
+        }
+        return 0;
+
     }
     else
     {
         Tcp_Err("Error: %s Failed to take TCP mutex\r\n", __func__);
-        return 2;
+        return 3;
+    }
+}
+
+void tcp_init(void)
+{
+    for (int i = 0; i < TCP_ID_MAXIMUM; i++)
+    {
+        tcp_manager[i] = tcp_create();
+        if (NULL != tcp_manager[i])
+        {
+            tcp_manager[i]->tcp_conn->conn_id = Cloud_Tcp_Parameter[i].socket_id;
+            memcpy(tcp_manager[i]->tcp_conn->remote_ip, Cloud_Tcp_Parameter[i].ip, sizeof(tcp_manager[i]->tcp_conn->remote_ip));
+            tcp_manager[i]->tcp_conn->remote_port = Cloud_Tcp_Parameter[i].port;
+        }
+        else
+        {
+            Tcp_Err("Error: Failed to create TCP manager for socket %d\r\n", Cloud_Tcp_Parameter[i].socket_id);
+        }
     }
 }

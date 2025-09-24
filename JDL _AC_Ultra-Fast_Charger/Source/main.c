@@ -16,6 +16,7 @@
 #include "AppTask_4gTask.h"
 #include "AppTask_CorePrintTask.h"
 #include "MessageBuffer.h"
+#include "Tcp.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -92,6 +93,8 @@ static BaseType_t init_middleware(void)
     StreamBuff_StackInit();
     /* Message buffer Init*/
     MessageBuffer_CreateInstance();
+    /* TCP Init */
+    tcp_init();
 
     Core_printf("[Init] middleware initialized\n");
     return pdPASS;

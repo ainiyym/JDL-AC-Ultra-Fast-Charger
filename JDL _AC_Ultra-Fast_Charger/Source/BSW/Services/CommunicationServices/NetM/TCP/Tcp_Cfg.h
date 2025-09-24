@@ -3,6 +3,15 @@
 #include "STD_LogService.h"
 #include "YeeComxxx_Device.h"
 
+typedef enum
+{
+    TCP_ID_PROTOCOL = 0,
+    TCP_ID_MAXIMUM
+}tcp_id_enum;
+
+#define CLOUD_PROTOCOL_IP                                           ("150.158.17.77")
+#define CLOUD_PROTOCOL_PORT                                         (2030U)
+
 #define Tcp_At_Cmd_Send(cmd_type, cmd, format, ...)                  YeeCom_AtCmd_Send(cmd_type, cmd, format, ##__VA_ARGS__)
 #define Tcp_Data_Passthrough(ch, data, len)                          YeeCom_At_DataPassthrougth(ch, data, len)
 

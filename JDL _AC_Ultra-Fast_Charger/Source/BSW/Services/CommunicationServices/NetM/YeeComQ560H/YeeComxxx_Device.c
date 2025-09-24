@@ -5,6 +5,7 @@
 #include "task.h"
 #include "semphr.h"
 #include "queue.h"
+#include "Cloud_Cfg.h"
 
 #define YEECOM_AT_CMD_SEND_BUF_SIZE             (YEECOM_OOB_CMD_DATA_PASSTHROUGH_BUF_LEN)
 
@@ -13,6 +14,7 @@ typedef enum
     YEECOM_STATE_LOADING,
     YEECOM_STATE_GETTING_CONST_INFO,
     YEECOM_STATE_READY,
+    YEECOM_STATE_RUNNING,
     YEECOM_STATE_ERROR
 } YeeComState_Enum;
 
@@ -476,17 +478,30 @@ static void YeeCom_ErrorHandle(void)
 
 static void YeeCom_ReadyHandle(void)
 {
-    while (YeeCom_GetDeviceState(YEECOM_DEVICE_RESET))
-    {
-        YeeCom_SetDeviceState(YEECOM_NET_READY, 0);
-        YeeCom_ResetDevice();
-        YeeCom_Log("<%s> YeeComxxx reset..\r\n", __func__);
-        return;
-    }
-
+    uint8_t msg[2] = {0};
     if (YeeComxxx_Device_Init_Flag && gv_YeeComxxx_device_info.SimReadyStatus)
     {
         YeeCom_SetDeviceState(YEECOM_NET_READY, 1);
+        msg[0] = (uint8_t)CLOUD_MESSAGE_CTRL_TYPE_DEVICE_READY;
+        msg[1] = (uint8_t)CLOUD_DEVICE_STATUS_READY;
+        CloudNet_MessageBuffer_SendMessage((const uint8_t *)&msg, 2, CLOUD_MESSAGE_TYPE_CTRL);
+        YeeCom_SetState(YEECOM_STATE_RUNNING);
+    }
+}
+
+static void YeeCom_RunningHandle(void)
+{
+    uint8_t msg[2] = {0};
+    if (YeeCom_GetDeviceState(YEECOM_DEVICE_RESET))
+    {
+        YeeCom_SetDeviceState(YEECOM_NET_READY, 0);
+        YeeCom_ResetDevice();
+        msg[0] = (uint8_t)CLOUD_MESSAGE_CTRL_TYPE_DEVICE_READY;
+        msg[1] = (uint8_t)CLOUD_DEVICE_STATUS_INIT;
+        CloudNet_MessageBuffer_SendMessage((const uint8_t *)&msg, 2, CLOUD_MESSAGE_TYPE_CTRL);
+        YeeCom_SetState(YEECOM_STATE_GETTING_CONST_INFO);
+        YeeCom_Log("<%s> YeeComxxx reset..\r\n", __func__);
+        return;
     }
 }
 
@@ -536,6 +551,11 @@ void YeeCom_MainFunc(void)
         case YEECOM_STATE_READY:
         {
             YeeCom_ReadyHandle();
+            break;
+        }
+        case YEECOM_STATE_RUNNING:
+        {
+            YeeCom_RunningHandle();
             break;
         }
         case YEECOM_STATE_ERROR:

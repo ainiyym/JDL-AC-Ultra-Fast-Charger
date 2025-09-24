@@ -15,6 +15,7 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "stdint.h"
+#include "Mcal_BigLittle_Endian.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -42,5 +43,4 @@
 uint16_t Lib_Crc16( uint8_t * pFrame, uint16_t len );
 
 #endif
-
 /* EOL */

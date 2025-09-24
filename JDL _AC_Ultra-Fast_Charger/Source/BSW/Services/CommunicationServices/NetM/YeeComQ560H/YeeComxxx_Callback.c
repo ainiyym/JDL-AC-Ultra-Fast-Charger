@@ -1,5 +1,7 @@
 #include "YeeComxxx_Callback.h"
 #include "YeeComxxx_Device.h"
+#include "YeeComxxx_Device_Cfg.h"
+#include "CloudNet_Protocol_Msg.h"
 
 /* oob cmd */
 void YeeCom_At_OOB_Power_On_Callback(void *arg, char *buf, int buflen)
@@ -149,11 +151,14 @@ void YeeCom_At_Set_SERVERn_Callback(void *arg, char *buf, int buflen)
     // Handle the received server response success
     if (NULL != strstr(buf, "OK\r\n"))
     {
-        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_CFG_CENTER, 1);
+        // After setting the server, query the working mode to confirm
+        for (tcp_id_enum i = TCP_ID_PROTOCOL; i < TCP_ID_MAXIMUM; i++)
+        {
+            YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_WORKING_MODE, NULL, 0);
+        }
     }
     else
     {
-        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_CFG_CENTER, 0);
     }
     YeeCom_Log("<%s> %s\r\n", __func__,  buf);
 }
@@ -184,6 +189,16 @@ void YeeCom_At_Set_CHMode_Callback(void *arg, char *buf, int buflen)
         YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_CH_MODE, 0);
     }
     YeeCom_Log("<%s> %s\r\n", __func__,  buf);
+}
+
+void YeeCom_At_Set_HBTime_Callback(void *arg, char *buf, int buflen)
+{
+    // Handle the received Heartbeat time response success
+}
+
+void YeeCom_At_Set_HBHead_Callback(void *arg, char *buf, int buflen)
+{
+    // Handle the received Heartbeat header response success
 }
 
 void YeeCom_At_Set_DebugMode_Callback(void *arg, char *buf, int buflen)
@@ -240,11 +255,83 @@ void YeeCom_At_Get_SERVERnCallback(void *arg, char *buf, int buflen)
 void YeeCom_At_Get_GPRSMODECallback(void *arg, char *buf, int buflen)
 {
     // Handle the received GPRS mode response success
+    const char *start = buf;
+
+    const char *reset_pos = strstr(buf, "+SERVER");
+    if (reset_pos != NULL)
+    {
+        uint8_t socket_id = 0;
+        uint8_t connect_type = 0;
+        uint8_t ip[16] = {0};
+        uint16_t port = 0;
+        uint8_t msg[2] = {0};
+
+        int result = sscanf(start, "+SERVER%hhu=%hhu,%15[^,],%hu#",
+                            &socket_id, &connect_type, ip, &port);
+
+        if (result == 4)
+        {
+            YeeCom_Log("<%s> socket_id: %d, type: %d, ip: %s, port: %d\r\n", __func__, socket_id, connect_type, ip, port);
+
+            if (socket_id < TCP_ID_MAXIMUM)
+            {
+                if (connect_type == YEECOM_WORKING_TCP || connect_type == YEECOM_WORKING_TCPS) // TCP or SSL
+                {
+                    if (strcmp((const char *)ip, (const char *)Cloud_Tcp_Parameter[socket_id].ip) == 0 && port == Cloud_Tcp_Parameter[socket_id].port)
+                    {
+                        msg[0] = CLOUD_MESSAGE_CTRL_TYPE_SET_NETWORK_PARAM;
+                        msg[1] = CLOUD_DEVICE_STATUS_CONNECTED;
+                        CloudNet_Protocol_SendMsg((uint8_t *)msg, 2, CLOUD_MESSAGE_TYPE_CTRL);
+                        YeeCom_Log("<%s> socket_id: %d parameters match\r\n", __func__, socket_id);
+                    }
+                    else
+                    {
+                        YeeCom_Log("<%s> socket_id: %d parameters mismatch, reconfigure\r\n", __func__, socket_id);
+                    }
+                }
+                else if (connect_type == YEECOM_DEFAULT_NET_TYPE)
+                {
+                    if (strcmp((const char *)ip, YEECOM_DEFAULT_REMOTE_IP) == 0 && port == YEECOM_DEFAULT_REMOTE_PORT)
+                    {
+                        YeeCom_Log("<%s> socket_id: %d parameters match\r\n", __func__, socket_id);
+                        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_CFG_CENTER, 1);
+                    }
+                    else
+                    {
+                        YeeCom_Log("<%s> socket_id: %d parameters mismatch, reconfigure\r\n", __func__, socket_id);
+                    }
+                }
+                else
+                {
+                    YeeCom_Log("<%s> socket_id: %d unsupported connection type: %d\r\n", __func__, socket_id, connect_type);
+                }
+            }
+            else
+            {
+                YeeCom_Log("<%s> Unknown socket_id: %d\r\n", __func__, socket_id);
+            }
+        }
+        else
+        {
+            YeeCom_Log("<%s> Failed to parse SERVER response: %s\r\n", __func__, buf);
+            return;
+        }
+    }
 }
 
 void YeeCom_At_Get_CHMODECallback(void *arg, char *buf, int buflen)
 {
     // Handle the received CH mode response success
+}
+
+void YeeCom_At_Get_HBTimeCallback(void *arg, char *buf, int buflen)
+{
+    // Handle the received Heartbeat time response success
+}
+
+void YeeCom_At_Get_HBHeadCallback(void *arg, char *buf, int buflen)
+{
+    // Handle the received Heartbeat header response success
 }
 
 void YeeCom_At_Get_DBGMODECallback(void *arg, char *buf, int buflen)
