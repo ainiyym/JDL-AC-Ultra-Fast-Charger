@@ -790,8 +790,425 @@ test_result_t run_comm_test(MessageBuffer_Comm_System_t *comm_system)
 
     return context.overall_result;
 }
-#endif
 
+#include "Mcal_Rtc_Cfg.h"
+
+// 测试结果枚举
+typedef enum {
+    RTC_TEST_PASS,
+    RTC_TEST_FAIL,
+    RTC_TEST_ERROR
+} RTC_TestResult_t;
+
+// 打印日期时间信息
+void print_datetime(const Mcal_RTC_DateTime_t* datetime)
+{
+    MCAL_INFO("Date: %04d-%02d-%02d, Time: %02d:%02d:%02d\r\n",
+           datetime->Date.Year + 2000,  // 假设年份是2位数，需要加上2000
+           datetime->Date.Month,
+           datetime->Date.Date,
+           datetime->Time.Hours,
+           datetime->Time.Minutes,
+           datetime->Time.Seconds);
+}
+
+// 比较两个日期时间是否相等
+int compare_datetime(const Mcal_RTC_DateTime_t* dt1, const Mcal_RTC_DateTime_t* dt2)
+{
+    return (dt1->Date.Year == dt2->Date.Year &&
+            dt1->Date.Month == dt2->Date.Month &&
+            dt1->Date.Date == dt2->Date.Date &&
+            dt1->Time.Hours == dt2->Time.Hours &&
+            dt1->Time.Minutes == dt2->Time.Minutes &&
+            dt1->Time.Seconds == dt2->Time.Seconds);
+}
+
+// 测试1: 基本的设置和获取功能
+RTC_TestResult_t test_RTC_DateTime_SetGet(void)
+{
+    MCAL_INFO("=== 测试1: RTC日期时间设置获取测试 ===\r\n");
+    
+    Mcal_RTC_DateTime_t original_datetime, set_datetime, get_datetime;
+    
+    // 首先获取当前RTC时间
+    Mcal_RTC_Get_DateTime(&original_datetime);
+    MCAL_INFO("当前RTC时间: ");
+    print_datetime(&original_datetime);
+    
+    // 设置一个特定的测试时间
+    set_datetime.Date.Year = 23;    // 2023年
+    set_datetime.Date.Month = 12;
+    set_datetime.Date.Date = 31;
+    set_datetime.Time.Hours = 23;
+    set_datetime.Time.Minutes = 59;
+    set_datetime.Time.Seconds = 30;
+    
+    MCAL_INFO("设置RTC时间为: ");
+    print_datetime(&set_datetime);
+    
+    // 设置RTC时间
+    Mcal_RTC_SetDateTime(set_datetime);
+    HAL_Delay(100);  // 等待RTC更新
+    
+    // 获取RTC时间验证
+    Mcal_RTC_Get_DateTime(&get_datetime);
+    MCAL_INFO("获取的RTC时间: ");
+    print_datetime(&get_datetime);
+    
+    // 比较设置和获取的时间
+    if (compare_datetime(&set_datetime, &get_datetime)) {
+        MCAL_INFO("? 设置获取测试通过\r\n");
+        
+        // 恢复原始时间
+        Mcal_RTC_SetDateTime(original_datetime);
+        return RTC_TEST_PASS;
+    } else {
+        MCAL_INFO("? 设置获取测试失败\r\n");
+        return RTC_TEST_FAIL;
+    }
+}
+
+// 测试2: 边界值测试
+RTC_TestResult_t test_RTC_Boundary_Values(void)
+{
+    MCAL_INFO("\n=== 测试2: RTC边界值测试 ===\r\n");
+    
+    Mcal_RTC_DateTime_t original_datetime, read_datetime;
+    
+    // 保存原始时间
+    Mcal_RTC_Get_DateTime(&original_datetime);
+    
+    // 测试用例数组
+    Mcal_RTC_DateTime_t test_cases[] = {
+        // 最小日期时间
+        {{RTC_WEEKDAY_SUNDAY, 1, 1, 0}, {0, 0, 0}},  // 2000-01-01 00:00:00
+        // 最大日期时间（根据RTC支持的范围）
+        {{RTC_WEEKDAY_SUNDAY, 12, 31, 99}, {23, 59, 59}}, // 2099-12-31 23:59:59
+        // 闰年测试
+        {{RTC_WEEKDAY_SUNDAY, 2, 29, 20}, {12, 0, 0}},  // 2020-02-29 12:00:00
+    };
+    
+    int num_tests = sizeof(test_cases) / sizeof(test_cases[0]);
+    int passed_tests = 0;
+    
+    for (int i = 0; i < num_tests; i++) {
+        MCAL_INFO("测试用例 %d: ", i + 1);
+        print_datetime(&test_cases[i]);
+        
+        // 设置时间
+        Mcal_RTC_SetDateTime(test_cases[i]);
+        HAL_Delay(50);
+        
+        // 获取时间验证
+        Mcal_RTC_Get_DateTime(&read_datetime);
+        
+        if (compare_datetime(&test_cases[i], &read_datetime)) {
+            MCAL_INFO("? 通过\r\n");
+            passed_tests++;
+        } else {
+            MCAL_INFO("? 失败 - 期望: ");
+            print_datetime(&test_cases[i]);
+            MCAL_INFO("       实际: ");
+            print_datetime(&read_datetime);
+        }
+        
+        HAL_Delay(100);
+    }
+    
+    // 恢复原始时间
+    Mcal_RTC_SetDateTime(original_datetime);
+    
+    if (passed_tests == num_tests) {
+        MCAL_INFO("边界值测试: 全部通过 (%d/%d)\r\n", passed_tests, num_tests);
+        return RTC_TEST_PASS;
+    } else {
+        MCAL_INFO("边界值测试: 部分失败 (%d/%d)\r\n", passed_tests, num_tests);
+        return RTC_TEST_FAIL;
+    }
+}
+
+// 测试3: 日期过渡测试（月底到月初）
+RTC_TestResult_t test_RTC_Date_Transition(void)
+{
+    MCAL_INFO("\n=== 测试3: RTC日期过渡测试 ===\r\n");
+    
+    Mcal_RTC_DateTime_t original_datetime, test_datetime, read_datetime;
+    
+    // 保存原始时间
+    Mcal_RTC_Get_DateTime(&original_datetime);
+    
+    // 测试月底到月初的过渡（例如1月31日到2月1日）
+    test_datetime.Date.Year = 23;
+    test_datetime.Date.Month = 1;  // 1月
+    test_datetime.Date.Date = 31;
+    test_datetime.Time.Hours = 23;
+    test_datetime.Time.Minutes = 59;
+    test_datetime.Time.Seconds = 50;
+    
+    MCAL_INFO("设置月底时间: ");
+    print_datetime(&test_datetime);
+    
+    Mcal_RTC_SetDateTime(test_datetime);
+    HAL_Delay(100);
+    
+    Mcal_RTC_Get_DateTime(&read_datetime);
+    MCAL_INFO("读取的时间: ");
+    print_datetime(&read_datetime);
+    
+    // 恢复原始时间
+    Mcal_RTC_SetDateTime(original_datetime);
+    
+    if (compare_datetime(&test_datetime, &read_datetime)) {
+        MCAL_INFO("? 日期过渡测试通过\r\n");
+        return RTC_TEST_PASS;
+    } else {
+        MCAL_INFO("? 日期过渡测试失败\r\n");
+        return RTC_TEST_FAIL;
+    }
+}
+
+// 测试4: 时间过渡测试（59秒到下一分钟）
+RTC_TestResult_t test_RTC_Time_Transition(void)
+{
+    MCAL_INFO("\n=== 测试4: RTC时间过渡测试 ===\r\n");
+    
+    Mcal_RTC_DateTime_t original_datetime, test_datetime, read_datetime;
+    
+    // 保存原始时间
+    Mcal_RTC_Get_DateTime(&original_datetime);
+    
+    // 设置时间为59秒，测试分钟过渡
+    test_datetime = original_datetime;
+    test_datetime.Time.Seconds = 59;
+    
+    MCAL_INFO("设置59秒时间: ");
+    print_datetime(&test_datetime);
+    
+    Mcal_RTC_SetDateTime(test_datetime);
+    HAL_Delay(100);
+    
+    Mcal_RTC_Get_DateTime(&read_datetime);
+    MCAL_INFO("读取的时间: ");
+    print_datetime(&read_datetime);
+    
+    // 恢复原始时间
+    Mcal_RTC_SetDateTime(original_datetime);
+    
+    if (compare_datetime(&test_datetime, &read_datetime)) {
+        MCAL_INFO("? 时间过渡测试通过\r\n");
+        return RTC_TEST_PASS;
+    } else {
+        MCAL_INFO("? 时间过渡测试失败\r\n");
+        return RTC_TEST_FAIL;
+    }
+}
+
+// 打印测试结果
+void print_test_result(const char* test_name, RTC_TestResult_t result)
+{
+    const char* status_str[] = {"通过", "失败", "错误"};
+    MCAL_INFO("测试 %s: %s\r\n", test_name, status_str[result]);
+}
+
+// 运行所有测试
+void run_all_rtc_tests(void)
+{
+    MCAL_INFO("\n********** RTC测试程序开始 **********\r\n");
+    
+    RTC_TestResult_t results[4];
+    int passed = 0, total = 0;
+    
+    // 执行测试
+    results[0] = test_RTC_DateTime_SetGet();
+    results[1] = test_RTC_Boundary_Values();
+    results[2] = test_RTC_Date_Transition();
+    results[3] = test_RTC_Time_Transition();
+    
+    // 统计结果
+    MCAL_INFO("\n********** 测试结果汇总 **********\r\n");
+    for (int i = 0; i < 4; i++) {
+        if (results[i] == RTC_TEST_PASS) {
+            passed++;
+        }
+        total++;
+    }
+    
+    MCAL_INFO("总测试数: %d, 通过: %d, 失败: %d\r\n", 
+           total, passed, total - passed);
+    
+    if (passed == total) {
+        MCAL_INFO("? 所有测试通过！\r\n");
+    } else {
+        MCAL_INFO("? 有测试失败，请检查RTC硬件和驱动\r\n");
+    }
+    
+    MCAL_INFO("********** RTC测试程序结束 **********\r\n");
+}
+
+void print_current_time(void)
+{
+    Mcal_RTC_DateTime_t read_datetime;
+    Mcal_RTC_Get_DateTime(&read_datetime);
+    MCAL_INFO("读取的时间: ");
+    print_datetime(&read_datetime);
+}
+
+#include "STD_Rtc.h"
+
+// 辅助函数：打印RTC时间
+void print_rtc_time(const RtcTimedate_Struct *time)
+{
+    MCAL_INFO("RTC时间: %04d-%02d-%02d %02d:%02d:%02d\n",
+           time->usYear, time->usMonth, time->usDay,
+           time->usHour, time->usMinutes, time->ucSeconds);
+}
+
+// 辅助函数：打印CP56Time2a数据
+void print_cp56_data(const uint8_t *cp56_data)
+{
+    MCAL_INFO("CP56Time2a: ");
+    for(int i = 0; i < 7; i++) {
+        MCAL_INFO("%02X \r\n", cp56_data[i]);
+    }
+}
+
+// 测试1: RTC_GetRtcSeconds
+void test_RTC_GetRtcSeconds(void)
+{
+    MCAL_INFO("=== 测试 RTC_GetRtcSeconds ===\n");
+    
+    uint32_t seconds = 0;
+    uint8_t result = RTC_GetRtcSeconds(&seconds);
+    
+    MCAL_INFO("结果: %s\n", result ? "成功" : "失败");
+    MCAL_INFO("获取的秒数: %lu\n", seconds);
+    
+    if(result == STD_TRUE)
+    MCAL_INFO("测试通过!\n\n");
+}
+
+// 测试2: RTC_GetCP56Time2a
+void test_RTC_GetCP56Time2a(void)
+{
+    MCAL_INFO("=== 测试 RTC_GetCP56Time2a ===\n");
+    
+    uint8_t cp56_data[7] = {0};
+    uint8_t result = RTC_GetCP56Time2a(cp56_data);
+    
+    MCAL_INFO("结果: %s\n", result ? "成功" : "失败");
+    print_cp56_data(cp56_data);
+    
+    if(result == STD_TRUE)
+    MCAL_INFO("测试通过!\n\n");
+}
+
+// 测试3: RTC_SecondsSetRtcDateTime
+void test_RTC_SecondsSetRtcDateTime(void)
+{
+    MCAL_INFO("=== 测试 RTC_SecondsSetRtcDateTime ===\n");
+    
+    uint32_t test_seconds = 1758706080; // 测试秒数
+    uint8_t result = RTC_SecondsSetRtcDateTime(test_seconds);
+    
+    MCAL_INFO("设置秒数: %lu\n", test_seconds);
+    MCAL_INFO("结果: %s\n", result ? "成功" : "失败");
+    
+    // 验证设置是否成功
+    RtcTimedate_Struct current_time;
+    RTCIF_GetDateTime(&current_time);
+    print_rtc_time(&current_time);
+    
+    if(result == STD_TRUE)
+    MCAL_INFO("测试通过!\n\n");
+}
+
+// 测试4: RTC_CP56Time2aSetRtcDateTime
+void test_RTC_CP56Time2aSetRtcDateTime(void)
+{
+    MCAL_INFO("=== 测试 RTC_CP56Time2aSetRtcDateTime ===\n");
+    
+    // 测试CP56Time2a数据：2024年1月15日 14:30:25
+    uint8_t test_cp56[7] = {0x98,0xB7,0x0E,0x11,0x10,0x03,0x14};
+    
+    MCAL_INFO("设置CP56Time2a数据: ");
+    print_cp56_data(test_cp56);
+    
+    uint8_t result = RTC_CP56Time2aSetRtcDateTime(test_cp56);
+    MCAL_INFO("结果: %s\n", result ? "成功" : "失败");
+    
+    // 验证设置是否成功
+    RtcTimedate_Struct current_time;
+    RTCIF_GetDateTime(&current_time);
+    print_rtc_time(&current_time);
+    
+    if(result == STD_TRUE)
+    MCAL_INFO("测试通过!\n\n");
+}
+
+// 测试5: 往返转换测试
+void test_round_trip_conversion(void)
+{
+    MCAL_INFO("=== 往返转换测试 ===\n");
+    
+    // 测试数据
+    uint32_t original_seconds = 1758706412;
+    
+    // 秒数 -> RTC -> 秒数
+    MCAL_INFO("1. 秒数设置RTC测试:\n");
+    RTC_SecondsSetRtcDateTime(original_seconds);
+    
+    uint32_t retrieved_seconds;
+    RTC_GetRtcSeconds(&retrieved_seconds);
+    
+    MCAL_INFO("原始秒数: %lu, 读取秒数: %lu\n", original_seconds, retrieved_seconds);
+    
+    // CP56Time2a -> RTC -> CP56Time2a
+    MCAL_INFO("2. CP56Time2a设置RTC测试:\n");
+    uint8_t original_cp56[7] = {0x88, 0x13, 0x2A, 0x10, 0x1F, 0x0C, 0x18}; // 2024-12-31 16:42:05
+    uint8_t retrieved_cp56[7] = {0};
+    
+    RTC_CP56Time2aSetRtcDateTime(original_cp56);
+    RTC_GetCP56Time2a(retrieved_cp56);
+    
+    MCAL_INFO("原始CP56: ");
+    print_cp56_data(original_cp56);
+    MCAL_INFO("读取CP56: ");
+    print_cp56_data(retrieved_cp56);
+    
+    if(memcmp(original_cp56, retrieved_cp56, 7) == 0)
+    MCAL_INFO("往返转换测试通过!\n\n");
+}
+
+// 运行所有测试
+void run_all_tests(void)
+{
+    MCAL_INFO("开始RTC模块测试...\n\n");
+    
+    // 初始化测试数据
+    RtcTimedate_Struct init_time = {
+        .usYear = 2024,
+        .usMonth = 1,
+        .usDay = 15,
+        .usHour = 10,
+        .usMinutes = 30,
+        .ucSeconds = 0
+    };
+    RTCIF_SetDateTime(&init_time);
+    
+    MCAL_INFO("初始RTC时间: ");
+    print_rtc_time(&init_time);
+    MCAL_INFO("\n");
+    
+    // 执行测试
+    test_RTC_GetRtcSeconds();
+    test_RTC_GetCP56Time2a();
+    test_RTC_SecondsSetRtcDateTime();
+    test_RTC_CP56Time2aSetRtcDateTime();
+    test_round_trip_conversion();
+    
+    MCAL_INFO("所有测试完成!\n");
+}
+#endif
 /* Run MCAL tests */
 void Mcal_Test_Run(void)
 {

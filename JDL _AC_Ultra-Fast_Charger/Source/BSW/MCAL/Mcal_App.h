@@ -28,6 +28,8 @@
 #include "Mcal_iwdg_Cfg.h"
 #include "Mcal_spi_Cfg.h"
 #include "Mcal_Adc_Cfg.h"
+#include "Mcal_Usart_Cfg.h"
+#include "Mcal_Rtc_Cfg.h"
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
 |******************************************************************************/

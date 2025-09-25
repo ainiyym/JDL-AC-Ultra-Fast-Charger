@@ -38,4 +38,5 @@ typedef enum {
 extern void Mcal_Test_Run(void);
 extern test_result_t run_comm_test(MessageBuffer_Comm_System_t *comm_system);
 extern void Mcal_Can_Send_Test(void);
+extern void run_all_rtc_tests(void);
 #endif // MCAL_TEST_H

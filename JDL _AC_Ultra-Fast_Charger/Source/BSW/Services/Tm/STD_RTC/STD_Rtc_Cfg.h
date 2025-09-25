@@ -1,66 +1,53 @@
 //****************************************************************************************
 //*
-//* File Name: Mcal_APP.c
+//* File Name: STD_Rtc_Cfg.h 
 //* Project Name: ChargingSys
 //* Version: v1.0
 //* Date: 2025-05-16 11:27:24
 //* Author: JDLzhou
-//*
+//* 
 //****************************************************************************************/
+
+#if !defined (_STD_RTC_CFG_H)
+/* polyspace<MISRA-C3:2.5:Not a defect:Justified> Normal. */
+/* polyspace<MISRA-C3:21.1:Not a defect:Justified> Normal. */
+#define _STD_RTC_CFG_H
 
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "Mcal_App.h"
-#include "Mcal_App_Cfg.h"
+#include "STD_Rtc_Lib.h"
+#include "Mcal_Rtc_Cfg.h"
 /*******************************************************************************
-|    Macro Definition
+|    Compile Option or configuration Section (for test/debug)
 |******************************************************************************/
 
 /*******************************************************************************
-|    Enum Definitin
+|    Macro Definition
+|******************************************************************************/
+/* polyspace<MISRA-C3:2.5:Not a defect:Justified> Normal. */
+
+/*******************************************************************************
+|    Enum Definition
 |******************************************************************************/
 
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
 
+
 /*******************************************************************************
-|    Global variables Declaration
+|    Table Definition
 |******************************************************************************/
 
 /*******************************************************************************
-|    static local variables Declaration
+|    Global Function Prototypes
 |******************************************************************************/
+extern void RTCIF_Init(Mcal_RTC_DateTime_t lv_stDateTime);
+extern void RTCIF_GetDateTime(RtcTimedate_Struct *lv_stDateTime);
+extern void RTCIF_SetDateTime(RtcTimedate_Struct *lv_stDateTime);
+extern void RTCIF_RestRtc(void);
+/* polyspace:end<MISRA-C3:2.5:Not a defect:Justified> Normal. */
 
-/*******************************************************************************
-|    Static Local Functions Declaration
-|******************************************************************************/
-
-/*******************************************************************************
-|	 Global Function Prototypes
-|******************************************************************************/
-/******************************************************************************/
-void Error_Handler(void)
-{
-
-}
-
-/* APP Cfg Initialization */
-void MCALAPP_PeripheralInit(void)
-{
-  /* Initialize all configured peripherals */
-  Mcal_Gpio_Init();
-  // Mcal_Usart_Init();
-  Mcal_GptDrv_Init();
-  Mcal_Can_Init();
-  Mcal_Spi_Init();
-  Mcal_Adc_Init();
-  Mcal_Iwdg_Init();
-  Mcal_RTC_InitTime();
-}
-
-void MCALAPP_PeripheralDeInit(void)
-{
-}
+#endif
 /*EOF*/
