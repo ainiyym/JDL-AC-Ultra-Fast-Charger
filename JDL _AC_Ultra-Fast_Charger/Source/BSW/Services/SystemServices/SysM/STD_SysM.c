@@ -59,6 +59,7 @@ typedef struct
 	uint8_t ucLowPowerShutdownCnt;
 	uint8_t usRemoteResetFlag; /* 0: No reset request; 1: Reset immediately; 2:Reset when the conditions are satisfied.*/
 	uint32_t ulSystemStatus[SYS_CONNECTOR_NUM_MAX];   /* System status word. Bitwise, definition see STD_SysM_SysStatus_t, 1: defined status exists; 0: does not exist.*/
+	uint8_t ucSN16[16]; /* Device SN */
 } SysM_Struct;
 /*******************************************************************************
 |    Static local KAM variables Declaration
@@ -446,6 +447,23 @@ static void SYSM_OutPutDefaultCurrManage(void)
 			{
 			}
 		}
+	}
+}
+
+void SYSM_GetDeviceSN(uint8_t *pSN)
+{
+	if (NULL != pSN)
+	{
+		memcpy(pSN, stSysM.ucSN16, 16);
+	}
+}
+
+void SYSM_SetDeviceSN(uint8_t *pSN)
+{
+	if (NULL != pSN)
+	{
+		memcpy(stSysM.ucSN16, pSN, 16);
+		SYSM_INFO("Device SN:%s\r\n", stSysM.ucSN16);
 	}
 }
 

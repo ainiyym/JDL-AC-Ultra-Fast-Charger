@@ -64,6 +64,8 @@ extern void SYSM_ImmediatelyResetManage(void);
 extern void SYSM_SetCpVolMode(SysConnector_Num_Enum ch, uint8_t mode);
 extern uint8_t SYSM_GetCpVolMode(SysConnector_Num_Enum ch);
 extern uint8_t SYSM_GetResetPrepareStatus(void);
+extern void SYSM_SetDeviceSN(uint8_t *pSN);
+extern void SYSM_GetDeviceSN(uint8_t *pSN);
 extern void SYSM_SetSysStatusBit(SysConnector_Num_Enum ch, uint32_t SysStatusMask, uint8_t Mode);
 extern uint8_t SYSM_GetSysStatusBit(SysConnector_Num_Enum ch, uint32_t SysStatusMask);
 extern uint32_t SYSM_GetSysStatus(SysConnector_Num_Enum ch);

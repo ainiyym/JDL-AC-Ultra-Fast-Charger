@@ -314,4 +314,13 @@ int Core_Print_Immediate(const char *format, ...)
 
     return length;
 }
+
+void Core_Print_Hex(const uint8_t *data, size_t length)
+{
+    for (size_t i = 0; i < length; i++)
+    {
+        Core_printf("%02X ", data[i]);
+    }
+    Core_printf("\r\n");
+}
 /* EOL */

@@ -13,6 +13,7 @@
 #include "task.h"
 #include "semphr.h"
 #include "string.h"
+#include "STD_SysM.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -75,6 +76,7 @@ static FlashDB_AppKvDBDefaultCfg_t FlashDB_AppKvDBDefaultCfgTable[] =
 int FlashDB_AppM_Init(void)
 {
 	int ret = 0;
+	size_t actual_len = 0;
 
 	ret = fdb_init();
 	if (ret != 0)
@@ -89,7 +91,17 @@ int FlashDB_AppM_Init(void)
 	{
 		if (fdb_wrapper_kv_exist(FlashDB_AppKvDBDefaultCfgTable[i].kvdb, FlashDB_AppKvDBDefaultCfgTable[i].key))
 		{
-			FLASHDB_TRACE("FlashDB KVDB is exist key=%s\r\n", FlashDB_AppKvDBDefaultCfgTable[i].key);
+			if (FlashDB_AppKvDBDefaultCfgTable[i].blob_size)
+			{
+				ret = fdb_wrapper_kv_get_blob(FlashDB_AppKvDBDefaultCfgTable[i].kvdb, FlashDB_AppKvDBDefaultCfgTable[i].key, FlashDB_AppKvDBDefaultCfgTable[i].def_value, FlashDB_AppKvDBDefaultCfgTable[i].blob_size, &actual_len);
+				FLASHDB_TRACE("FlashDB KVDB is exist key=%s", FlashDB_AppKvDBDefaultCfgTable[i].key);
+				FLASHDB_PRINT_HEX(FlashDB_AppKvDBDefaultCfgTable[i].def_value, actual_len);
+			}
+			else
+			{
+				ret = fdb_wrapper_kv_get(FlashDB_AppKvDBDefaultCfgTable[i].kvdb, FlashDB_AppKvDBDefaultCfgTable[i].key, FlashDB_AppKvDBDefaultCfgTable[i].def_value, strlen(FlashDB_AppKvDBDefaultCfgTable[i].def_value), &actual_len);
+				FLASHDB_TRACE("FlashDB KVDB is exist key=%s, value=%s\r\n", FlashDB_AppKvDBDefaultCfgTable[i].key, (char*)FlashDB_AppKvDBDefaultCfgTable[i].def_value);
+			}
 		}
 		else
 		{
@@ -112,6 +124,7 @@ int FlashDB_AppM_Init(void)
 			}
 		}
 	}
+	SYSM_SetDeviceSN((uint8_t *)SN);
 
 	return 0;
 }

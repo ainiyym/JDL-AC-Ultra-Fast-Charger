@@ -27,7 +27,7 @@
 |    Macro Definition
 |******************************************************************************/
 // 配置参数
-#define PRINT_QUEUE_LENGTH         56
+#define PRINT_QUEUE_LENGTH         64
 #define PRINT_MAX_MESSAGE_SIZE     256
 #define PRINT_BATCH_SIZE           4
 #define PRINT_BUFFER_TIMEOUT_MS    20
@@ -59,5 +59,6 @@ extern int Core_printf(const char *format, ...);
 extern uint8_t CorePrint_IsEmpty(void);
 extern uint16_t Core_Printf_AddItem(const char *message);
 extern int Core_Print_Immediate(const char *format, ...);
+extern void Core_Print_Hex(const uint8_t *data, size_t length);
 #endif /* APPTASK_4GTASK_H */
 /* EOL */
