@@ -17,6 +17,7 @@
 #include "AppTask_CorePrintTask.h"
 #include "MessageBuffer.h"
 #include "Tcp.h"
+
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -104,6 +105,7 @@ static BaseType_t init_application_tasks(void)
 {
     at_parser_init();
     YeeCom_Init();
+    CloudNetM_Init();
     Core_printf("[Init] Application tasks initialized\n");
     return pdPASS;
 }

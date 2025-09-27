@@ -10,6 +10,7 @@
 |******************************************************************************/
 #include "CloudM.h"
 #include "Cloud_Protocol.h"
+#include "Cloud_Protocol_Msg.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -45,5 +46,17 @@
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
+void CloudM_Init(void)
+{
+    Cloud_Protocol_Init();
+    Cloud_Protocol_Msg_Init();
+    Cloud_Protocol_InitCommunicationState();
+}
 
+void CloudM_MainFunction(void)
+{
+    Cloud_Protocol_Main();
+    Cloud_Protocol_RcvMsg_Process();
+    Cloud_Protocol_CheckTimeoutRequests(NULL);
+}
 /* EOL */

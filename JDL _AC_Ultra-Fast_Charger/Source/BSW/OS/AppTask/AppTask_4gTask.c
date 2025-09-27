@@ -63,6 +63,7 @@ void M4gTask_MainTask(void *pvParameters)
 	while (1)
 	{
 		YeeCom_MainFunc();
+		CloudNetM_Main();
 		vTaskDelayUntil(&xLastWakeTime, xPeriod);
 	}
 }

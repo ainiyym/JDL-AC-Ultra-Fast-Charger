@@ -45,5 +45,13 @@
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
+void CloudNetM_Init(void)
+{
+    CloudNet_Protocol_Msg_Init();
+}
 
+void CloudNetM_Main(void)
+{
+    CloudNet_Protocol_RcvMsg_Process();
+}
 /* EOL */

@@ -60,7 +60,7 @@ void Cloud_Protocol_SendMsg(uint8_t *pMsg, uint16_t MsgLen, uint8_t MsgType)
     }
 }
 
-static void Cloud_Protocol_RcvMsg_Process(void)
+void Cloud_Protocol_RcvMsg_Process(void)
 {
     uint8_t MsgRet;
 
@@ -68,30 +68,43 @@ static void Cloud_Protocol_RcvMsg_Process(void)
 
     if (MsgRet)
     {
+        CLOUD_DEBUG("%s, Length: %d data[0]=%d\r\n", __func__, Cloud_ProtocolMsg.MsgLen, Cloud_ProtocolMsg.MsgData[0]);
         switch (Cloud_ProtocolMsg.MsgType)
         {
             case CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH:
-                CLOUD_DEBUG("Cloud Protocol Data Message Received, Length: %d\r\n", Cloud_ProtocolMsg.MsgLen);
-                // Process data message
-                Cloud_Protocol_ParseProtocolFrame((const uint8_t *)&Cloud_ProtocolMsg.MsgData[0], Cloud_ProtocolMsg.MsgLen);
+                switch (Cloud_ProtocolMsg.MsgData[0])
+                {
+                    case CLOUD_MESSAGE_DATA_TYPE_SEND_LOGIN_FRAME:
+                        Cloud_Protocol_AckLoginFrame(true);
+                        break;
+                    case CLOUD_MESSAGE_DATA_TYPE_SEND_HEARTBEAT_FRAME:
+                        Cloud_Protocol_AckHeartbeatFrame(true);
+                        break;
+                    case CLOUD_MESSAGE_DATA_TYPE_DATA_PASSTHROUGH:
+                        // Process data message
+                        Cloud_Protocol_ParseProtocolFrame((const uint8_t *)&Cloud_ProtocolMsg.MsgData[0], Cloud_ProtocolMsg.MsgLen);
+                        break;
+                    default:
+                        CLOUD_ERROR("Cloud Protocol Unknown Data Command: %d\r\n", Cloud_ProtocolMsg.MsgData[0]);
+                        break;
+                }
                 break;
 
             case CLOUD_MESSAGE_TYPE_CTRL:
                 // Process control message
-                CLOUD_DEBUG("Cloud Protocol Control Message Received, Length: %d data[0]=%d\r\n", Cloud_ProtocolMsg.MsgLen, Cloud_ProtocolMsg.MsgData[0]);
                 switch (Cloud_ProtocolMsg.MsgData[0])
                 {
                     case CLOUD_MESSAGE_CTRL_TYPE_DEVICE_READY:
-                        Cloud_Protocol_SetDeviceStatus((cloud_device_status_e)Cloud_ProtocolMsg.MsgData[1]);
+                        Cloud_Protocol_AckDeviceStatus((cloud_device_status_e)Cloud_ProtocolMsg.MsgData[1]);
                         break;
                     case CLOUD_MESSAGE_CTRL_TYPE_SET_NETWORK_PARAM:
-                        Cloud_Protocol_SetDeviceStatus((cloud_device_status_e)Cloud_ProtocolMsg.MsgData[1]);
+                        Cloud_Protocol_AckDeviceStatus((cloud_device_status_e)Cloud_ProtocolMsg.MsgData[1]);
                         break;
                     case CLOUD_MESSAGE_CTRL_TYPE_SET_HEARTBEAT_PARAM:
+                        Cloud_Protocol_AckHeartbeatParam(true);
                         break;
-                    case CLOUD_MESSAGE_CTRL_TYPE_LOGIN_ACK:
-                        break;
-                    case CLOUD_MESSAGE_CTRL_TYPE_HEARTBEAT_ACK:
+                    case CLOUD_MESSAGE_CTRL_TYPE_SET_REGPKG_MODE:
+                        Cloud_Protocol_AckRegpkgParam(true);
                         break;
                     default:
                         CLOUD_ERROR("Cloud Protocol Unknown Control Command: %d\r\n", Cloud_ProtocolMsg.MsgData[0]);

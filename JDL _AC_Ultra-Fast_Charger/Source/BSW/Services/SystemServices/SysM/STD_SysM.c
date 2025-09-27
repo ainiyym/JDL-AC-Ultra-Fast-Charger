@@ -30,6 +30,8 @@
 #include "FanM.h"
 #include "Sensor.h"
 #include "YeeComxxx_Device.h"
+#include "Cloud_EV_Charger_Information.h"
+#include "CloudM.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -59,7 +61,6 @@ typedef struct
 	uint8_t ucLowPowerShutdownCnt;
 	uint8_t usRemoteResetFlag; /* 0: No reset request; 1: Reset immediately; 2:Reset when the conditions are satisfied.*/
 	uint32_t ulSystemStatus[SYS_CONNECTOR_NUM_MAX];   /* System status word. Bitwise, definition see STD_SysM_SysStatus_t, 1: defined status exists; 0: does not exist.*/
-	uint8_t ucSN16[16]; /* Device SN */
 } SysM_Struct;
 /*******************************************************************************
 |    Static local KAM variables Declaration
@@ -81,12 +82,30 @@ static void SYSM_ShowUserInfo(void);
 static void SYSM_RemoteResetManage(void);
 static void SYSM_ShowBasicInfo(void);
 static void SYSM_OutPutDefaultCurrManage(void);
+static void SYSM_SetDeviceConstParam(void);
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
 void SYSM_InitMemory( void )
 {
 	LIB_SetMemory( (uint8_t *)(&stSysM), 0u, (uint16_t)(sizeof(stSysM) / sizeof(uint8_t)));
+	SYSM_SetDeviceConstParam();
+}
+
+void SYSM_SetDeviceConstParam(void)
+{
+	uint8_t connector_type = SYS_CONNECTOR_TYPE; 
+	uint8_t number_of_connectors = SYS_NUMBER_OF_CONNECTORS;
+	uint16_t max_charging_voltage = CLOUD_EV_MAX_CHARGING_VOLTAGE;
+	uint16_t max_charging_current = CLOUD_EV_MAX_CHARGING_CURRENT;
+
+	Cloud_Ev_Set_Constant_Info(CLOUD_CONST_MANUFACTURER, SYS_MANUFACTURER);
+	Cloud_Ev_Set_Constant_Info(CLOUD_CONST_FIRMWARE_VERSION, SYS_SOFTWARE_VERSION);
+	Cloud_Ev_Set_Constant_Info(CLOUD_CONST_HARDWARE_VERSION, SYS_HARDWARE_VERSION);
+	Cloud_Ev_Set_Constant_Info(CLOUD_CONST_CONNECTOR_TYPE, (const uint8_t *)&connector_type);
+	Cloud_Ev_Set_Constant_Info(CLOUD_CONST_NUMBER_OF_CONNECTORS, (const uint8_t *)&number_of_connectors);
+	Cloud_Ev_Set_Constant_Info(CLOUD_CONST_MAX_CHARGING_VOLTAGE, (const uint16_t *)&max_charging_voltage);
+	Cloud_Ev_Set_Constant_Info(CLOUD_CONST_MAX_CHARGING_CURRENT, (const uint16_t *)&max_charging_current);
 }
 
 /****************************************************************************************
@@ -159,6 +178,7 @@ void SYSM_InitTwo( void )
 	CURR_InitMemory();
 	VOLT_InitMemory();
 	SENSOR_InitMemory();
+	CloudM_Init();
 }
 
 /****************************************************************************************
@@ -427,6 +447,7 @@ uint8_t SYSM_GetCpVolMode(SysConnector_Num_Enum ch)
 static void SYSM_OutPutDefaultCurrManage(void)
 {
 	static uint8_t stCpModeLast[SYS_CONNECTOR_NUM_MAX] = {0};
+	uint16_t max_charging_current = SYS_CONNECTOR_RATED_CURRENT;
 
 	for (SysConnector_Num_Enum i = SYS_CONNECTOR1; i < SYS_CONNECTOR_NUM_MAX; i++)
 	{
@@ -435,35 +456,21 @@ static void SYSM_OutPutDefaultCurrManage(void)
 			stCpModeLast[i] = SYSM_GetCpVolMode(i);
 			if (SYSM_CP_MODE_4V == stCpModeLast[i])
 			{
+				max_charging_current = CURR_ONE_PHASE_CP4V_DFLT_CURR_VAL;
 				SYSM_DEBUG("Connector:%d CP Mode 4V set default current to %d\r\n", i, CURR_ONE_PHASE_CP4V_DFLT_CURR_VAL);
 				CURR_SetDfltCurrVal(i, CURR_ONE_PHASE_CP4V_DFLT_CURR_VAL);
 			}
 			else if (SYSM_CP_MODE_12V == stCpModeLast[i])
 			{
+				max_charging_current = CURR_ONE_PHASE_CP12V_DFLT_CURR_VAL;
 				SYSM_DEBUG("Connector:%d CP Mode 12V set default current to %d\r\n", i, CURR_ONE_PHASE_CP12V_DFLT_CURR_VAL);
 				CURR_SetDfltCurrVal(i, CURR_ONE_PHASE_CP12V_DFLT_CURR_VAL);
 			}
 			else
 			{
 			}
+			Cloud_Ev_Set_Constant_Info(CLOUD_CONST_MAX_CHARGING_CURRENT, (const uint16_t *)&max_charging_current);
 		}
-	}
-}
-
-void SYSM_GetDeviceSN(uint8_t *pSN)
-{
-	if (NULL != pSN)
-	{
-		memcpy(pSN, stSysM.ucSN16, 16);
-	}
-}
-
-void SYSM_SetDeviceSN(uint8_t *pSN)
-{
-	if (NULL != pSN)
-	{
-		memcpy(stSysM.ucSN16, pSN, 16);
-		SYSM_INFO("Device SN:%s\r\n", stSysM.ucSN16);
 	}
 }
 

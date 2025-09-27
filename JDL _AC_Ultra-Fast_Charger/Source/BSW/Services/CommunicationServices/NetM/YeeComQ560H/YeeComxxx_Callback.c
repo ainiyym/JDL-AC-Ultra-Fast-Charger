@@ -2,6 +2,7 @@
 #include "YeeComxxx_Device.h"
 #include "YeeComxxx_Device_Cfg.h"
 #include "CloudNet_Protocol_Msg.h"
+#include "Cloud_Protocol_Cfg.h"
 
 /* oob cmd */
 void YeeCom_At_OOB_Power_On_Callback(void *arg, char *buf, int buflen)
@@ -154,7 +155,7 @@ void YeeCom_At_Set_SERVERn_Callback(void *arg, char *buf, int buflen)
         // After setting the server, query the working mode to confirm
         for (tcp_id_enum i = TCP_ID_PROTOCOL; i < TCP_ID_MAXIMUM; i++)
         {
-            YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_WORKING_MODE, NULL, 0);
+            YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_WORKING_MODE, NULL, i);
         }
     }
     else
@@ -194,11 +195,43 @@ void YeeCom_At_Set_CHMode_Callback(void *arg, char *buf, int buflen)
 void YeeCom_At_Set_HBTime_Callback(void *arg, char *buf, int buflen)
 {
     // Handle the received Heartbeat time response success
+    if (NULL != strstr(buf, "OK\r\n"))
+    {
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_HBTIME, NULL);
+    }
 }
 
 void YeeCom_At_Set_HBHead_Callback(void *arg, char *buf, int buflen)
 {
     // Handle the received Heartbeat header response success
+    if (NULL != strstr(buf, "OK\r\n"))
+    {
+        uint8_t msg[2] = {0};
+        msg[0] = CLOUD_MESSAGE_DATA_TYPE_SEND_HEARTBEAT_FRAME;
+        msg[1] = 1; // Success
+        CloudNet_Protocol_SendMsg((uint8_t *)msg, 2, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
+    }
+}
+
+void YeeCom_At_Set_REGPKG_Callback(void *arg, char *buf, int buflen)
+{
+    // Handle the received Registration packet mode response success
+    if (NULL != strstr(buf, "OK\r\n"))
+    {
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_REGPKG, NULL);
+    }
+}
+
+void YeeCom_At_Set_REGHEAD_Callback(void *arg, char *buf, int buflen)
+{
+    // Handle the received Registration packet header response success
+    if (NULL != strstr(buf, "OK\r\n"))
+    {
+        uint8_t msg[2] = {0};
+        msg[0] = CLOUD_MESSAGE_DATA_TYPE_SEND_LOGIN_FRAME;
+        msg[1] = 1; // Success
+        CloudNet_Protocol_SendMsg((uint8_t *)msg, 2, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
+    }
 }
 
 void YeeCom_At_Set_DebugMode_Callback(void *arg, char *buf, int buflen)
@@ -327,11 +360,73 @@ void YeeCom_At_Get_CHMODECallback(void *arg, char *buf, int buflen)
 void YeeCom_At_Get_HBTimeCallback(void *arg, char *buf, int buflen)
 {
     // Handle the received Heartbeat time response success
+    const char *start = buf;
+
+    const char *reset_pos = strstr(buf, "+HBTIME");
+    if (reset_pos != NULL)
+    {
+        uint16_t hb_time = 0;
+
+        int result = sscanf(start, "+HBTIME=:%hu", &hb_time);
+
+        if (result == 1)
+        {
+            YeeCom_Log("<%s> Heartbeat time: %d seconds\r\n", __func__, hb_time);
+            if (CLOUD_PROTOCOL_HEARTBEAT_INTERVAL_MS / 1000 == hb_time)
+            {
+                uint8_t msg[2] = {0};
+                msg[0] = CLOUD_MESSAGE_CTRL_TYPE_SET_HEARTBEAT_PARAM;
+                msg[1] = 1; // Success
+                CloudNet_Protocol_SendMsg((uint8_t *)msg, 2, CLOUD_MESSAGE_TYPE_CTRL);
+            }
+        }
+        else
+        {
+            YeeCom_Log("<%s> Failed to parse HBTIME response: %s\r\n", __func__, buf);
+            return;
+        }
+    }
 }
 
 void YeeCom_At_Get_HBHeadCallback(void *arg, char *buf, int buflen)
 {
     // Handle the received Heartbeat header response success
+}
+
+void YeeCom_At_Get_REGPKGCallback(void *arg, char *buf, int buflen)
+{
+    // Handle the received Registration packet mode response success
+    const char *start = buf;
+
+    const char *reset_pos = strstr(buf, "+REGPKG");
+    if (reset_pos != NULL)
+    {
+        uint8_t reg_pkg = 0;
+
+        int result = sscanf(start, "+REGPKG=:%hhu", &reg_pkg);
+
+        if (result == 1)
+        {
+            YeeCom_Log("<%s> Registration package mode: %d\r\n", __func__, reg_pkg);
+            if (YEECOM_REGPKG_ENABLE_HEX == reg_pkg)
+            {
+                uint8_t msg[2] = {0};
+                msg[0] = CLOUD_MESSAGE_CTRL_TYPE_SET_REGPKG_MODE;
+                msg[1] = 1; // Success
+                CloudNet_Protocol_SendMsg((uint8_t *)msg, 2, CLOUD_MESSAGE_TYPE_CTRL);
+            }
+        }
+        else
+        {
+            YeeCom_Log("<%s> Failed to parse HBTIME response: %s\r\n", __func__, buf);
+            return;
+        }
+    }
+}
+
+void YeeCom_At_Get_REGHEADCallback(void *arg, char *buf, int buflen)
+{
+    // Handle the received Registration packet header response success
 }
 
 void YeeCom_At_Get_DBGMODECallback(void *arg, char *buf, int buflen)

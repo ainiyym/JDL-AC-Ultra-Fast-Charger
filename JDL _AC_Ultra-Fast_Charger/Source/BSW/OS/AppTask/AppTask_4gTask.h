@@ -20,6 +20,7 @@
 #include "queue.h"
 #include "at_parser.h"
 #include "YeeComxxx_Device.h"
+#include "CloudNetM.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)

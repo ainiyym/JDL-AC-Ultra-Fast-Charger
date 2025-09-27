@@ -1,19 +1,21 @@
 //******************************************************************************
-//* File Name: Cloud_Protocol.h
+//* File Name: Cloud_Protocol_Msg.h
 //* Project Name: JDL _AC_Ultra-Fast_Charger
 //* Version: v1.0
 //* Date: 2025-08-18 10:00:00
 //* Author: JDLzhou
-//* Description: Cloud Protocol module header file
+//* Description: Cloud Protocol message module header file
 /*******************************************************************************/
-#if !defined (__CLOUD_PROTOCOL_H)
+#if !defined (__CLOUD_PROTOCOL_MSG_H)
 /* polyspace:begin<MISRA-C3:2.5:Not a defect:Justified> Normal. */
 /* polyspace<MISRA-C3:21.1:Not a defect:Justified> Normal. */
-#define __CLOUD_PROTOCOL_H
+#define __CLOUD_PROTOCOL_MSG_H
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "Cloud_Protocol_Cfg.h"
+#include "stdint.h"
+#include "Cloud_Cfg.h"
+#include "Cloud_Protocol_Session.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -38,7 +40,8 @@
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-extern void Cloud_Protocol_SetDeviceStatus(cloud_device_status_e status);
-
-#endif /* __CLOUD_PROTOCOL_H */
+extern void Cloud_Protocol_Msg_Init(void);
+extern void Cloud_Protocol_SendMsg(uint8_t *pMsg, uint16_t MsgLen, uint8_t MsgType);
+extern void Cloud_Protocol_RcvMsg_Process(void);
+#endif /* __CLOUD_PROTOCOL_MSG_H */
 /* EOL */

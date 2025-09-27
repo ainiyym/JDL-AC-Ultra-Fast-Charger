@@ -38,6 +38,7 @@
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-
+extern void CloudM_Init(void);
+extern void CloudM_MainFunction(void);
 #endif /* __CLOUD_H */
 /* EOL */

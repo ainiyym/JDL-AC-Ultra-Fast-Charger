@@ -27,6 +27,7 @@
 #include "ModbusM.h"
 #include "FanM.h"
 #include "Sensor.h"
+#include "CloudM.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -174,6 +175,7 @@ static void Task20ms(void)
     /* 20ms task code */
     CURR_20msFunctionControl();
     VOLT_20msFunctionControl();
+    CloudM_MainFunction();
 }
 
 static void Task100ms(void)

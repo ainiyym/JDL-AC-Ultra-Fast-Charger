@@ -1,16 +1,15 @@
 //******************************************************************************
-//* File Name: Cloud_Protocol_Cfg.c
+//* File Name: Cloud_Protocol_Session.c
 //* Project Name: JDL _AC_Ultra-Fast_Charger
 //* Version: v1.0
 //* Date: 2025-08-18 10:00:00
 //* Author: JDLzhou
-//* Description: Cloud Protocol module configuration file
+//* Description: Cloud Protocol module session layer file
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "Cloud_Protocol_Cfg.h"
+#include "Cloud_Protocol_Session.h"
 #include "Cloud_Protocol_CallbackFunc.h"
-#include <time.h>
 
 /*******************************************************************************
 |    Macro Definition
@@ -248,7 +247,7 @@ static void Cloud_Protocol_ProcessRcvFrame(const Cloud_Protocol_Frame_T *frame)
 // Check for timeout requests and retransmit them
 void Cloud_Protocol_CheckTimeoutRequests(void *arg)
 {
-    time_t current_time = time(NULL);
+    time_t current_time = CLOUD_GET_TIME_MS();
 
     for (uint8_t i = 0; i < cloud_protocol_comm_state.request_count; i++)
     {
@@ -267,7 +266,8 @@ void Cloud_Protocol_CheckTimeoutRequests(void *arg)
                     // Call the send function
                     CLOUDNET_INFO("Retransmitted frame: %s (0x%02X), Sequence: %d, Retry count: %d\n",
                                   config->frame_name, record->frame_type, record->sequence_number, record->retry_count + 1);
-                    config->send_func(NULL);
+                    uint8_t buff[CLOUDM_PROTOCOL_FRAME_MAX_LEN];
+                    config->send_func(NULL, buff, sizeof(buff));
                 }
                 record->send_time = current_time;
                 record->retry_count++;
@@ -314,7 +314,7 @@ uint16_t Cloud_Protocol_PrepareSendFrame(uint8_t frame_type,
             Cloud_Protocol_Send_Record_T *record = &cloud_protocol_comm_state.pending_requests[cloud_protocol_comm_state.request_count++];
             record->frame_type = frame_type;
             record->sequence_number = sequence;
-            record->send_time = time(NULL);
+            record->send_time = CLOUD_GET_TIME_MS();
             record->retry_count = 0;
             record->awaiting_response = true;
             record->expected_response = config->expected_response;
@@ -322,6 +322,22 @@ uint16_t Cloud_Protocol_PrepareSendFrame(uint8_t frame_type,
     }
 
     return frame_length;
+}
+
+// get send function by frame type and call it
+Cloud_Protocol_Send_Status_T Cloud_Protocol_CallSendFunc(uint8_t frame_type,
+                                         uint8_t *buffer,
+                                         uint16_t buffer_size)
+{
+    const Cloud_Protocol_Frame_Type_Config_T *config = Cloud_Protocol_GetFrameConfig(frame_type);
+    if (config == NULL || config->send_func == NULL)
+    {
+        CLOUD_ERROR("%s: Invalid frame type: %d\r\n", __func__, frame_type);
+        return CLOUD_PROTOCOL_SEND_ERROR_INVALID_PARAM; // invalid frame type
+    }
+
+    // Call the send function
+    return config->send_func(NULL, buffer, buffer_size);
 }
 
 // Parse protocol frames

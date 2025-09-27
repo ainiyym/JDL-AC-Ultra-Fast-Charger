@@ -18,6 +18,8 @@
 |******************************************************************************/
 #include "Std_Types.h"
 #include "stddef.h"
+#include <string.h>
+#include <time.h>
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)

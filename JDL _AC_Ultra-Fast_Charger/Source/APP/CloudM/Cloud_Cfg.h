@@ -14,6 +14,7 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "stdint.h"
+#include "STD_Rtc.h"
 #include "STD_LogService.h"
 #include "MessageBuffer.h"
 
@@ -24,7 +25,7 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
-#define CLOUDM_TASK_PERIOD								                    (10U)
+#define CLOUDM_TASK_PERIOD								                    (20U)
 #define CLOUD_MESSAGE_BUFFER_MAX_LENGTH                                     (256U)
 #define CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH                                 (MESSAGE_BUFFER_TYPE_DATA)
 #define CLOUD_MESSAGE_TYPE_CTRL                                             (MESSAGE_BUFFER_TYPE_CTRL)
@@ -44,7 +45,27 @@
 #define CLOUDM_TASK_DELAY_MS(ms)                                            vTaskDelay(pdMS_TO_TICKS(ms))
 #define CLOUDM_MALLOC(size)                                                 pvPortMalloc(size)
 #define CLOUDM_FREE(ptr)                                                    vPortFree(ptr)
+/* Time */
+#define CLOUD_GET_TIME_MS() ({                          \
+    static time_t base_time = 0;                        \
+    time_t current_ticks = xTaskGetTickCount();         \
+    time_t timestamp;                                   \
+    if (base_time == 0)                                 \
+    {                                                   \
+        base_time = 1756699200; /* 2025-09-01 12:00:00 */ \
+    }                                                   \
+    timestamp = base_time + current_ticks;              \
+    timestamp; /* return the timestamp */                         \
+})
 
+#define CLOUD_GET_TIME_MS_PTR(timer)      \
+do                                    \
+{                                     \
+    if (timer != NULL)                \
+    {                                 \
+        *timer = CLOUD_GET_TIME_MS(); \
+    }                                 \
+} while (0)
 /******************************************************************************
 |    Enum Definition
 |******************************************************************************/
@@ -53,17 +74,23 @@ typedef enum
     CLOUD_MESSAGE_CTRL_TYPE_DEVICE_READY = 0x01,
     CLOUD_MESSAGE_CTRL_TYPE_SET_NETWORK_PARAM = 0x02,
     CLOUD_MESSAGE_CTRL_TYPE_SET_HEARTBEAT_PARAM = 0x03,
-    CLOUD_MESSAGE_CTRL_TYPE_LOGIN_ACK = 0x04,
-    CLOUD_MESSAGE_CTRL_TYPE_HEARTBEAT_ACK = 0x05,
+    CLOUD_MESSAGE_CTRL_TYPE_SET_REGPKG_MODE = 0x04,
     CLOUD_MESSAGE_CTRL_TYPE_MAXIMUM
 }cloud_message_type_ctrl_e;
+
+typedef enum
+{
+    CLOUD_MESSAGE_DATA_TYPE_SEND_LOGIN_FRAME = 0x01,
+    CLOUD_MESSAGE_DATA_TYPE_SEND_HEARTBEAT_FRAME = 0x02,
+    CLOUD_MESSAGE_DATA_TYPE_DATA_PASSTHROUGH = 0x03,
+    CLOUD_MESSAGE_DATA_TYPE_MAXIMUM
+}cloud_message_type_data_e;
 
 typedef enum
 {
     CLOUD_DEVICE_STATUS_INIT = 0x00,
     CLOUD_DEVICE_STATUS_READY = 0x01,
     CLOUD_DEVICE_STATUS_CONNECTED = 0x02,
-    CLOUD_DEVICE_STATUS_DISCONNECTED = 0x03,
     CLOUD_DEVICE_STATUS_MAXIMUM
 }cloud_device_status_e;
 /*******************************************************************************

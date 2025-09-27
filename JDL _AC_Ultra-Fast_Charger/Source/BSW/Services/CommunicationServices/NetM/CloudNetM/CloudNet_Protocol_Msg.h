@@ -14,6 +14,7 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "stdint.h"
+#include "YeeComxxx_Device.h"
 #include "Cloud_Cfg.h"
 #include "tcp.h"
 

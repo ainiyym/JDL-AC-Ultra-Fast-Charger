@@ -1208,6 +1208,14 @@ void run_all_tests(void)
     
     MCAL_INFO("所有测试完成!\n");
 }
+
+#include "Cloud_Cfg.h"
+void Mcal_Cloud_TestTime(void)
+{
+    time_t current_time;
+    current_time = CLOUD_GET_TIME_MS();
+    MCAL_INFO("当前时间戳: %lu\n", current_time);
+}
 #endif
 /* Run MCAL tests */
 void Mcal_Test_Run(void)

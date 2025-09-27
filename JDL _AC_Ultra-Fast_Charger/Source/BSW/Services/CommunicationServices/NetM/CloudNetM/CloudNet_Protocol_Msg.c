@@ -67,16 +67,30 @@ void CloudNet_Protocol_RcvMsg_Process(void)
 
     if (MsgRet)
     {
+        CLOUDNET_DEBUG("%s, Length: %d data[0]=%d\r\n", __func__, CloudNet_ProtocolMsg.MsgLen, CloudNet_ProtocolMsg.MsgData[0]);
         switch (CloudNet_ProtocolMsg.MsgType)
         {
             case CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH:
-                CLOUDNET_DEBUG("Cloud Protocol Data Message Received, Length: %d\r\n", CloudNet_ProtocolMsg.MsgLen);
                 // Process data message
+                switch (CloudNet_ProtocolMsg.MsgData[0])
+                {
+                    case CLOUD_MESSAGE_DATA_TYPE_SEND_LOGIN_FRAME:
+                        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_REGHEAD, NULL, (const char *)&CloudNet_ProtocolMsg.MsgData[1]);
+                        break;
+                    case CLOUD_MESSAGE_DATA_TYPE_SEND_HEARTBEAT_FRAME:
+                        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_HBHEAD, NULL, (const char *)&CloudNet_ProtocolMsg.MsgData[1]);
+                        break;
+                    case CLOUD_MESSAGE_DATA_TYPE_DATA_PASSTHROUGH:
+  
+                        break;
+                    default:
+                        CLOUDNET_ERROR("Cloud Protocol Unknown Data Command: %d\r\n", CloudNet_ProtocolMsg.MsgData[0]);
+                        break;
+                }
                 break;
 
             case CLOUD_MESSAGE_TYPE_CTRL:
                 // Process control message
-                CLOUDNET_DEBUG("Cloud Protocol Control Message Received, Length: %d data[0]=%d\r\n", CloudNet_ProtocolMsg.MsgLen, CloudNet_ProtocolMsg.MsgData[0]);
                 switch (CloudNet_ProtocolMsg.MsgData[0])
                 {
                     case CLOUD_MESSAGE_CTRL_TYPE_DEVICE_READY:
@@ -96,13 +110,10 @@ void CloudNet_Protocol_RcvMsg_Process(void)
 
                         break;
                     case CLOUD_MESSAGE_CTRL_TYPE_SET_HEARTBEAT_PARAM:
-
+                        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_HBTIME, NULL, (const char *)&CloudNet_ProtocolMsg.MsgData[1]);
                         break;
-                    case CLOUD_MESSAGE_CTRL_TYPE_LOGIN_ACK:
-
-                        break;
-                    case CLOUD_MESSAGE_CTRL_TYPE_HEARTBEAT_ACK:
-                    
+                    case CLOUD_MESSAGE_CTRL_TYPE_SET_REGPKG_MODE:
+                        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_REGPKG, NULL, (const char *)&CloudNet_ProtocolMsg.MsgData[1]);
                         break;
                     default:
                         CLOUDNET_ERROR("Cloud Protocol Unknown Control Command: %d\r\n", CloudNet_ProtocolMsg.MsgData[0]);

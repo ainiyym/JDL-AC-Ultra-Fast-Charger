@@ -14,6 +14,7 @@
 #include "semphr.h"
 #include "string.h"
 #include "STD_SysM.h"
+#include "Cloud_EV_Charger_Information.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -51,7 +52,7 @@ typedef struct
 |    Static local variables Declaration
 |******************************************************************************/
 uint8_t YeeComxxx_Device_Init_Flag = 0;
-char SN[16] = "33030300000001";
+char SN[CLOUD_EV_SN_LEN] = "33030300000001";
 
 /*******************************************************************************
 |    Global variables Declaration
@@ -124,7 +125,7 @@ int FlashDB_AppM_Init(void)
 			}
 		}
 	}
-	SYSM_SetDeviceSN((uint8_t *)SN);
+	Cloud_Ev_Set_Constant_Info(CLOUD_CONST_SERIAL_NUMBER, SN);
 
 	return 0;
 }

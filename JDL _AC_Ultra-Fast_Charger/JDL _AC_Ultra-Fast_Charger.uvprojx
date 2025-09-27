@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F107xC</Define>
               <Undefine></Undefine>
-              <IncludePath>.\Source\APP\AuthM;.\Source\APP\CurrM;.\Source\APP\EnergyM;.\Source\APP\EvseM;.\Source\APP\HmiM;.\Source\APP\RfidAuthM;.\Source\APP\TempM;.\Source\APP\VoltM;.\Source\BSW\ComplexDrivers\CP;.\Source\BSW\ComplexDrivers\Meter;.\Source\BSW\ComplexDrivers\PE;.\Source\BSW\ComplexDrivers\PE;.\Source\BSW\ComplexDrivers\RCD;.\Source\BSW\ComplexDrivers\Relay;.\Source\BSW\ComplexDrivers\RFID;.\Source\BSW\ComplexDrivers\Sensor;.\Source\BSW\ECUAL\Communication\NetDrv;.\Source\BSW\ECUAL\Communication\UartDRv;.\Source\BSW\ECUAL\Crypto\CryptoDrv;.\Source\BSW\ECUAL\IO\LedDrv;.\Source\BSW\ECUAL\IO\PowerDrv;.\Source\BSW\ECUAL\IO\SwitchM;.\Source\BSW\MCAL;.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Inc;.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Inc\Legacy;.\Source\BSW\MCAL\HAL\CMSIS\Include;.\Source\BSW\MCAL\HAL\CMSIS\Device\ST\STM32F1xx\Include;.\Source\Core\Inc;.\Source\BSW\MCAL\Mcal_Adc;.\Source\BSW\MCAL\Mcal_Common;.\Source\BSW\MCAL\Mcal_Dma;.\Source\BSW\MCAL\Mcal_GPIO;.\Source\BSW\MCAL\Mcal_Gpt;.\Source\BSW\MCAL\Mcal_I2c;.\Source\BSW\MCAL\Mcal_Icu;.\Source\BSW\MCAL\Mcal_InEep;.\Source\BSW\MCAL\Mcal_InFls;.\Source\BSW\MCAL\Mcal_Mcu;.\Source\BSW\MCAL\Mcal_Test;.\Source\BSW\MCAL\Mcal_Uart;.\Source\BSW\MCAL\Mcal_Can;.\Source\BSW\OS\ScheduleTable;.\Source\BSW\OS;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Rand;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_CycBuff;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Fifo;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Filter;.\Source\BSW\Services\SystemServices\Libs;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Lib;.\Source\BSW\Services\SystemServices\LogService;.\Source\BSW\MCAL\Mcal_Wdg;.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Inc;.\Source\BSW\MCAL\Mcal_Spi;.\Source\BSW\Services\CommunicationServices\Ccp;.\Source\BSW\Services\CommunicationServices\Ccp\Ccp;.\Source\APP\EvseM;.\Source\APP\SwitchM;.\Source;.\Source\APP\ErrorHandler;.\Source\BSW\Services\SystemServices\SysM;.\Source\APP\NoAuthenM;.\Source\BSW\ComplexDrivers\Battery;.\Source\APP;.\Source\APP\CanM;.\Source\APP\CanM\CanM_EvseM;.\Source\APP\CanM\CanM_MsgM;.\Source\APP\MatlabUtilityToolFiles;.\Source\APP\VoltM;.\Source\BSW\OS\FreeRTOS\include;.\Source\BSW\OS\FreeRTOS\portable\RVDS\ARM_CM3;.\Source\BSW\OS\AppTask;.\Source\BSW\Services\CommunicationServices\RS485_Modbus;.\Source\BSW\Services\SystemServices\Libs\Crc;.\Source\BSW\OS\StreamBuffer;.\Source\APP\FanM;.\Source\BSW\ComplexDrivers\SensorM;.\Source\BSW\Services\CommunicationServices\NetM\atm;.\Source\BSW\Services\CommunicationServices\NetM\atm\Infra;.\Source\BSW\Services\CommunicationServices\NetM\atm\Wrappers;.\Source\BSW\Services\CommunicationServices\NetM\YeeComQ560H;.\Source\BSW\Services\CommunicationServices\NetM\TCP;.\Source\APP\FlashDB;.\Source\BSW\Services\ThirdLibraries\FLashDB\drivers;.\Source\BSW\Services\ThirdLibraries\FLashDB\fal\inc;.\Source\BSW\Services\ThirdLibraries\FLashDB\inc;.\Source\BSW\Services\ThirdLibraries\FLashDB\sfud\inc;.\Source\BSW\Services\ThirdLibraries\FLashDB\Applications;.\Source\BSW\Services\ThirdLibraries\FLashDB\Wrapper;.\Source\APP\FlashDBM;.\Source\BSW\Services\CommunicationServices\NetM\CloudNetM;.\Source\BSW\OS\MessageBuffer;.\Source\APP\CloudM;.\Source\BSW\MCAL\Mcal_Rtc;.\Source\BSW\Services\Tm\STD_RTC</IncludePath>
+              <IncludePath>.\Source\APP\AuthM;.\Source\APP\CurrM;.\Source\APP\EnergyM;.\Source\APP\EvseM;.\Source\APP\HmiM;.\Source\APP\RfidAuthM;.\Source\APP\TempM;.\Source\APP\VoltM;.\Source\BSW\ComplexDrivers\CP;.\Source\BSW\ComplexDrivers\Meter;.\Source\BSW\ComplexDrivers\PE;.\Source\BSW\ComplexDrivers\PE;.\Source\BSW\ComplexDrivers\RCD;.\Source\BSW\ComplexDrivers\Relay;.\Source\BSW\ComplexDrivers\RFID;.\Source\BSW\ComplexDrivers\Sensor;.\Source\BSW\ECUAL\Communication\NetDrv;.\Source\BSW\ECUAL\Communication\UartDRv;.\Source\BSW\ECUAL\Crypto\CryptoDrv;.\Source\BSW\ECUAL\IO\LedDrv;.\Source\BSW\ECUAL\IO\PowerDrv;.\Source\BSW\ECUAL\IO\SwitchM;.\Source\BSW\MCAL;.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Inc;.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Inc\Legacy;.\Source\BSW\MCAL\HAL\CMSIS\Include;.\Source\BSW\MCAL\HAL\CMSIS\Device\ST\STM32F1xx\Include;.\Source\Core\Inc;.\Source\BSW\MCAL\Mcal_Adc;.\Source\BSW\MCAL\Mcal_Common;.\Source\BSW\MCAL\Mcal_Dma;.\Source\BSW\MCAL\Mcal_GPIO;.\Source\BSW\MCAL\Mcal_Gpt;.\Source\BSW\MCAL\Mcal_I2c;.\Source\BSW\MCAL\Mcal_Icu;.\Source\BSW\MCAL\Mcal_InEep;.\Source\BSW\MCAL\Mcal_InFls;.\Source\BSW\MCAL\Mcal_Mcu;.\Source\BSW\MCAL\Mcal_Test;.\Source\BSW\MCAL\Mcal_Uart;.\Source\BSW\MCAL\Mcal_Can;.\Source\BSW\OS\ScheduleTable;.\Source\BSW\OS;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Rand;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_CycBuff;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Fifo;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Filter;.\Source\BSW\Services\SystemServices\Libs;.\Source\BSW\Services\SystemServices\Libs\STD_Lib\STD_Lib;.\Source\BSW\Services\SystemServices\LogService;.\Source\BSW\MCAL\Mcal_Wdg;.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Inc;.\Source\BSW\MCAL\Mcal_Spi;.\Source\BSW\Services\CommunicationServices\Ccp;.\Source\BSW\Services\CommunicationServices\Ccp\Ccp;.\Source\APP\EvseM;.\Source\APP\SwitchM;.\Source;.\Source\APP\ErrorHandler;.\Source\BSW\Services\SystemServices\SysM;.\Source\APP\NoAuthenM;.\Source\BSW\ComplexDrivers\Battery;.\Source\APP;.\Source\APP\CanM;.\Source\APP\CanM\CanM_EvseM;.\Source\APP\CanM\CanM_MsgM;.\Source\APP\MatlabUtilityToolFiles;.\Source\APP\VoltM;.\Source\BSW\OS\FreeRTOS\include;.\Source\BSW\OS\FreeRTOS\portable\RVDS\ARM_CM3;.\Source\BSW\OS\AppTask;.\Source\BSW\Services\CommunicationServices\RS485_Modbus;.\Source\BSW\Services\SystemServices\Libs\Crc;.\Source\BSW\OS\StreamBuffer;.\Source\APP\FanM;.\Source\BSW\ComplexDrivers\SensorM;.\Source\BSW\Services\CommunicationServices\NetM\atm;.\Source\BSW\Services\CommunicationServices\NetM\atm\Infra;.\Source\BSW\Services\CommunicationServices\NetM\atm\Wrappers;.\Source\BSW\Services\CommunicationServices\NetM\YeeComQ560H;.\Source\BSW\Services\CommunicationServices\NetM\TCP;.\Source\APP\FlashDB;.\Source\BSW\Services\ThirdLibraries\FLashDB\drivers;.\Source\BSW\Services\ThirdLibraries\FLashDB\fal\inc;.\Source\BSW\Services\ThirdLibraries\FLashDB\inc;.\Source\BSW\Services\ThirdLibraries\FLashDB\sfud\inc;.\Source\BSW\Services\ThirdLibraries\FLashDB\Applications;.\Source\BSW\Services\ThirdLibraries\FLashDB\Wrapper;.\Source\APP\FlashDBM;.\Source\BSW\Services\CommunicationServices\NetM\CloudNetM;.\Source\BSW\OS\MessageBuffer;.\Source\APP\CloudM;.\Source\BSW\MCAL\Mcal_Rtc;.\Source\BSW\Services\Tm\STD_RTC;.\Source\APP\CloudM\Cloud_EvM;.\Source\APP\CloudM\Cloud_NetM;.\Source\APP\CloudM\Cloud_ProtocolM;.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Callback;.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Session</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1675,6 +1675,75 @@
         </Group>
         <Group>
           <GroupName>fdb_user</GroupName>
+          <GroupOption>
+            <CommonProperty>
+              <UseCPPCompiler>0</UseCPPCompiler>
+              <RVCTCodeConst>0</RVCTCodeConst>
+              <RVCTZI>0</RVCTZI>
+              <RVCTOtherData>0</RVCTOtherData>
+              <ModuleSelection>0</ModuleSelection>
+              <IncludeInBuild>2</IncludeInBuild>
+              <AlwaysBuild>2</AlwaysBuild>
+              <GenerateAssemblyFile>2</GenerateAssemblyFile>
+              <AssembleAssemblyFile>2</AssembleAssemblyFile>
+              <PublicsOnly>2</PublicsOnly>
+              <StopOnExitCode>11</StopOnExitCode>
+              <CustomArgument></CustomArgument>
+              <IncludeLibraryModules></IncludeLibraryModules>
+              <ComprImg>1</ComprImg>
+            </CommonProperty>
+            <GroupArmAds>
+              <Cads>
+                <interw>2</interw>
+                <Optim>1</Optim>
+                <oTime>2</oTime>
+                <SplitLS>2</SplitLS>
+                <OneElfS>2</OneElfS>
+                <Strict>2</Strict>
+                <EnumInt>2</EnumInt>
+                <PlainCh>2</PlainCh>
+                <Ropi>2</Ropi>
+                <Rwpi>2</Rwpi>
+                <wLevel>0</wLevel>
+                <uThumb>2</uThumb>
+                <uSurpInc>2</uSurpInc>
+                <uC99>2</uC99>
+                <uGnu>2</uGnu>
+                <useXO>2</useXO>
+                <v6Lang>0</v6Lang>
+                <v6LangP>0</v6LangP>
+                <vShortEn>2</vShortEn>
+                <vShortWch>2</vShortWch>
+                <v6Lto>2</v6Lto>
+                <v6WtE>2</v6WtE>
+                <v6Rtti>2</v6Rtti>
+                <VariousControls>
+                  <MiscControls></MiscControls>
+                  <Define></Define>
+                  <Undefine></Undefine>
+                  <IncludePath></IncludePath>
+                </VariousControls>
+              </Cads>
+              <Aads>
+                <interw>2</interw>
+                <Ropi>2</Ropi>
+                <Rwpi>2</Rwpi>
+                <thumb>2</thumb>
+                <SplitLS>2</SplitLS>
+                <SwStkChk>2</SwStkChk>
+                <NoWarn>2</NoWarn>
+                <uSurpInc>2</uSurpInc>
+                <useXO>2</useXO>
+                <uClangAs>2</uClangAs>
+                <VariousControls>
+                  <MiscControls></MiscControls>
+                  <Define></Define>
+                  <Undefine></Undefine>
+                  <IncludePath></IncludePath>
+                </VariousControls>
+              </Aads>
+            </GroupArmAds>
+          </GroupOption>
           <Files>
             <File>
               <FileName>flashdb_wrapper.c</FileName>
@@ -1712,29 +1781,34 @@
           <GroupName>CloudM</GroupName>
           <Files>
             <File>
-              <FileName>Cloud_Protocol.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Source\APP\CloudM\Cloud_Protocol.c</FilePath>
-            </File>
-            <File>
               <FileName>CloudM.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Source\APP\CloudM\CloudM.c</FilePath>
             </File>
             <File>
-              <FileName>Cloud_Protocol_Msg.c</FileName>
+              <FileName>Cloud_EV_Charger_Information.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Source\APP\CloudM\Cloud_Protocol_Msg.c</FilePath>
+              <FilePath>.\Source\APP\CloudM\Cloud_EvM\Cloud_EV_Charger_Information.c</FilePath>
             </File>
             <File>
-              <FileName>Cloud_Protocol_Cfg.c</FileName>
+              <FileName>Cloud_Protocol_Msg.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Source\APP\CloudM\Cloud_Protocol_Cfg.c</FilePath>
+              <FilePath>.\Source\APP\CloudM\Cloud_NetM\Cloud_Protocol_Msg.c</FilePath>
             </File>
             <File>
               <FileName>Cloud_Protocol_CallbackFunc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Source\APP\CloudM\Cloud_Protocol_CallbackFunc.c</FilePath>
+              <FilePath>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Callback\Cloud_Protocol_CallbackFunc.c</FilePath>
+            </File>
+            <File>
+              <FileName>Cloud_Protocol.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol.c</FilePath>
+            </File>
+            <File>
+              <FileName>Cloud_Protocol_Session.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Session\Cloud_Protocol_Session.c</FilePath>
             </File>
           </Files>
         </Group>
