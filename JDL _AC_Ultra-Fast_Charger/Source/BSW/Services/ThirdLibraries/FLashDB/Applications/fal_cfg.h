@@ -7,7 +7,7 @@
 #ifndef _FAL_CFG_H_
 #define _FAL_CFG_H_
 
-#define FAL_DEBUG 1
+#define FAL_DEBUG 0
 #define FAL_PART_HAS_TABLE_CFG
 #define FAL_USING_SFUD_PORT
 

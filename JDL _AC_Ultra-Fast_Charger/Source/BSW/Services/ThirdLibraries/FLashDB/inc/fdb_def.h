@@ -62,7 +62,7 @@ extern "C" {
 
 /* log function. default FDB_PRINT macro is Core_printf() */
 #ifndef FDB_PRINT
-#define FDB_PRINT(...)                 Core_printf(__VA_ARGS__)
+#define FDB_PRINT(...)                 
 #endif
 #define FDB_LOG_PREFIX1()              FDB_PRINT("[FlashDB]" FDB_LOG_TAG)
 #define FDB_LOG_PREFIX2()              FDB_PRINT(" ")

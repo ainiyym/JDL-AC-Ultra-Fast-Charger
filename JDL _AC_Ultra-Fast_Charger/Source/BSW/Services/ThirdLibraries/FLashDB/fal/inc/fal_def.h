@@ -49,7 +49,7 @@
 #endif
 
 #ifndef FAL_PRINTF
-#define FAL_PRINTF(...)                Core_printf(__VA_ARGS__)
+#define FAL_PRINTF(...)                
 #endif
 
 #ifndef FAL_DEBUG

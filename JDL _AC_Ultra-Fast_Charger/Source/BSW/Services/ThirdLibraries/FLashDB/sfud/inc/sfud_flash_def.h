@@ -93,6 +93,7 @@ typedef struct {
 #define SFUD_MF_ID_WINBOND                             0xEF
 
 /* SFUD supported manufacturer information table */
+#if 0
 #define SFUD_MF_TABLE                                     \
 {                                                         \
     {"Cypress",    SFUD_MF_ID_CYPRESS},                   \
@@ -112,6 +113,12 @@ typedef struct {
     {"Winbond",    SFUD_MF_ID_WINBOND},                   \
     {"Micronix",   SFUD_MF_ID_MICRONIX},                  \
 }
+#else
+#define SFUD_MF_TABLE                                   \
+{                                                       \
+    {"Winbond", SFUD_MF_ID_WINBOND}                     \
+}
+#endif
 
 #ifdef SFUD_USING_FLASH_INFO_TABLE
 /* SFUD supported flash chip information table. If the flash not support JEDEC JESD216 standard,
@@ -119,6 +126,7 @@ typedef struct {
  *  notice me for update it. The configuration information name and index reference the sfud_flash_chip structure.
  * | name | mf_id | type_id | capacity_id | capacity | write_mode | erase_gran | erase_gran_cmd |
  */
+#if 0
 #define SFUD_FLASH_CHIP_TABLE                                                                                       \
 {                                                                                                                   \
     {"AT45DB161E", SFUD_MF_ID_ATMEL, 0x26, 0x00, 2L*1024L*1024L, SFUD_WM_BYTE|SFUD_WM_DUAL_BUFFER, 512, 0x81},      \
@@ -143,7 +151,13 @@ typedef struct {
     {"F25L004", SFUD_MF_ID_ESMT, 0x20, 0x13, 512L*1024L, SFUD_WM_BYTE|SFUD_WM_AAI, 4096, 0x20},                     \
     {"PCT25VF016B", SFUD_MF_ID_SST, 0x25, 0x41, 2L*1024L*1024L, SFUD_WM_BYTE|SFUD_WM_AAI, 4096, 0x20},              \
 }
+#else
+#define SFUD_FLASH_CHIP_TABLE                                                                                       \
+{                                                                                                                   \
+    {"W25Q64DW", SFUD_MF_ID_WINBOND, 0x60, 0x17, 8L*1024L*1024L, SFUD_WM_PAGE_256B, 4096, 0x20},                    \
+}
 #endif /* SFUD_USING_FLASH_INFO_TABLE */
+#endif
 
 #ifdef SFUD_USING_QSPI
 /* This table saves flash read-fast instructions in QSPI mode, 
