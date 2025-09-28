@@ -27,6 +27,9 @@ static tcp_manager_t* tcp_create(void)
         Tcp_Err("Error: Failed to create TCP manager\r\n");
         return NULL;
     }
+
+    memset(manager, 0, sizeof(tcp_manager_t));
+
     manager->mutex = xSemaphoreCreateMutex();
     if (manager->mutex == NULL)
     {
@@ -35,14 +38,14 @@ static tcp_manager_t* tcp_create(void)
         return NULL;
     }
 
-    memset(manager, 0, sizeof(tcp_manager_t));
-
     if (tcp_connect_count < TCP_ID_MAXIMUM)
     {
         tcp_connect_count++;
     }
     else
     {
+        vSemaphoreDelete(manager->mutex);  // clean the mutex
+        vPortFree(manager);
         Tcp_Err("Error: Maximum number of TCP connections reached\r\n");
         return NULL;
     }
@@ -51,9 +54,12 @@ static tcp_manager_t* tcp_create(void)
     manager->tcp_conn = pvPortMalloc(sizeof(at_tcp_connection_t));
     if (manager->tcp_conn == NULL)
     {
+        vSemaphoreDelete(manager->mutex);  // clean the mutex
+        vPortFree(manager);
         Tcp_Err("Fault: heap is not enough to create connections. Fault!!!\r\n");
         return NULL;
     }
+    memset(manager->tcp_conn, 0, sizeof(at_tcp_connection_t));
     manager->tcp_conn->state = TCP_STATE_DISCONNECTED;
 
     return manager;
@@ -151,7 +157,7 @@ uint8_t tcp_send_data(tcp_id_enum manager_id, const uint8_t *data, size_t length
             return 1;
         }
 
-        // 构建发送命令
+        // Build the send command
         ret = Tcp_Data_Passthrough(conn->conn_id, data, length);
 
         xSemaphoreGive(manager->mutex);

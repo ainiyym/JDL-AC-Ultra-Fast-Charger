@@ -157,18 +157,18 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>357</LineNumber>
+          <LineNumber>70</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134282122</Address>
+          <Address>134240338</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\BSW\Services\CommunicationServices\NetM\YeeComQ560H\YeeComxxx_Device.c</Filename>
+          <Filename>.\Source\BSW\Services\CommunicationServices\NetM\CloudNetM\CloudNet_Protocol_Msg.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/Services/CommunicationServices/NetM/YeeComQ560H/YeeComxxx_Device.c\357</Expression>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/Services/CommunicationServices/NetM/CloudNetM/CloudNet_Protocol_Msg.c\70</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -256,6 +256,21 @@
           <count>16</count>
           <WinNumber>1</WinNumber>
           <ItemText>read_val</ItemText>
+        </Ww>
+        <Ww>
+          <count>17</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>tcp_manager</ItemText>
+        </Ww>
+        <Ww>
+          <count>18</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>at</ItemText>
+        </Ww>
+        <Ww>
+          <count>19</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>start</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -2238,7 +2253,7 @@
 
   <Group>
     <GroupName>at/yeecom</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

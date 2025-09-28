@@ -150,17 +150,6 @@ void YeeCom_At_OOB_Data_Passthrough_Callback(void *arg, char *buf, int buflen)
 void YeeCom_At_Set_SERVERn_Callback(void *arg, char *buf, int buflen)
 {
     // Handle the received server response success
-    if (NULL != strstr(buf, "OK\r\n"))
-    {
-        // After setting the server, query the working mode to confirm
-        for (tcp_id_enum i = TCP_ID_PROTOCOL; i < TCP_ID_MAXIMUM; i++)
-        {
-            YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_WORKING_MODE, NULL, i);
-        }
-    }
-    else
-    {
-    }
     YeeCom_Log("<%s> %s\r\n", __func__,  buf);
 }
 
@@ -283,11 +272,6 @@ void YeeCom_At_Set_RESTART_Callback(void *arg, char *buf, int buflen)
 void YeeCom_At_Get_SERVERnCallback(void *arg, char *buf, int buflen)
 {
     // Handle the received server response success
-}
-
-void YeeCom_At_Get_GPRSMODECallback(void *arg, char *buf, int buflen)
-{
-    // Handle the received GPRS mode response success
     const char *start = buf;
 
     const char *reset_pos = strstr(buf, "+SERVER");
@@ -299,7 +283,7 @@ void YeeCom_At_Get_GPRSMODECallback(void *arg, char *buf, int buflen)
         uint16_t port = 0;
         uint8_t msg[2] = {0};
 
-        int result = sscanf(start, "+SERVER%hhu=%hhu,%15[^,],%hu#",
+        int result = sscanf(start, "+SERVER%hhu:%hhu,%15[^,],%hu#",
                             &socket_id, &connect_type, ip, &port);
 
         if (result == 4)
@@ -350,6 +334,11 @@ void YeeCom_At_Get_GPRSMODECallback(void *arg, char *buf, int buflen)
             return;
         }
     }
+}
+
+void YeeCom_At_Get_GPRSMODECallback(void *arg, char *buf, int buflen)
+{
+    // Handle the received GPRS mode response success
 }
 
 void YeeCom_At_Get_CHMODECallback(void *arg, char *buf, int buflen)

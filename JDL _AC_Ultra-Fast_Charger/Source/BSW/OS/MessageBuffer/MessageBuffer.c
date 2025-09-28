@@ -190,6 +190,11 @@ BaseType_t MessageBuffer_ReceiveMessage(MessageBuffer_Comm_System_t *comm, Messa
 
 	// 2. Read message body
 	size_t bytes_read = xMessageBufferReceive(source_buf, message_buf, total_size, timeout);
+	if (bytes_read == 0)
+	{
+		vPortFree(message_buf);
+		return pdFAIL;
+	}
 
 	// 3. check Read message header
 	MessageBuffer_header_t* header = NULL;

@@ -29,7 +29,7 @@ const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Set_Param[YEECOM_AT_CMD_SET_PARAM
 /* AT get parameter command table */
 const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Get_Param[YEECOM_AT_CMD_GET_PARAM_COUNT] =
 {
-    { YEECOM_AT_CMD_WORKING_MODE,                  "AT*SERVER%d?\r\n",                  { "+SERVER",       "OK",    NULL,       200,              YeeCom_At_Get_SERVERnCallback } },
+    { YEECOM_AT_CMD_WORKING_MODE,                  "AT*SERVER%d?\r\n",                  { "+SERVER",       "OK",    NULL,       2000,             YeeCom_At_Get_SERVERnCallback } },
     { YEECOM_AT_CMD_GPRS_MODE,                     "AT*GPRSMODE?\r\n",                  { "+GPRSMODE",     "OK",    NULL,       200,              YeeCom_At_Get_GPRSMODECallback } },
     { YEECOM_AT_CMD_CH_MODE,                       "AT*CHMODE?\r\n",                    { "+CHMODE",       "OK",    NULL,       200,              YeeCom_At_Get_CHMODECallback } },
     { YEECOM_AT_CMD_HBTIME,                        "AT*HBTIME?\r\n",                    { "+HBTIME",       "OK",    NULL,       200,              YeeCom_At_Get_HBTimeCallback } },
