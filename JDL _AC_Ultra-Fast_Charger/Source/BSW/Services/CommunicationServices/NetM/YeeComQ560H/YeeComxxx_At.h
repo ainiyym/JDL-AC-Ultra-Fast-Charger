@@ -82,6 +82,7 @@ typedef enum
     YEECOM_AT_CMD_ICCID, /* Get SIM ICCID */
     YEECOM_AT_CMD_IMEI, /* Get device IMEI */
     YEECOM_AT_CMD_RSSI, /* Get device RSSI */
+    YEECOM_AT_CMD_WAKEUP, /* Wake up DTU */
 } YeeCom_AT_Cmd;
 
 #endif

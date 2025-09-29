@@ -80,9 +80,9 @@ static Cloud_Protocol_Frame_T cloud_protocol_recv_frame;
 static const Cloud_Protocol_Frame_Type_Config_T CLOUD_PROTOCOL_FRAME_CONFIG_TABLE[] = 
 {    
 // FrameType    | Name                          | Send func                                   | recv func                                 | NeedAck       | ExpectedAck
-    {0x01,      "Pile Login Auth",               Cloud_Protocol_0x01_Callback,                 NULL,                                       true,          0x02},
+    {0x01,      "Pile Login Auth",               Cloud_Protocol_0x01_Callback,                 NULL,                                       false,         0x02},    /* The registration package is automatically sent by the 4G DTU, no need for ACK */
     {0x02,      "Login Auth Ack",                NULL,                                         Cloud_Protocol_0x02_Callback,               false,         0x00},
-    {0x03,      "Pile Heartbeat",                Cloud_Protocol_0x03_Callback,                 NULL,                                       true,          0x04},
+    {0x03,      "Pile Heartbeat",                Cloud_Protocol_0x03_Callback,                 NULL,                                       false,         0x04},    /* The heartbeat package is automatically sent by the 4G DTU, no need for ACK */
     {0x04,      "Heartbeat Ack",                 NULL,                                         Cloud_Protocol_0x04_Callback,               false,         0x00},
     {0x05,      "Billing Model Verify Req",      Cloud_Protocol_0x05_Callback,                 NULL,                                       true,          0x06},
     {0x06,      "Billing Model Verify Ack",      NULL,                                         Cloud_Protocol_0x06_Callback,               false,         0x00},
@@ -148,8 +148,8 @@ static uint16_t Cloud_Protocol_Frame_Build(uint8_t *output_buffer,
     // Build header
     output_buffer[0] = CLOUDM_PROTOCOL_HEADER_PREFIX; // Start byte
     output_buffer[1] = 4 + message_length;            // Data length
-    output_buffer[2] = sequence_number & 0xFF;        // Sequence number low byte
-    output_buffer[3] = (sequence_number >> 8) & 0xFF; // Sequence number high byte
+    output_buffer[2] = (sequence_number >> 8) & 0xFF; // Sequence number high byte
+    output_buffer[3] = sequence_number & 0xFF;        // Sequence number low byte
     output_buffer[4] = (uint8_t)encryption;           // Encryption flag
     output_buffer[5] = (uint8_t)frame_type;           // Frame type
 

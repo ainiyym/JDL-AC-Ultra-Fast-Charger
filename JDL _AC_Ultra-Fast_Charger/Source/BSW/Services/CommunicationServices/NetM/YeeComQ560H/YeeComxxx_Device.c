@@ -13,6 +13,7 @@ typedef enum
 {
     YEECOM_STATE_LOADING,
     YEECOM_STATE_GETTING_CONST_INFO,
+    YEECOM_STATE_CONFIRM_INFO,
     YEECOM_STATE_READY,
     YEECOM_STATE_RUNNING,
     YEECOM_STATE_ERROR
@@ -48,8 +49,8 @@ typedef struct
 {
     uint8_t SimReadyStatus;                         /* device sim is valid:1 ,invalid:0 */
     uint16_t Rssi;                                  /* Signal Strength */
-    char* ICCID[YEECOM_ICCID_LENGTH + 1];           /* SIM ICCID */
-    char* IMEI[YEECOM_IMEI_LENGTH + 1];             /* device imei */            
+    char ICCID[YEECOM_ICCID_LENGTH + 1];            /* SIM ICCID */
+    char IMEI[YEECOM_IMEI_LENGTH + 1];              /* device imei */            
 }YeeComxxx_DeviceInfo_struct;
 
 
@@ -224,7 +225,7 @@ void YeeCom_SetDeviceInfo_iccid(const char* iccid)
 {
     if (iccid != NULL)
     {
-        memcpy(gv_YeeComxxx_device_info.ICCID, iccid, YEECOM_ICCID_LENGTH);
+        memcpy(&gv_YeeComxxx_device_info.ICCID, iccid, YEECOM_ICCID_LENGTH);
         gv_YeeComxxx_device_info.ICCID[YEECOM_ICCID_LENGTH] = '\0';
         YeeCom_Log("<%s> ICCID: %s\r\n", __func__, gv_YeeComxxx_device_info.ICCID);
     }
@@ -234,7 +235,7 @@ void YeeCom_SetDeviceInfo_imei(const char* imei)
 {
     if (imei != NULL)
     {
-        memcpy(gv_YeeComxxx_device_info.IMEI, imei, YEECOM_IMEI_LENGTH);
+        memcpy(&gv_YeeComxxx_device_info.IMEI, imei, YEECOM_IMEI_LENGTH);
         gv_YeeComxxx_device_info.IMEI[YEECOM_IMEI_LENGTH] = '\0';
         YeeCom_Log("<%s> IMEI: %s\r\n", __func__, gv_YeeComxxx_device_info.IMEI);
     }
@@ -252,12 +253,12 @@ void YeeCom_GetDeviceInfo(uint8_t* sim_status, uint16_t* rssi, char* iccid, char
     }
     if (iccid != NULL)
     {
-        memcpy(iccid, gv_YeeComxxx_device_info.ICCID, YEECOM_ICCID_LENGTH);
+        memcpy(iccid, &gv_YeeComxxx_device_info.ICCID, YEECOM_ICCID_LENGTH);
         iccid[YEECOM_ICCID_LENGTH] = '\0';
     }
     if (imei != NULL)
     {
-        memcpy(imei, gv_YeeComxxx_device_info.IMEI, YEECOM_IMEI_LENGTH);
+        memcpy(imei, &gv_YeeComxxx_device_info.IMEI, YEECOM_IMEI_LENGTH);
         imei[YEECOM_IMEI_LENGTH] = '\0';
     }
 }
@@ -307,8 +308,11 @@ static void YeeCom_OobRegister(void)
 
 static void YeeCom_SetDeviceInitFlag(bool flag)
 {
-    YeeComxxx_Device_Init_Flag = flag;
-    FlashDB_WriteValue(FLASHDB_KV_M4G_DEVICE_INIT_FLAG, (uint8_t *)&YeeComxxx_Device_Init_Flag, sizeof(YeeComxxx_Device_Init_Flag));
+    if (flag != YeeComxxx_Device_Init_Flag)
+    {
+        YeeComxxx_Device_Init_Flag = flag;
+        FlashDB_WriteValue(FLASHDB_KV_M4G_DEVICE_INIT_FLAG, (uint8_t *)&YeeComxxx_Device_Init_Flag, sizeof(YeeComxxx_Device_Init_Flag));
+    }
 }
 
 static void YeeCom_ParameterTimeoutJudgy(uint16_t reply_timeout)
@@ -512,11 +516,25 @@ static void YeeCom_GetDeviceConstInfoHandle(void)
     {
         // Get device constant information such as ICCID, IMEI, RSSI, etc.
         YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_ICCID, NULL);
+        vTaskDelay(pdMS_TO_TICKS(50));
         YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_IMEI, NULL);
-        YeeCom_SetState(YEECOM_STATE_READY);
         YeeCom_SetDeviceState(YEECOM_DEVICE_RESET, 0);
+        YeeCom_SetState(YEECOM_STATE_CONFIRM_INFO);
+    }
+}
+
+static void YeeCom_ConfirmInfoHandle(void)
+{
+    if (strlen(gv_YeeComxxx_device_info.ICCID) > 0 && strlen(gv_YeeComxxx_device_info.IMEI) > 0)
+    {
+        YeeCom_Log("ICCID: %s IMEI: %s\r\n", gv_YeeComxxx_device_info.ICCID, gv_YeeComxxx_device_info.IMEI);
         YeeCom_SetDeviceInitFlag(true);
+        YeeCom_SetState(YEECOM_STATE_READY);
         YeeCom_Log("<%s> YeeComxxxState goto ready..\r\n", __func__);
+    }
+    else
+    {
+        YeeCom_SetState(YEECOM_STATE_GETTING_CONST_INFO);
     }
 }
 
@@ -547,6 +565,11 @@ void YeeCom_MainFunc(void)
         case YEECOM_STATE_GETTING_CONST_INFO:
         {
             YeeCom_GetDeviceConstInfoHandle();
+            break;
+        }
+        case YEECOM_STATE_CONFIRM_INFO:
+        {
+            YeeCom_ConfirmInfoHandle();
             break;
         }
         case YEECOM_STATE_READY:

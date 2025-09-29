@@ -22,10 +22,10 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
-#define CLOUD_PROTOCOL_HEARTBEAT_INTERVAL_MS        (10*1000U)  // Heartbeat interval in milliseconds
+#define CLOUD_PROTOCOL_HEARTBEAT_INTERVAL_S        (10)         // Heartbeat interval in seconds
 
 #define CLOUD_PROTOCOL_0x01_BODY_LENGTH             (30)        // SN(7)+pileType(1)+gunCount(1)+protocolVersion(1)+softwareVersion(8)+networkType(1)+simCard(10)+operator(1)
-#define CLOUD_PROTOCOL_0x03_BODY_LENGTH             (6)         // SN(7)+connector id(1)+connector status(1)
+#define CLOUD_PROTOCOL_0x03_BODY_LENGTH             (9)         // SN(7)+connector id(1)+connector status(1)
 
 #define CLOUD_PROTOCOL_SN_LENGTH                    (7U)        // Device SN length
 #define CLOUD_PROTOCOL_PROTOCOL_VERSION             (0X10)      // Communication protocol version (actual version * 10, v1.0 = 0X0A, v1.6 = 0X10)

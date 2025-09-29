@@ -44,6 +44,7 @@ extern void Cloud_Protocol_AckHeartbeatParam(bool status);
 extern void Cloud_Protocol_AckRegpkgParam(bool status);
 extern void Cloud_Protocol_AckLoginFrame(bool status);
 extern void Cloud_Protocol_AckHeartbeatFrame(bool status);
+extern void Cloud_Protocol_AckWakeUpDTU(bool status);
 extern void Cloud_Protocol_Init(void);
 extern void Cloud_Protocol_Main(void);
 #endif /* __CLOUD_PROTOCOL_H */

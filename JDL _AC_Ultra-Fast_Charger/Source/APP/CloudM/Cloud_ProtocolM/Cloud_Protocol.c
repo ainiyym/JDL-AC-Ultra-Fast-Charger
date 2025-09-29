@@ -33,6 +33,8 @@ enum
     CLOUD_PROTOCOL_WAIT_LOG_IN_FRAME_ACK,
     CLOUD_PROTOCOL_SEND_HEARTBEAT_FRAME,
     CLOUD_PROTOCOL_WAIT_HEARTBEAT_FRAME_ACK,
+    CLOUD_PROTOCOL_STEP_WAKE_UP_DTU,
+    CLOUD_PROTOCOL_STEP_WAIT_WAKE_UP_DTU_ACK,
     CLOUD_PROTOCOL_STEP_RUNNING,
     CLOUD_PROTOCOL_STEP_MAX
 } cloud_protocol_step_t;
@@ -47,6 +49,7 @@ typedef struct
     bool regpkg_param_is_set;
     bool login_frame_is_set;
     bool heartbeat_frame_is_set;
+    bool dtu_is_wake_up;
     uint16_t timer;
     cloud_device_status_e device_status;
 } cloud_protocol_ctrl_t;
@@ -103,6 +106,11 @@ void Cloud_Protocol_AckHeartbeatFrame(bool status)
 {
     cloud_protocol_ctrl.heartbeat_frame_is_set = status;
 } 
+
+void Cloud_Protocol_AckWakeUpDTU(bool status)
+{
+    cloud_protocol_ctrl.dtu_is_wake_up = status;
+}
 
 static void Cloud_Protocol_Clear_Timeout(void)
 {
@@ -166,7 +174,7 @@ static void Cloud_Protocol_SetHeartbeatIntervalProcess(void)
     // Setup heartbeat parameters
     uint8_t msg[2] = {0};
     msg[0] = (uint8_t)CLOUD_MESSAGE_CTRL_TYPE_SET_HEARTBEAT_PARAM;
-    msg[1] = (uint8_t)CLOUD_PROTOCOL_HEARTBEAT_INTERVAL_MS;
+    msg[1] = (uint8_t)CLOUD_PROTOCOL_HEARTBEAT_INTERVAL_S;
     Cloud_Protocol_SendMsg(msg, sizeof(msg), CLOUD_MESSAGE_TYPE_CTRL);
     cloud_protocol_ctrl.step = CLOUD_PROTOCOL_STEP_WAIT_HEARTBEAT_INTERVAL_ACK;
 }
@@ -244,12 +252,37 @@ static void Cloud_Protocol_WaitHeartbeatFrameAckProcess(void)
     // Waiting for heartbeat acknowledgment
     if (cloud_protocol_ctrl.heartbeat_frame_is_set)
     {
-        cloud_protocol_ctrl.step = CLOUD_PROTOCOL_STEP_RUNNING;
+        cloud_protocol_ctrl.step = CLOUD_PROTOCOL_STEP_WAKE_UP_DTU;
+        CLOUD_DEBUG("%s: ready to wake up DTU\r\n", __func__);
         Cloud_Protocol_Clear_Timeout();
     }
     else
     {
         Cloud_Protocol_Timeout_Handler(CLOUDM_PROTOCOL_INIT_POLLING_TIMEOUT, CLOUD_PROTOCOL_SEND_HEARTBEAT_FRAME);
+    }
+}
+
+static void Cloud_Protocol_WakeUpDTUProcess(void)
+{
+    // Wake up DTU
+    uint8_t msg[2] = {0};
+    msg[0] = (uint8_t)CLOUD_MESSAGE_CTRL_TYPE_WAKE_UP_DTU;
+    msg[1] = 0; // No additional parameters
+    Cloud_Protocol_SendMsg(msg, sizeof(msg), CLOUD_MESSAGE_TYPE_CTRL);
+    cloud_protocol_ctrl.step = CLOUD_PROTOCOL_STEP_WAIT_WAKE_UP_DTU_ACK;
+}
+
+static void Cloud_Protocol_WaitWakeUpDTUAckProcess(void)
+{
+    if (cloud_protocol_ctrl.dtu_is_wake_up)
+    {
+        cloud_protocol_ctrl.step = CLOUD_PROTOCOL_STEP_RUNNING;
+        CLOUD_DEBUG("%s: DTU is awake\r\n", __func__);
+        Cloud_Protocol_Clear_Timeout();
+    }
+    else
+    {
+        Cloud_Protocol_Timeout_Handler(CLOUDM_PROTOCOL_INIT_POLLING_TIMEOUT, CLOUD_PROTOCOL_STEP_WAKE_UP_DTU);
     }
 }
 
@@ -311,6 +344,16 @@ void Cloud_Protocol_Main(void)
         case CLOUD_PROTOCOL_WAIT_HEARTBEAT_FRAME_ACK:
         {
             Cloud_Protocol_WaitHeartbeatFrameAckProcess();
+            break;
+        }
+        case CLOUD_PROTOCOL_STEP_WAKE_UP_DTU:
+        {
+            Cloud_Protocol_WakeUpDTUProcess();
+            break;
+        }
+        case CLOUD_PROTOCOL_STEP_WAIT_WAKE_UP_DTU_ACK:
+        {
+            Cloud_Protocol_WaitWakeUpDTUAckProcess();
             break;
         }
         case CLOUD_PROTOCOL_STEP_RUNNING:

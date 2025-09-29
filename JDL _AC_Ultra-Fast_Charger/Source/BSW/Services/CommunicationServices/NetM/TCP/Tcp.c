@@ -107,6 +107,8 @@ uint8_t tcp_connect(tcp_id_enum manager_id)
 
         // Send AT connection command
         Tcp_At_Cmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_WORKING_MODE, NULL, conn->conn_id, YEECOM_WORKING_TCP, conn->remote_ip, conn->remote_port);
+        // Query connection status
+        Tcp_At_Cmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_WORKING_MODE, NULL, conn->conn_id);
 
         xSemaphoreGive(manager->mutex); 
         return 0;

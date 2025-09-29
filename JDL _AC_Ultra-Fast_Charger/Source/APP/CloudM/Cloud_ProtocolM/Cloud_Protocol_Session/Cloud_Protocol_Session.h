@@ -31,8 +31,8 @@
 #define CLOUDM_PROTOCOL_FRAME_MAX_LEN			    (CLOUDM_PROTOCOL_MESSAGE_LEN_MAX + CLOUDM_PROTOCOL_FRAME_OVERHEAD + 1)
 #define CLOUDM_PROTOCOL_MESSAGE_Buffer_SIZE         (10)
 #define CLOUDM_PROTOCOL_RETRY_MAX				    (3U)
-#define CLOUDM_PROTOCOL_RETRY_INTERVAL_MS		    (2000U / CLOUDM_TASK_PERIOD) // 2 seconds
-#define CLOUDM_PROTOCOL_RESPONSE_TIMEOUT_MS	        (5000U / CLOUDM_TASK_PERIOD) // 5 seconds
+#define CLOUDM_PROTOCOL_RETRY_INTERVAL_MS		    (2000U) // 2 seconds
+#define CLOUDM_PROTOCOL_RESPONSE_TIMEOUT_MS	        (5000U) // 5 seconds
 #define CLOUDM_PROTOCOL_MAX_RETRY_COUNT             (3U)
 
 #define CloudM_Crc16(data, len)                     BigLittleEnd_Swap_2_Bytes(Lib_Crc16(data, len))

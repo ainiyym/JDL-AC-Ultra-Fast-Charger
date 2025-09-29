@@ -74,8 +74,8 @@ typedef enum
 
 // System information
 #define SYS_MANUFACTURER                      "JDL"       // Manufacturer
-#define SYS_SOFTWARE_VERSION                  "v1.0.0"    // Software version
-#define SYS_HARDWARE_VERSION                  "v1.0.0"    // Hardware version
+#define SYS_SOFTWARE_VERSION                  "V1.0.0"    // Software version
+#define SYS_HARDWARE_VERSION                  "V1.0.0"    // Hardware version
 #define SYS_CONNECTOR_TYPE                    (SYS_PILE_TYPE_AC)      // Connector type
 #define SYS_NUMBER_OF_CONNECTORS              (SYS_CONNECTOR_NUM_MAX) // Number of connectors
 

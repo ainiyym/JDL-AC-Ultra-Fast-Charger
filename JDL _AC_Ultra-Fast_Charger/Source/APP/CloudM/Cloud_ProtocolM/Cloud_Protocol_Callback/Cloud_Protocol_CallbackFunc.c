@@ -12,6 +12,8 @@
 #include <string.h>
 #include <stdint.h>
 #include <ctype.h>
+#include "FreeRTOS.h"
+#include "task.h"
 #include "Cloud_Protocol_CallbackFunc.h"
 #include "YeeComxxx_Device_Cfg.h"
 #include "Cloud_Ev_Charger_Information.h"
@@ -19,7 +21,7 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
-
+ 
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
@@ -104,6 +106,33 @@ int string_to_packed_bcd(const char *str, uint8_t *bcd, size_t bcd_size)
 	return bcd_bytes_needed;
 }
 
+char *uint8_array_to_hex_string(const uint8_t *array, size_t len)
+{
+	if (array == NULL || len == 0)
+	{
+		return NULL;
+	}
+
+	// Each byte requires two characters to represent it, plus a string terminator
+	char *result = (char *)pvPortMalloc(len * 2 + 1);
+	if (result == NULL)
+	{
+		return NULL;
+	}
+
+	for (size_t i = 0; i < len; i++)
+	{
+		// Convert the high 4 bits and low 4 bits of each byte to hexadecimal characters respectively
+		sprintf(result + i * 2, "%02x", array[i]);
+	}
+
+	result[len * 2] = '\0'; // Add a string terminator
+
+	CLOUD_INFO("array:");
+	CLOUD_PRINT_HEX(array, len);
+	return result;
+}
+
 // Parse protocol frames
 Cloud_Protocol_Send_Status_T Cloud_Protocol_0x01_Callback(void *arg, uint8_t *buff, uint16_t buffSize)
 {
@@ -139,7 +168,7 @@ Cloud_Protocol_Send_Status_T Cloud_Protocol_0x01_Callback(void *arg, uint8_t *bu
 	body[bodylen] = (uint8_t)CLOUD_PROTOCOL_NETWORK_SIM;
 	bodylen += 1;
 	// SIM Card
-	const char simCard[YEECOM_ICCID_LENGTH + 1] = {0};
+	char simCard[YEECOM_ICCID_LENGTH + 1] = {0};
 	YeeCom_GetDeviceInfo(NULL, NULL, (char *)simCard, NULL);
 	Bcdlength = string_to_packed_bcd(simCard, &body[bodylen], CLOUD_PROTOCOL_SIM_LENGTH);
 	if (Bcdlength < 0)
@@ -167,15 +196,21 @@ Cloud_Protocol_Send_Status_T Cloud_Protocol_0x01_Callback(void *arg, uint8_t *bu
 	}
 	// buff[0] is reserved for message type
 	buff[0] = CLOUD_MESSAGE_DATA_TYPE_SEND_LOGIN_FRAME;
+	// Log the hex string of the message
+	char *buff_hex = uint8_array_to_hex_string(&buff[1], frame_length);
+	uint16_t buff_hex_len = strlen(buff_hex);
+	memcpy(&buff[1], buff_hex, buff_hex_len);
+	vPortFree(buff_hex);
 	// Send the message
-	Cloud_Protocol_SendMsg(buff, frame_length + 1, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
+	Cloud_Protocol_SendMsg(buff, buff_hex_len + 1, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
+
 	return CLOUD_PROTOCOL_SEND_SUCCESS;
 }
 
 void Cloud_Protocol_0x02_Callback(void *arg, uint8_t *msg, uint16_t bodylen)
 {
 	// Handle frame type 0x02 (Login Auth Ack)
-	// Add your processing logic here
+	CLOUD_INFO("<%s> msg:%s\r\n", __func__, msg);
 }
 
 Cloud_Protocol_Send_Status_T Cloud_Protocol_0x03_Callback(void *arg, uint8_t *buff, uint16_t buffSize)
@@ -218,14 +253,18 @@ Cloud_Protocol_Send_Status_T Cloud_Protocol_0x03_Callback(void *arg, uint8_t *bu
 	// buff[0] is reserved for message type
 	buff[0] = CLOUD_MESSAGE_DATA_TYPE_SEND_HEARTBEAT_FRAME;
 	// Send the message
-	Cloud_Protocol_SendMsg(buff, frame_length + 1, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
+	char *buff_hex = uint8_array_to_hex_string(&buff[1], frame_length);
+	uint16_t buff_hex_len = strlen(buff_hex);
+	memcpy(&buff[1], buff_hex, buff_hex_len);
+	vPortFree(buff_hex);
+	Cloud_Protocol_SendMsg(buff, buff_hex_len + 1, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
 	return CLOUD_PROTOCOL_SEND_SUCCESS;
 }
 
 void Cloud_Protocol_0x04_Callback(void *arg, uint8_t *msg, uint16_t bodylen)
 {
 	// Handle frame type 0x04 (Heartbeat Ack)
-	// Add your processing logic here
+	CLOUD_INFO("<%s> msg:%s\r\n", __func__, msg);
 }
 
 Cloud_Protocol_Send_Status_T Cloud_Protocol_0x05_Callback(void *arg, uint8_t *buff, uint16_t buffSize)

@@ -144,6 +144,7 @@ void YeeCom_At_OOB_Net_Reset_Callback(void *arg, char *buf, int buflen)
 void YeeCom_At_OOB_Data_Passthrough_Callback(void *arg, char *buf, int buflen)
 {
     // Handle the received data passthrough response success
+    YeeCom_Log("<%s> %s\r\n", __func__,  buf);
 }
 
 /* at set cmd */
@@ -160,7 +161,7 @@ void YeeCom_At_Set_GPRSMode_Callback(void *arg, char *buf, int buflen)
     {
         YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_GPRS_MODE, 1);
     }
-    else
+    else 
     {
         YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_GPRS_MODE, 0);
     }
@@ -186,7 +187,7 @@ void YeeCom_At_Set_HBTime_Callback(void *arg, char *buf, int buflen)
     // Handle the received Heartbeat time response success
     if (NULL != strstr(buf, "OK\r\n"))
     {
-        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_HBTIME, NULL);
+        YeeCom_Log("<%s> %s\r\n", __func__,  buf);  
     }
 }
 
@@ -207,7 +208,7 @@ void YeeCom_At_Set_REGPKG_Callback(void *arg, char *buf, int buflen)
     // Handle the received Registration packet mode response success
     if (NULL != strstr(buf, "OK\r\n"))
     {
-        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_REGPKG, NULL);
+        YeeCom_Log("<%s> %s\r\n", __func__,  buf);
     }
 }
 
@@ -268,6 +269,16 @@ void YeeCom_At_Set_RESTART_Callback(void *arg, char *buf, int buflen)
     }
 }
 
+void YeeCom_At_Set_WAKEUP_Callback(void *arg, char *buf, int buflen)
+{
+    if (NULL != strstr(buf, "OK\r\n"))
+    {
+        uint8_t msg[2] = {0};
+        msg[0] = CLOUD_MESSAGE_CTRL_TYPE_WAKE_UP_DTU;
+        msg[1] = 1; // Success
+        CloudNet_Protocol_SendMsg((uint8_t *)msg, 2, CLOUD_MESSAGE_TYPE_CTRL);
+    }
+}
 /* at get cmd */
 void YeeCom_At_Get_SERVERnCallback(void *arg, char *buf, int buflen)
 {
@@ -356,12 +367,12 @@ void YeeCom_At_Get_HBTimeCallback(void *arg, char *buf, int buflen)
     {
         uint16_t hb_time = 0;
 
-        int result = sscanf(start, "+HBTIME=:%hu", &hb_time);
+        int result = sscanf(start, "+HBTIME:%hu", &hb_time);
 
         if (result == 1)
         {
             YeeCom_Log("<%s> Heartbeat time: %d seconds\r\n", __func__, hb_time);
-            if (CLOUD_PROTOCOL_HEARTBEAT_INTERVAL_MS / 1000 == hb_time)
+            if (CLOUD_PROTOCOL_HEARTBEAT_INTERVAL_S == hb_time)
             {
                 uint8_t msg[2] = {0};
                 msg[0] = CLOUD_MESSAGE_CTRL_TYPE_SET_HEARTBEAT_PARAM;
@@ -392,7 +403,7 @@ void YeeCom_At_Get_REGPKGCallback(void *arg, char *buf, int buflen)
     {
         uint8_t reg_pkg = 0;
 
-        int result = sscanf(start, "+REGPKG=:%hhu", &reg_pkg);
+        int result = sscanf(start, "+REGPKG:%hhu", &reg_pkg);
 
         if (result == 1)
         {

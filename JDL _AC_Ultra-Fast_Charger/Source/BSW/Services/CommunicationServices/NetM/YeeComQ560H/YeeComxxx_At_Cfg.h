@@ -44,7 +44,7 @@ typedef struct
 } YeeCom_AT_OobCmd_ParameterCfg;
 
 #define YEECOM_AT_CMD_OOBPARAM_COUNT        (4)
-#define YEECOM_AT_CMD_SET_PARAM_COUNT       (12)
+#define YEECOM_AT_CMD_SET_PARAM_COUNT       (13)
 #define YEECOM_AT_CMD_GET_PARAM_COUNT       (13)
 
 extern const YeeCom_AT_OobCmd_ParameterCfg YeeCom_At_Cmd_OobParam[YEECOM_AT_CMD_OOBPARAM_COUNT];

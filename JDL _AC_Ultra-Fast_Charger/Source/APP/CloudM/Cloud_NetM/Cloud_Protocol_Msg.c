@@ -68,7 +68,7 @@ void Cloud_Protocol_RcvMsg_Process(void)
 
     if (MsgRet)
     {
-        CLOUD_DEBUG("%s, Length: %d data[0]=%d\r\n", __func__, Cloud_ProtocolMsg.MsgLen, Cloud_ProtocolMsg.MsgData[0]);
+        CLOUD_DEBUG("%s, Length: %d Msgtype:%02x data[0]=%d\r\n", __func__, Cloud_ProtocolMsg.MsgLen, Cloud_ProtocolMsg.MsgType, Cloud_ProtocolMsg.MsgData[0]);
         switch (Cloud_ProtocolMsg.MsgType)
         {
             case CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH:
@@ -106,11 +106,14 @@ void Cloud_Protocol_RcvMsg_Process(void)
                     case CLOUD_MESSAGE_CTRL_TYPE_SET_REGPKG_MODE:
                         Cloud_Protocol_AckRegpkgParam(true);
                         break;
+                    case CLOUD_MESSAGE_CTRL_TYPE_WAKE_UP_DTU:
+                        Cloud_Protocol_AckWakeUpDTU(true);
+                        break;
                     default:
                         CLOUD_ERROR("Cloud Protocol Unknown Control Command: %d\r\n", Cloud_ProtocolMsg.MsgData[0]);
                         break;
                 }
-                CLOUD_DEBUG("<%s> Cloud Protocol Device Status Set to: %d\r\n", __func__, Cloud_ProtocolMsg.MsgData[1]);
+                CLOUD_DEBUG("<%s> data[1]=: %d\r\n", __func__, Cloud_ProtocolMsg.MsgData[1]);
                 break;
 
             default:

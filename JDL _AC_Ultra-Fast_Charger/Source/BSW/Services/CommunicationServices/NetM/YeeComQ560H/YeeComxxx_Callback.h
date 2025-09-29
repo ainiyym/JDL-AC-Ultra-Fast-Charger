@@ -26,6 +26,7 @@ void YeeCom_At_Set_USART_Callback(void *arg, char *buf, int buflen);
 void YeeCom_At_Set_DFI_Callback(void *arg, char *buf, int buflen);
 void YeeCom_At_Set_RESET_Callback(void *arg, char *buf, int buflen);
 void YeeCom_At_Set_RESTART_Callback(void *arg, char *buf, int buflen);
+void YeeCom_At_Set_WAKEUP_Callback(void *arg, char *buf, int buflen);
 
 /* at get cmd */
 void YeeCom_At_Get_SERVERnCallback(void *arg, char *buf, int buflen);

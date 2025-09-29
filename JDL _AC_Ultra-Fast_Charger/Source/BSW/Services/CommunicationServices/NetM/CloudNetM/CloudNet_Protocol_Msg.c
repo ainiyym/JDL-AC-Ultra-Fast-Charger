@@ -76,9 +76,11 @@ void CloudNet_Protocol_RcvMsg_Process(void)
                 {
                     case CLOUD_MESSAGE_DATA_TYPE_SEND_LOGIN_FRAME:
                         YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_REGHEAD, NULL, (const char *)&CloudNet_ProtocolMsg.MsgData[1]);
+                        memset(&CloudNet_ProtocolMsg.MsgData[1], 0, CloudNet_ProtocolMsg.MsgLen - 1);
                         break;
                     case CLOUD_MESSAGE_DATA_TYPE_SEND_HEARTBEAT_FRAME:
                         YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_HBHEAD, NULL, (const char *)&CloudNet_ProtocolMsg.MsgData[1]);
+                        memset(&CloudNet_ProtocolMsg.MsgData[1], 0, CloudNet_ProtocolMsg.MsgLen - 1);
                         break;
                     case CLOUD_MESSAGE_DATA_TYPE_DATA_PASSTHROUGH:
   
@@ -110,11 +112,15 @@ void CloudNet_Protocol_RcvMsg_Process(void)
 
                         break;
                     case CLOUD_MESSAGE_CTRL_TYPE_SET_HEARTBEAT_PARAM:
-                        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_HBTIME, NULL, (const char *)&CloudNet_ProtocolMsg.MsgData[1]);
+                        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_HBTIME, NULL, CloudNet_ProtocolMsg.MsgData[1]);
+                        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_HBTIME, NULL);
                         break;
                     case CLOUD_MESSAGE_CTRL_TYPE_SET_REGPKG_MODE:
-                        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_REGPKG, NULL, (const char *)&CloudNet_ProtocolMsg.MsgData[1]);
+                        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_REGPKG, NULL, CloudNet_ProtocolMsg.MsgData[1]);
+                        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_REGPKG, NULL);
                         break;
+                    case CLOUD_MESSAGE_CTRL_TYPE_WAKE_UP_DTU:
+                        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_WAKEUP, NULL);
                     default:
                         CLOUDNET_ERROR("Cloud Protocol Unknown Control Command: %d\r\n", CloudNet_ProtocolMsg.MsgData[0]);
                         break;
