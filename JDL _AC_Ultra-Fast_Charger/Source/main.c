@@ -176,8 +176,6 @@ static void init_task(void *argument)
     // 标记初始化完成
     Core_printf("[Init] All initialization complete\n");
  
-    // 删除初始化任务
-    Core_printf("[Init] Deleting initialization task\n");
     vTaskDelete(NULL);
 }
 

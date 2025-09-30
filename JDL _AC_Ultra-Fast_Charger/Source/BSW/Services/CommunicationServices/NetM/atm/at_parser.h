@@ -17,7 +17,7 @@
 #define AT_UART_STOP_BITS    UART_STOPBITS_1
 #define AT_UART_FLOW_CONTROL UART_HWCONTROL_NONE
 #define AT_UART_MODE         UART_MODE_TX_RX
-#define AT_UART_TIMEOUT_MS   1000
+#define AT_UART_TIMEOUT_MS   200
 
 /* Delimiter */
 #define AT_RECV_SUCCESS_POSTFIX "OK\r\n"
@@ -101,6 +101,7 @@ uint32_t at_read(char *outbuf, uint32_t readsize);
 int at_register_callback(const char *prefix, const char *postfix,
                          int ppcing_data_len, at_recv_cb cb, void *arg);
 
+void at_at_register_set_app_protocol_bit_num_callback(uint8_t bit_num);
 
 /**
  * at yield receive function. Only used in single task scenario

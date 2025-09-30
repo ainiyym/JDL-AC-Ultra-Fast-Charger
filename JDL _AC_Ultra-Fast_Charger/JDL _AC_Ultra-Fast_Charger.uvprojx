@@ -312,7 +312,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>3</Optim>
+            <Optim>1</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -803,7 +803,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Source/BSW/OS</GroupName>
+          <GroupName>OS</GroupName>
           <Files>
             <File>
               <FileName>OS.c</FileName>

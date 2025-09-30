@@ -144,7 +144,8 @@ void YeeCom_At_OOB_Net_Reset_Callback(void *arg, char *buf, int buflen)
 void YeeCom_At_OOB_Data_Passthrough_Callback(void *arg, char *buf, int buflen)
 {
     // Handle the received data passthrough response success
-    YeeCom_Log("<%s> %s\r\n", __func__,  buf);
+    YeeCom_Log("<%s> len: %d\r\n", __func__, buflen);
+    YeeCom_Print_Hex(buf, buflen);
 }
 
 /* at set cmd */

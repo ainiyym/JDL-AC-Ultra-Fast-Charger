@@ -172,7 +172,7 @@ static void LogSevice_Args(Log_Module_Enum module, Log_Level_Enum level, const c
             item.message[item.length] = 0;
         }
         xResult = Core_Printf_AddItem((const char *)item.message);
-        if (xResult != item.length)
+        if (xResult == 0)
         {
             // Queue full, discard print content
             Core_printf("Log queue full, discarded log: %s", item.message);
@@ -248,7 +248,7 @@ void LogService_Print_Hex_Array(Log_Module_Enum module, const uint8_t *hexArray,
     if (gv_ucLogStatus && idx > 0)
     {
         xResult = Core_Printf_AddItem((const char *)buf);
-        if (xResult != idx)
+        if (xResult == 0)
         {
             // Queue full, discard print content
             Core_printf("Log queue full, discarded log: %s", buf);

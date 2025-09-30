@@ -304,6 +304,7 @@ static void YeeCom_OobRegister(void)
         }
         
     }
+    at_at_register_set_app_protocol_bit_num_callback(YEECOM_AT_OOB_CMD_DATA_PASSTHROUGH);
 }
 
 static void YeeCom_SetDeviceInitFlag(bool flag)
@@ -604,7 +605,7 @@ void YeeCom_Init(void)
         return;
     }
     YeeCom_OobRegister();
-    FlashDB_ReadValue(FLASHDB_KV_M4G_DEVICE_INIT_FLAG, (uint8_t*)&YeeComxxx_Device_Init_Flag, sizeof(YeeComxxx_Device_Init_Flag), NULL);
+
     YeeCom_Log("<%s> YeeComxxx_Device_Init_Flag: %d\r\n", __func__, YeeComxxx_Device_Init_Flag);
     if (1 != YeeComxxx_Device_Init_Flag)
     {

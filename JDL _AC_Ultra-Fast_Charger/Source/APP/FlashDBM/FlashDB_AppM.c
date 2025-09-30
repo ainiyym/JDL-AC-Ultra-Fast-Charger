@@ -159,30 +159,25 @@ FlashDB_ReturnType_t FlashDB_ReadValue(FlashDB_App_KvDB_Enum kv_id, void *value,
 	{
 		case FLASHDB_TYPE_INT:
 		{
-			int32_t read_val = (int32_t)cfg->def_value;
-			wrapper_ret = fdb_wrapper_kv_get_blob(cfg->kvdb, key, &read_val, sizeof(read_val), &len);
+			wrapper_ret = fdb_wrapper_kv_get_blob(cfg->kvdb, key, value, buff_size, &len);
 			if (wrapper_ret != FDB_WRAPPER_OK)
 			{
 				return FLASHDB_ERR_GET_FAIL; // Read failed
 			}
-			*(int32_t *)value = read_val;
 			break;
-		} 
+		}
 		case FLASHDB_TYPE_FLOAT:
 		{
-			float read_val = *(float *)cfg->def_value;
-			wrapper_ret = fdb_wrapper_kv_get_blob(cfg->kvdb, key, &read_val, sizeof(read_val), &len);
+			wrapper_ret = fdb_wrapper_kv_get_blob(cfg->kvdb, key, value, buff_size, &len);
 			if (wrapper_ret != FDB_WRAPPER_OK)
 			{
 				return FLASHDB_ERR_GET_FAIL; // Read failed
 			}
-			*(float *)value = read_val;
 			break;
 		}
 		case FLASHDB_TYPE_STRING:
 		{
-			char read_val[256] = {0}; // Assume max string length is 255
-			wrapper_ret = fdb_wrapper_kv_get(cfg->kvdb, key, read_val, sizeof(read_val), &len);
+			wrapper_ret = fdb_wrapper_kv_get(cfg->kvdb, key, value, buff_size, &len);
 			if (wrapper_ret != FDB_WRAPPER_OK)
 			{
 				return FLASHDB_ERR_GET_FAIL; // Read failed
@@ -191,7 +186,6 @@ FlashDB_ReturnType_t FlashDB_ReadValue(FlashDB_App_KvDB_Enum kv_id, void *value,
 			{
 				return FLASHDB_ERR_OUT_OF_MEMORY; // Provided buffer too small
 			}
-			strcpy((char *)value, read_val);
 			break;
 		}
 		case FLASHDB_TYPE_BLOB:
@@ -206,7 +200,7 @@ FlashDB_ReturnType_t FlashDB_ReadValue(FlashDB_App_KvDB_Enum kv_id, void *value,
 		default:
 			return FLASHDB_ERR_INVALID_PARAM; // Unsupported type
 	}
-	if (actual_len)
+	if (NULL != actual_len)
 	{
 		*actual_len = len;
 	}
