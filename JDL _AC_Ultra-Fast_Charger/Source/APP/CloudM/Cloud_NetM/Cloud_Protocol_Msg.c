@@ -10,6 +10,8 @@
 |******************************************************************************/
 #include "Cloud_Protocol_Msg.h"
 #include "Cloud_Protocol.h"
+#include "FreeRTOS.h"
+#include "semphr.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -68,21 +70,15 @@ void Cloud_Protocol_RcvMsg_Process(void)
 
     if (MsgRet)
     {
-        CLOUD_DEBUG("%s, Length: %d Msgtype:%02x data[0]=%d\r\n", __func__, Cloud_ProtocolMsg.MsgLen, Cloud_ProtocolMsg.MsgType, Cloud_ProtocolMsg.MsgData[0]);
+        CLOUD_DEBUG("%s, Length: %d Msgtype:%02x data[0]=%02x\r\n", __func__, Cloud_ProtocolMsg.MsgLen, Cloud_ProtocolMsg.MsgType, Cloud_ProtocolMsg.MsgData[0]);
         switch (Cloud_ProtocolMsg.MsgType)
         {
             case CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH:
                 switch (Cloud_ProtocolMsg.MsgData[0])
                 {
-                    case CLOUD_MESSAGE_DATA_TYPE_SEND_LOGIN_FRAME:
-                        Cloud_Protocol_AckLoginFrame(true);
-                        break;
-                    case CLOUD_MESSAGE_DATA_TYPE_SEND_HEARTBEAT_FRAME:
-                        Cloud_Protocol_AckHeartbeatFrame(true);
-                        break;
-                    case CLOUD_MESSAGE_DATA_TYPE_DATA_PASSTHROUGH:
+                    case CLOUD_MESSAGE_DATA_TYPE_CLOUD_PROTOCOL:
                         // Process data message
-                        Cloud_Protocol_ParseProtocolFrame((const uint8_t *)&Cloud_ProtocolMsg.MsgData[0], Cloud_ProtocolMsg.MsgLen);
+                        Cloud_Protocol_ParseProtocolFrame((const uint8_t *)&Cloud_ProtocolMsg.MsgData[1], Cloud_ProtocolMsg.MsgLen - 1);
                         break;
                     default:
                         CLOUD_ERROR("Cloud Protocol Unknown Data Command: %d\r\n", Cloud_ProtocolMsg.MsgData[0]);
@@ -113,7 +109,6 @@ void Cloud_Protocol_RcvMsg_Process(void)
                         CLOUD_ERROR("Cloud Protocol Unknown Control Command: %d\r\n", Cloud_ProtocolMsg.MsgData[0]);
                         break;
                 }
-                CLOUD_DEBUG("<%s> data[1]=: %d\r\n", __func__, Cloud_ProtocolMsg.MsgData[1]);
                 break;
 
             default:

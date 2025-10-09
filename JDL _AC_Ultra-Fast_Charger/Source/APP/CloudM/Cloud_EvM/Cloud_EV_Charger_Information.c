@@ -33,8 +33,8 @@
 /*******************************************************************************
 |    Global variables Declaration
 |******************************************************************************/
-static Cloud_Ev_Charger_Constant_Info_T Cloud_Ev_Charger_Constant_Info = {0};
-static Cloud_Ev_Charger_Dynamic_Info_T Cloud_Ev_Charger_Dynamic_Info = {0};
+static Cloud_Ev_Charger_Constant_Info_T Cloud_Ev_Charger_Constant_Info;
+static Cloud_Ev_Charger_Dynamic_Info_T Cloud_Ev_Charger_Dynamic_Info;
 
 /*******************************************************************************
 |    Table Const Definition
@@ -47,6 +47,12 @@ static Cloud_Ev_Charger_Dynamic_Info_T Cloud_Ev_Charger_Dynamic_Info = {0};
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
+void Cloud_Ev_InfoInit(void)
+{
+    memset(&Cloud_Ev_Charger_Constant_Info, 0, sizeof(Cloud_Ev_Charger_Constant_Info_T));
+    memset(&Cloud_Ev_Charger_Dynamic_Info, 0, sizeof(Cloud_Ev_Charger_Dynamic_Info_T));
+}
+
 bool Cloud_Ev_Set_Constant_Info(Cloud_Constant_Field_E field, const void *value)
 {
     if (value == NULL && field != CLOUD_CONST_ALL_FIELDS)
@@ -144,9 +150,9 @@ bool Cloud_Ev_Set_Constant_Info(Cloud_Constant_Field_E field, const void *value)
     return true;
 }
 
-bool Cloud_Ev_Set_Dynamic_Info(Cloud_Dynamic_Field_E field, const void *value)
+bool Cloud_Ev_Set_Dynamic_Info(uint8_t connector_id , Cloud_Dynamic_Field_E field, const void *value)
 {
-    if (value == NULL && field != CLOUD_DYNAMIC_ALL_FIELDS)
+    if (((value == NULL && field != CLOUD_DYNAMIC_ALL_FIELDS) || connector_id >= CLOUD_EV_MAX_CONNECTORS))
     {
         return false;
     }
@@ -158,7 +164,7 @@ bool Cloud_Ev_Set_Dynamic_Info(Cloud_Dynamic_Field_E field, const void *value)
             Cloud_Evse_StatusType_E status = *(const Cloud_Evse_StatusType_E *)value;
             if (status > CLOUD_EVSE_STATUS_CHARGING)
                 return false;
-            Cloud_Ev_Charger_Dynamic_Info.evse_status = status;
+            Cloud_Ev_Charger_Dynamic_Info.evse_status[connector_id] = status;
             break;
         }
 
@@ -167,7 +173,7 @@ bool Cloud_Ev_Set_Dynamic_Info(Cloud_Dynamic_Field_E field, const void *value)
             Cloud_Ev_ConnectorGoBack_StatusType_E status = *(const Cloud_Ev_ConnectorGoBack_StatusType_E *)value;
             if (status > CLOUD_EV_CHARGER_CONNECTOR_UNKNOWN)
                 return false;
-            Cloud_Ev_Charger_Dynamic_Info.go_back_status = status;
+            Cloud_Ev_Charger_Dynamic_Info.go_back_status[connector_id] = status;
             break;
         }
 
@@ -176,7 +182,7 @@ bool Cloud_Ev_Set_Dynamic_Info(Cloud_Dynamic_Field_E field, const void *value)
             Cloud_Ev_Connector_StatusType_E status = *(const Cloud_Ev_Connector_StatusType_E *)value;
             if (status > CLOUD_EV_CHARGER_CONNECTOR_ERROR)
                 return false;
-            Cloud_Ev_Charger_Dynamic_Info.connector_status = status;
+            Cloud_Ev_Charger_Dynamic_Info.connector_status[connector_id] = status;
             break;
         }
 
@@ -185,7 +191,7 @@ bool Cloud_Ev_Set_Dynamic_Info(Cloud_Dynamic_Field_E field, const void *value)
             uint16_t power = *(const uint16_t *)value;
             if (power > Cloud_Ev_Charger_Constant_Info.max_charging_voltage)
                 return false;
-            Cloud_Ev_Charger_Dynamic_Info.current_power = power;
+            Cloud_Ev_Charger_Dynamic_Info.current_power[connector_id] = power;
             break;
         }
 
@@ -194,7 +200,7 @@ bool Cloud_Ev_Set_Dynamic_Info(Cloud_Dynamic_Field_E field, const void *value)
             uint16_t current = *(const uint16_t *)value;
             if (current > Cloud_Ev_Charger_Constant_Info.max_charging_current)
                 return false;
-            Cloud_Ev_Charger_Dynamic_Info.current_current = current;
+            Cloud_Ev_Charger_Dynamic_Info.current_current[connector_id] = current;
             break;
         }
 
@@ -203,12 +209,12 @@ bool Cloud_Ev_Set_Dynamic_Info(Cloud_Dynamic_Field_E field, const void *value)
             uint16_t temp = *(const uint16_t *)value;
             if (temp > CLOUD_EV_MAX_TEMPERATURE)
                 return false;
-            Cloud_Ev_Charger_Dynamic_Info.temperature = temp;
+            Cloud_Ev_Charger_Dynamic_Info.connector_temperature[connector_id] = temp;
             break;
         }
 
         case CLOUD_DYNAMIC_TOTAL_ENERGY:
-            Cloud_Ev_Charger_Dynamic_Info.total_energy_dispensed = *(const uint32_t *)value;
+            Cloud_Ev_Charger_Dynamic_Info.total_energy_dispensed[connector_id] = *(const uint32_t *)value;
             break;
 
         case CLOUD_DYNAMIC_FAULT_CODE:
@@ -302,46 +308,46 @@ bool Cloud_Ev_Get_Constant_Info(Cloud_Constant_Field_E field, void *value, size_
     return true;
 }
 
-bool Cloud_Ev_Get_Dynamic_Info(Cloud_Dynamic_Field_E field, void *value, size_t value_size)
+bool Cloud_Ev_Get_Dynamic_Info(uint8_t connector_id, Cloud_Dynamic_Field_E field, void *value, size_t value_size)
 {
-    if (value == NULL) {
+    if (value == NULL || connector_id >= CLOUD_EV_MAX_CONNECTORS) {
         return false;
     }
     
     switch (field) {
         case CLOUD_DYNAMIC_EVSE_STATUS:
             if (value_size < sizeof(Cloud_Evse_StatusType_E)) return false;
-            *(Cloud_Evse_StatusType_E *)value = Cloud_Ev_Charger_Dynamic_Info.evse_status;
+            *(Cloud_Evse_StatusType_E *)value = Cloud_Ev_Charger_Dynamic_Info.evse_status[connector_id];
             break;
             
         case CLOUD_DYNAMIC_GO_BACK_STATUS:
             if (value_size < sizeof(Cloud_Ev_ConnectorGoBack_StatusType_E)) return false;
-            *(Cloud_Ev_ConnectorGoBack_StatusType_E *)value = Cloud_Ev_Charger_Dynamic_Info.go_back_status;
+            *(Cloud_Ev_ConnectorGoBack_StatusType_E *)value = Cloud_Ev_Charger_Dynamic_Info.go_back_status[connector_id];
             break;
             
         case CLOUD_DYNAMIC_CONNECTOR_STATUS:
             if (value_size < sizeof(Cloud_Ev_Connector_StatusType_E)) return false;
-            *(Cloud_Ev_Connector_StatusType_E *)value = Cloud_Ev_Charger_Dynamic_Info.connector_status;
+            *(Cloud_Ev_Connector_StatusType_E *)value = Cloud_Ev_Charger_Dynamic_Info.connector_status[connector_id];
             break;
-            
+
         case CLOUD_DYNAMIC_CURRENT_POWER:
             if (value_size < sizeof(uint16_t)) return false;
-            *(uint16_t *)value = Cloud_Ev_Charger_Dynamic_Info.current_power;
+            *(uint16_t *)value = Cloud_Ev_Charger_Dynamic_Info.current_power[connector_id];
             break;
             
         case CLOUD_DYNAMIC_CURRENT_CURRENT:
             if (value_size < sizeof(uint16_t)) return false;
-            *(uint16_t *)value = Cloud_Ev_Charger_Dynamic_Info.current_current;
+            *(uint16_t *)value = Cloud_Ev_Charger_Dynamic_Info.current_current[connector_id];
             break;
             
         case CLOUD_DYNAMIC_TEMPERATURE:
             if (value_size < sizeof(uint16_t)) return false;
-            *(uint16_t *)value = Cloud_Ev_Charger_Dynamic_Info.temperature;
+            *(uint16_t *)value = Cloud_Ev_Charger_Dynamic_Info.connector_temperature[connector_id];
             break;
             
         case CLOUD_DYNAMIC_TOTAL_ENERGY:
             if (value_size < sizeof(uint32_t)) return false;
-            *(uint32_t *)value = Cloud_Ev_Charger_Dynamic_Info.total_energy_dispensed;
+            *(uint32_t *)value = Cloud_Ev_Charger_Dynamic_Info.total_energy_dispensed[connector_id];
             break;
             
         case CLOUD_DYNAMIC_FAULT_CODE:

@@ -11,6 +11,7 @@
 #include "CloudM.h"
 #include "Cloud_Protocol.h"
 #include "Cloud_Protocol_Msg.h"
+#include "Cloud_EV_Charger_Information.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -48,6 +49,7 @@
 |******************************************************************************/
 void CloudM_Init(void)
 {
+    Cloud_Ev_InfoInit();
     Cloud_Protocol_Init();
     Cloud_Protocol_Msg_Init();
     Cloud_Protocol_InitCommunicationState();

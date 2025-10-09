@@ -34,14 +34,16 @@
 #define Cloud_MessageBuffer_ReceiveMessage(pMsgBuffer, pType, pRcvLen)      MessageBuffer_ReceiveMessage(MessageBuffer_APP_And_NET, (MessageBuffer_type_t*)pType, pMsgBuffer, CLOUD_MESSAGE_BUFFER_MAX_LENGTH, pRcvLen, MESSAGE_BUFFER_ID_APP1, 0)
 #define CLOUD_INFO(fmt, ...) 	                                            LOG_INFO(LOG_MODULE_CLOUDM, fmt, ##__VA_ARGS__)
 #define CLOUD_DEBUG(fmt, ...) 	                                            LOG_DEBUG(LOG_MODULE_CLOUDM, fmt, ##__VA_ARGS__)
+#define CLOUD_WARN(fmt, ...) 	                                            LOG_WARN(LOG_MODULE_CLOUDM, fmt, ##__VA_ARGS__)
 #define CLOUD_ERROR(fmt, ...) 	                                            LOG_ERROR(LOG_MODULE_CLOUDM, fmt, ##__VA_ARGS__)
-#define CLOUD_PRINT_HEX(hexArray, len)                                      LogService_Print_Hex_Array(LOG_MODULE_CLOUDM, hexArray, len, 1)
+#define CLOUD_PRINT_HEX(hexArray, len)                                      LogService_Print_Hex_Array(LOG_MODULE_CLOUDM, (const uint8_t*)hexArray, (uint32_t)len, 1)
 /* Cloud Server */
 #define CloudNet_MessageBuffer_SendMessage(pMsg, datalen, Type)             MessageBuffer_SendMessage(MessageBuffer_APP_And_NET, (MessageBuffer_type_t)Type, pMsg, datalen, MESSAGE_BUFFER_ID_APP1, pdTICKS_TO_MS(100))
 #define CloudNet_MessageBuffer_ReceiveMessage(pMsgBuffer, pType, pRcvLen)   MessageBuffer_ReceiveMessage(MessageBuffer_APP_And_NET, (MessageBuffer_type_t*)pType, pMsgBuffer, CLOUD_MESSAGE_BUFFER_MAX_LENGTH, pRcvLen, MESSAGE_BUFFER_ID_APP2, 0)
 #define CLOUDNET_INFO(fmt, ...) 	                                        LOG_INFO(LOG_MODULE_CLOUDNETM, fmt, ##__VA_ARGS__)
 #define CLOUDNET_DEBUG(fmt, ...) 	                                        LOG_DEBUG(LOG_MODULE_CLOUDNETM, fmt, ##__VA_ARGS__)
 #define CLOUDNET_ERROR(fmt, ...) 	                                        LOG_ERROR(LOG_MODULE_CLOUDNETM, fmt, ##__VA_ARGS__)
+#define CLOUDNET_PRINT_HEX(hexArray, len)                                   LogService_Print_Hex_Array(LOG_MODULE_CLOUDNETM, (const uint8_t*)hexArray, (uint32_t)len, 1)
 /* freeRTOS */
 #define CLOUDM_TASK_DELAY_MS(ms)                                            vTaskDelay(pdMS_TO_TICKS(ms))
 #define CLOUDM_MALLOC(size)                                                 pvPortMalloc(size)
@@ -82,9 +84,7 @@ typedef enum
 
 typedef enum
 {
-    CLOUD_MESSAGE_DATA_TYPE_SEND_LOGIN_FRAME = 0x01,
-    CLOUD_MESSAGE_DATA_TYPE_SEND_HEARTBEAT_FRAME = 0x02,
-    CLOUD_MESSAGE_DATA_TYPE_DATA_PASSTHROUGH = 0x03,
+    CLOUD_MESSAGE_DATA_TYPE_CLOUD_PROTOCOL = 0x01,
     CLOUD_MESSAGE_DATA_TYPE_MAXIMUM
 }cloud_message_type_data_e;
 

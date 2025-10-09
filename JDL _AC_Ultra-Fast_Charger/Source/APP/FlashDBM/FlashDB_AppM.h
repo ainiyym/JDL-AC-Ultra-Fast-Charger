@@ -23,6 +23,7 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
+#define FLASHDB_TEST_ENABLE       (0)  // FlashDB test function enable
 #define FLASHDB_TRACE(fmt, ...)   Core_printf("[FLASHDB_APP] " fmt, ##__VA_ARGS__)
 #define FLASHDB_PRINT_HEX(data, len) Core_Print_Hex(data, len)
 

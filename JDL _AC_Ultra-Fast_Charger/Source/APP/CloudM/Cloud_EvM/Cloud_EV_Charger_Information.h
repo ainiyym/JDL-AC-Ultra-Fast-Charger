@@ -64,20 +64,20 @@ typedef struct
     char hardware_version[CLOUD_EV_HARDWARE_VERSION_LEN]; // Hardware Version
     uint8_t connector_type;                               // Connector Type (e.g., Type 1, Type 2, GB_AC, GB_DC)
     uint8_t number_of_connectors;                         // Number of Connectors
-    uint16_t max_charging_voltage;                          // Maximum Charging Power (kW)
+    uint16_t max_charging_voltage;                        // Maximum Charging Voltage (V)
     uint16_t max_charging_current;                        // Maximum Charging Current (A)
 } Cloud_Ev_Charger_Constant_Info_T;
 
 typedef struct
 {
-    Cloud_Evse_StatusType_E evse_status;                  // evse status
-    Cloud_Ev_ConnectorGoBack_StatusType_E go_back_status; // Connector go back Status
-    Cloud_Ev_Connector_StatusType_E connector_status;     // Connector status
-    uint16_t current_power;                               // Current Power Output (kW)
-    uint16_t current_current;                             // Current Current Output (A)
-    uint16_t temperature;                                 // Internal Temperature (°C)
-    uint32_t total_energy_dispensed;                      // Total Energy Dispensed (kWh)
-    uint32_t fault_code;                                  // Fault Code (if any)
+    uint16_t current_power[CLOUD_EV_MAX_CONNECTORS];                               // Current Power Output (kW)
+    uint16_t current_current[CLOUD_EV_MAX_CONNECTORS];                             // Current Current Output (A)
+    uint16_t connector_temperature[CLOUD_EV_MAX_CONNECTORS];                       // Internal Temperature (°C)
+    uint32_t total_energy_dispensed[CLOUD_EV_MAX_CONNECTORS];                      // Total Energy Dispensed (kWh)
+    uint32_t fault_code;                                                           // Fault Code (if any)
+    Cloud_Evse_StatusType_E evse_status[CLOUD_EV_MAX_CONNECTORS];                  // evse status
+    Cloud_Ev_ConnectorGoBack_StatusType_E go_back_status[CLOUD_EV_MAX_CONNECTORS]; // Connector go back Status
+    Cloud_Ev_Connector_StatusType_E connector_status[CLOUD_EV_MAX_CONNECTORS];     // Connector status
 } Cloud_Ev_Charger_Dynamic_Info_T;
 /*******************************************************************************
 |    Table Definition
@@ -86,10 +86,11 @@ typedef struct
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
+void Cloud_Ev_InfoInit(void);
 bool Cloud_Ev_Set_Constant_Info(Cloud_Constant_Field_E field, const void *value);
-bool Cloud_Ev_Set_Dynamic_Info(Cloud_Dynamic_Field_E field, const void *value);
+bool Cloud_Ev_Set_Dynamic_Info(uint8_t connector_id, Cloud_Dynamic_Field_E field, const void *value);
 bool Cloud_Ev_Get_Constant_Info(Cloud_Constant_Field_E field, void *value, size_t value_size);
-bool Cloud_Ev_Get_Dynamic_Info(Cloud_Dynamic_Field_E field, void *value, size_t value_size);
+bool Cloud_Ev_Get_Dynamic_Info(uint8_t connector_id, Cloud_Dynamic_Field_E field, void *value, size_t value_size);
 
 #endif /* __CLOUD_EV_CHARGER_INFORMATION_H */
 /* EOL */

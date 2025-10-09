@@ -6,7 +6,7 @@
 
 #define YeeCom_Log(fmt, ...)                                            LOG_DEBUG(LOG_MODULE_AT, fmt, ##__VA_ARGS__)
 #define YeeCom_Err(fmt, ...)                                            LOG_ERROR(LOG_MODULE_AT, fmt, ##__VA_ARGS__)
-#define YeeCom_Print_Hex(A, B)                                          LogService_Print_Hex_Array(LOG_MODULE_AT, A, B, 1)
+#define YeeCom_Print_Hex(A, B)                                          LogService_Print_Hex_Array(LOG_MODULE_AT, (const uint8_t*)A, (uint32_t)B, 1)
 /* oob cmd */
 void YeeCom_At_OOB_Power_On_Callback(void *arg, char *buf, int buflen);
 void YeeCom_At_OOB_Net_Ready_Callback(void *arg, char *buf, int buflen);

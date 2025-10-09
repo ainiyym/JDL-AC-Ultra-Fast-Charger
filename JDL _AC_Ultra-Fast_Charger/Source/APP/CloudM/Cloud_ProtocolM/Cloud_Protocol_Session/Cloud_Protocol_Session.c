@@ -58,10 +58,10 @@ typedef struct
 typedef struct
 {
     Cloud_Protocol_Send_Record_T pending_requests[CLOUDM_PROTOCOL_MESSAGE_Buffer_SIZE]; // Pending request queue
-    uint8_t request_count;                             // Current pending request count
-    bool is_authenticated;                             // Whether authenticated
-    time_t last_heartbeat_time;                        // Last heartbeat time
-    uint16_t next_sequence_number;                     // Next sequence number
+    uint8_t request_count;                                                              // Current pending request count
+    Cloud_Protocol_AuthenticationStatus_E is_authenticated;                             // Whether authenticated
+    time_t last_heartbeat_time;                                                         // Last heartbeat time
+    uint16_t next_sequence_number;                                                      // Next sequence number
 } Cloud_Protocol_Communication_State_T;
 
 /*******************************************************************************
@@ -80,9 +80,9 @@ static Cloud_Protocol_Frame_T cloud_protocol_recv_frame;
 static const Cloud_Protocol_Frame_Type_Config_T CLOUD_PROTOCOL_FRAME_CONFIG_TABLE[] = 
 {    
 // FrameType    | Name                          | Send func                                   | recv func                                 | NeedAck       | ExpectedAck
-    {0x01,      "Pile Login Auth",               Cloud_Protocol_0x01_Callback,                 NULL,                                       false,         0x02},    /* The registration package is automatically sent by the 4G DTU, no need for ACK */
+    {0x01,      "Pile Login Auth",               Cloud_Protocol_0x01_Callback,                 NULL,                                       true,          0x02},
     {0x02,      "Login Auth Ack",                NULL,                                         Cloud_Protocol_0x02_Callback,               false,         0x00},
-    {0x03,      "Pile Heartbeat",                Cloud_Protocol_0x03_Callback,                 NULL,                                       false,         0x04},    /* The heartbeat package is automatically sent by the 4G DTU, no need for ACK */
+    {0x03,      "Pile Heartbeat",                Cloud_Protocol_0x03_Callback,                 NULL,                                       true,          0x04},
     {0x04,      "Heartbeat Ack",                 NULL,                                         Cloud_Protocol_0x04_Callback,               false,         0x00},
     {0x05,      "Billing Model Verify Req",      Cloud_Protocol_0x05_Callback,                 NULL,                                       true,          0x06},
     {0x06,      "Billing Model Verify Ack",      NULL,                                         Cloud_Protocol_0x06_Callback,               false,         0x00},
@@ -104,10 +104,35 @@ void Cloud_Protocol_InitCommunicationState(void)
 {
     memset(&cloud_protocol_comm_state, 0, sizeof(Cloud_Protocol_Communication_State_T));
     cloud_protocol_comm_state.next_sequence_number = 0;
-    cloud_protocol_comm_state.is_authenticated = false;
+    cloud_protocol_comm_state.is_authenticated = CLOUD_PROTOCOL_AUTHENTICATION_INIT;
 
     memset(&cloud_protocol_recv_frame, 0, sizeof(Cloud_Protocol_Frame_T));
     cloud_protocol_recv_frame.message_body = NULL;
+}
+
+Cloud_Protocol_AuthenticationStatus_E Cloud_Protocol_GetLogInStatus(void)
+{
+    return cloud_protocol_comm_state.is_authenticated;
+}
+
+void Cloud_Protocol_SetLogInStatus(Cloud_Protocol_AuthenticationStatus_E status)
+{
+    cloud_protocol_comm_state.is_authenticated = status;
+}
+
+void Cloud_Protocol_ResetLogInStatus(void)
+{
+    cloud_protocol_comm_state.is_authenticated = CLOUD_PROTOCOL_AUTHENTICATION_INIT;
+}
+
+time_t Cloud_Protocol_GetHbTime(void)
+{
+    return cloud_protocol_comm_state.last_heartbeat_time;
+}
+
+void Cloud_Protocol_ReFlashHbTime(void)
+{
+    cloud_protocol_comm_state.last_heartbeat_time = CLOUD_GET_TIME_MS();
 }
 
 // Get frame type configuration by frame type code
@@ -197,11 +222,10 @@ static void Cloud_Protocol_HandleRequestSuccess(const Cloud_Protocol_Frame_T *fr
     switch (frame->frame_type)
     {
         case 0x02: // Login Authentication response
-            cloud_protocol_comm_state.is_authenticated = true;
             break;
 
         case 0x04: // Heartbeat packet response
-            cloud_protocol_comm_state.last_heartbeat_time = time(NULL);
+            Cloud_Protocol_ReFlashHbTime();
             break;
 
         case 0x06: // Billing model verification response
@@ -264,13 +288,13 @@ void Cloud_Protocol_CheckTimeoutRequests(void *arg)
                 if (config != NULL && config->send_func != NULL)
                 {
                     // Call the send function
-                    CLOUDNET_INFO("Retransmitted frame: %s (0x%02X), Sequence: %d, Retry count: %d\n",
+                    CLOUD_INFO("Retransmitted frame: %s (0x%02X), Sequence: %d, Retry count: %d\n",
                                   config->frame_name, record->frame_type, record->sequence_number, record->retry_count + 1);
                     uint8_t buff[CLOUDM_PROTOCOL_FRAME_MAX_LEN];
-                    config->send_func(NULL, buff, sizeof(buff));
+                    config->send_func((uint16_t *)&record->sequence_number, buff, sizeof(buff));
+                    record->send_time = current_time;
+                    record->retry_count++;
                 }
-                record->send_time = current_time;
-                record->retry_count++;
             }
             else
             {
@@ -283,7 +307,8 @@ void Cloud_Protocol_CheckTimeoutRequests(void *arg)
 }
 
 // Prepare to send the frame
-uint16_t Cloud_Protocol_PrepareSendFrame(uint8_t frame_type,
+uint16_t Cloud_Protocol_PrepareSendFrame(void* arg,
+                                         uint8_t frame_type,
                                          uint8_t *buffer,
                                          uint16_t buffer_size,
                                          const uint8_t *message_data,
@@ -297,7 +322,15 @@ uint16_t Cloud_Protocol_PrepareSendFrame(uint8_t frame_type,
     }
 
     // Generate sequence number
-    uint16_t sequence = cloud_protocol_comm_state.next_sequence_number++;
+    uint16_t sequence = 0;
+    if (arg != NULL)
+    {
+        sequence = *((uint16_t *)arg);
+    }
+    else
+    {
+        sequence = cloud_protocol_comm_state.next_sequence_number++;
+    }
 
     // Build protocol frame (using the previously defined build_protocol_frame function)
     uint16_t frame_length = Cloud_Protocol_Frame_Build(buffer, buffer_size, sequence,
@@ -306,7 +339,7 @@ uint16_t Cloud_Protocol_PrepareSendFrame(uint8_t frame_type,
                                                        message_data,
                                                        message_length);
 
-    if (frame_length > 0 && config->requires_response)
+    if (frame_length > 0 && config->requires_response && NULL == arg)
     {
         // Add to the response queue
         if (cloud_protocol_comm_state.request_count < CLOUDM_PROTOCOL_MESSAGE_Buffer_SIZE)
@@ -345,20 +378,22 @@ Cloud_Protocol_Parse_Status_T Cloud_Protocol_ParseProtocolFrame(const uint8_t *b
 {
     // 1. Check minimum buffer length
     if (buffer_length < CLOUDM_PROTOCOL_FRAME_OVERHEAD)
-    { 
+    {
+        CLOUD_ERROR("%s: Buffer too small, length: %d\r\n", __func__, buffer_length); 
         return CLOUD_PROTOCOL_PARSE_ERROR_BUFFER_TOO_SMALL;
     }
 
     // 2. Check start byte
     if (buffer[0] != CLOUDM_PROTOCOL_HEADER_PREFIX)
     {
+        CLOUD_ERROR("%s: Invalid start byte: 0x%02X\r\n", __func__, buffer[0]);
         return CLOUD_PROTOCOL_PARSE_ERROR_INVALID_START;
     }
 
     // 3. Parse fixed header fields
     cloud_protocol_recv_frame.start_byte = buffer[0];
     cloud_protocol_recv_frame.data_length = buffer[1];
-    cloud_protocol_recv_frame.sequence_number = (buffer[3] << 8) | buffer[2]; // Low byte first
+    cloud_protocol_recv_frame.sequence_number = (buffer[2] << 8) | buffer[3]; // Low byte first
     cloud_protocol_recv_frame.encryption_flag = buffer[4];
     cloud_protocol_recv_frame.frame_type = buffer[5];
 
@@ -368,12 +403,13 @@ Cloud_Protocol_Parse_Status_T Cloud_Protocol_ParseProtocolFrame(const uint8_t *b
 
     if (buffer_length < total_frame_length)
     {
+        CLOUD_ERROR("%s: Buffer too small for expected message length: %d, buffer length: %d\r\n", __func__, expected_message_length, buffer_length);
         return CLOUD_PROTOCOL_PARSE_ERROR_BUFFER_TOO_SMALL;
-
     }
 
     if (expected_message_length > CLOUDM_PROTOCOL_MESSAGE_LEN_MAX)
     {
+        CLOUD_ERROR("%s: Invalid message length: %d\r\n", __func__, expected_message_length);
         return CLOUD_PROTOCOL_PARSE_ERROR_INVALID_LENGTH;
     }
 
@@ -383,6 +419,7 @@ Cloud_Protocol_Parse_Status_T Cloud_Protocol_ParseProtocolFrame(const uint8_t *b
         cloud_protocol_recv_frame.message_body = (uint8_t *)CLOUDM_MALLOC(expected_message_length);
         if (cloud_protocol_recv_frame.message_body == NULL)
         {
+            CLOUD_ERROR("%s: Memory allocation failed for message body, length: %d\r\n", __func__, expected_message_length);
             return CLOUD_PROTOCOL_PARSE_ERROR_MEMORY_ALLOCATION;
         }
         memcpy(cloud_protocol_recv_frame.message_body, &buffer[6], expected_message_length);
@@ -394,7 +431,7 @@ Cloud_Protocol_Parse_Status_T Cloud_Protocol_ParseProtocolFrame(const uint8_t *b
 
     // 6. Extract and verify the CRC
     uint16_t crc_offset = 6 + expected_message_length;
-    cloud_protocol_recv_frame.crc = (buffer[crc_offset + 1] << 8) | buffer[crc_offset]; // The low byte comes first
+    cloud_protocol_recv_frame.crc = (buffer[crc_offset] << 8) | buffer[crc_offset + 1]; // The low byte comes first
 
     // 7. Calculate the CRC check range: from the sequence number field to the end of the message body
     uint16_t crc_data_length = 4 + expected_message_length; // Sequence number(2)+encryption(1)+type(1)+message body
@@ -406,6 +443,7 @@ Cloud_Protocol_Parse_Status_T Cloud_Protocol_ParseProtocolFrame(const uint8_t *b
             CLOUDM_FREE(cloud_protocol_recv_frame.message_body);
             cloud_protocol_recv_frame.message_body = NULL;
         }
+        CLOUD_ERROR("%s: CRC mismatch, expected: 0x%04X, calculated: 0x%04X\r\n", __func__, cloud_protocol_recv_frame.crc, CloudM_Crc16((uint8_t *)&buffer[2], crc_data_length));
         return CLOUD_PROTOCOL_PARSE_ERROR_CRC_MISMATCH;
     }
 
@@ -418,6 +456,8 @@ Cloud_Protocol_Parse_Status_T Cloud_Protocol_ParseProtocolFrame(const uint8_t *b
         CLOUDM_FREE(cloud_protocol_recv_frame.message_body);
         cloud_protocol_recv_frame.message_body = NULL;
     }
+    // Clear the frame structure
+    memset(&cloud_protocol_recv_frame, 0, sizeof(Cloud_Protocol_Frame_T));
 
     return CLOUD_PROTOCOL_PARSE_SUCCESS;
 }

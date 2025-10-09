@@ -14,9 +14,9 @@
 #include <ctype.h>
 #include "FreeRTOS.h"
 #include "task.h"
-#include "Cloud_Protocol_CallbackFunc.h"
 #include "YeeComxxx_Device_Cfg.h"
 #include "Cloud_Ev_Charger_Information.h"
+#include "Cloud_Protocol.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -188,21 +188,16 @@ Cloud_Protocol_Send_Status_T Cloud_Protocol_0x01_Callback(void *arg, uint8_t *bu
 		return CLOUD_PROTOCOL_SEND_ERROR_MESSAGE_LENGTH_MISMATCH;
 	}
 	// Prepare the full frame
-	uint16_t frame_length = Cloud_Protocol_PrepareSendFrame(0x01, &buff[1], buffSize - 1, body, bodylen);
+	uint16_t frame_length = Cloud_Protocol_PrepareSendFrame(arg, 0x01, &buff[1], buffSize - 1, body, bodylen);
 	if (frame_length == 0)
 	{
 		CLOUD_ERROR("%s: Failed to prepare send frame\r\n", __func__);
 		return CLOUD_PROTOCOL_SEND_ERROR_INVALID_PARAM;
 	}
 	// buff[0] is reserved for message type
-	buff[0] = CLOUD_MESSAGE_DATA_TYPE_SEND_LOGIN_FRAME;
-	// Log the hex string of the message
-	char *buff_hex = uint8_array_to_hex_string(&buff[1], frame_length);
-	uint16_t buff_hex_len = strlen(buff_hex);
-	memcpy(&buff[1], buff_hex, buff_hex_len);
-	vPortFree(buff_hex);
+	buff[0] = CLOUD_MESSAGE_DATA_TYPE_CLOUD_PROTOCOL;
 	// Send the message
-	Cloud_Protocol_SendMsg(buff, buff_hex_len + 1, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
+	Cloud_Protocol_SendMsg(buff, frame_length + 1, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
 
 	return CLOUD_PROTOCOL_SEND_SUCCESS;
 }
@@ -210,7 +205,20 @@ Cloud_Protocol_Send_Status_T Cloud_Protocol_0x01_Callback(void *arg, uint8_t *bu
 void Cloud_Protocol_0x02_Callback(void *arg, uint8_t *msg, uint16_t bodylen)
 {
 	// Handle frame type 0x02 (Login Auth Ack)
-	CLOUD_INFO("<%s> msg:%s\r\n", __func__, msg);
+	CLOUD_INFO("<%s> msg:\r\n", __func__);
+	CLOUD_PRINT_HEX(msg, bodylen);
+	uint8_t auth_result = msg[7];
+	if (auth_result == 0)
+	{
+		Cloud_Protocol_SetLogInStatus(CLOUD_PROTOCOL_AUTHENTICATION_SUCCESS);
+		Cloud_Protocol_Start_Heartbeat();
+		CLOUD_INFO("%s: Authentication successful, restarting heartbeat\r\n", __func__);
+	}
+	else
+	{
+		Cloud_Protocol_SetLogInStatus(CLOUD_PROTOCOL_AUTHENTICATION_FAILED);
+		CLOUD_ERROR("%s: Authentication failed, error code: %d\r\n", __func__, auth_result);
+	}
 }
 
 Cloud_Protocol_Send_Status_T Cloud_Protocol_0x03_Callback(void *arg, uint8_t *buff, uint16_t buffSize)
@@ -219,52 +227,72 @@ Cloud_Protocol_Send_Status_T Cloud_Protocol_0x03_Callback(void *arg, uint8_t *bu
 	int Bcdlength = 0;
 	uint8_t body[CLOUD_PROTOCOL_0x03_BODY_LENGTH] = {0};
 	uint16_t bodylen = 0;
-	// Fill in the message body
-	// SN
+	Cloud_Protocol_Send_Status_T send_status = CLOUD_PROTOCOL_SEND_SUCCESS;
+	Cloud_Ev_Connector_StatusType_E connector_status = CLOUD_EV_CHARGER_CONNECTOR_NORMAL;
+
+	// get sn
 	char SN[CLOUD_EV_SN_LEN] = {0};
 	Cloud_Ev_Get_Constant_Info(CLOUD_CONST_SERIAL_NUMBER, SN, sizeof(SN));
-	Bcdlength = string_to_packed_bcd(SN, &body[bodylen], CLOUD_PROTOCOL_SN_LENGTH);
-	if (Bcdlength < 0)
-	{
-		// Error handling
-		CLOUD_ERROR("%s: Invalid SN format\r\n", __func__);
-		return CLOUD_PROTOCOL_SEND_ERROR_INVALID_PARAM;
-	}
-	bodylen += CLOUD_PROTOCOL_SN_LENGTH;
-	// Connector ID
-	body[bodylen] = 1; // Assuming single connector with ID 1
-	bodylen += 1;
-	// Connector Status
-	Cloud_Ev_Get_Dynamic_Info(CLOUD_DYNAMIC_CONNECTOR_STATUS, &body[bodylen], sizeof(uint8_t));
-	bodylen += 1;
 
-	if (bodylen != CLOUD_PROTOCOL_0x03_BODY_LENGTH)
+	// polling each connector
+	for (uint8_t i = 0; i < CLOUD_EV_MAX_CONNECTORS; i++)
 	{
-		CLOUD_ERROR("%s: Message length mismatch, expected %d, got %d\r\n", __func__, CLOUD_PROTOCOL_0x03_BODY_LENGTH, bodylen);
-		return CLOUD_PROTOCOL_SEND_ERROR_MESSAGE_LENGTH_MISMATCH;
+		uint8_t current_connector_id = i + 1; // Connector IDs start from 1
+		bodylen = 0;
+
+		// Fill in the message body
+		// SN
+		Bcdlength = string_to_packed_bcd(SN, &body[bodylen], CLOUD_PROTOCOL_SN_LENGTH);
+		if (Bcdlength < 0)
+		{
+			CLOUD_ERROR("%s: Invalid SN format\r\n", __func__);
+			send_status = CLOUD_PROTOCOL_SEND_ERROR_INVALID_PARAM;
+			continue;
+		}
+		bodylen += CLOUD_PROTOCOL_SN_LENGTH;
+
+		// Connector ID
+		body[bodylen] = current_connector_id;
+		bodylen += 1;
+
+		// Connector Status
+		Cloud_Ev_Get_Dynamic_Info(i, CLOUD_DYNAMIC_CONNECTOR_STATUS, &connector_status, sizeof(connector_status));
+		body[bodylen] = connector_status;
+		bodylen += 1;
+
+		if (bodylen != CLOUD_PROTOCOL_0x03_BODY_LENGTH)
+		{
+			CLOUD_ERROR("%s: Message length mismatch, expected %d, got %d\r\n", __func__, CLOUD_PROTOCOL_0x03_BODY_LENGTH, bodylen);
+			send_status = CLOUD_PROTOCOL_SEND_ERROR_MESSAGE_LENGTH_MISMATCH;
+			continue;
+		}
+
+		// Prepare the full frame
+		uint16_t frame_length = Cloud_Protocol_PrepareSendFrame(arg, 0x03, &buff[1], buffSize - 1, body, bodylen);
+		if (frame_length == 0)
+		{
+			CLOUD_ERROR("%s: Failed to prepare send frame for connector %d\r\n", __func__, current_connector_id);
+			send_status = CLOUD_PROTOCOL_SEND_ERROR_INVALID_PARAM;
+			continue;
+		}
+
+		// buff[0] is reserved for message type
+		buff[0] = CLOUD_MESSAGE_DATA_TYPE_CLOUD_PROTOCOL;
+
+		// Send the message
+		Cloud_Protocol_SendMsg(buff, frame_length + 1, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
+
+		CLOUD_INFO("%s: Sent heartbeat for connector %d\r\n", __func__, current_connector_id);
 	}
-	// Prepare the full frame
-	uint16_t frame_length = Cloud_Protocol_PrepareSendFrame(0x03, &buff[1], buffSize - 1, body, bodylen);
-	if (frame_length == 0)
-	{
-		CLOUD_ERROR("%s: Failed to prepare send frame\r\n", __func__);
-		return CLOUD_PROTOCOL_SEND_ERROR_INVALID_PARAM;
-	}
-	// buff[0] is reserved for message type
-	buff[0] = CLOUD_MESSAGE_DATA_TYPE_SEND_HEARTBEAT_FRAME;
-	// Send the message
-	char *buff_hex = uint8_array_to_hex_string(&buff[1], frame_length);
-	uint16_t buff_hex_len = strlen(buff_hex);
-	memcpy(&buff[1], buff_hex, buff_hex_len);
-	vPortFree(buff_hex);
-	Cloud_Protocol_SendMsg(buff, buff_hex_len + 1, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
-	return CLOUD_PROTOCOL_SEND_SUCCESS;
+
+	return send_status;
 }
 
 void Cloud_Protocol_0x04_Callback(void *arg, uint8_t *msg, uint16_t bodylen)
 {
 	// Handle frame type 0x04 (Heartbeat Ack)
-	CLOUD_INFO("<%s> msg:%s\r\n", __func__, msg);
+	CLOUD_INFO("<%s> msg:\r\n", __func__);
+	CLOUD_PRINT_HEX(msg, bodylen);
 }
 
 Cloud_Protocol_Send_Status_T Cloud_Protocol_0x05_Callback(void *arg, uint8_t *buff, uint16_t buffSize)

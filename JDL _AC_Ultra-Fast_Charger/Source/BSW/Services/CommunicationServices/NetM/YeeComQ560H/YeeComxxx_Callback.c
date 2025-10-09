@@ -144,8 +144,59 @@ void YeeCom_At_OOB_Net_Reset_Callback(void *arg, char *buf, int buflen)
 void YeeCom_At_OOB_Data_Passthrough_Callback(void *arg, char *buf, int buflen)
 {
     // Handle the received data passthrough response success
-    YeeCom_Log("<%s> len: %d\r\n", __func__, buflen);
-    YeeCom_Print_Hex(buf, buflen);
+    const char *start = buf;
+
+    const char *reset_pos = strstr(buf, "RCVPORT");
+    if (reset_pos != NULL)
+    {
+        start = reset_pos + strlen("RCVPORT");
+        uint8_t socket_id = 0;
+        if (*start >= '0' && *start <= '9')
+        {
+            socket_id = *start - '0';
+            YeeCom_Log("<%s> socket_id: %d\r\n", __func__, socket_id);
+            start++;
+        }
+        const char *data_start = strchr(start, '=');
+        if (data_start != NULL)
+        {
+            data_start++;
+        }
+        uint16_t hex_data_len = buflen - (data_start - buf);
+        if (hex_data_len > 0)
+        {
+            uint8_t *binary_data = (uint8_t *)pvPortMalloc(hex_data_len);
+            if (binary_data != NULL)
+            {
+                for (int i = 0; i < hex_data_len; i++)
+                {
+                    memcpy(binary_data + i, data_start + i, 1);
+                }
+
+                uint8_t msg[hex_data_len + 1];
+                memcpy(&msg[1], binary_data, hex_data_len);
+                vPortFree(binary_data);
+
+                switch (socket_id)
+                {
+                    case TCP_ID_PROTOCOL:
+                        msg[0] = CLOUD_MESSAGE_DATA_TYPE_CLOUD_PROTOCOL;
+                        YeeCom_Log("<%s> rcv len: %d send data passthrough:\r\n", __func__, hex_data_len);
+                        YeeCom_Print_Hex(msg, sizeof(msg));
+                        CloudNet_Protocol_SendMsg((uint8_t *)msg, sizeof(msg), CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
+                        break;
+                    default:
+                        // Handle unknown socket
+                        break;
+                }
+            }
+        }
+    }
+    else
+    {
+        YeeCom_Err("<%s> fail parse data:\r\n", __func__);
+        YeeCom_Print_Hex(buf, buflen);
+    }
 }
 
 /* at set cmd */
@@ -195,13 +246,6 @@ void YeeCom_At_Set_HBTime_Callback(void *arg, char *buf, int buflen)
 void YeeCom_At_Set_HBHead_Callback(void *arg, char *buf, int buflen)
 {
     // Handle the received Heartbeat header response success
-    if (NULL != strstr(buf, "OK\r\n"))
-    {
-        uint8_t msg[2] = {0};
-        msg[0] = CLOUD_MESSAGE_DATA_TYPE_SEND_HEARTBEAT_FRAME;
-        msg[1] = 1; // Success
-        CloudNet_Protocol_SendMsg((uint8_t *)msg, 2, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
-    }
 }
 
 void YeeCom_At_Set_REGPKG_Callback(void *arg, char *buf, int buflen)
@@ -216,13 +260,6 @@ void YeeCom_At_Set_REGPKG_Callback(void *arg, char *buf, int buflen)
 void YeeCom_At_Set_REGHEAD_Callback(void *arg, char *buf, int buflen)
 {
     // Handle the received Registration packet header response success
-    if (NULL != strstr(buf, "OK\r\n"))
-    {
-        uint8_t msg[2] = {0};
-        msg[0] = CLOUD_MESSAGE_DATA_TYPE_SEND_LOGIN_FRAME;
-        msg[1] = 1; // Success
-        CloudNet_Protocol_SendMsg((uint8_t *)msg, 2, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
-    }
 }
 
 void YeeCom_At_Set_DebugMode_Callback(void *arg, char *buf, int buflen)
@@ -373,7 +410,7 @@ void YeeCom_At_Get_HBTimeCallback(void *arg, char *buf, int buflen)
         if (result == 1)
         {
             YeeCom_Log("<%s> Heartbeat time: %d seconds\r\n", __func__, hb_time);
-            if (CLOUD_PROTOCOL_HEARTBEAT_INTERVAL_S == hb_time)
+            if (CLOUD_4G_HEARTBEAT_INTERVAL_S == hb_time)
             {
                 uint8_t msg[2] = {0};
                 msg[0] = CLOUD_MESSAGE_CTRL_TYPE_SET_HEARTBEAT_PARAM;
@@ -409,7 +446,7 @@ void YeeCom_At_Get_REGPKGCallback(void *arg, char *buf, int buflen)
         if (result == 1)
         {
             YeeCom_Log("<%s> Registration package mode: %d\r\n", __func__, reg_pkg);
-            if (YEECOM_REGPKG_ENABLE_HEX == reg_pkg)
+            if (reg_pkg < YEECOM_REGPKG_ENABLE_OTHER)
             {
                 uint8_t msg[2] = {0};
                 msg[0] = CLOUD_MESSAGE_CTRL_TYPE_SET_REGPKG_MODE;

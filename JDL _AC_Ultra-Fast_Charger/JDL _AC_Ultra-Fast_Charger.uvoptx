@@ -157,18 +157,34 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>148</LineNumber>
+          <LineNumber>136</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134303050</Address>
+          <Address>134253566</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\BSW\Services\CommunicationServices\NetM\YeeComQ560H\YeeComxxx_Callback.c</Filename>
+          <Filename>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/Services/CommunicationServices/NetM/YeeComQ560H/YeeComxxx_Callback.c\148</Expression>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CloudM/Cloud_ProtocolM/Cloud_Protocol.c\136</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>380</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134251596</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Session\Cloud_Protocol_Session.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CloudM/Cloud_ProtocolM/Cloud_Protocol_Session/Cloud_Protocol_Session.c\380</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -192,12 +208,32 @@
           <WinNumber>1</WinNumber>
           <ItemText>at._oob_recv_buf</ItemText>
         </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>buffer</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>cloud_protocol_recv_frame</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>record</ItemText>
+        </Ww>
+        <Ww>
+          <count>7</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>cloud_protocol_comm_state.request_count</ItemText>
+        </Ww>
       </WatchWindow1>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>0x200093C8</ItemText>
+          <ItemText>0x20005110</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>

@@ -92,17 +92,19 @@ int FlashDB_AppM_Init(void)
 	{
 		if (fdb_wrapper_kv_exist(FlashDB_AppKvDBDefaultCfgTable[i].kvdb, FlashDB_AppKvDBDefaultCfgTable[i].key))
 		{
+#if (0 == FLASHDB_TEST_ENABLE)
 			if (FlashDB_AppKvDBDefaultCfgTable[i].blob_size)
 			{
 				ret = fdb_wrapper_kv_get_blob(FlashDB_AppKvDBDefaultCfgTable[i].kvdb, FlashDB_AppKvDBDefaultCfgTable[i].key, FlashDB_AppKvDBDefaultCfgTable[i].def_value, FlashDB_AppKvDBDefaultCfgTable[i].blob_size, &actual_len);
-				FLASHDB_TRACE("FlashDB KVDB is exist key=%s", FlashDB_AppKvDBDefaultCfgTable[i].key);
+				FLASHDB_TRACE("FlashDB KVDB is exist key=%s\r\n", FlashDB_AppKvDBDefaultCfgTable[i].key);
 				FLASHDB_PRINT_HEX(FlashDB_AppKvDBDefaultCfgTable[i].def_value, actual_len);
 			}
 			else
 			{
 				ret = fdb_wrapper_kv_get(FlashDB_AppKvDBDefaultCfgTable[i].kvdb, FlashDB_AppKvDBDefaultCfgTable[i].key, FlashDB_AppKvDBDefaultCfgTable[i].def_value, strlen(FlashDB_AppKvDBDefaultCfgTable[i].def_value), &actual_len);
-				FLASHDB_TRACE("FlashDB KVDB is exist key=%s, value=%s\r\n", FlashDB_AppKvDBDefaultCfgTable[i].key, (char*)FlashDB_AppKvDBDefaultCfgTable[i].def_value);
+				FLASHDB_TRACE("FlashDB KVDB is exist key=%s\r\n, value=%s\r\n", FlashDB_AppKvDBDefaultCfgTable[i].key, (char*)FlashDB_AppKvDBDefaultCfgTable[i].def_value);
 			}
+#endif
 		}
 		else
 		{
@@ -126,6 +128,9 @@ int FlashDB_AppM_Init(void)
 		}
 	}
 	Cloud_Ev_Set_Constant_Info(CLOUD_CONST_SERIAL_NUMBER, SN);
+#if (1 == FLASHDB_TEST_ENABLE)
+	FlashDB_WriteValue(FLASHDB_KV_M4G_DEVICE_INIT_FLAG, (uint8_t*)&YeeComxxx_Device_Init_Flag, 1);
+#endif
 
 	return 0;
 }

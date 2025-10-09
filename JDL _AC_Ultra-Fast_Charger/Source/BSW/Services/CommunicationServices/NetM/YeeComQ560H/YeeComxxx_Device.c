@@ -142,7 +142,7 @@ uint8_t YeeCom_At_DataPassthrougth(uint8_t channel, const uint8_t *data, uint16_
     {
         memset(gv_YeeComxxx.AtCmdSendBuf, 0, YEECOM_AT_CMD_SEND_BUF_SIZE);
 
-        str = "SNDPORT%d=\r\n";
+        str = "SNDPORT%d=";
         atcmd_len = snprintf((char *)gv_YeeComxxx.AtCmdSendBuf, YEECOM_AT_CMD_SEND_BUF_SIZE, str, channel);
 
         if (atcmd_len <= 0)
@@ -154,6 +154,8 @@ uint8_t YeeCom_At_DataPassthrougth(uint8_t channel, const uint8_t *data, uint16_
         {
             memcpy((char *)&gv_YeeComxxx.AtCmdSendBuf[atcmd_len], (const char *)data, length);
             ret = at_send_no_reply((const char *)gv_YeeComxxx.AtCmdSendBuf, (int)(atcmd_len + length));
+            YeeCom_Log("<%s>:", __func__);
+            YeeCom_Print_Hex(data, length);
         }
         else
         {

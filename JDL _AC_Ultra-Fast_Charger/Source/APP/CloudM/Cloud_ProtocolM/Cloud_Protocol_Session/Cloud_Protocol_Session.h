@@ -45,6 +45,13 @@ typedef enum
     CLOUD_PROTOCOL_DATA_ENCRYPTION_3DES
 }Cloud_Protocol_EncryptionType_E;
 
+typedef enum
+{
+    CLOUD_PROTOCOL_AUTHENTICATION_INIT = 0,
+    CLOUD_PROTOCOL_AUTHENTICATION_SUCCESS,
+    CLOUD_PROTOCOL_AUTHENTICATION_FAILED
+}Cloud_Protocol_AuthenticationStatus_E;
+
 // Parsing status enumeration
 typedef enum
 {
@@ -90,8 +97,14 @@ typedef struct
 |    Global Function Prototypes
 |******************************************************************************/
 extern void Cloud_Protocol_InitCommunicationState(void);
+extern Cloud_Protocol_AuthenticationStatus_E Cloud_Protocol_GetLogInStatus(void);
+extern void Cloud_Protocol_SetLogInStatus(Cloud_Protocol_AuthenticationStatus_E status);
+extern void Cloud_Protocol_ResetLogInStatus(void);
+extern time_t Cloud_Protocol_GetHbTime(void);
+extern void Cloud_Protocol_ReFlashHbTime(void);
 extern Cloud_Protocol_Parse_Status_T Cloud_Protocol_ParseProtocolFrame(const uint8_t *buffer, uint16_t buffer_length);
-extern uint16_t Cloud_Protocol_PrepareSendFrame(uint8_t frame_type,
+extern uint16_t Cloud_Protocol_PrepareSendFrame(void* arg,
+                                                uint8_t frame_type,
                                                 uint8_t *buffer,
                                                 uint16_t buffer_size,
                                                 const uint8_t *message_data,

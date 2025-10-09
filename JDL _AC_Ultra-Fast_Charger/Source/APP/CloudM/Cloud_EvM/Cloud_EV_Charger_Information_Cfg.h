@@ -14,7 +14,7 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "stdint.h"
-#include "STD_LogService.h"
+#include "STD_SysM_Cfg.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -27,6 +27,8 @@
 #define CLOUD_EV_MANUFACTURER_LEN      (32U)
 #define CLOUD_EV_FIRMWARE_VERSION_LEN  (8U)
 #define CLOUD_EV_HARDWARE_VERSION_LEN  (8U)
+
+#define CLOUD_EV_MAX_CONNECTORS        (SYS_CONNECTOR_NUM_MAX) // Maximum number of connectors supported
 
 #define CLOUD_EV_MAX_CHARGING_VOLTAGE   (1000U) // V
 #define CLOUD_EV_MAX_CHARGING_CURRENT   (125U) // A
