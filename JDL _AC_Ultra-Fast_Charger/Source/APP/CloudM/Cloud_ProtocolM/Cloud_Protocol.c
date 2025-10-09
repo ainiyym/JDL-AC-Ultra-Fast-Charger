@@ -59,6 +59,7 @@ typedef struct
     bool heartbeat_param_is_set;
     bool regpkg_param_is_set;
     bool dtu_is_wake_up;
+    bool nettime_is_flash;
     uint16_t timer;
     cloud_device_status_e device_status;
     cloud_protocol_heartbeat_manager_t heartbeat_manager;
@@ -116,6 +117,11 @@ void Cloud_Protocol_AckRegpkgParam(bool status)
 void Cloud_Protocol_AckWakeUpDTU(bool status)
 {
     cloud_protocol_ctrl.dtu_is_wake_up = status;
+}
+
+void Cloud_Protocol_FlashNetTime(void)
+{
+    cloud_protocol_ctrl.nettime_is_flash = true;
 }
 
 static void Cloud_Protocol_ResetLogIn(void)

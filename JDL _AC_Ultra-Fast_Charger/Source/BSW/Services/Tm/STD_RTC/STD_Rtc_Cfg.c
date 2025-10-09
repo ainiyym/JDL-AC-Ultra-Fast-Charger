@@ -74,6 +74,9 @@ void  RTCIF_SetDateTime(RtcTimedate_Struct *lv_stDateTime)
 	gv_stSetDateTime.Time.Seconds =lv_stDateTime->ucSeconds;
 	
 	Mcal_RTC_SetDateTime(gv_stSetDateTime);
+	MCAL_INFO("SET RTC TIME: %04d-%02d-%02d %02d:%02d:%02d\n",
+		gv_stSetDateTime.Date.Year + 2000, gv_stSetDateTime.Date.Month, gv_stSetDateTime.Date.Date,
+		gv_stSetDateTime.Time.Hours, gv_stSetDateTime.Time.Minutes, gv_stSetDateTime.Time.Seconds);
 }
 /*******************************************************************************
 Name            : RTC_SoftWareGetTime

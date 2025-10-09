@@ -17,6 +17,7 @@
 #include "YeeComxxx_Device_Cfg.h"
 #include "Cloud_Ev_Charger_Information.h"
 #include "Cloud_Protocol.h"
+#include "STD_RTC.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -291,8 +292,7 @@ Cloud_Protocol_Send_Status_T Cloud_Protocol_0x03_Callback(void *arg, uint8_t *bu
 void Cloud_Protocol_0x04_Callback(void *arg, uint8_t *msg, uint16_t bodylen)
 {
 	// Handle frame type 0x04 (Heartbeat Ack)
-	CLOUD_INFO("<%s> msg:\r\n", __func__);
-	CLOUD_PRINT_HEX(msg, bodylen);
+	CLOUD_INFO("<%s>\r\n", __func__);
 }
 
 Cloud_Protocol_Send_Status_T Cloud_Protocol_0x05_Callback(void *arg, uint8_t *buff, uint16_t buffSize)
@@ -331,4 +331,60 @@ Cloud_Protocol_Send_Status_T Cloud_Protocol_0x13_Callback(void *arg, uint8_t *bu
 	// Add your processing logic here
 }
 
+Cloud_Protocol_Send_Status_T Cloud_Protocol_0x55_Callback(void *arg, uint8_t *buff, uint16_t buffSize)
+{
+	// Handle frame type 0x55 (Time synchronization Settings Ack)
+	// Add your processing logic here
+	uint8_t body[CLOUD_PROTOCOL_0x55_BODY_LENGTH] = {0};
+	uint16_t bodylen = 0;
+	// Fill in the message body
+	// SN
+	char SN[CLOUD_EV_SN_LEN] = {0};
+	Cloud_Ev_Get_Constant_Info(CLOUD_CONST_SERIAL_NUMBER, SN, sizeof(SN));
+	int Bcdlength = string_to_packed_bcd(SN, &body[bodylen], CLOUD_PROTOCOL_SN_LENGTH);
+	if (Bcdlength < 0)
+	{
+		// Error handling
+		CLOUD_ERROR("%s: Invalid SN format\r\n", __func__);
+		return CLOUD_PROTOCOL_SEND_ERROR_INVALID_PARAM;
+	}
+	bodylen += CLOUD_PROTOCOL_SN_LENGTH;
+	// Device CP56Time2a
+	uint8_t cp56_time[7] = {0};
+	RTC_GetCP56Time2a(cp56_time);
+	memcpy(&body[bodylen], cp56_time, sizeof(cp56_time));
+	bodylen += sizeof(cp56_time);
+	if (bodylen != CLOUD_PROTOCOL_0x55_BODY_LENGTH)
+	{
+		CLOUD_ERROR("%s: Message length mismatch, expected %d, got %d\r\n", __func__, CLOUD_PROTOCOL_0x55_BODY_LENGTH, bodylen);
+		return CLOUD_PROTOCOL_SEND_ERROR_MESSAGE_LENGTH_MISMATCH;
+	}
+	// Prepare the full frame
+	uint16_t frame_length = Cloud_Protocol_PrepareSendFrame(arg, 0x55, &buff[1], buffSize - 1, body, bodylen);
+	if (frame_length == 0)
+	{
+		CLOUD_ERROR("%s: Failed to prepare send frame\r\n", __func__);
+		return CLOUD_PROTOCOL_SEND_ERROR_INVALID_PARAM;
+	}
+	// buff[0] is reserved for message type
+	buff[0] = CLOUD_MESSAGE_DATA_TYPE_CLOUD_PROTOCOL;
+	// Send the message
+	Cloud_Protocol_SendMsg(buff, frame_length + 1, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
+}
+
+void Cloud_Protocol_0x56_Callback(void *arg, uint8_t *msg, uint16_t bodylen)
+{
+	// Handle frame type 0x56 (Time synchronization Settings)
+	// Add your processing logic here
+	uint8_t time_sync_flag = RTC_CP56Time2aSetRtcDateTime(&msg[7]); // The time starts from the 8th byte
+	if (time_sync_flag == 1)
+	{
+		CLOUD_INFO("%s: Time synchronization requested.\r\n", __func__);
+		Cloud_Protocol_FlashNetTime();
+	}
+	else
+	{
+		CLOUD_ERROR("%s: Invalid data format.\r\n", __func__);
+	}
+}
 /* EOL */

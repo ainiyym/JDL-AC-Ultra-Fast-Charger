@@ -70,7 +70,7 @@ void Cloud_Protocol_RcvMsg_Process(void)
 
     if (MsgRet)
     {
-        CLOUD_DEBUG("%s, Length: %d Msgtype:%02x data[0]=%02x\r\n", __func__, Cloud_ProtocolMsg.MsgLen, Cloud_ProtocolMsg.MsgType, Cloud_ProtocolMsg.MsgData[0]);
+        // CLOUD_DEBUG("%s, Length: %d Msgtype:%02x data[0]=%02x\r\n", __func__, Cloud_ProtocolMsg.MsgLen, Cloud_ProtocolMsg.MsgType, Cloud_ProtocolMsg.MsgData[0]);
         switch (Cloud_ProtocolMsg.MsgType)
         {
             case CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH:

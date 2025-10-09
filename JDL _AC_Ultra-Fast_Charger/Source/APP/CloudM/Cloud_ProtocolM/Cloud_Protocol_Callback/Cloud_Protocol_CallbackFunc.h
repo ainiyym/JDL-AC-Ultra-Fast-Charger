@@ -50,5 +50,7 @@ Cloud_Protocol_Send_Status_T Cloud_Protocol_0x09_Callback(void *arg, uint8_t *bu
 void Cloud_Protocol_0x0A_Callback(void *arg, uint8_t *msg, uint16_t msglen);
 void Cloud_Protocol_0x12_Callback(void *arg, uint8_t *msg, uint16_t msglen);
 Cloud_Protocol_Send_Status_T Cloud_Protocol_0x13_Callback(void *arg, uint8_t *buff, uint16_t buffSize);
+Cloud_Protocol_Send_Status_T Cloud_Protocol_0x55_Callback(void *arg, uint8_t *buff, uint16_t buffSize);
+void Cloud_Protocol_0x56_Callback(void *arg, uint8_t *msg, uint16_t msglen);
 #endif /* __CLOUD_PROTOCOL_CALLBACK_FUNC_H */
 /* EOL */

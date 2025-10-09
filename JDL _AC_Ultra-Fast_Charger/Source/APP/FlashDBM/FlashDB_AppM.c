@@ -96,7 +96,7 @@ int FlashDB_AppM_Init(void)
 			if (FlashDB_AppKvDBDefaultCfgTable[i].blob_size)
 			{
 				ret = fdb_wrapper_kv_get_blob(FlashDB_AppKvDBDefaultCfgTable[i].kvdb, FlashDB_AppKvDBDefaultCfgTable[i].key, FlashDB_AppKvDBDefaultCfgTable[i].def_value, FlashDB_AppKvDBDefaultCfgTable[i].blob_size, &actual_len);
-				FLASHDB_TRACE("FlashDB KVDB is exist key=%s\r\n", FlashDB_AppKvDBDefaultCfgTable[i].key);
+				FLASHDB_TRACE("FlashDB KVDB is exist key=%s, VALUE=", FlashDB_AppKvDBDefaultCfgTable[i].key);
 				FLASHDB_PRINT_HEX(FlashDB_AppKvDBDefaultCfgTable[i].def_value, actual_len);
 			}
 			else

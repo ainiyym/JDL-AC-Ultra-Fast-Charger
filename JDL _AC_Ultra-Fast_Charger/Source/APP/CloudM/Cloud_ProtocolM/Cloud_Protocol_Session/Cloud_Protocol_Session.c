@@ -79,17 +79,19 @@ static Cloud_Protocol_Frame_T cloud_protocol_recv_frame;
 |******************************************************************************/
 static const Cloud_Protocol_Frame_Type_Config_T CLOUD_PROTOCOL_FRAME_CONFIG_TABLE[] = 
 {    
-// FrameType    | Name                          | Send func                                   | recv func                                 | NeedAck       | ExpectedAck
-    {0x01,      "Pile Login Auth",               Cloud_Protocol_0x01_Callback,                 NULL,                                       true,          0x02},
-    {0x02,      "Login Auth Ack",                NULL,                                         Cloud_Protocol_0x02_Callback,               false,         0x00},
-    {0x03,      "Pile Heartbeat",                Cloud_Protocol_0x03_Callback,                 NULL,                                       true,          0x04},
-    {0x04,      "Heartbeat Ack",                 NULL,                                         Cloud_Protocol_0x04_Callback,               false,         0x00},
-    {0x05,      "Billing Model Verify Req",      Cloud_Protocol_0x05_Callback,                 NULL,                                       true,          0x06},
-    {0x06,      "Billing Model Verify Ack",      NULL,                                         Cloud_Protocol_0x06_Callback,               false,         0x00},
-    {0x09,      "Pile Billing Model Req",        Cloud_Protocol_0x09_Callback,                 NULL,                                       true,          0x0A},
-    {0x0A,      "Billing Model Req Ack",         NULL,                                         Cloud_Protocol_0x0A_Callback,               false,         0x00},
-    {0x12,      "Read Real-time Monitor Data",   NULL,                                         Cloud_Protocol_0x12_Callback,               false,         0x13},
-    {0x13,      "Offline Monitor Data",          Cloud_Protocol_0x13_Callback,                 NULL,                                       false,         0x00},
+// FrameType    | Name                                  | Send func                                   | recv func                                 | NeedAck       | ExpectedAck
+    {0x01,      "Pile Login Auth",                      Cloud_Protocol_0x01_Callback,                 NULL,                                       true,          0x02},
+    {0x02,      "Login Auth Ack",                       NULL,                                         Cloud_Protocol_0x02_Callback,               false,         0x00},
+    {0x03,      "Pile Heartbeat",                       Cloud_Protocol_0x03_Callback,                 NULL,                                       true,          0x04},
+    {0x04,      "Heartbeat Ack",                        NULL,                                         Cloud_Protocol_0x04_Callback,               false,         0x00},
+    {0x05,      "Billing Model Verify Req",             Cloud_Protocol_0x05_Callback,                 NULL,                                       true,          0x06},
+    {0x06,      "Billing Model Verify Ack",             NULL,                                         Cloud_Protocol_0x06_Callback,               false,         0x00},
+    {0x09,      "Pile Billing Model Req",               Cloud_Protocol_0x09_Callback,                 NULL,                                       true,          0x0A},
+    {0x0A,      "Billing Model Req Ack",                NULL,                                         Cloud_Protocol_0x0A_Callback,               false,         0x00},
+    {0x12,      "Read Real-time Monitor Data",          NULL,                                         Cloud_Protocol_0x12_Callback,               false,         0x13},
+    {0x13,      "Offline Monitor Data",                 Cloud_Protocol_0x13_Callback,                 NULL,                                       false,         0x00},
+    {0x56,      "Time synchronization Settings",        NULL,                                         Cloud_Protocol_0x56_Callback,               true,          0x55},
+    {0x55,      "Time synchronization Settings Ack",    Cloud_Protocol_0x55_Callback,                 NULL,                                       false,         0x00}
 };
 #define CLOUD_PROTOCOL_FRAME_CONFIG_COUNT (sizeof(CLOUD_PROTOCOL_FRAME_CONFIG_TABLE) / sizeof(Cloud_Protocol_Frame_Type_Config_T))
 /*******************************************************************************
@@ -216,8 +218,8 @@ static void Cloud_Protocol_HandleRequestSuccess(const Cloud_Protocol_Frame_T *fr
         CLOUD_ERROR("Cloud Protocol Unknown Frame Type: 0x%02X\r\n", frame->frame_type);
         return;
     }
-    CLOUD_INFO("Cloud Protocol Frame Received: %s (0x%02X), Sequence: %d, Length: %d\r\n",
-               config->frame_name, frame->frame_type, frame->sequence_number, frame->data_length);
+    // CLOUD_INFO("Cloud Protocol Frame Received: %s (0x%02X), Sequence: %d, Length: %d\r\n",
+    //            config->frame_name, frame->frame_type, frame->sequence_number, frame->data_length);
     // Process the received frame
     switch (frame->frame_type)
     {
@@ -263,7 +265,19 @@ static void Cloud_Protocol_ProcessRcvFrame(const Cloud_Protocol_Frame_T *frame)
             record->awaiting_response = false;
             Cloud_Protocol_HandleRequestSuccess(frame);
             Cloud_Protocol_RemovePendingRequest(i);
-            break;
+            return;
+        }
+    }
+    // No matching request found, process as an unsolicited frame
+    const Cloud_Protocol_Frame_Type_Config_T *config = Cloud_Protocol_GetFrameConfig(frame->frame_type);
+    if (config)
+    {
+        Cloud_Protocol_HandleRequestSuccess(frame);
+        if (config->requires_response)
+        {
+            // If it requires a response, send an acknowledgment
+            uint8_t ack_buffer[CLOUDM_PROTOCOL_FRAME_MAX_LEN];
+            Cloud_Protocol_CallSendFunc(config->expected_response, ack_buffer, CLOUDM_PROTOCOL_FRAME_MAX_LEN);
         }
     }
 }
