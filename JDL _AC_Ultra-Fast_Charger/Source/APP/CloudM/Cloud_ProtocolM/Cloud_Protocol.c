@@ -182,13 +182,13 @@ static void Cloud_Protocol_Check_Heartbeat_Timeout(void)
     {
         cloud_protocol_ctrl.heartbeat_manager.timeout_count++;
 
-        CLOUD_WARN("Heartbeat response timeout, count: %d, last response: %lu, current: %lu",
+        CLOUD_WARN("Heartbeat response timeout, count: %d, last response: %lu, current: %lu\r\n",
                    cloud_protocol_ctrl.heartbeat_manager.timeout_count, last_hb_time, current_time);
 
         // Three consecutive timeouts trigger a re-login
         if (cloud_protocol_ctrl.heartbeat_manager.timeout_count >= 3)
         {
-            CLOUD_DEBUG("Heartbeat timeout exceeded limit, triggering re-login");
+            CLOUD_DEBUG("Heartbeat timeout exceeded limit, triggering re-login\r\n");
             Cloud_Protocol_Trigger_ReLogin();
             cloud_protocol_ctrl.heartbeat_manager.timeout_count = 0; // Reset count
         }
@@ -199,7 +199,7 @@ static void Cloud_Protocol_Check_Heartbeat_Timeout(void)
         if (cloud_protocol_ctrl.heartbeat_manager.timeout_count > 0)
         {
             cloud_protocol_ctrl.heartbeat_manager.timeout_count = 0;
-            CLOUD_INFO("Heartbeat response received, reset timeout count");
+            CLOUD_INFO("Heartbeat response received, reset timeout count\r\n");
         }
     }
 }
@@ -207,12 +207,12 @@ static void Cloud_Protocol_Check_Heartbeat_Timeout(void)
 // Trigger re-login function
 static void Cloud_Protocol_Trigger_ReLogin(void)
 {
-    CLOUD_INFO("Triggering re-login due to heartbeat timeout");
+    CLOUD_INFO("Triggering re-login due to heartbeat timeout\r\n");
     
     // Stop the heartbeat
     Cloud_Protocol_Stop_Heartbeat();
-    
-    // Call the re-login function
+
+    // Reset login status
     Cloud_Protocol_ResetLogIn();
 }
 
@@ -350,6 +350,8 @@ static void Cloud_Protocol_WaitWakeUpDTUAckProcess(void)
 static void Cloud_Protocol_RunningStepProcess(void)
 {
     uint8_t msg_buffer[CLOUD_MESSAGE_BUFFER_MAX_LENGTH] = {0};
+    static uint16_t lv_timer = 0;
+
     switch (cloud_protocol_ctrl.running_step)
     {
         case CLOUD_PROTOCOL_RUNNING_STEP_INIT:
@@ -363,13 +365,26 @@ static void Cloud_Protocol_RunningStepProcess(void)
                 case CLOUD_PROTOCOL_AUTHENTICATION_SUCCESS:
                     // normal operation
                     Cloud_Protocol_NormalOperationProcess();
+                    lv_timer = 0;
                     break;
                 case CLOUD_PROTOCOL_AUTHENTICATION_FAILED:
                     // Authentication failed, re-initiate authentication
                     Cloud_Protocol_Stop_Heartbeat();
                     Cloud_Protocol_ResetLogIn();
+                    lv_timer = 0;
                     break;
                 case CLOUD_PROTOCOL_AUTHENTICATION_INIT:
+                    // 3 seconds without authentication response, reset device
+                    if (lv_timer < CLOUD_RESET_DEVICE_DELAY_TIME_S)
+                    {
+                        lv_timer++;
+                    }
+                    else
+                    {
+                        lv_timer = 0;
+                        CLOUD_ERROR("Authentication timeout, restarting device\r\n");
+                        CLOUD_PROTOCOL_RESTART_DEVICE();
+                    }
                     break;
                 default:
                     break;
@@ -391,7 +406,7 @@ void Cloud_Protocol_Main(void)
     {
         case CLOUD_PROTOCOL_STEP_INIT:
         {
-						Cloud_Protocol_InitStepProcess();
+			Cloud_Protocol_InitStepProcess();
             break;
         }
         case CLOUD_PROTOCOL_STEP_SETUP_NETWORK:

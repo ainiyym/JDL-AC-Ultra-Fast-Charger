@@ -18,6 +18,7 @@
 #include "Cloud_Ev_Charger_Information.h"
 #include "Cloud_Protocol.h"
 #include "STD_RTC.h"
+#include "STD_SysM.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -170,7 +171,7 @@ Cloud_Protocol_Send_Status_T Cloud_Protocol_0x01_Callback(void *arg, uint8_t *bu
 	bodylen += 1;
 	// SIM Card
 	char simCard[YEECOM_ICCID_LENGTH + 1] = {0};
-	YeeCom_GetDeviceInfo(NULL, NULL, (char *)simCard, NULL);
+	YeeCom_GetDeviceInfo(NULL, NULL, (char *)simCard, NULL, NULL, NULL);
 	Bcdlength = string_to_packed_bcd(simCard, &body[bodylen], CLOUD_PROTOCOL_SIM_LENGTH);
 	if (Bcdlength < 0)
 	{
@@ -370,6 +371,7 @@ Cloud_Protocol_Send_Status_T Cloud_Protocol_0x55_Callback(void *arg, uint8_t *bu
 	buff[0] = CLOUD_MESSAGE_DATA_TYPE_CLOUD_PROTOCOL;
 	// Send the message
 	Cloud_Protocol_SendMsg(buff, frame_length + 1, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
+	return CLOUD_PROTOCOL_SEND_SUCCESS;
 }
 
 void Cloud_Protocol_0x56_Callback(void *arg, uint8_t *msg, uint16_t bodylen)
@@ -386,5 +388,64 @@ void Cloud_Protocol_0x56_Callback(void *arg, uint8_t *msg, uint16_t bodylen)
 	{
 		CLOUD_ERROR("%s: Invalid data format.\r\n", __func__);
 	}
+}
+
+void Cloud_Protocol_0x92_Callback(void *arg, uint8_t *msg, uint16_t bodylen)
+{
+	// Handle frame type 0x92 (Remote reset)
+	uint8_t reset_type = msg[7];
+	if (reset_type == 1)
+	{
+		CLOUD_INFO("%s: immediate reset requested.\r\n", __func__);
+		SYSM_SetResetCmd(1);
+	}
+	else if (reset_type == 2)
+	{
+		CLOUD_INFO("%s: conditional reset requested.\r\n", __func__);
+		SYSM_SetResetCmd(2);
+	}
+	else
+	{
+		CLOUD_ERROR("%s: Invalid reset type: %d\r\n", __func__, reset_type);
+	}
+}
+
+Cloud_Protocol_Send_Status_T Cloud_Protocol_0x91_Callback(void *arg, uint8_t *buff, uint16_t buffSize)
+{
+	// Handle frame type 0x91 (Remote reset Ack)
+	uint8_t body[CLOUD_PROTOCOL_0x91_BODY_LENGTH] = {0};
+	uint16_t bodylen = 0;
+	// Fill in the message body
+	// SN
+	char SN[CLOUD_EV_SN_LEN] = {0};
+	Cloud_Ev_Get_Constant_Info(CLOUD_CONST_SERIAL_NUMBER, SN, sizeof(SN));
+	int Bcdlength = string_to_packed_bcd(SN, &body[bodylen], CLOUD_PROTOCOL_SN_LENGTH);
+	if (Bcdlength < 0)
+	{
+		// Error handling
+		CLOUD_ERROR("%s: Invalid SN format\r\n", __func__);
+		return CLOUD_PROTOCOL_SEND_ERROR_INVALID_PARAM;
+	}
+	bodylen += CLOUD_PROTOCOL_SN_LENGTH;
+	// Result
+	body[bodylen] = 1; // Assuming 1 means success
+	bodylen += 1;
+	if (bodylen != CLOUD_PROTOCOL_0x91_BODY_LENGTH)
+	{
+		CLOUD_ERROR("%s: Message length mismatch, expected %d, got %d\r\n", __func__, CLOUD_PROTOCOL_0x91_BODY_LENGTH, bodylen);
+		return CLOUD_PROTOCOL_SEND_ERROR_MESSAGE_LENGTH_MISMATCH;
+	}
+	// Prepare the full frame
+	uint16_t frame_length = Cloud_Protocol_PrepareSendFrame(arg, 0x91, &buff[1], buffSize - 1, body, bodylen);
+	if (frame_length == 0)
+	{
+		CLOUD_ERROR("%s: Failed to prepare send frame\r\n", __func__);
+		return CLOUD_PROTOCOL_SEND_ERROR_INVALID_PARAM;
+	}
+	// buff[0] is reserved for message type
+	buff[0] = CLOUD_MESSAGE_DATA_TYPE_CLOUD_PROTOCOL;
+	// Send the message
+	Cloud_Protocol_SendMsg(buff, frame_length + 1, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
+	return CLOUD_PROTOCOL_SEND_SUCCESS;
 }
 /* EOL */

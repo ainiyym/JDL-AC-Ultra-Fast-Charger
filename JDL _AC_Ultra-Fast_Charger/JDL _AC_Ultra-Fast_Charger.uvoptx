@@ -159,7 +159,7 @@
           <Type>0</Type>
           <LineNumber>136</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134253566</Address>
+          <Address>134254552</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -173,18 +173,18 @@
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>380</LineNumber>
+          <LineNumber>188</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134251596</Address>
+          <Address>134282890</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Session\Cloud_Protocol_Session.c</Filename>
+          <Filename>.\Source\BSW\MCAL\Mcal_Uart\Mcal_Usart_Cfg.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CloudM/Cloud_ProtocolM/Cloud_Protocol_Session/Cloud_Protocol_Session.c\380</Expression>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/MCAL/Mcal_Uart/Mcal_Usart_Cfg.c\188</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -227,6 +227,11 @@
           <count>7</count>
           <WinNumber>1</WinNumber>
           <ItemText>cloud_protocol_comm_state.request_count</ItemText>
+        </Ww>
+        <Ww>
+          <count>8</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>*recv_size</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
@@ -1556,7 +1561,7 @@
 
   <Group>
     <GroupName>Source/BSW/CP</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

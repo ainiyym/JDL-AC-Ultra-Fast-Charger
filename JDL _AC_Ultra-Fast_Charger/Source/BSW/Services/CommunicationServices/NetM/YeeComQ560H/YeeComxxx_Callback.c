@@ -562,3 +562,33 @@ void YeeCom_At_Get_RSSICallback(void *arg, char *buf, int buflen)
         }
     }
 }
+
+ /* +GSTATE:1,1,0,0 */
+void YeeCom_At_Get_GSTATECallback(void *arg, char *buf, int buflen)
+{
+    const char *reset_pos = strstr(buf, "+GSTATE:");
+    if (reset_pos != NULL)
+    {
+        char status[4 + 1] = {0};
+
+        int parsed = sscanf(reset_pos, "+GSTATE:%1[^,\r\n],%1[^,\r\n],%1[^,\r\n],%1[^,\r\n]",
+                            &status[0], &status[1], &status[2], &status[3]);
+
+        if (parsed == 4)
+        {
+            CLOUD_INFO("GSTATE parsed: =%s\r\n", status);
+            for(tcp_id_enum i = TCP_ID_PROTOCOL; i < TCP_ID_MAXIMUM; i++)
+            {
+                YeeCom_SetDeviceInfo_gstate(i, atoi((const char *)&status[i]));
+            }
+        }
+        else
+        {
+            CLOUD_ERROR("<%s> Failed to parse GSTATE response: %s\r\n", __func__, buf);
+        }
+    }
+    else
+    {
+        CLOUD_ERROR("<%s> Failed to find +GSTATE in response: %s\r\n", __func__, buf);
+    }
+}

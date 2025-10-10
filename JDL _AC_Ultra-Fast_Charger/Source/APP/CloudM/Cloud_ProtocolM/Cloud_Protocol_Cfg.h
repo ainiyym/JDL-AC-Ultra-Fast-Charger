@@ -14,6 +14,7 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "Cloud_Cfg.h"
+#include "YeeComxxx_Device.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -25,15 +26,19 @@
 #define CLOUD_4G_HEARTBEAT_INTERVAL_S               (0)                                            // close auto heartbeat by 4G DTU
 #define CLOUD_PROTOCOL_HEARTBEAT_INTERVAL_S         (10 * 1000)                                    // Heartbeat interval in seconds
 #define CLOUD_PROTOCOL_HEARTBEAT_TIMEOUT_S          (CLOUD_PROTOCOL_HEARTBEAT_INTERVAL_S * 3)      // Heartbeat timeout threshold in seconds
+#define CLOUD_RESET_DEVICE_DELAY_TIME_S             (3000U / CLOUDM_TASK_PERIOD)                   // Remote reset delay time
 
 #define CLOUD_PROTOCOL_0x01_BODY_LENGTH             (30)        // SN(7)+pileType(1)+gunCount(1)+protocolVersion(1)+softwareVersion(8)+networkType(1)+simCard(10)+operator(1)
 #define CLOUD_PROTOCOL_0x03_BODY_LENGTH             (9)         // SN(7)+connector id(1)+connector status(1)
 #define CLOUD_PROTOCOL_0x55_BODY_LENGTH             (14)        // SN(7)+device CP56Time2a(7)
+#define CLOUD_PROTOCOL_0x91_BODY_LENGTH             (8)         // SN(7)+result(1)
 
 #define CLOUD_PROTOCOL_SN_LENGTH                    (7U)        // Device SN length
 #define CLOUD_PROTOCOL_PROTOCOL_VERSION             (0X10)      // Communication protocol version (actual version * 10, v1.0 = 0X0A, v1.6 = 0X10)
 #define CLOUD_PROTOCOL_SOFTWARE_VERSION_LENGTH      (8U)        // Software version length (including terminator)
 #define CLOUD_PROTOCOL_SIM_LENGTH                   (10U)       // SIM card number length (BCD code, 10 bits + 1 terminator)
+
+#define CLOUD_PROTOCOL_RESTART_DEVICE               YeeCom_DeviceRestart          // Restart device function
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/

@@ -50,7 +50,8 @@ typedef struct
     uint8_t SimReadyStatus;                         /* device sim is valid:1 ,invalid:0 */
     uint16_t Rssi;                                  /* Signal Strength */
     char ICCID[YEECOM_ICCID_LENGTH + 1];            /* SIM ICCID */
-    char IMEI[YEECOM_IMEI_LENGTH + 1];              /* device imei */            
+    char IMEI[YEECOM_IMEI_LENGTH + 1];              /* device imei */
+    uint8_t GState[YEECOM_GSTATE_NUMBER];           /* The online status of the connected server: 0-disconnected, 1-connected */            
 }YeeComxxx_DeviceInfo_struct;
 
 
@@ -243,7 +244,16 @@ void YeeCom_SetDeviceInfo_imei(const char* imei)
     }
 }
 
-void YeeCom_GetDeviceInfo(uint8_t* sim_status, uint16_t* rssi, char* iccid, char* imei)
+void YeeCom_SetDeviceInfo_gstate(uint8_t id, const uint8_t gstate)
+{
+    if (id < YEECOM_GSTATE_NUMBER)
+    {
+        gv_YeeComxxx_device_info.GState[id] = gstate;
+        YeeCom_Log("<%s> GState[%d]: %d\r\n", __func__, id, gv_YeeComxxx_device_info.GState[id]);
+    }
+}
+
+void YeeCom_GetDeviceInfo(uint8_t* sim_status, uint16_t* rssi, char* iccid, char* imei, uint8_t* gstate, uint8_t* gstate_num)
 {
     if (sim_status != NULL)
     {
@@ -262,6 +272,14 @@ void YeeCom_GetDeviceInfo(uint8_t* sim_status, uint16_t* rssi, char* iccid, char
     {
         memcpy(imei, &gv_YeeComxxx_device_info.IMEI, YEECOM_IMEI_LENGTH);
         imei[YEECOM_IMEI_LENGTH] = '\0';
+    }
+    if (gstate != NULL)
+    {
+        memcpy(gstate, &gv_YeeComxxx_device_info.GState, YEECOM_GSTATE_NUMBER);
+        if (gstate_num != NULL)
+        {
+            *gstate_num = YEECOM_GSTATE_NUMBER;
+        }
     }
 }
 
@@ -285,6 +303,7 @@ static void YeeCom_ResetDevice(void)
     gv_YeeComxxx.Device.DeviceState = 0;
     gv_YeeComxxx.Device.ParameterState = 0;
     gv_YeeComxxx_device_info.SimReadyStatus = 0;
+    memset(gv_YeeComxxx_device_info.GState, 0xff, YEECOM_GSTATE_NUMBER);
 }
 
 static void YeeCom_OobRegister(void)
@@ -379,7 +398,7 @@ static void YeeCom_SetDefaultGPRSMode(void)
 {
     YeeCom_ClearTimeout();
     YeeCom_ParameterTimeoutJudgy(YeeCom_At_Cmd_Set_Param[YEECOM_AT_CMD_GPRS_MODE].rcvCfg.reply_timeout);
-    YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_GPRS_MODE, NULL, YEECOM_ONLINE_MODE_WAKE_ONLINE);
+    YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_GPRS_MODE, NULL, YEECOM_ONLINE_MODE_KEEP_ALIVE);
 }
 
 static void YeeCom_CfgParameter(void)
@@ -493,6 +512,7 @@ static void YeeCom_ReadyHandle(void)
         msg[0] = (uint8_t)CLOUD_MESSAGE_CTRL_TYPE_DEVICE_READY;
         msg[1] = (uint8_t)CLOUD_DEVICE_STATUS_READY;
         CloudNet_MessageBuffer_SendMessage((const uint8_t *)&msg, 2, CLOUD_MESSAGE_TYPE_CTRL);
+        YeeCom_Log("<%s> YeeComxxxState goto running..\r\n", __func__);
         YeeCom_SetState(YEECOM_STATE_RUNNING);
     }
 }
@@ -551,7 +571,21 @@ static void YeeCom_PeriodicHandle(void)
             YeeCom_ClearTimeout();
             // Get RSSI periodically
             YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_RSSI, NULL);
+            YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_GSTATE, NULL);
             break;
+        }
+    }
+    // judgy gstate
+    while(gv_YeeComxxx.TimerCnt++ % YEECOM_PERIODIC_TASK_JUDGY_PERIOD == 0) // 10s
+    {
+        for (uint8_t i = 0; i < YEECOM_GSTATE_NUMBER; i++)
+        {
+            if (gv_YeeComxxx_device_info.GState[i] == 0)
+            {
+                YeeCom_DeviceRestart();
+                YeeCom_Log("<%s> YeeComxxx reset..\r\n", __func__);
+                break;
+            }
         }
     }
 }
@@ -600,6 +634,7 @@ void YeeCom_Init(void)
 {
     memset((uint8_t *)(&gv_YeeComxxx), 0u, (uint16_t)(sizeof(gv_YeeComxxx) / sizeof(uint8_t)));
     memset((uint8_t *)(&gv_YeeComxxx_device_info), 0u, (uint16_t)(sizeof(gv_YeeComxxx_device_info) / sizeof(uint8_t)));
+    memset(gv_YeeComxxx_device_info.GState, 0xff, YEECOM_GSTATE_NUMBER);
     gv_YeeComxxx.SendMutex = xSemaphoreCreateMutex();
     if (gv_YeeComxxx.SendMutex == NULL)
     {

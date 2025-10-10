@@ -42,4 +42,5 @@ void YeeCom_At_Get_DFICallback(void *arg, char *buf, int buflen);
 void YeeCom_At_Get_ICCIDCallback(void *arg, char *buf, int buflen);
 void YeeCom_At_Get_IMEICallback(void *arg, char *buf, int buflen);
 void YeeCom_At_Get_RSSICallback(void *arg, char *buf, int buflen);
+void YeeCom_At_Get_GSTATECallback(void *arg, char *buf, int buflen);
 #endif

@@ -43,4 +43,5 @@ const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Get_Param[YEECOM_AT_CMD_GET_PARAM
     { YEECOM_AT_CMD_ICCID,                         "AT*ICCID?\r\n",                     { "+ICCID",        "OK",    NULL,       3000,             YeeCom_At_Get_ICCIDCallback } },
     { YEECOM_AT_CMD_IMEI,                          "AT*IMEI?\r\n",                      { "+IMEI",         "OK",    NULL,       3000,             YeeCom_At_Get_IMEICallback } },
     { YEECOM_AT_CMD_RSSI,                          "AT*CSQ?\r\n",                       { "+CSQ",          "OK",    NULL,       2000,             YeeCom_At_Get_RSSICallback } },
+    { YEECOM_AT_CMD_GSTATE,                        "AT*GSTATE?\r\n",                    { "+GSTATE",       "OK",    NULL,       2000,             YeeCom_At_Get_GSTATECallback } },
 };

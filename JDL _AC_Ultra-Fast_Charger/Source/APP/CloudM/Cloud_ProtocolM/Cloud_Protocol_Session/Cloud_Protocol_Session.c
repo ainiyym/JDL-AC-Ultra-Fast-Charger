@@ -91,7 +91,9 @@ static const Cloud_Protocol_Frame_Type_Config_T CLOUD_PROTOCOL_FRAME_CONFIG_TABL
     {0x12,      "Read Real-time Monitor Data",          NULL,                                         Cloud_Protocol_0x12_Callback,               false,         0x13},
     {0x13,      "Offline Monitor Data",                 Cloud_Protocol_0x13_Callback,                 NULL,                                       false,         0x00},
     {0x56,      "Time synchronization Settings",        NULL,                                         Cloud_Protocol_0x56_Callback,               true,          0x55},
-    {0x55,      "Time synchronization Settings Ack",    Cloud_Protocol_0x55_Callback,                 NULL,                                       false,         0x00}
+    {0x55,      "Time synchronization Settings Ack",    Cloud_Protocol_0x55_Callback,                 NULL,                                       false,         0x00},
+    {0x92,      "Remote reset",                         NULL,                                         Cloud_Protocol_0x92_Callback,               true,          0x91},
+    {0x91,      "Remote reset Ack",                     Cloud_Protocol_0x91_Callback,                 NULL,                                       false,         0x00}
 };
 #define CLOUD_PROTOCOL_FRAME_CONFIG_COUNT (sizeof(CLOUD_PROTOCOL_FRAME_CONFIG_TABLE) / sizeof(Cloud_Protocol_Frame_Type_Config_T))
 /*******************************************************************************
@@ -125,6 +127,8 @@ void Cloud_Protocol_SetLogInStatus(Cloud_Protocol_AuthenticationStatus_E status)
 void Cloud_Protocol_ResetLogInStatus(void)
 {
     cloud_protocol_comm_state.is_authenticated = CLOUD_PROTOCOL_AUTHENTICATION_INIT;
+    cloud_protocol_comm_state.next_sequence_number = 0;
+    cloud_protocol_comm_state.request_count = 0;
 }
 
 time_t Cloud_Protocol_GetHbTime(void)
