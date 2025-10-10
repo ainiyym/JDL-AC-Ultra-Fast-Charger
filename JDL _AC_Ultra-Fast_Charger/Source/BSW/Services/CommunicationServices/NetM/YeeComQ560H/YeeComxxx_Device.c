@@ -155,7 +155,7 @@ uint8_t YeeCom_At_DataPassthrougth(uint8_t channel, const uint8_t *data, uint16_
         {
             memcpy((char *)&gv_YeeComxxx.AtCmdSendBuf[atcmd_len], (const char *)data, length);
             ret = at_send_no_reply((const char *)gv_YeeComxxx.AtCmdSendBuf, (int)(atcmd_len + length));
-            YeeCom_Log("<%s>:", __func__);
+            YeeCom_Log("<%s> result:%d data:", __func__, ret);
             YeeCom_Print_Hex(data, length);
         }
         else

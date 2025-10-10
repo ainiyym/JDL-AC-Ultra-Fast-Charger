@@ -350,7 +350,6 @@ static void Cloud_Protocol_WaitWakeUpDTUAckProcess(void)
 static void Cloud_Protocol_RunningStepProcess(void)
 {
     uint8_t msg_buffer[CLOUD_MESSAGE_BUFFER_MAX_LENGTH] = {0};
-    static uint16_t lv_timer = 0;
 
     switch (cloud_protocol_ctrl.running_step)
     {
@@ -365,23 +364,23 @@ static void Cloud_Protocol_RunningStepProcess(void)
                 case CLOUD_PROTOCOL_AUTHENTICATION_SUCCESS:
                     // normal operation
                     Cloud_Protocol_NormalOperationProcess();
-                    lv_timer = 0;
+                    Cloud_Protocol_Clear_Timeout();
                     break;
                 case CLOUD_PROTOCOL_AUTHENTICATION_FAILED:
                     // Authentication failed, re-initiate authentication
                     Cloud_Protocol_Stop_Heartbeat();
                     Cloud_Protocol_ResetLogIn();
-                    lv_timer = 0;
+                    Cloud_Protocol_Clear_Timeout();
                     break;
                 case CLOUD_PROTOCOL_AUTHENTICATION_INIT:
-                    // 3 seconds without authentication response, reset device
-                    if (lv_timer < CLOUD_RESET_DEVICE_DELAY_TIME_S)
+                    // 30 seconds without authentication response, reset device
+                    if (cloud_protocol_ctrl.timer < CLOUD_RESET_DEVICE_DELAY_TIME_S)
                     {
-                        lv_timer++;
+                        cloud_protocol_ctrl.timer++;
                     }
                     else
-                    {
-                        lv_timer = 0;
+                    {   
+                        Cloud_Protocol_Clear_Timeout();
                         CLOUD_ERROR("Authentication timeout, restarting device\r\n");
                         CLOUD_PROTOCOL_RESTART_DEVICE();
                     }
