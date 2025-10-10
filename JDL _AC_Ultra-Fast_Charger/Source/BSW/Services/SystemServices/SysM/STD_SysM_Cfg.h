@@ -56,6 +56,7 @@ typedef enum
 #define SYSM_TASK_PERIOD                    (10U)
 #define SYSM_RESET_PREPARE_MAX_CNT          ((uint32_t)30U / SYSM_TASK_PERIOD)
 #define SYSM_REPORT_BASIC_INFO_CNT          (3000U / SYSM_TASK_PERIOD) /* 3s */
+#define SYSN_RESET_DELAY_TIME_MS            (3000U / SYSM_TASK_PERIOD) /* Remote reset delay time */
 
 #define SYSM_4HCT4851D_SOFTTIMER_PERIOD      (50U) /* 74HCT4851D软定时器周期，单位us */
 #define SYSM_ADC_PERIOD_COLLECTION_TIME      (SYSM_4HCT4851D_SOFTTIMER_PERIOD * 8)  /* ADC周期采样周期，单位us */

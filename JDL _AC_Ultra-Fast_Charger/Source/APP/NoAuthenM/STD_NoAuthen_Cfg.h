@@ -44,6 +44,8 @@
 #define NOAUTHEN_CP_VOL_STATUS_9V        CPV_VOLT_NINE			/*9V cp status*/
 #define NOAUTHEN_CP_VOL_STATUS_6V        CPV_VOLT_SIX			/*6V cp status*/
 #define NOAUTHEN_CP_VOL_STATUS_4V        CPV_VOLT_FOUR			/*4V cp status*/
+#define NOAUTHEN_CP_VOL_STATUS_3V        CPV_VOLT_THREE			/*3V cp status*/
+#define NOAUTHEN_CP_VOL_STATUS_2V        CPV_VOLT_TWEO          /*2V cp status*/
 
 #define NOAUTHEN_TIMEAUTH_FILTER_CNT    ((uint32_t)100U/NOAUTHEN_TASK_PERIOD)	/*NoAuthen time auth filter count*/
 #define NOAUTHEN_DEBUG(fmt, ...) 		LOG_DEBUG(LOG_MODULE_NOAUTH, fmt, ##__VA_ARGS__)

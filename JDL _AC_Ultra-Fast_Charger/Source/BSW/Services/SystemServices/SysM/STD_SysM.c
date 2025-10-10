@@ -80,6 +80,8 @@ static SysM_Struct stSysM;
 |******************************************************************************/
 static void SYSM_ShowUserInfo(void);
 static void SYSM_RemoteResetManage(void);
+static void SYSM_ConditionalReset(void);
+static STD_SysM_Reset_Condition_Result_t SYSM_CheckResetConditions(void);
 static void SYSM_ShowBasicInfo(void);
 static void SYSM_OutPutDefaultCurrManage(void);
 static void SYSM_SetDeviceConstParam(void);
@@ -370,7 +372,38 @@ static void SYSM_StandbyStatusCtrl(void)
  *****************************************************************************************/
 static void SYSM_RemoteResetManage(void)
 {
+	// Check if there is a remote restart request
+	if (stSysM.usRemoteResetFlag == 0)
+	{
+		return; // No restart request, return directly
+	}
 
+	// SYSM_INFO("Remote reset request detected: %d\r\n", stSysM.usRemoteResetFlag);
+	static	uint16_t lv_usDelayCnt = 0;
+
+	if (lv_usDelayCnt < SYSN_RESET_DELAY_TIME_MS) // Delay 3s to avoid false trigger
+	{
+		lv_usDelayCnt++;
+		return;
+	}
+
+	switch (stSysM.usRemoteResetFlag)
+	{
+		case 1: // Restart immediately
+			// Perform immediate restart
+			SYSM_ImmediatelyResetManage();
+			break;
+
+		case 2: // Conditional restart
+			// Check if conditions are met and perform restart if they are
+			SYSM_ConditionalReset();
+			break;
+
+		default:
+			SYSM_ERROR("Invalid reset flag: %d", stSysM.usRemoteResetFlag);
+			stSysM.usRemoteResetFlag = 0; // Reset flag
+		break;
+	}
 }
 
 /****************************************************************************************
@@ -391,6 +424,7 @@ static void SYSM_ShowBasicInfo(void)
 	uint8_t ucCpStatus[SYS_CONNECTOR_NUM_MAX] = {0};
 	uint8_t ucEvseStatus[SYS_CONNECTOR_NUM_MAX] = {0};
 	uint8_t lv_ucStopReson[SYS_CONNECTOR_NUM_MAX] = {0};
+	static uint32_t lv_ulSystemStatus[SYS_CONNECTOR_NUM_MAX] = {0};
 
 	for (SysConnector_Num_Enum i = SYS_CONNECTOR1; i < SYS_CONNECTOR_NUM_MAX; i++)
 	{
@@ -403,6 +437,12 @@ static void SYSM_ShowBasicInfo(void)
 			stSysM.basic_ctrl_info.CpStatus[i] = ucCpStatus[i];
 			stSysM.basic_ctrl_info.EVSEStatus[i] = ucEvseStatus[i];
 			SYSM_INFO("Connecter:%d CP %d EVSE %d \r\n", i, stSysM.basic_ctrl_info.CpStatus[i], stSysM.basic_ctrl_info.EVSEStatus[i]);
+		}
+
+		if (stSysM.ulSystemStatus[i] != lv_ulSystemStatus[i])
+		{
+			lv_ulSystemStatus[i] = stSysM.ulSystemStatus[i];
+			SYSM_INFO("Connecter:%d SystemStatus 0x%08X \r\n", i, lv_ulSystemStatus[i]);
 		}
 
 		if (stSysM.basic_ctrl_info.StopChargingReason[i] != lv_ucStopReson[i])
@@ -428,10 +468,71 @@ static void SYSM_ShowBasicInfo(void)
 	}
 }
 
+static STD_SysM_Reset_Condition_Result_t SYSM_CheckResetConditions(void)
+{
+    bool all_connectors_idle = true;
+	for (int i = 0; i < SYS_CONNECTOR_NUM_MAX; i++)
+	{
+		if ((stSysM.ulSystemStatus[i] & (1 << STD_SYSM_SYSSTATUS_CHARGING)) != 0)
+		{
+			all_connectors_idle = false;
+			break;
+		}
+		if ((stSysM.ulSystemStatus[i] & (1 << STD_SYSM_SYSSTATUS_AUTHORIZATION)) != 0)
+		{
+			all_connectors_idle = false;
+			break;
+		}
+		if ((stSysM.ulSystemStatus[i] & (1 << STD_SYSM_SYSSTATUS_CAN)) != 0)
+		{
+			all_connectors_idle = false;
+			break;
+		}
+	}
+
+	if (!all_connectors_idle)
+	{
+		return STD_SYSM_RESET_CONDITION_NOT_MET;
+	}
+
+	// Check the low-power shutdown status
+	if (stSysM.ucLowPowerShutdownFlag != 0)
+	{
+		return STD_SYSM_RESET_CONDITION_NOT_MET;
+	}
+
+	// All conditions are met.
+    return STD_SYSM_RESET_CONDITION_MET;
+}
+
+static void SYSM_ConditionalReset(void)
+{
+    STD_SysM_Reset_Condition_Result_t condition_result = SYSM_CheckResetConditions();
+    
+    switch (condition_result)
+	{
+        case STD_SYSM_RESET_CONDITION_MET:
+            SYSM_INFO("Reset conditions met, executing system reset\r\n");
+			SYSM_ImmediatelyResetManage();
+            break;
+            
+        case STD_SYSM_RESET_CONDITION_NOT_MET:
+            break;
+            
+        default:
+            break;
+    }
+}
+
+void SYSM_SetResetCmd(uint16_t cmd)
+{
+	stSysM.usRemoteResetFlag = cmd;
+}
+
 void SYSM_ImmediatelyResetManage(void)
 {
-	Mcal_MCU_SysRestart();
 	YeeCom_DeviceRestart();
+	Mcal_MCU_SysRestart();
 }
 
 void SYSM_SetCpVolMode(SysConnector_Num_Enum ch, uint8_t mode)
@@ -490,7 +591,7 @@ void SYSM_10msMainFunction(void)
 
 	SYSM_RemoteResetManage();
 
-	// SYSM_ShowBasicInfo();
+	SYSM_ShowBasicInfo();
 
 	SYSM_OutPutDefaultCurrManage();
 }

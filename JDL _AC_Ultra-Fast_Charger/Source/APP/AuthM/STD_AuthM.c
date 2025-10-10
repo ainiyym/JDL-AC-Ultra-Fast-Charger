@@ -250,7 +250,7 @@ static void AUTHM_ReqAuthStop(SysConnector_Num_Enum ch)
 #endif
 
 #if (AUTHM_CLOSE_BTAPP_EN == STD_ON)
-		if (STD_TRUE == AUTHM_GetBtAppCancelAuthStatus(ch))
+	if (STD_TRUE == AUTHM_GetBtAppCancelAuthStatus(ch))
 	{
 		gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_BT_APP;
 		gv_stAuthM[ch].ucReqChargeStatus = STD_FALSE;
@@ -261,7 +261,7 @@ static void AUTHM_ReqAuthStop(SysConnector_Num_Enum ch)
 #endif
 
 #if (AUTHM_CLOSE_NETAPP_EN == STD_ON)
-		if (STD_TRUE == AUTHM_GetNetAppCancelAuthStatus(ch))
+	if (STD_TRUE == AUTHM_GetNetAppCancelAuthStatus(ch))
 	{
 
 		gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_NET_APP;
@@ -273,7 +273,7 @@ static void AUTHM_ReqAuthStop(SysConnector_Num_Enum ch)
 #endif
 
 #if (AUTHM_CLOSE_SINGLE_TIMING_EN == STD_ON)
-		if (STD_TRUE == AUTHM_GetSingleTimeCancelAuthStatus(ch))
+	if (STD_TRUE == AUTHM_GetSingleTimeCancelAuthStatus(ch))
 	{
 		gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_SINGLE_TIMING;
 		gv_stAuthM[ch].ucReqChargeStatus = STD_FALSE;
@@ -284,7 +284,7 @@ static void AUTHM_ReqAuthStop(SysConnector_Num_Enum ch)
 #endif
 
 #if (AUTHM_CLOSE_PERIOD_TIMING_EN == STD_ON)
-		if (STD_TRUE == AUTHM_GetPriodTimeCancelAuthStatus(ch))
+	if (STD_TRUE == AUTHM_GetPriodTimeCancelAuthStatus(ch))
 	{
 
 		gv_stAuthM[ch].ucAuthoCloseSrc = AUTHM_CLOSE_SRC_PERIOD_TIMING;
@@ -296,7 +296,7 @@ static void AUTHM_ReqAuthStop(SysConnector_Num_Enum ch)
 #endif
 
 #if (AUTHM_CLOSE_BUTTON_EN == STD_ON)
-		if (STD_TRUE == AUTHM_GetButtonStopStatus(ch))
+	if (STD_TRUE == AUTHM_GetButtonStopStatus(ch))
 	{
 
 		gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
@@ -308,7 +308,7 @@ static void AUTHM_ReqAuthStop(SysConnector_Num_Enum ch)
 #endif
 
 #if (AUTHM_CLOSE_EMER_EN == STD_ON)
-		if (STD_TRUE == AUTHM_GetEmerStopStatus(ch))
+	if (STD_TRUE == AUTHM_GetEmerStopStatus(ch))
 	{
 		gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
 		gv_stAuthM[ch].ucReqChargeStatus = STD_FALSE;
@@ -317,8 +317,7 @@ static void AUTHM_ReqAuthStop(SysConnector_Num_Enum ch)
 	}
 	else
 #endif
-
-		if (AUTHM_GetChargeConditions() >= AUTHM_ERRHDL_CHARGE_CANCEL)
+	if (AUTHM_GetChargeConditions() >= AUTHM_ERRHDL_CHARGE_CANCEL)
 	{
 		gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
 		gv_stAuthM[ch].ucReqChargeStatus = STD_FALSE;
@@ -454,7 +453,7 @@ static void AUTHM_AuthorizedModeHandle(SysConnector_Num_Enum ch)
 	uint8_t lv_ucCpVolStatus;
 	lv_ucCpVolStatus = AUTHM_GetCpStatus(ch);
 
-	if(AUTHM_CP_VOL_STATUS_12V == lv_ucCpVolStatus)
+	if(AUTHM_CP_VOL_STATUS_12V == lv_ucCpVolStatus || AUTHM_CP_VOL_STATUS_4V == lv_ucCpVolStatus)
 	{
 		gv_stAuthM[ch].ulNotPlugInCnt++;
 		if(gv_stAuthM[ch].ulNotPlugInCnt >= AUTHM_NOT_PLUG_IN_TIMEOUT_CNT)
@@ -465,7 +464,8 @@ static void AUTHM_AuthorizedModeHandle(SysConnector_Num_Enum ch)
 			AUTHM_DEBUG("ch:%d Auth Wait Overtime\r\n", ch);
 		}
 	}
-	else if ((AUTHM_CP_VOL_STATUS_9V == lv_ucCpVolStatus) || (AUTHM_CP_VOL_STATUS_6V == lv_ucCpVolStatus))
+	else if ((AUTHM_CP_VOL_STATUS_9V == lv_ucCpVolStatus) || (AUTHM_CP_VOL_STATUS_6V == lv_ucCpVolStatus)\
+			||(AUTHM_CP_VOL_STATUS_3V == lv_ucCpVolStatus)||(AUTHM_CP_VOL_STATUS_2V == lv_ucCpVolStatus))
 	{
 		if (STD_FALSE == gv_stAuthM[ch].ucReqChargeStatus)
 		{
@@ -502,12 +502,13 @@ static void AUTHM_ReqChargeModeHandle(SysConnector_Num_Enum ch)
 	lv_ucCpVolStatus = AUTHM_GetCpStatus(ch);
 	lv_ucEvseStatus = AUTHM_GetEvseStatus(ch);
 
-	if(AUTHM_CP_VOL_STATUS_12V == lv_ucCpVolStatus)
+	if(AUTHM_CP_VOL_STATUS_12V == lv_ucCpVolStatus || AUTHM_CP_VOL_STATUS_4V == lv_ucCpVolStatus)
 	{
 		gv_stAuthM[ch].ucMode = AUTHM_MODE_AUTHORIZED;
 		AUTHM_DEBUG("ch:%d ReqCharge goback Auth\r\n", ch);
 	}
-	else if((AUTHM_CP_VOL_STATUS_9V == lv_ucCpVolStatus) || (AUTHM_CP_VOL_STATUS_6V == lv_ucCpVolStatus))
+	else if((AUTHM_CP_VOL_STATUS_9V == lv_ucCpVolStatus) || (AUTHM_CP_VOL_STATUS_6V == lv_ucCpVolStatus)\
+			||(AUTHM_CP_VOL_STATUS_3V == lv_ucCpVolStatus)||(AUTHM_CP_VOL_STATUS_2V == lv_ucCpVolStatus))
 	{
 		if(AUTHM_EVSE_STATUS_3_DOT == lv_ucEvseStatus)
 		{
@@ -537,7 +538,7 @@ static void AUTHM_ChargingModeHandle(SysConnector_Num_Enum ch)
 	uint8_t lv_ucCpVolStatus;
 	lv_ucCpVolStatus = AUTHM_GetCpStatus(ch);
 	
-	if(AUTHM_CP_VOL_STATUS_12V == lv_ucCpVolStatus)
+	if(AUTHM_CP_VOL_STATUS_12V == lv_ucCpVolStatus || AUTHM_CP_VOL_STATUS_4V == lv_ucCpVolStatus)
 	{
 		gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
 		gv_stAuthM[ch].ucReqChargeStatus = STD_FALSE;	
@@ -581,11 +582,27 @@ static void AUTHM_EvseStatusManage(SysConnector_Num_Enum ch)
 		{
 			AUTHM_ReqEvseChargeOn(ch);
 		}
-	} 
+	}
 	else
 	{
 		AUTHM_ReqEvseChargeOff(ch);
 		gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
+	}
+}
+
+static void AUTHM_AuthStatusManage(SysConnector_Num_Enum ch)
+{
+	uint8_t lv_ucAuthStatus;
+
+	lv_ucAuthStatus = AUTHM_GetCurrAuthStatus(ch);
+
+	if (STD_TRUE == lv_ucAuthStatus)
+	{
+		AUTHM_SetAuthStatus(ch, STD_TRUE);
+	}
+	else
+	{
+		AUTHM_SetAuthStatus(ch, STD_FALSE);
 	}
 }
 
@@ -608,45 +625,46 @@ void AUTHM_10msMainFunction(void)
 	{
 		switch (gv_stAuthM[ch].ucMode)
 		{
-		case AUTHM_MODE_IDLE:
-		{
-			if (STD_TRUE == AUTHM_GetResetPrepareStatus())
+			case AUTHM_MODE_IDLE:
+			{
+				if (STD_TRUE == AUTHM_GetResetPrepareStatus())
+				{
+					gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
+				}
+				else
+				{
+				}
+				break;
+			}
+			case AUTHM_MODE_UNAUTHORIZED:
+			{
+				AUTHM_UnauthorizedModeHandle(ch);
+				break;
+			}
+			case AUTHM_MODE_AUTHORIZED:
+			{
+				AUTHM_AuthorizedModeHandle(ch);
+				break;
+			}
+			case AUTHM_MODE_REQ_CHARGE:
+			{
+				AUTHM_ReqChargeModeHandle(ch);
+				break;
+			}
+			case AUTHM_MODE_CHARGING:
+			{
+				AUTHM_ChargingModeHandle(ch);
+				break;
+			}
+			default:
 			{
 				gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
+				break;
 			}
-			else
-			{
-			}
-			break;
-		}
-		case AUTHM_MODE_UNAUTHORIZED:
-		{
-			AUTHM_UnauthorizedModeHandle(ch);
-			break;
-		}
-		case AUTHM_MODE_AUTHORIZED:
-		{
-			AUTHM_AuthorizedModeHandle(ch);
-			break;
-		}
-		case AUTHM_MODE_REQ_CHARGE:
-		{
-			AUTHM_ReqChargeModeHandle(ch);
-			break;
-		}
-		case AUTHM_MODE_CHARGING:
-		{
-			AUTHM_ChargingModeHandle(ch);
-			break;
-		}
-		default:
-		{
-			gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
-			break;
-		}
 		}
 
 		AUTHM_EvseStatusManage(ch);
+		AUTHM_AuthStatusManage(ch);
 	}
 }
 

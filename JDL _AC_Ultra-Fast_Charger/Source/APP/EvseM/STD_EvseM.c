@@ -432,6 +432,7 @@ static void EVSEM_ChargingModeJudgy(SysConnector_Num_Enum ch)
 			EVSEM_DEBUG("ch:%d EVSE into CAN model!\r\n", ch);
 			gv_stEvseM[ch].usWaitCnt = 0u;
 			gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_CAN_MODEL;
+			EVSEM_SetCanModeStatus(ch, STD_TRUE);
 			EVSEM_SET_CP_MOS_STATUS(ch, SWITCHM_CAN_MODE); /* Set to CAN mode */
 			EVSEM_SET_CAN_START_COM(ch); /* Set CAN communication start */
 		}
@@ -785,6 +786,7 @@ static void EVSEM_StateThreeDotHandle(SysConnector_Num_Enum ch)
 	{
 		EVSEM_DEBUG("ch:%d 3' Turn off Relay! 3\n", ch);
 		EVSEM_SetRelayOff(ch);
+		EVSEM_SetChargingStatus(ch, STD_FALSE);
 		gv_stEvseM[ch].ucStopChargeReason = EVSEM_STOP_CHARGE_CP_OFF;
 		gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_ONE_dot;
 	}
@@ -792,6 +794,7 @@ static void EVSEM_StateThreeDotHandle(SysConnector_Num_Enum ch)
 	{
 		EVSEM_DEBUG("ch:%d 3' Stop CP Output! 1\n", ch);
 		EVSEM_StopCpOutput(ch);
+		EVSEM_SetChargingStatus(ch, STD_FALSE);
 		gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_THREE;
 		gv_stEvseM[ch].usWaitCnt = 0;
 	}
@@ -799,12 +802,14 @@ static void EVSEM_StateThreeDotHandle(SysConnector_Num_Enum ch)
 	{
 		EVSEM_DEBUG("ch:%d 3' Turn off Relay! 2\n", ch);
 		EVSEM_SetRelayOff(ch);
+		EVSEM_SetChargingStatus(ch, STD_FALSE);
 		gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_TWO_dot;
 		gv_stEvseM[ch].usWaitCnt = 0;
 		gv_stEvseM[ch].ucStopChargeReason = EVSEM_STOP_CHARGE_S2_OFF;
 	}
 	else
 	{
+		EVSEM_SetChargingStatus(ch, STD_TRUE);
 	}
 }
 
@@ -873,6 +878,7 @@ static void EVSEM_StateCanModelHandle(SysConnector_Num_Enum ch)
 		gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_ZERO;
 		EVSEM_SET_CP_MOS_STATUS(ch, SWITCHM_CC_CP_MODE); /* Set to CC CP mode */
 		EVSEM_STOP_CAN_COM(ch);
+		EVSEM_SetCanModeStatus(ch, STD_FALSE);
 		EVSEM_DEBUG("ch:%d CAN into zero! \n", ch);
 	}
 	CanM_Rte_EVSE_Main_Task();

@@ -231,7 +231,7 @@ void LogService_Print_Hex_Array(Log_Module_Enum module, const uint8_t *hexArray,
     if ((module >= LOG_MODULE_MAX) || !(gv_stLogServiceCtrl.ulLogModule_32 & (1 << module)) || !hexArray || len == 0)
         return;
 
-    uint8_t buf[LOGSERVICE_HEX_BUF_MAX_SIZE + 1];
+    uint8_t buf[LOGSERVICE_HEX_BUF_MAX_SIZE + 1] = {0};
     uint32_t idx = 0;
     uint16_t xResult;
 
@@ -244,7 +244,7 @@ void LogService_Print_Hex_Array(Log_Module_Enum module, const uint8_t *hexArray,
 
     if (appendNewline && idx < LOGSERVICE_HEX_BUF_MAX_SIZE)
         buf[idx++] = '\n';
-
+        buf[idx] = '\0';
     if (gv_ucLogStatus && idx > 0)
     {
         xResult = Core_Printf_AddItem((const char *)buf);

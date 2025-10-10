@@ -32,6 +32,7 @@
 |******************************************************************************/
 typedef enum {
 	STD_SYSM_SYSSTATUS_CHARGING,        	/* 系统状态字索引：桩是否在充电 0：否；1：是 */
+	STD_SYSM_SYSSTATUS_AUTHORIZATION,       /* 系统状态字索引：桩是否已授权 0：否；1：是 */
 	STD_SYSM_SYSSTATUS_CAN,        			/* 系统状态字索引：桩是否在CAN通信模式 0：否；1：是 */
 	STD_SYSM_SYSSTATUS_SAFTYMODE,		 	/* 系统状态字索引：桩是否处于安全态 0：否；1：是 */
 	STD_SYSM_SYSSTATUS_APP_UPDATING,		/* 系统状态字索引：桩是否在升级过程中 0：否；1：是 */
@@ -40,6 +41,10 @@ typedef enum {
 	STD_SYSM_SYSSTATUS_EMERGENCY_STOP,		/* 系统状态字索引：墙盒是否是急停状态，0：否；1：是 */
 }STD_SysM_SysStatus_t;
 
+typedef enum {
+    STD_SYSM_RESET_CONDITION_NOT_MET = 0,
+    STD_SYSM_RESET_CONDITION_MET,
+} STD_SysM_Reset_Condition_Result_t;
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
@@ -60,6 +65,7 @@ extern void SYSM_WakeupRestart( void );
 extern void SYSM_10msMainFunction(void);
 extern void SYSM_RunningLedHandle(void);
 
+extern void SYSM_SetResetCmd(uint16_t cmd);
 extern void SYSM_ImmediatelyResetManage(void);
 extern void SYSM_SetCpVolMode(SysConnector_Num_Enum ch, uint8_t mode);
 extern uint8_t SYSM_GetCpVolMode(SysConnector_Num_Enum ch);

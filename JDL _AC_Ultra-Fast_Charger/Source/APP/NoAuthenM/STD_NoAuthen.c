@@ -184,7 +184,8 @@ static void NOAUTHEN_NoAuthenModeHandle(SysConnector_Num_Enum ch)
 
 	if ((STD_FALSE == lv_ucAuthStatus) &&
 		(STD_FALSE == gv_stNoAuthen[ch].ucFlag) &&
-		((NOAUTHEN_CP_VOL_STATUS_9V == lv_ucCpVolStatus) || (NOAUTHEN_CP_VOL_STATUS_6V == lv_ucCpVolStatus)))
+		((NOAUTHEN_CP_VOL_STATUS_9V == lv_ucCpVolStatus) || (NOAUTHEN_CP_VOL_STATUS_6V == lv_ucCpVolStatus)\
+		||(NOAUTHEN_CP_VOL_STATUS_3V == lv_ucCpVolStatus)||(NOAUTHEN_CP_VOL_STATUS_2V == lv_ucCpVolStatus)))
 
 	{
 		gv_stNoAuthen[ch].stNoAuthReadyStatus.ucStatus = NOAUTHEN_TIMEAUTH_IS_READY;
@@ -267,8 +268,9 @@ void NOAUTHEN_100msFunction(void)
 				case NOAUTHEN_MODE_IDLE:
 				{
 					if (STD_TRUE == lv_ucAllowAuthReqStatus &&
-						((NOAUTHEN_CP_VOL_STATUS_9V == lv_ucCpVolStatus) || (NOAUTHEN_CP_VOL_STATUS_6V == lv_ucCpVolStatus)) &&
-						(NOAUTHEN_NOAUTH_OPEN == gv_stNoAuthen[ch].ucEnableStatus))
+						((NOAUTHEN_CP_VOL_STATUS_9V == lv_ucCpVolStatus) || (NOAUTHEN_CP_VOL_STATUS_6V == lv_ucCpVolStatus)\
+						|| (NOAUTHEN_CP_VOL_STATUS_3V == lv_ucCpVolStatus) || (NOAUTHEN_CP_VOL_STATUS_2V == lv_ucCpVolStatus))\
+						&&(NOAUTHEN_NOAUTH_OPEN == gv_stNoAuthen[ch].ucEnableStatus))
 					{
 						gv_stNoAuthen[ch].ucMode = NOAUTHEN_MODE_NOAUTHEN;
 						NOAUTHEN_DEBUG("ch:%d NOAUTHEN_MODE_IDLE\r\n", ch);

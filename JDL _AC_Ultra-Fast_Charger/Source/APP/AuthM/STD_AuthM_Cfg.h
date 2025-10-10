@@ -46,7 +46,7 @@
 #define AUTHM_CLOSE_BTAPP_EN						STD_OFF											/*BTapp Auth close enable state*/
 #define AUTHM_CLOSE_NETAPP_EN						STD_OFF											/*Netapp Auth close enable state*/
 #define AUTHM_CLOSE_SINGLE_TIMING_EN				STD_OFF											/*singletiming close enable state*/
-#define AUTHM_CLOSE_PERIOD_TIMING_EN				STD_OFF											/*periodtiming close nable state*/
+#define AUTHM_CLOSE_PERIOD_TIMING_EN				STD_OFF											/*periodtiming close enable state*/
 #define AUTHM_CLOSE_BUTTON_EN						STD_OFF											/*Button close enable state*/
 
 #define AUTHM_ERRHDL_CHARGE_ALLOW					ERRHDL_CHARGE_ALLOW								/*0U*/
@@ -56,7 +56,7 @@
 #define AUTHM_ERRHDL_CHARGE_SAFETY					ERRHDL_CHARGE_SAFETY							/*4U*/
 
 #define AUTHM_TASK_PERIOD                			(10U)											/*10ms*/
-#define AUTHM_NOT_PLUG_IN_TIMEOUT_CNT  				((uint32_t)300000u / AUTHM_TASK_PERIOD )		/*5 minutes*/
+#define AUTHM_NOT_PLUG_IN_TIMEOUT_CNT  				((uint32_t)2*60*1000u / AUTHM_TASK_PERIOD )		/*2 minutes*/
 
 #define AUTHM_GetChargeConditions() 				ERRHDL_GetChargeConditions()					/*get charge conditions*/
 #define AUTHM_GetResetPrepareStatus()				SYSM_GetResetPrepareStatus()					/*get system prepare status*/
@@ -67,12 +67,16 @@
 #define AUTHM_CP_VOL_STATUS_12V						CPV_VOLT_TWF								    /*1U*/
 #define AUTHM_CP_VOL_STATUS_9V						CPV_VOLT_NINE								    /*2U*/
 #define AUTHM_CP_VOL_STATUS_6V						CPV_VOLT_SIX								    /*3U*/
+#define AUTHM_CP_VOL_STATUS_4V                      CPV_VOLT_FOUR								    /*4U*/
+#define AUTHM_CP_VOL_STATUS_3V						CPV_VOLT_THREE								    /*5U*/
+#define AUTHM_CP_VOL_STATUS_2V						CPV_VOLT_TWEO                                   /*6U*/
 
 #define AUTHM_GetEvseStatus(ch)			    		EVSEM_GetChargeStatus(ch)						/*get evse status*/
 #define AUTHM_GetCpStatus(ch)	 					CPM_GetCpVoltStatus(ch)							/*get cp status*/
-#define AUTHM_GetEmerStopStatus(ch)	       		 	SYSM_GetSysStatusBit(ch, (uint32_t)STD_SYSM_SYSSTATUS_EMERGENCY_STOP)   /*get emergencystop status*/
-#define AUTHM_GetFotaStatus(ch)						SYSM_GetSysStatusBit(ch, (uint32_t)STD_SYSM_SYSSTATUS_APP_UPDATING)		/*get fota status*/
-#define AUTHM_GetSafetyStatus(ch)	  				SYSM_GetSysStatusBit(ch, (uint32_t)(STD_SYSM_SYSSTATUS_SAFTYMODE)) 	    /*get safety status*/
+#define AUTHM_GetEmerStopStatus(ch)	       		 	SYSM_GetSysStatusBit(ch, (uint32_t)STD_SYSM_SYSSTATUS_EMERGENCY_STOP)           /*get emergencystop status*/
+#define AUTHM_GetFotaStatus(ch)						SYSM_GetSysStatusBit(ch, (uint32_t)STD_SYSM_SYSSTATUS_APP_UPDATING)		        /*get fota status*/
+#define AUTHM_GetSafetyStatus(ch)	  				SYSM_GetSysStatusBit(ch, (uint32_t)(STD_SYSM_SYSSTATUS_SAFTYMODE)) 	            /*get safety status*/
+#define AUTHM_SetAuthStatus(ch, mode)               SYSM_SetSysStatusBit(ch, (uint32_t)STD_SYSM_SYSSTATUS_AUTHORIZATION, mode)      /*set auth status*/
 #define AUTHM_ClearFltInfo()						ERRHDL_ClearAuthInfor()                         /*clear fault Infor*/
 #define AUTHM_ResetEvseSelfCheckState(ch)			EVSEM_ResetStartSelfCheckStatus(ch) 			/*reset evse selfcheck state*/
 #define AUTHM_GetNoAuthStatus(ch)					NOAUTHEN_GetAuthStatus(ch)						/*get NoAuth status*/
