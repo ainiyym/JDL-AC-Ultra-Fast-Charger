@@ -1810,6 +1810,16 @@
               <FileType>1</FileType>
               <FilePath>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Session\Cloud_Protocol_Session.c</FilePath>
             </File>
+            <File>
+              <FileName>Cloud_Protocol_HeartbeatM.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_HeartbeatM.c</FilePath>
+            </File>
+            <File>
+              <FileName>Cloud_Protocol_BillingModelM.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_BillingModelM.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

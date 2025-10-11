@@ -1,22 +1,21 @@
 //******************************************************************************
-//* File Name: Cloud_Protocol.h
+//* File Name: Cloud_Protocol_HeartbeatM.h
 //* Project Name: JDL _AC_Ultra-Fast_Charger
 //* Version: v1.0
 //* Date: 2025-08-18 10:00:00
 //* Author: JDLzhou
-//* Description: Cloud Protocol module header file
+//* Description: Cloud_Protocol_HeartbeatM module header file
 /*******************************************************************************/
-#if !defined (__CLOUD_PROTOCOL_H)
+#if !defined (__CLOUD_PROTOCOL_HEARTBEATM_H)
 /* polyspace:begin<MISRA-C3:2.5:Not a defect:Justified> Normal. */
 /* polyspace<MISRA-C3:21.1:Not a defect:Justified> Normal. */
-#define __CLOUD_PROTOCOL_H
+#define __CLOUD_PROTOCOL_HEARTBEATM_H
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
+#include "stdint.h"
 #include "Cloud_Protocol_Cfg.h"
-#include "Cloud_Protocol_CallbackFunc.h"
-#include "Cloud_Protocol_HeartbeatM.h"
-#include "Cloud_Protocol_BillingModelM.h"
+#include "Cloud_Protocol_Session.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -41,12 +40,9 @@
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-extern void Cloud_Protocol_AckDeviceStatus(cloud_device_status_e status);
-extern void Cloud_Protocol_AckHeartbeatParam(bool status);
-extern void Cloud_Protocol_AckRegpkgParam(bool status);
-extern void Cloud_Protocol_AckWakeUpDTU(bool status);
-extern void Cloud_Protocol_FlashNetTime(void);
-extern void Cloud_Protocol_Init(void);
-extern void Cloud_Protocol_Main(void);
-#endif /* __CLOUD_PROTOCOL_H */
+extern bool Cloud_Protocol_Get_HeartbeatIsNormal(void);
+extern void Cloud_Protocol_Heartbeat_Handler(void);
+extern void Cloud_Protocol_Start_Heartbeat(void);
+extern void Cloud_Protocol_Set_HeartbeatResponse(void);
+#endif /* __CLOUD_PROTOCOL_HEARTBEATM_H */
 /* EOL */

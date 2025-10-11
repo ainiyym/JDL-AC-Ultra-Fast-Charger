@@ -1,0 +1,86 @@
+//******************************************************************************
+//* File Name: Cloud_Protocol_BillingModelM.c
+//* Project Name: JDL _AC_Ultra-Fast_Charger
+//* Version: v1.0
+//* Date: 2025-08-18 10:00:00
+//* Author: JDLzhou
+//* Description: Cloud_Protocol_BillingModelM module source file
+/*******************************************************************************
+|    Other Header File Inclusion
+|******************************************************************************/
+#include "Cloud_Protocol_BillingModelM.h"
+
+/*******************************************************************************
+|    Macro Definition
+|******************************************************************************/
+
+/*******************************************************************************
+|    Enum Definition
+|******************************************************************************/
+
+/*******************************************************************************
+|    Typedef Definition
+|******************************************************************************/
+typedef struct
+{
+	// Add relevant fields for billing model management
+	uint16_t billing_model_number;
+	bool is_billing_model_updated;
+} cloud_protocol_billing_model_manager_t;
+
+/*******************************************************************************
+|    Static local KAM variables Declaration
+|******************************************************************************/
+
+/*******************************************************************************
+|    Static local variables Declaration
+|******************************************************************************/
+
+/*******************************************************************************
+|    Global variables Declaration
+|******************************************************************************/
+cloud_protocol_billing_model_manager_t cloud_protocol_billing_model_manager;
+
+/*******************************************************************************
+|    Table Const Definition
+|******************************************************************************/
+
+/*******************************************************************************
+|    Static Local Functions Declaration
+|******************************************************************************/
+
+/*******************************************************************************
+|    Function Source Code
+|******************************************************************************/
+void Cloud_Protocol_FlashBillingModel(void)
+{
+    cloud_protocol_billing_model_manager.is_billing_model_updated = true;
+}
+
+void Cloud_Protocol_SetBillingModelNumber(uint16_t number)
+{
+    cloud_protocol_billing_model_manager.billing_model_number = number;
+}
+
+uint16_t Cloud_Protocol_GetBillingModelNumber(void)
+{
+    return cloud_protocol_billing_model_manager.billing_model_number;
+}
+
+void Cloud_Protocol_Start_BillingModelRequest(void)
+{
+    uint8_t msg_buffer[CLOUD_MESSAGE_BUFFER_MAX_LENGTH] = {0};
+
+    // Send the first billing model request immediately
+    Cloud_Protocol_CallSendFunc(0x05, msg_buffer, CLOUD_MESSAGE_BUFFER_MAX_LENGTH);
+}
+
+void Cloud_Protocol_UpdateBillingModelRequest(void)
+{
+    uint8_t msg_buffer[CLOUD_MESSAGE_BUFFER_MAX_LENGTH] = {0};
+
+    // Send the billing model update request
+    Cloud_Protocol_CallSendFunc(0x09, msg_buffer, CLOUD_MESSAGE_BUFFER_MAX_LENGTH);
+}
+
+/* EOL */

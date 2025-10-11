@@ -60,7 +60,6 @@ typedef struct
     Cloud_Protocol_Send_Record_T pending_requests[CLOUDM_PROTOCOL_MESSAGE_Buffer_SIZE]; // Pending request queue
     uint8_t request_count;                                                              // Current pending request count
     Cloud_Protocol_AuthenticationStatus_E is_authenticated;                             // Whether authenticated
-    time_t last_heartbeat_time;                                                         // Last heartbeat time
     uint16_t next_sequence_number;                                                      // Next sequence number
 } Cloud_Protocol_Communication_State_T;
 
@@ -129,16 +128,6 @@ void Cloud_Protocol_ResetLogInStatus(void)
     cloud_protocol_comm_state.is_authenticated = CLOUD_PROTOCOL_AUTHENTICATION_INIT;
     cloud_protocol_comm_state.next_sequence_number = 0;
     cloud_protocol_comm_state.request_count = 0;
-}
-
-time_t Cloud_Protocol_GetHbTime(void)
-{
-    return cloud_protocol_comm_state.last_heartbeat_time;
-}
-
-void Cloud_Protocol_ReFlashHbTime(void)
-{
-    cloud_protocol_comm_state.last_heartbeat_time = CLOUD_GET_TIME_MS();
 }
 
 // Get frame type configuration by frame type code
@@ -210,10 +199,11 @@ static void Cloud_Protocol_RemovePendingRequest(uint8_t element)
     {
         cloud_protocol_comm_state.pending_requests[j] = cloud_protocol_comm_state.pending_requests[j + 1];
     }
+
     cloud_protocol_comm_state.request_count--;
 }
 
-static void Cloud_Protocol_HandleRequestSuccess(const Cloud_Protocol_Frame_T *frame)
+static void Cloud_Protocol_HandleRcvSuccess(const Cloud_Protocol_Frame_T *frame)
 {
     const Cloud_Protocol_Frame_Type_Config_T *config = Cloud_Protocol_GetFrameConfig(frame->frame_type);
 
@@ -231,7 +221,7 @@ static void Cloud_Protocol_HandleRequestSuccess(const Cloud_Protocol_Frame_T *fr
             break;
 
         case 0x04: // Heartbeat packet response
-            Cloud_Protocol_ReFlashHbTime();
+
             break;
 
         case 0x06: // Billing model verification response
@@ -267,7 +257,7 @@ static void Cloud_Protocol_ProcessRcvFrame(const Cloud_Protocol_Frame_T *frame)
         {
             // Find the matching request and update the status
             record->awaiting_response = false;
-            Cloud_Protocol_HandleRequestSuccess(frame);
+            Cloud_Protocol_HandleRcvSuccess(frame);
             Cloud_Protocol_RemovePendingRequest(i);
             return;
         }
@@ -276,7 +266,7 @@ static void Cloud_Protocol_ProcessRcvFrame(const Cloud_Protocol_Frame_T *frame)
     const Cloud_Protocol_Frame_Type_Config_T *config = Cloud_Protocol_GetFrameConfig(frame->frame_type);
     if (config)
     {
-        Cloud_Protocol_HandleRequestSuccess(frame);
+        Cloud_Protocol_HandleRcvSuccess(frame);
         if (config->requires_response)
         {
             // If it requires a response, send an acknowledgment

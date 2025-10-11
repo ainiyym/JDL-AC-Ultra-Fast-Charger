@@ -45,13 +45,6 @@ enum
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
-typedef struct {
-    uint32_t last_send_time;      // The time when the heartbeat was last sent
-    uint32_t last_response_time;  // The time when the last heartbeat response was received
-    uint8_t timeout_count;        // Heartbeat timeout count
-    bool is_heartbeat_active;     // Is the heartbeat activated?
-} cloud_protocol_heartbeat_manager_t;
-
 typedef struct
 {
     uint8_t step;
@@ -62,7 +55,6 @@ typedef struct
     bool nettime_is_flash;
     uint16_t timer;
     cloud_device_status_e device_status;
-    cloud_protocol_heartbeat_manager_t heartbeat_manager;
 } cloud_protocol_ctrl_t;
 
 /*******************************************************************************
@@ -86,12 +78,8 @@ static cloud_protocol_ctrl_t cloud_protocol_ctrl;
 |    Static Local Functions Declaration
 |******************************************************************************/
 static void Cloud_Protocol_NormalOperationProcess(void);
+static void Cloud_Protocol_NormalHeartbeatProcess(void);
 static void Cloud_Protocol_ResetLogIn(void);
-static void Cloud_Protocol_Check_Heartbeat_Timeout(void);
-static void Cloud_Protocol_Heartbeat_Handler(void);
-static void Cloud_Protocol_Trigger_ReLogin(void);
-static void Cloud_Protocol_Stop_Heartbeat(void);
-
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
@@ -122,98 +110,6 @@ void Cloud_Protocol_AckWakeUpDTU(bool status)
 void Cloud_Protocol_FlashNetTime(void)
 {
     cloud_protocol_ctrl.nettime_is_flash = true;
-}
-
-static void Cloud_Protocol_ResetLogIn(void)
-{
-    cloud_protocol_ctrl.running_step = CLOUD_PROTOCOL_RUNNING_STEP_INIT;
-    Cloud_Protocol_ResetLogInStatus();
-}
-
-// Activate heartbeat
-void Cloud_Protocol_Start_Heartbeat(void)
-{
-    uint8_t msg_buffer[CLOUD_MESSAGE_BUFFER_MAX_LENGTH] = {0};
-
-    cloud_protocol_ctrl.heartbeat_manager.is_heartbeat_active = true;
-    cloud_protocol_ctrl.heartbeat_manager.timeout_count = 0;
-    cloud_protocol_ctrl.heartbeat_manager.last_send_time = CLOUD_GET_TIME_MS();
-    // Send the first heartbeat immediately
-    Cloud_Protocol_CallSendFunc(0x03, msg_buffer, CLOUD_MESSAGE_BUFFER_MAX_LENGTH);
-    // Initialize the last response time to the current time
-    Cloud_Protocol_ReFlashHbTime(); 
-    CLOUD_INFO("<%s>\r\n", __func__);
-}
-
-// Stop heartbeat
-static void Cloud_Protocol_Stop_Heartbeat(void)
-{
-    cloud_protocol_ctrl.heartbeat_manager.is_heartbeat_active = false;
-    CLOUD_INFO("<%s>\r\n", __func__);
-}
-
-static void Cloud_Protocol_Heartbeat_Handler(void)
-{
-    uint32_t current_time = CLOUD_GET_TIME_MS();
-    uint8_t msg_buffer[CLOUD_MESSAGE_BUFFER_MAX_LENGTH] = {0};
-
-    // Check if a heartbeat needs to be sent
-    if (cloud_protocol_ctrl.heartbeat_manager.is_heartbeat_active &&
-        (current_time - cloud_protocol_ctrl.heartbeat_manager.last_send_time >= CLOUD_PROTOCOL_HEARTBEAT_INTERVAL_S))
-    {
-        Cloud_Protocol_CallSendFunc(0x03, msg_buffer, CLOUD_MESSAGE_BUFFER_MAX_LENGTH);
-        cloud_protocol_ctrl.heartbeat_manager.last_send_time = current_time;
-
-        CLOUD_INFO("Heartbeat sent at time: %lu\r\n", current_time);
-    }
-
-    // Check for a heart rate response timeout
-    Cloud_Protocol_Check_Heartbeat_Timeout();
-}
-
-// Check the heart rate timeout function
-static void Cloud_Protocol_Check_Heartbeat_Timeout(void)
-{
-    uint32_t current_time = CLOUD_GET_TIME_MS();
-    time_t last_hb_time = Cloud_Protocol_GetHbTime();
-
-    // If no heartbeat response is received within 30 seconds (3 heartbeat cycles)
-    if ((current_time - last_hb_time) > CLOUD_PROTOCOL_HEARTBEAT_TIMEOUT_S)
-    {
-        cloud_protocol_ctrl.heartbeat_manager.timeout_count++;
-
-        CLOUD_WARN("Heartbeat response timeout, count: %d, last response: %lu, current: %lu\r\n",
-                   cloud_protocol_ctrl.heartbeat_manager.timeout_count, last_hb_time, current_time);
-
-        // Three consecutive timeouts trigger a re-login
-        if (cloud_protocol_ctrl.heartbeat_manager.timeout_count >= 3)
-        {
-            CLOUD_DEBUG("Heartbeat timeout exceeded limit, triggering re-login\r\n");
-            Cloud_Protocol_Trigger_ReLogin();
-            cloud_protocol_ctrl.heartbeat_manager.timeout_count = 0; // Reset count
-        }
-    }
-    else
-    {
-        // Upon receiving a valid response, reset the timeout count
-        if (cloud_protocol_ctrl.heartbeat_manager.timeout_count > 0)
-        {
-            cloud_protocol_ctrl.heartbeat_manager.timeout_count = 0;
-            CLOUD_INFO("Heartbeat response received, reset timeout count\r\n");
-        }
-    }
-}
-
-// Trigger re-login function
-static void Cloud_Protocol_Trigger_ReLogin(void)
-{
-    CLOUD_INFO("Triggering re-login due to heartbeat timeout\r\n");
-    
-    // Stop the heartbeat
-    Cloud_Protocol_Stop_Heartbeat();
-
-    // Reset login status
-    Cloud_Protocol_ResetLogIn();
 }
 
 static void Cloud_Protocol_Clear_Timeout(void)
@@ -347,6 +243,33 @@ static void Cloud_Protocol_WaitWakeUpDTUAckProcess(void)
     }
 }
 
+static void Cloud_Protocol_ResetLogIn(void)
+{
+    cloud_protocol_ctrl.running_step = CLOUD_PROTOCOL_RUNNING_STEP_INIT;
+    Cloud_Protocol_ResetLogInStatus();
+}
+
+static void Cloud_Protocol_NormalHeartbeatProcess(void)
+{
+    if (Cloud_Protocol_Get_HeartbeatIsNormal())
+    {
+        // Process non-heartbeat messages
+    }
+    else
+    {
+        CLOUD_DEBUG("Heartbeat abnormal, resetting login status\r\n");
+        Cloud_Protocol_ResetLogIn();
+    }
+}
+
+static void Cloud_Protocol_NormalOperationProcess(void)
+{
+    // Placeholder for normal operation tasks
+    Cloud_Protocol_Heartbeat_Handler();
+    // Process not heatbeat messages
+    Cloud_Protocol_NormalHeartbeatProcess();
+}
+
 static void Cloud_Protocol_RunningStepProcess(void)
 {
     uint8_t msg_buffer[CLOUD_MESSAGE_BUFFER_MAX_LENGTH] = {0};
@@ -354,6 +277,8 @@ static void Cloud_Protocol_RunningStepProcess(void)
     switch (cloud_protocol_ctrl.running_step)
     {
         case CLOUD_PROTOCOL_RUNNING_STEP_INIT:
+            // Initialize callback functions
+            Cloud_Protocol_CallbackFunc_Init();
             // send login authentication frame
             Cloud_Protocol_CallSendFunc(0x01, msg_buffer, CLOUD_MESSAGE_BUFFER_MAX_LENGTH);
             cloud_protocol_ctrl.running_step = CLOUD_PROTOCOL_RUNNING_STEP_PROCESS_DATA;
@@ -368,10 +293,8 @@ static void Cloud_Protocol_RunningStepProcess(void)
                     break;
                 case CLOUD_PROTOCOL_AUTHENTICATION_FAILED:
                     // Authentication failed, re-initiate authentication
-                    Cloud_Protocol_Stop_Heartbeat();
                     Cloud_Protocol_ResetLogIn();
-                    Cloud_Protocol_Clear_Timeout();
-                    break;
+                    // break;
                 case CLOUD_PROTOCOL_AUTHENTICATION_INIT:
                     // 30 seconds without authentication response, reset device
                     if (cloud_protocol_ctrl.timer < CLOUD_RESET_DEVICE_DELAY_TIME_S)
@@ -390,12 +313,6 @@ static void Cloud_Protocol_RunningStepProcess(void)
             }
             break;
     }
-}
-
-static void Cloud_Protocol_NormalOperationProcess(void)
-{
-    // Placeholder for normal operation tasks
-    Cloud_Protocol_Heartbeat_Handler();
 }
 
 void Cloud_Protocol_Main(void)

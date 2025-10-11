@@ -32,7 +32,7 @@
 #define CLOUDM_PROTOCOL_MESSAGE_Buffer_SIZE         (10)
 #define CLOUDM_PROTOCOL_RETRY_MAX				    (3U)
 #define CLOUDM_PROTOCOL_RETRY_INTERVAL_MS		    (2000U) // 2 seconds
-#define CLOUDM_PROTOCOL_RESPONSE_TIMEOUT_MS	        (10000U) // 10 seconds
+#define CLOUDM_PROTOCOL_RESPONSE_TIMEOUT_MS	        (20000U) // 20 seconds
 #define CLOUDM_PROTOCOL_MAX_RETRY_COUNT             (3U)
 
 #define CloudM_Crc16(data, len)                     BigLittleEnd_Swap_2_Bytes(Lib_Crc16(data, len))
@@ -100,8 +100,6 @@ extern void Cloud_Protocol_InitCommunicationState(void);
 extern Cloud_Protocol_AuthenticationStatus_E Cloud_Protocol_GetLogInStatus(void);
 extern void Cloud_Protocol_SetLogInStatus(Cloud_Protocol_AuthenticationStatus_E status);
 extern void Cloud_Protocol_ResetLogInStatus(void);
-extern time_t Cloud_Protocol_GetHbTime(void);
-extern void Cloud_Protocol_ReFlashHbTime(void);
 extern Cloud_Protocol_Parse_Status_T Cloud_Protocol_ParseProtocolFrame(const uint8_t *buffer, uint16_t buffer_length);
 extern uint16_t Cloud_Protocol_PrepareSendFrame(void* arg,
                                                 uint8_t frame_type,

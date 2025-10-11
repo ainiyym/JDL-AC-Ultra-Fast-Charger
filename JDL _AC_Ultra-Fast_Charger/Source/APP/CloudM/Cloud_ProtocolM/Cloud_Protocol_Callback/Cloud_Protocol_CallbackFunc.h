@@ -40,6 +40,7 @@
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
+void Cloud_Protocol_CallbackFunc_Init(void);
 Cloud_Protocol_Send_Status_T Cloud_Protocol_0x01_Callback(void *arg, uint8_t *buff, uint16_t buffSize);
 void Cloud_Protocol_0x02_Callback(void *arg, uint8_t *msg, uint16_t msglen);
 Cloud_Protocol_Send_Status_T Cloud_Protocol_0x03_Callback(void *arg, uint8_t *buff, uint16_t buffSize);
