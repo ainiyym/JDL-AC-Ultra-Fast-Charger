@@ -349,7 +349,7 @@ uint16_t Cloud_Protocol_PrepareSendFrame(void* arg,
                                                        message_data,
                                                        message_length);
 
-    if (frame_length > 0 && config->requires_response && NULL == arg)
+    if (frame_length > 0 && config->requires_response && NULL == arg && config->frame_type != 0x03)
     {
         // Add to the response queue
         if (cloud_protocol_comm_state.request_count < CLOUDM_PROTOCOL_MESSAGE_Buffer_SIZE)

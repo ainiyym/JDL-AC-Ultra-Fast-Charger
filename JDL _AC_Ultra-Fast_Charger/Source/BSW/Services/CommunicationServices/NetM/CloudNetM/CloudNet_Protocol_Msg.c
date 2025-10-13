@@ -105,10 +105,12 @@ void CloudNet_Protocol_RcvMsg_Process(void)
                         break;
                     case CLOUD_MESSAGE_CTRL_TYPE_SET_HEARTBEAT_PARAM:
                         YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_HBTIME, NULL, CloudNet_ProtocolMsg.MsgData[1]);
+                        vTaskDelay(pdMS_TO_TICKS(50));
                         YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_HBTIME, NULL);
                         break;
                     case CLOUD_MESSAGE_CTRL_TYPE_SET_REGPKG_MODE:
                         YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_REGPKG, NULL, CloudNet_ProtocolMsg.MsgData[1]);
+                        vTaskDelay(pdMS_TO_TICKS(50));
                         YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_REGPKG, NULL);
                         break;
                     case CLOUD_MESSAGE_CTRL_TYPE_WAKE_UP_DTU:

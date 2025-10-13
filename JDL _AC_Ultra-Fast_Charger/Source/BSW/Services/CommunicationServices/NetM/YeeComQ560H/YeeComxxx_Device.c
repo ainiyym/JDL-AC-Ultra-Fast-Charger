@@ -98,6 +98,10 @@ uint8_t YeeCom_AtCmd_Send(YeeCom_AT_Cmd_Get_Param_Type cmd_type, YeeCom_AT_Cmd c
             ret = 1;
             break;
     }
+    if (NULL == atcmd_param)
+    {
+        return 1;
+    }
 
     str = atcmd_param->str;
     cb = atcmd_param->rcvCfg.recv_cb;
@@ -105,7 +109,7 @@ uint8_t YeeCom_AtCmd_Send(YeeCom_AT_Cmd_Get_Param_Type cmd_type, YeeCom_AT_Cmd c
     atcmdconfig = &(atcmd_config_t){(char *)atcmd_param->rcvCfg.prefix,
                                     (char *)atcmd_param->rcvCfg.reply_success_postfix,
                                     (char *)atcmd_param->rcvCfg.reply_fail_postfix};
-    if (xSemaphoreTake(gv_YeeComxxx.SendMutex, pdMS_TO_TICKS(5000)) == pdTRUE)
+    if (xSemaphoreTake(gv_YeeComxxx.SendMutex, pdMS_TO_TICKS(reply_timeout)) == pdTRUE)
     {
         memset(gv_YeeComxxx.AtCmdSendBuf, 0, YEECOM_AT_CMD_SEND_BUF_SIZE);
 
@@ -383,6 +387,7 @@ static void YeeCom_SetDefaultCenterWorkingMode(void)
     YeeCom_ClearTimeout();
     YeeCom_ParameterTimeoutJudgy(YeeCom_At_Cmd_Set_Param[YEECOM_AT_CMD_WORKING_MODE].rcvCfg.reply_timeout);
     YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_WORKING_MODE, NULL, 0, YEECOM_DEFAULT_NET_TYPE, YEECOM_DEFAULT_REMOTE_IP, YEECOM_DEFAULT_REMOTE_PORT);
+    vTaskDelay(pdMS_TO_TICKS(50));
     YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_WORKING_MODE, NULL, 0);
 }
 
@@ -571,6 +576,7 @@ static void YeeCom_PeriodicHandle(void)
             YeeCom_ClearTimeout();
             // Get RSSI periodically
             YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_RSSI, NULL);
+            vTaskDelay(pdMS_TO_TICKS(50));
             YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_GSTATE, NULL);
             break;
         }
