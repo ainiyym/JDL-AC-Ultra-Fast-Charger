@@ -21,7 +21,7 @@ extern "C" {
 #define MCAL_CAN1_TEST_FILTER_MASK_ID_HIGH (0xffff)                                                                         // Filter mask high-level ID
 #define MCAL_CAN1_TEST_FILTER_MASK_ID_LOW ((0xfff0 << 3) | CAN_ID_EXT | CAN_RTR_DATA)                                       // Filter mask low-level ID
 /* MCU_STATUS3_ID CFG */
-#define MCAL_RX_MCU_STATUS3_ID 0x18FFA2EF
+#define MCAL_RX_MCU_STATUS3_ID 0x18FF10EF
 #define MCAL_CAN_MCU_STATUS3_FILTER_ID_HIGH (((uint32_t)MCAL_RX_MCU_STATUS3_ID << 3) & 0xFFFF0000) >> 16                    // High-level ID
 #define MCAL_CAN_MCU_STATUS3_FILTER_ID_LOW (((uint32_t)MCAL_RX_MCU_STATUS3_ID << 3) | CAN_ID_EXT | CAN_RTR_DATA) & 0xFFFF   // Low-level ID
 #define MCAL_CAN_MCU_STATUS3_FILTER_MASK_ID_HIGH (0xffff)                                                                   // Filter mask high-level ID
@@ -33,7 +33,7 @@ extern "C" {
 #define MCAL_CAN1_CCP_FILTER_MASK_ID_HIGH (0xffff)                                                                          // Filter mask high-level ID
 #define MCAL_CAN1_CCP_FILTER_MASK_ID_LOW (0xffff)                                                                           // Filter mask low-level ID
 /* CAN TX ID CFG */
-#define MCAL_CAN1_TX_TEST_ID 0x18FFA2EF                                                                                      // CAN test ID
+#define MCAL_CAN1_TX_TEST_ID 0x18FF10EF                                                                                      // CAN test ID
 #define MCAL_CAN1_CCP_TX_ID 0x2E2                                                                                           // CAN1 CCP TX ID
 #define MCAL_CAN_SECC_MSG1_TX_ID 0x18FF0056                                                                                 // CAN SECC_MSG1 TX ID
 #define MCAL_CAN_SECC_MSG2_TX_ID 0x18FF0156                                                                                 // CAN SECC_MSG2 TX ID

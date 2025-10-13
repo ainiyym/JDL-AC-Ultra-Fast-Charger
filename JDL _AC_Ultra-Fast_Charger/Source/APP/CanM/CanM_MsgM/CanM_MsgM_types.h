@@ -3,9 +3,9 @@
  *
  * Code generated for Simulink model 'CanM_MsgM'.
  *
- * Model version                  : 1.140
+ * Model version                  : 1.142
  * Simulink Coder version         : 23.2 (R2023b) 01-Aug-2023
- * C/C++ source code generated on : Tue Jul 29 10:19:03 2025
+ * C/C++ source code generated on : Mon Oct 13 15:28:22 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M

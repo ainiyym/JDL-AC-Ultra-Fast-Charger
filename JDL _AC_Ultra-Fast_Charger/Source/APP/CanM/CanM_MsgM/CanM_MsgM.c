@@ -3,9 +3,9 @@
  *
  * Code generated for Simulink model 'CanM_MsgM'.
  *
- * Model version                  : 1.140
+ * Model version                  : 1.142
  * Simulink Coder version         : 23.2 (R2023b) 01-Aug-2023
- * C/C++ source code generated on : Tue Jul 29 10:19:03 2025
+ * C/C++ source code generated on : Mon Oct 13 15:28:22 2025
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -178,7 +178,7 @@ void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
     localB->BusCreator1.Length = 8U;
     localB->BusCreator1.Remote = 0U;
     localB->BusCreator1.Error = 0U;
-    localB->BusCreator1.ID = 419406575U;
+    localB->BusCreator1.ID = 419369199U;
     localB->BusCreator1.Timestamp = 0.0;
     localB->BusCreator1.Data[0] = (uint8_T)(rtu_MCU_Status3_Data & 255ULL);
     localB->BusCreator1.Data[6] = (uint8_T)(rtb_y_m & 255ULL);
@@ -189,7 +189,7 @@ void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
       /* S-Function (scanunpack): '<S1>/CAN Unpack' */
       if ((8 == localB->BusCreator1.Length) && (localB->BusCreator1.ID !=
            INVALID_CAN_ID) ) {
-        if ((419406575 == localB->BusCreator1.ID) && (1U ==
+        if ((419369199 == localB->BusCreator1.ID) && (1U ==
              localB->BusCreator1.Extended) ) {
           {
             /* --------------- START Unpacking signal 0 ------------------
@@ -227,7 +227,7 @@ void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
             }
 
             /* --------------- START Unpacking signal 1 ------------------
-             *  startBit                = 8
+             *  startBit                = 4
              *  length                  = 1
              *  desiredSignalByteLayout = LITTLEENDIAN
              *  dataType                = UNSIGNED
@@ -240,7 +240,7 @@ void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
              */
 
             /* --------------- START Unpacking signal 2 ------------------
-             *  startBit                = 15
+             *  startBit                = 11
              *  length                  = 1
              *  desiredSignalByteLayout = LITTLEENDIAN
              *  dataType                = UNSIGNED
@@ -253,7 +253,7 @@ void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
              */
 
             /* --------------- START Unpacking signal 3 ------------------
-             *  startBit                = 14
+             *  startBit                = 10
              *  length                  = 1
              *  desiredSignalByteLayout = LITTLEENDIAN
              *  dataType                = UNSIGNED
@@ -279,7 +279,7 @@ void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
              */
 
             /* --------------- START Unpacking signal 5 ------------------
-             *  startBit                = 33
+             *  startBit                = 28
              *  length                  = 2
              *  desiredSignalByteLayout = LITTLEENDIAN
              *  dataType                = UNSIGNED
@@ -292,7 +292,7 @@ void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
              */
 
             /* --------------- START Unpacking signal 6 ------------------
-             *  startBit                = 27
+             *  startBit                = 20
              *  length                  = 1
              *  desiredSignalByteLayout = LITTLEENDIAN
              *  dataType                = UNSIGNED
@@ -305,7 +305,7 @@ void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
              */
 
             /* --------------- START Unpacking signal 7 ------------------
-             *  startBit                = 35
+             *  startBit                = 30
              *  length                  = 2
              *  desiredSignalByteLayout = LITTLEENDIAN
              *  dataType                = UNSIGNED
@@ -318,7 +318,7 @@ void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
              */
 
             /* --------------- START Unpacking signal 8 ------------------
-             *  startBit                = 32
+             *  startBit                = 21
              *  length                  = 1
              *  desiredSignalByteLayout = LITTLEENDIAN
              *  dataType                = UNSIGNED
@@ -335,8 +335,8 @@ void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
                   uint8_T tempValue = (uint8_T) (0);
 
                   {
-                    tempValue = tempValue | (uint8_T)((uint8_T)
-                      (localB->BusCreator1.Data[4]) & (uint8_T)(0x1U));
+                    tempValue = tempValue | (uint8_T)((uint8_T)((uint8_T)
+                      (localB->BusCreator1.Data[2]) & (uint8_T)(0x20U)) >> 5);
                   }
 
                   unpackedValue = tempValue;
@@ -352,71 +352,6 @@ void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
             }
 
             /* --------------- START Unpacking signal 9 ------------------
-             *  startBit                = 24
-             *  length                  = 1
-             *  desiredSignalByteLayout = LITTLEENDIAN
-             *  dataType                = UNSIGNED
-             *  factor                  = 1.0
-             *  offset                  = 0.0
-             * -----------------------------------------------------------------------*/
-            /*
-             * Signal is not connected or connected to terminator.
-             * No unpacking code generated.
-             */
-
-            /* --------------- START Unpacking signal 10 ------------------
-             *  startBit                = 16
-             *  length                  = 1
-             *  desiredSignalByteLayout = LITTLEENDIAN
-             *  dataType                = UNSIGNED
-             *  factor                  = 1.0
-             *  offset                  = 0.0
-             * -----------------------------------------------------------------------*/
-            /*
-             * Signal is not connected or connected to terminator.
-             * No unpacking code generated.
-             */
-
-            /* --------------- START Unpacking signal 11 ------------------
-             *  startBit                = 11
-             *  length                  = 1
-             *  desiredSignalByteLayout = LITTLEENDIAN
-             *  dataType                = UNSIGNED
-             *  factor                  = 1.0
-             *  offset                  = 0.0
-             * -----------------------------------------------------------------------*/
-            /*
-             * Signal is not connected or connected to terminator.
-             * No unpacking code generated.
-             */
-
-            /* --------------- START Unpacking signal 12 ------------------
-             *  startBit                = 20
-             *  length                  = 1
-             *  desiredSignalByteLayout = LITTLEENDIAN
-             *  dataType                = UNSIGNED
-             *  factor                  = 1.0
-             *  offset                  = 0.0
-             * -----------------------------------------------------------------------*/
-            /*
-             * Signal is not connected or connected to terminator.
-             * No unpacking code generated.
-             */
-
-            /* --------------- START Unpacking signal 13 ------------------
-             *  startBit                = 10
-             *  length                  = 1
-             *  desiredSignalByteLayout = LITTLEENDIAN
-             *  dataType                = UNSIGNED
-             *  factor                  = 1.0
-             *  offset                  = 0.0
-             * -----------------------------------------------------------------------*/
-            /*
-             * Signal is not connected or connected to terminator.
-             * No unpacking code generated.
-             */
-
-            /* --------------- START Unpacking signal 14 ------------------
              *  startBit                = 17
              *  length                  = 1
              *  desiredSignalByteLayout = LITTLEENDIAN
@@ -429,46 +364,7 @@ void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
              * No unpacking code generated.
              */
 
-            /* --------------- START Unpacking signal 15 ------------------
-             *  startBit                = 18
-             *  length                  = 1
-             *  desiredSignalByteLayout = LITTLEENDIAN
-             *  dataType                = UNSIGNED
-             *  factor                  = 1.0
-             *  offset                  = 0.0
-             * -----------------------------------------------------------------------*/
-            /*
-             * Signal is not connected or connected to terminator.
-             * No unpacking code generated.
-             */
-
-            /* --------------- START Unpacking signal 16 ------------------
-             *  startBit                = 26
-             *  length                  = 1
-             *  desiredSignalByteLayout = LITTLEENDIAN
-             *  dataType                = UNSIGNED
-             *  factor                  = 1.0
-             *  offset                  = 0.0
-             * -----------------------------------------------------------------------*/
-            /*
-             * Signal is not connected or connected to terminator.
-             * No unpacking code generated.
-             */
-
-            /* --------------- START Unpacking signal 17 ------------------
-             *  startBit                = 19
-             *  length                  = 1
-             *  desiredSignalByteLayout = LITTLEENDIAN
-             *  dataType                = UNSIGNED
-             *  factor                  = 1.0
-             *  offset                  = 0.0
-             * -----------------------------------------------------------------------*/
-            /*
-             * Signal is not connected or connected to terminator.
-             * No unpacking code generated.
-             */
-
-            /* --------------- START Unpacking signal 18 ------------------
+            /* --------------- START Unpacking signal 10 ------------------
              *  startBit                = 12
              *  length                  = 1
              *  desiredSignalByteLayout = LITTLEENDIAN
@@ -481,8 +377,112 @@ void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
              * No unpacking code generated.
              */
 
+            /* --------------- START Unpacking signal 11 ------------------
+             *  startBit                = 7
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 12 ------------------
+             *  startBit                = 16
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 13 ------------------
+             *  startBit                = 6
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 14 ------------------
+             *  startBit                = 13
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 15 ------------------
+             *  startBit                = 14
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 16 ------------------
+             *  startBit                = 19
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 17 ------------------
+             *  startBit                = 15
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
+            /* --------------- START Unpacking signal 18 ------------------
+             *  startBit                = 8
+             *  length                  = 1
+             *  desiredSignalByteLayout = LITTLEENDIAN
+             *  dataType                = UNSIGNED
+             *  factor                  = 1.0
+             *  offset                  = 0.0
+             * -----------------------------------------------------------------------*/
+            /*
+             * Signal is not connected or connected to terminator.
+             * No unpacking code generated.
+             */
+
             /* --------------- START Unpacking signal 19 ------------------
-             *  startBit                = 9
+             *  startBit                = 5
              *  length                  = 1
              *  desiredSignalByteLayout = LITTLEENDIAN
              *  dataType                = UNSIGNED
@@ -495,7 +495,7 @@ void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
              */
 
             /* --------------- START Unpacking signal 20 ------------------
-             *  startBit                = 25
+             *  startBit                = 18
              *  length                  = 1
              *  desiredSignalByteLayout = LITTLEENDIAN
              *  dataType                = UNSIGNED
@@ -508,7 +508,7 @@ void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
              */
 
             /* --------------- START Unpacking signal 21 ------------------
-             *  startBit                = 13
+             *  startBit                = 9
              *  length                  = 1
              *  desiredSignalByteLayout = LITTLEENDIAN
              *  dataType                = UNSIGNED
@@ -1006,7 +1006,7 @@ void CanM_MsgM_SECC_MSG1(boolean_T rtu_Enable, uint16_T rtu_SECC_MSG1_L1_Curr,
       }
 
       /* --------------- START Packing signal 5 ------------------
-       *  startBit                = 40
+       *  startBit                = 49
        *  length                  = 11
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1042,18 +1042,19 @@ void CanM_MsgM_SECC_MSG1(boolean_T rtu_Enable, uint16_T rtu_SECC_MSG1_L1_Curr,
 
           {
             {
-              localB->SECC_MSG1Pack.Data[5] = localB->SECC_MSG1Pack.Data[5] |
-                (uint8_T)((uint16_T)(packedValue & (uint16_T)0xFFU));
               localB->SECC_MSG1Pack.Data[6] = localB->SECC_MSG1Pack.Data[6] |
-                (uint8_T)((uint16_T)((uint16_T)(packedValue & (uint16_T)0x700U) >>
-                8));
+                (uint8_T)((uint16_T)((uint16_T)(packedValue & (uint16_T)0x7FU) <<
+                1));
+              localB->SECC_MSG1Pack.Data[7] = localB->SECC_MSG1Pack.Data[7] |
+                (uint8_T)((uint16_T)((uint16_T)(packedValue & (uint16_T)0x780U) >>
+                7));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 6 ------------------
-       *  startBit                = 51
+       *  startBit                = 40
        *  length                  = 9
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1082,12 +1083,11 @@ void CanM_MsgM_SECC_MSG1(boolean_T rtu_Enable, uint16_T rtu_SECC_MSG1_L1_Curr,
 
           {
             {
+              localB->SECC_MSG1Pack.Data[5] = localB->SECC_MSG1Pack.Data[5] |
+                (uint8_T)((uint16_T)(packedValue & (uint16_T)0xFFU));
               localB->SECC_MSG1Pack.Data[6] = localB->SECC_MSG1Pack.Data[6] |
-                (uint8_T)((uint16_T)((uint16_T)(packedValue & (uint16_T)0x1FU) <<
-                3));
-              localB->SECC_MSG1Pack.Data[7] = localB->SECC_MSG1Pack.Data[7] |
-                (uint8_T)((uint16_T)((uint16_T)(packedValue & (uint16_T)0x1E0U) >>
-                5));
+                (uint8_T)((uint16_T)((uint16_T)(packedValue & (uint16_T)0x100U) >>
+                8));
             }
           }
         }
@@ -1286,7 +1286,7 @@ void CanM_MsgM_step(void)
 
       /* --------------- START Packing signal 1 ------------------
        *  startBit                = 0
-       *  length                  = 4
+       *  length                  = 3
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
        *  factor                  = 1.0
@@ -1306,8 +1306,8 @@ void CanM_MsgM_step(void)
 
         {
           uint8_T packedValue;
-          if (packingValue > (uint8_T)(15)) {
-            packedValue = (uint8_T) 15;
+          if (packingValue > (uint8_T)(7)) {
+            packedValue = (uint8_T) 7;
           } else {
             packedValue = (uint8_T) (packingValue);
           }
@@ -1316,14 +1316,14 @@ void CanM_MsgM_step(void)
             {
               CanM_MsgM_B.SECC_MSG2Pack_d.Data[0] =
                 CanM_MsgM_B.SECC_MSG2Pack_d.Data[0] | (uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0xFU));
+                (packedValue & (uint8_T)0x7U));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 2 ------------------
-       *  startBit                = 20
+       *  startBit                = 13
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1352,16 +1352,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack_d.Data[2] =
-                CanM_MsgM_B.SECC_MSG2Pack_d.Data[2] | (uint8_T)((uint8_T)
-                ((uint8_T)(packedValue & (uint8_T)0x1U) << 4));
+              CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] =
+                CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] | (uint8_T)((uint8_T)
+                ((uint8_T)(packedValue & (uint8_T)0x1U) << 5));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 3 ------------------
-       *  startBit                = 12
+       *  startBit                = 7
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1390,16 +1390,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] =
-                CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] | (uint8_T)((uint8_T)
-                ((uint8_T)(packedValue & (uint8_T)0x1U) << 4));
+              CanM_MsgM_B.SECC_MSG2Pack_d.Data[0] =
+                CanM_MsgM_B.SECC_MSG2Pack_d.Data[0] | (uint8_T)((uint8_T)
+                ((uint8_T)(packedValue & (uint8_T)0x1U) << 7));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 4 ------------------
-       *  startBit                = 26
+       *  startBit                = 19
        *  length                  = 2
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1428,16 +1428,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack_d.Data[3] =
-                CanM_MsgM_B.SECC_MSG2Pack_d.Data[3] | (uint8_T)((uint8_T)
-                ((uint8_T)(packedValue & (uint8_T)0x3U) << 2));
+              CanM_MsgM_B.SECC_MSG2Pack_d.Data[2] =
+                CanM_MsgM_B.SECC_MSG2Pack_d.Data[2] | (uint8_T)((uint8_T)
+                ((uint8_T)(packedValue & (uint8_T)0x3U) << 3));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 5 ------------------
-       *  startBit                = 8
+       *  startBit                = 3
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1466,16 +1466,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] =
-                CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] | (uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x1U));
+              CanM_MsgM_B.SECC_MSG2Pack_d.Data[0] =
+                CanM_MsgM_B.SECC_MSG2Pack_d.Data[0] | (uint8_T)((uint8_T)
+                ((uint8_T)(packedValue & (uint8_T)0x1U) << 3));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 6 ------------------
-       *  startBit                = 10
+       *  startBit                = 5
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1504,16 +1504,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] =
-                CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] | (uint8_T)((uint8_T)
-                ((uint8_T)(packedValue & (uint8_T)0x1U) << 2));
+              CanM_MsgM_B.SECC_MSG2Pack_d.Data[0] =
+                CanM_MsgM_B.SECC_MSG2Pack_d.Data[0] | (uint8_T)((uint8_T)
+                ((uint8_T)(packedValue & (uint8_T)0x1U) << 5));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 7 ------------------
-       *  startBit                = 17
+       *  startBit                = 12
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1542,16 +1542,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack_d.Data[2] =
-                CanM_MsgM_B.SECC_MSG2Pack_d.Data[2] | (uint8_T)((uint8_T)
-                ((uint8_T)(packedValue & (uint8_T)0x1U) << 1));
+              CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] =
+                CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] | (uint8_T)((uint8_T)
+                ((uint8_T)(packedValue & (uint8_T)0x1U) << 4));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 8 ------------------
-       *  startBit                = 9
+       *  startBit                = 4
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1580,16 +1580,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] =
-                CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] | (uint8_T)((uint8_T)
-                ((uint8_T)(packedValue & (uint8_T)0x1U) << 1));
+              CanM_MsgM_B.SECC_MSG2Pack_d.Data[0] =
+                CanM_MsgM_B.SECC_MSG2Pack_d.Data[0] | (uint8_T)((uint8_T)
+                ((uint8_T)(packedValue & (uint8_T)0x1U) << 4));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 9 ------------------
-       *  startBit                = 15
+       *  startBit                = 10
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1620,14 +1620,14 @@ void CanM_MsgM_step(void)
             {
               CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] =
                 CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] | (uint8_T)((uint8_T)
-                ((uint8_T)(packedValue & (uint8_T)0x1U) << 7));
+                ((uint8_T)(packedValue & (uint8_T)0x1U) << 2));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 10 ------------------
-       *  startBit                = 22
+       *  startBit                = 15
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1656,16 +1656,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack_d.Data[2] =
-                CanM_MsgM_B.SECC_MSG2Pack_d.Data[2] | (uint8_T)((uint8_T)
-                ((uint8_T)(packedValue & (uint8_T)0x1U) << 6));
+              CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] =
+                CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] | (uint8_T)((uint8_T)
+                ((uint8_T)(packedValue & (uint8_T)0x1U) << 7));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 11 ------------------
-       *  startBit                = 14
+       *  startBit                = 9
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1696,14 +1696,14 @@ void CanM_MsgM_step(void)
             {
               CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] =
                 CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] | (uint8_T)((uint8_T)
-                ((uint8_T)(packedValue & (uint8_T)0x1U) << 6));
+                ((uint8_T)(packedValue & (uint8_T)0x1U) << 1));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 12 ------------------
-       *  startBit                = 42
+       *  startBit                = 36
        *  length                  = 12
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1739,19 +1739,19 @@ void CanM_MsgM_step(void)
 
           {
             {
+              CanM_MsgM_B.SECC_MSG2Pack_d.Data[4] =
+                CanM_MsgM_B.SECC_MSG2Pack_d.Data[4] | (uint8_T)((uint16_T)
+                ((uint16_T)(packedValue & (uint16_T)0xFU) << 4));
               CanM_MsgM_B.SECC_MSG2Pack_d.Data[5] =
                 CanM_MsgM_B.SECC_MSG2Pack_d.Data[5] | (uint8_T)((uint16_T)
-                ((uint16_T)(packedValue & (uint16_T)0x3FU) << 2));
-              CanM_MsgM_B.SECC_MSG2Pack_d.Data[6] =
-                CanM_MsgM_B.SECC_MSG2Pack_d.Data[6] | (uint8_T)((uint16_T)
-                ((uint16_T)(packedValue & (uint16_T)0xFC0U) >> 6));
+                ((uint16_T)(packedValue & (uint16_T)0xFF0U) >> 4));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 13 ------------------
-       *  startBit                = 32
+       *  startBit                = 26
        *  length                  = 10
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1780,19 +1780,19 @@ void CanM_MsgM_step(void)
 
           {
             {
+              CanM_MsgM_B.SECC_MSG2Pack_d.Data[3] =
+                CanM_MsgM_B.SECC_MSG2Pack_d.Data[3] | (uint8_T)((uint16_T)
+                ((uint16_T)(packedValue & (uint16_T)0x3FU) << 2));
               CanM_MsgM_B.SECC_MSG2Pack_d.Data[4] =
                 CanM_MsgM_B.SECC_MSG2Pack_d.Data[4] | (uint8_T)((uint16_T)
-                (packedValue & (uint16_T)0xFFU));
-              CanM_MsgM_B.SECC_MSG2Pack_d.Data[5] =
-                CanM_MsgM_B.SECC_MSG2Pack_d.Data[5] | (uint8_T)((uint16_T)
-                ((uint16_T)(packedValue & (uint16_T)0x300U) >> 8));
+                ((uint16_T)(packedValue & (uint16_T)0x3C0U) >> 6));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 14 ------------------
-       *  startBit                = 11
+       *  startBit                = 6
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1821,16 +1821,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] =
-                CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] | (uint8_T)((uint8_T)
-                ((uint8_T)(packedValue & (uint8_T)0x1U) << 3));
+              CanM_MsgM_B.SECC_MSG2Pack_d.Data[0] =
+                CanM_MsgM_B.SECC_MSG2Pack_d.Data[0] | (uint8_T)((uint8_T)
+                ((uint8_T)(packedValue & (uint8_T)0x1U) << 6));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 15 ------------------
-       *  startBit                = 16
+       *  startBit                = 11
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1859,16 +1859,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack_d.Data[2] =
-                CanM_MsgM_B.SECC_MSG2Pack_d.Data[2] | (uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x1U));
+              CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] =
+                CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] | (uint8_T)((uint8_T)
+                ((uint8_T)(packedValue & (uint8_T)0x1U) << 3));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 16 ------------------
-       *  startBit                = 13
+       *  startBit                = 8
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1899,14 +1899,14 @@ void CanM_MsgM_step(void)
             {
               CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] =
                 CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] | (uint8_T)((uint8_T)
-                ((uint8_T)(packedValue & (uint8_T)0x1U) << 5));
+                (packedValue & (uint8_T)0x1U));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 17 ------------------
-       *  startBit                = 28
+       *  startBit                = 21
        *  length                  = 3
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1935,16 +1935,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack_d.Data[3] =
-                CanM_MsgM_B.SECC_MSG2Pack_d.Data[3] | (uint8_T)((uint8_T)
-                ((uint8_T)(packedValue & (uint8_T)0x7U) << 4));
+              CanM_MsgM_B.SECC_MSG2Pack_d.Data[2] =
+                CanM_MsgM_B.SECC_MSG2Pack_d.Data[2] | (uint8_T)((uint8_T)
+                ((uint8_T)(packedValue & (uint8_T)0x7U) << 5));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 18 ------------------
-       *  startBit                = 23
+       *  startBit                = 16
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -1975,14 +1975,14 @@ void CanM_MsgM_step(void)
             {
               CanM_MsgM_B.SECC_MSG2Pack_d.Data[2] =
                 CanM_MsgM_B.SECC_MSG2Pack_d.Data[2] | (uint8_T)((uint8_T)
-                ((uint8_T)(packedValue & (uint8_T)0x1U) << 7));
+                (packedValue & (uint8_T)0x1U));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 19 ------------------
-       *  startBit                = 24
+       *  startBit                = 17
        *  length                  = 2
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2011,16 +2011,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack_d.Data[3] =
-                CanM_MsgM_B.SECC_MSG2Pack_d.Data[3] | (uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x3U));
+              CanM_MsgM_B.SECC_MSG2Pack_d.Data[2] =
+                CanM_MsgM_B.SECC_MSG2Pack_d.Data[2] | (uint8_T)((uint8_T)
+                ((uint8_T)(packedValue & (uint8_T)0x3U) << 1));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 20 ------------------
-       *  startBit                = 21
+       *  startBit                = 14
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2049,9 +2049,9 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack_d.Data[2] =
-                CanM_MsgM_B.SECC_MSG2Pack_d.Data[2] | (uint8_T)((uint8_T)
-                ((uint8_T)(packedValue & (uint8_T)0x1U) << 5));
+              CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] =
+                CanM_MsgM_B.SECC_MSG2Pack_d.Data[1] | (uint8_T)((uint8_T)
+                ((uint8_T)(packedValue & (uint8_T)0x1U) << 6));
             }
           }
         }
@@ -2259,7 +2259,7 @@ void CanM_MsgM_step(void)
 
       /* --------------- START Packing signal 1 ------------------
        *  startBit                = 0
-       *  length                  = 4
+       *  length                  = 3
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
        *  factor                  = 1.0
@@ -2279,8 +2279,8 @@ void CanM_MsgM_step(void)
 
         {
           uint8_T packedValue;
-          if (packingValue > (uint8_T)(15)) {
-            packedValue = (uint8_T) 15;
+          if (packingValue > (uint8_T)(7)) {
+            packedValue = (uint8_T) 7;
           } else {
             packedValue = (uint8_T) (packingValue);
           }
@@ -2289,14 +2289,14 @@ void CanM_MsgM_step(void)
             {
               CanM_MsgM_B.SECC_MSG2Pack.Data[0] =
                 CanM_MsgM_B.SECC_MSG2Pack.Data[0] | (uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0xFU));
+                (packedValue & (uint8_T)0x7U));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 2 ------------------
-       *  startBit                = 20
+       *  startBit                = 13
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2325,16 +2325,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack.Data[2] =
-                CanM_MsgM_B.SECC_MSG2Pack.Data[2] | (uint8_T)((uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x1U) << 4));
+              CanM_MsgM_B.SECC_MSG2Pack.Data[1] =
+                CanM_MsgM_B.SECC_MSG2Pack.Data[1] | (uint8_T)((uint8_T)((uint8_T)
+                (packedValue & (uint8_T)0x1U) << 5));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 3 ------------------
-       *  startBit                = 12
+       *  startBit                = 7
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2363,16 +2363,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack.Data[1] =
-                CanM_MsgM_B.SECC_MSG2Pack.Data[1] | (uint8_T)((uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x1U) << 4));
+              CanM_MsgM_B.SECC_MSG2Pack.Data[0] =
+                CanM_MsgM_B.SECC_MSG2Pack.Data[0] | (uint8_T)((uint8_T)((uint8_T)
+                (packedValue & (uint8_T)0x1U) << 7));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 4 ------------------
-       *  startBit                = 26
+       *  startBit                = 19
        *  length                  = 2
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2401,16 +2401,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack.Data[3] =
-                CanM_MsgM_B.SECC_MSG2Pack.Data[3] | (uint8_T)((uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x3U) << 2));
+              CanM_MsgM_B.SECC_MSG2Pack.Data[2] =
+                CanM_MsgM_B.SECC_MSG2Pack.Data[2] | (uint8_T)((uint8_T)((uint8_T)
+                (packedValue & (uint8_T)0x3U) << 3));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 5 ------------------
-       *  startBit                = 8
+       *  startBit                = 3
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2439,16 +2439,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack.Data[1] =
-                CanM_MsgM_B.SECC_MSG2Pack.Data[1] | (uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x1U));
+              CanM_MsgM_B.SECC_MSG2Pack.Data[0] =
+                CanM_MsgM_B.SECC_MSG2Pack.Data[0] | (uint8_T)((uint8_T)((uint8_T)
+                (packedValue & (uint8_T)0x1U) << 3));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 6 ------------------
-       *  startBit                = 10
+       *  startBit                = 5
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2477,16 +2477,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack.Data[1] =
-                CanM_MsgM_B.SECC_MSG2Pack.Data[1] | (uint8_T)((uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x1U) << 2));
+              CanM_MsgM_B.SECC_MSG2Pack.Data[0] =
+                CanM_MsgM_B.SECC_MSG2Pack.Data[0] | (uint8_T)((uint8_T)((uint8_T)
+                (packedValue & (uint8_T)0x1U) << 5));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 7 ------------------
-       *  startBit                = 17
+       *  startBit                = 12
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2515,16 +2515,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack.Data[2] =
-                CanM_MsgM_B.SECC_MSG2Pack.Data[2] | (uint8_T)((uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x1U) << 1));
+              CanM_MsgM_B.SECC_MSG2Pack.Data[1] =
+                CanM_MsgM_B.SECC_MSG2Pack.Data[1] | (uint8_T)((uint8_T)((uint8_T)
+                (packedValue & (uint8_T)0x1U) << 4));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 8 ------------------
-       *  startBit                = 9
+       *  startBit                = 4
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2553,16 +2553,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack.Data[1] =
-                CanM_MsgM_B.SECC_MSG2Pack.Data[1] | (uint8_T)((uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x1U) << 1));
+              CanM_MsgM_B.SECC_MSG2Pack.Data[0] =
+                CanM_MsgM_B.SECC_MSG2Pack.Data[0] | (uint8_T)((uint8_T)((uint8_T)
+                (packedValue & (uint8_T)0x1U) << 4));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 9 ------------------
-       *  startBit                = 15
+       *  startBit                = 10
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2593,14 +2593,14 @@ void CanM_MsgM_step(void)
             {
               CanM_MsgM_B.SECC_MSG2Pack.Data[1] =
                 CanM_MsgM_B.SECC_MSG2Pack.Data[1] | (uint8_T)((uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x1U) << 7));
+                (packedValue & (uint8_T)0x1U) << 2));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 10 ------------------
-       *  startBit                = 22
+       *  startBit                = 15
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2629,16 +2629,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack.Data[2] =
-                CanM_MsgM_B.SECC_MSG2Pack.Data[2] | (uint8_T)((uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x1U) << 6));
+              CanM_MsgM_B.SECC_MSG2Pack.Data[1] =
+                CanM_MsgM_B.SECC_MSG2Pack.Data[1] | (uint8_T)((uint8_T)((uint8_T)
+                (packedValue & (uint8_T)0x1U) << 7));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 11 ------------------
-       *  startBit                = 14
+       *  startBit                = 9
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2669,14 +2669,14 @@ void CanM_MsgM_step(void)
             {
               CanM_MsgM_B.SECC_MSG2Pack.Data[1] =
                 CanM_MsgM_B.SECC_MSG2Pack.Data[1] | (uint8_T)((uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x1U) << 6));
+                (packedValue & (uint8_T)0x1U) << 1));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 12 ------------------
-       *  startBit                = 42
+       *  startBit                = 36
        *  length                  = 12
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2712,19 +2712,19 @@ void CanM_MsgM_step(void)
 
           {
             {
+              CanM_MsgM_B.SECC_MSG2Pack.Data[4] =
+                CanM_MsgM_B.SECC_MSG2Pack.Data[4] | (uint8_T)((uint16_T)
+                ((uint16_T)(packedValue & (uint16_T)0xFU) << 4));
               CanM_MsgM_B.SECC_MSG2Pack.Data[5] =
                 CanM_MsgM_B.SECC_MSG2Pack.Data[5] | (uint8_T)((uint16_T)
-                ((uint16_T)(packedValue & (uint16_T)0x3FU) << 2));
-              CanM_MsgM_B.SECC_MSG2Pack.Data[6] =
-                CanM_MsgM_B.SECC_MSG2Pack.Data[6] | (uint8_T)((uint16_T)
-                ((uint16_T)(packedValue & (uint16_T)0xFC0U) >> 6));
+                ((uint16_T)(packedValue & (uint16_T)0xFF0U) >> 4));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 13 ------------------
-       *  startBit                = 32
+       *  startBit                = 26
        *  length                  = 10
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2753,19 +2753,19 @@ void CanM_MsgM_step(void)
 
           {
             {
+              CanM_MsgM_B.SECC_MSG2Pack.Data[3] =
+                CanM_MsgM_B.SECC_MSG2Pack.Data[3] | (uint8_T)((uint16_T)
+                ((uint16_T)(packedValue & (uint16_T)0x3FU) << 2));
               CanM_MsgM_B.SECC_MSG2Pack.Data[4] =
                 CanM_MsgM_B.SECC_MSG2Pack.Data[4] | (uint8_T)((uint16_T)
-                (packedValue & (uint16_T)0xFFU));
-              CanM_MsgM_B.SECC_MSG2Pack.Data[5] =
-                CanM_MsgM_B.SECC_MSG2Pack.Data[5] | (uint8_T)((uint16_T)
-                ((uint16_T)(packedValue & (uint16_T)0x300U) >> 8));
+                ((uint16_T)(packedValue & (uint16_T)0x3C0U) >> 6));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 14 ------------------
-       *  startBit                = 11
+       *  startBit                = 6
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2794,16 +2794,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack.Data[1] =
-                CanM_MsgM_B.SECC_MSG2Pack.Data[1] | (uint8_T)((uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x1U) << 3));
+              CanM_MsgM_B.SECC_MSG2Pack.Data[0] =
+                CanM_MsgM_B.SECC_MSG2Pack.Data[0] | (uint8_T)((uint8_T)((uint8_T)
+                (packedValue & (uint8_T)0x1U) << 6));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 15 ------------------
-       *  startBit                = 16
+       *  startBit                = 11
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2832,16 +2832,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack.Data[2] =
-                CanM_MsgM_B.SECC_MSG2Pack.Data[2] | (uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x1U));
+              CanM_MsgM_B.SECC_MSG2Pack.Data[1] =
+                CanM_MsgM_B.SECC_MSG2Pack.Data[1] | (uint8_T)((uint8_T)((uint8_T)
+                (packedValue & (uint8_T)0x1U) << 3));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 16 ------------------
-       *  startBit                = 13
+       *  startBit                = 8
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2871,15 +2871,15 @@ void CanM_MsgM_step(void)
           {
             {
               CanM_MsgM_B.SECC_MSG2Pack.Data[1] =
-                CanM_MsgM_B.SECC_MSG2Pack.Data[1] | (uint8_T)((uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x1U) << 5));
+                CanM_MsgM_B.SECC_MSG2Pack.Data[1] | (uint8_T)((uint8_T)
+                (packedValue & (uint8_T)0x1U));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 17 ------------------
-       *  startBit                = 28
+       *  startBit                = 21
        *  length                  = 3
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2908,16 +2908,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack.Data[3] =
-                CanM_MsgM_B.SECC_MSG2Pack.Data[3] | (uint8_T)((uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x7U) << 4));
+              CanM_MsgM_B.SECC_MSG2Pack.Data[2] =
+                CanM_MsgM_B.SECC_MSG2Pack.Data[2] | (uint8_T)((uint8_T)((uint8_T)
+                (packedValue & (uint8_T)0x7U) << 5));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 18 ------------------
-       *  startBit                = 23
+       *  startBit                = 16
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2947,15 +2947,15 @@ void CanM_MsgM_step(void)
           {
             {
               CanM_MsgM_B.SECC_MSG2Pack.Data[2] =
-                CanM_MsgM_B.SECC_MSG2Pack.Data[2] | (uint8_T)((uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x1U) << 7));
+                CanM_MsgM_B.SECC_MSG2Pack.Data[2] | (uint8_T)((uint8_T)
+                (packedValue & (uint8_T)0x1U));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 19 ------------------
-       *  startBit                = 24
+       *  startBit                = 17
        *  length                  = 2
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -2984,16 +2984,16 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack.Data[3] =
-                CanM_MsgM_B.SECC_MSG2Pack.Data[3] | (uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x3U));
+              CanM_MsgM_B.SECC_MSG2Pack.Data[2] =
+                CanM_MsgM_B.SECC_MSG2Pack.Data[2] | (uint8_T)((uint8_T)((uint8_T)
+                (packedValue & (uint8_T)0x3U) << 1));
             }
           }
         }
       }
 
       /* --------------- START Packing signal 20 ------------------
-       *  startBit                = 21
+       *  startBit                = 14
        *  length                  = 1
        *  desiredSignalByteLayout = LITTLEENDIAN
        *  dataType                = UNSIGNED
@@ -3022,9 +3022,9 @@ void CanM_MsgM_step(void)
 
           {
             {
-              CanM_MsgM_B.SECC_MSG2Pack.Data[2] =
-                CanM_MsgM_B.SECC_MSG2Pack.Data[2] | (uint8_T)((uint8_T)((uint8_T)
-                (packedValue & (uint8_T)0x1U) << 5));
+              CanM_MsgM_B.SECC_MSG2Pack.Data[1] =
+                CanM_MsgM_B.SECC_MSG2Pack.Data[1] | (uint8_T)((uint8_T)((uint8_T)
+                (packedValue & (uint8_T)0x1U) << 6));
             }
           }
         }
