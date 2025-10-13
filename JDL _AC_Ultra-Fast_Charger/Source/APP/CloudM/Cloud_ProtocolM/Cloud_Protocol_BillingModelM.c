@@ -21,12 +21,6 @@
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
-typedef struct
-{
-	// Add relevant fields for billing model management
-	uint16_t billing_model_number;
-	bool is_billing_model_updated;
-} cloud_protocol_billing_model_manager_t;
 
 /*******************************************************************************
 |    Static local KAM variables Declaration
@@ -39,7 +33,7 @@ typedef struct
 /*******************************************************************************
 |    Global variables Declaration
 |******************************************************************************/
-cloud_protocol_billing_model_manager_t cloud_protocol_billing_model_manager;
+cloud_protocol_billing_model_manager_t cloud_protocol_billing_model_manager = {0};
 
 /*******************************************************************************
 |    Table Const Definition
@@ -52,7 +46,7 @@ cloud_protocol_billing_model_manager_t cloud_protocol_billing_model_manager;
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
-void Cloud_Protocol_FlashBillingModel(void)
+void Cloud_Protocol_SetBillingModelFlag(void)
 {
     cloud_protocol_billing_model_manager.is_billing_model_updated = true;
 }
@@ -62,9 +56,19 @@ void Cloud_Protocol_SetBillingModelNumber(uint16_t number)
     cloud_protocol_billing_model_manager.billing_model_number = number;
 }
 
+void Cloud_Protocol_UpdateBillingModelTimeSlotInfo(cloud_protocol_billing_time_slot_t info)
+{
+    cloud_protocol_billing_model_manager.time_slot_info = info;
+}
+
 uint16_t Cloud_Protocol_GetBillingModelNumber(void)
 {
     return cloud_protocol_billing_model_manager.billing_model_number;
+}
+
+cloud_protocol_billing_time_slot_t Cloud_Protocol_GetBillingModelTimeSlotInfo(void)
+{
+	return cloud_protocol_billing_model_manager.time_slot_info;
 }
 
 void Cloud_Protocol_Start_BillingModelRequest(void)

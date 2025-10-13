@@ -355,7 +355,7 @@ void Cloud_Protocol_0x06_Callback(void *arg, uint8_t *msg, uint16_t bodylen)
 	Cloud_Protocol_SetBillingModelNumber(billing_model_number);
 	if (result == 0)
 	{
-		Cloud_Protocol_FlashBillingModel();
+		Cloud_Protocol_SetBillingModelFlag();
 	}
 	else
 	{
@@ -395,10 +395,25 @@ Cloud_Protocol_Send_Status_T Cloud_Protocol_0x09_Callback(void *arg, uint8_t *bu
 void Cloud_Protocol_0x0A_Callback(void *arg, uint8_t *msg, uint16_t bodylen)
 {
 	// Handle frame type 0x0A (Billing Model Request Ack)
-	// Add your processing logic here
+	uint8_t SN[CLOUD_PROTOCOL_SN_LENGTH];
+	uint16_t billing_mode_id = 0;
+	cloud_protocol_billing_time_slot_t billing_time_slot_info = {0};
+
+	memcpy(SN, &msg[7], CLOUD_PROTOCOL_SN_LENGTH);
+	if (memcmp(SN, cloud_protocol_callback_func_commom_variable.SN, CLOUD_PROTOCOL_SN_LENGTH) != 0)
+	{
+		CLOUD_ERROR("%s: SN mismatch\r\n", __func__);
+		return;
+	}
+	memcpy(&billing_mode_id, &msg[7 + CLOUD_PROTOCOL_SN_LENGTH], sizeof(billing_mode_id));
+	memcpy(&billing_time_slot_info, &msg[7 + CLOUD_PROTOCOL_SN_LENGTH + sizeof(billing_mode_id)], sizeof(billing_time_slot_info));
+	Cloud_Protocol_SetBillingModelNumber(billing_mode_id);
+	Cloud_Protocol_UpdateBillingModelTimeSlotInfo(billing_time_slot_info);
+	Cloud_Protocol_SetBillingModelFlag();
+	CLOUD_INFO("%s: Billing Model is refresh, Received billing model number: %d\r\n", __func__, billing_mode_id);
 }
 
-void Cloud_Protocol_0x12_Callback(void *arg, uint8_t *msg, uint16_t bodylen)
+void Cloud_Protocol_0x12_Callback(void *arg, uint8_t *msg, uint16_t bodylen) 
 {
 	// Handle frame type 0x12 (Read Real-time Monitor Data)
 	// Add your processing logic here
@@ -499,6 +514,58 @@ Cloud_Protocol_Send_Status_T Cloud_Protocol_0x91_Callback(void *arg, uint8_t *bu
 	}
 	// Prepare the full frame
 	uint16_t frame_length = Cloud_Protocol_PrepareSendFrame(arg, 0x91, &buff[1], buffSize - 1, body, bodylen);
+	if (frame_length == 0)
+	{
+		CLOUD_ERROR("%s: Failed to prepare send frame\r\n", __func__);
+		return CLOUD_PROTOCOL_SEND_ERROR_INVALID_PARAM;
+	}
+	// buff[0] is reserved for message type
+	buff[0] = CLOUD_MESSAGE_DATA_TYPE_CLOUD_PROTOCOL;
+	// Send the message
+	Cloud_Protocol_SendMsg(buff, frame_length + 1, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
+	return CLOUD_PROTOCOL_SEND_SUCCESS;
+}
+
+void Cloud_Protocol_0x58_Callback(void *arg, uint8_t *msg, uint16_t bodylen)
+{
+	// Handle frame type 0x58 (Billing model Settings)
+	uint8_t SN[CLOUD_PROTOCOL_SN_LENGTH] = {0};
+	uint16_t billing_mode_id = 0;
+	cloud_protocol_billing_time_slot_t billing_time_slot_info = {0};
+
+	memcpy(SN, &msg[0], CLOUD_PROTOCOL_SN_LENGTH);
+	if (memcmp(SN, cloud_protocol_callback_func_commom_variable.SN, CLOUD_PROTOCOL_SN_LENGTH) != 0)
+	{
+		CLOUD_ERROR("%s: SN mismatch\r\n", __func__);
+		return;
+	}
+	memcpy(&billing_mode_id, &msg[CLOUD_PROTOCOL_SN_LENGTH], sizeof(billing_mode_id));
+	memcpy(&billing_time_slot_info, &msg[CLOUD_PROTOCOL_SN_LENGTH + sizeof(billing_mode_id)], sizeof(billing_time_slot_info));
+	Cloud_Protocol_SetBillingModelNumber(billing_mode_id);
+	Cloud_Protocol_UpdateBillingModelTimeSlotInfo(billing_time_slot_info);
+	Cloud_Protocol_SetBillingModelFlag();
+	CLOUD_INFO("%s: Billing Model is refresh, Received billing model number: %d\r\n", __func__, billing_mode_id);
+}
+
+Cloud_Protocol_Send_Status_T Cloud_Protocol_0x57_Callback(void *arg, uint8_t *buff, uint16_t buffSize)
+{
+	// Handle frame type 0x57 (Billing model Settings Ack)
+	uint8_t body[CLOUD_PROTOCOL_0x57_BODY_LENGTH] = {0};
+	uint16_t bodylen = 0;
+	// Fill in the message body
+	// SN
+	memcpy(&body[bodylen], cloud_protocol_callback_func_commom_variable.SN, CLOUD_PROTOCOL_SN_LENGTH);
+	bodylen += CLOUD_PROTOCOL_SN_LENGTH;
+	// Result
+	body[bodylen] = 1; // Assuming 1 means success
+	bodylen += 1;
+	if (bodylen != CLOUD_PROTOCOL_0x57_BODY_LENGTH)
+	{
+		CLOUD_ERROR("%s: Message length mismatch, expected %d, got %d\r\n", __func__, CLOUD_PROTOCOL_0x57_BODY_LENGTH, bodylen);
+		return CLOUD_PROTOCOL_SEND_ERROR_MESSAGE_LENGTH_MISMATCH;
+	}
+	// Prepare the full frame
+	uint16_t frame_length = Cloud_Protocol_PrepareSendFrame(arg, 0x57, &buff[1], buffSize - 1, body, bodylen);
 	if (frame_length == 0)
 	{
 		CLOUD_ERROR("%s: Failed to prepare send frame\r\n", __func__);

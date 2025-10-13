@@ -33,6 +33,7 @@
 #define CLOUD_PROTOCOL_0x05_BODY_LENGTH             (9)         // SN(7)+bollingmodel(2)
 #define CLOUD_PROTOCOL_0x09_BODY_LENGTH             (7)         // SN(7)
 #define CLOUD_PROTOCOL_0x55_BODY_LENGTH             (14)        // SN(7)+device CP56Time2a(7)
+#define CLOUD_PROTOCOL_0x57_BODY_LENGTH             (8)         // SN(7)+result(1)
 #define CLOUD_PROTOCOL_0x91_BODY_LENGTH             (8)         // SN(7)+result(1)
 
 #define CLOUD_PROTOCOL_SN_LENGTH                    (7U)        // Device SN length

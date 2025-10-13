@@ -91,6 +91,8 @@ static const Cloud_Protocol_Frame_Type_Config_T CLOUD_PROTOCOL_FRAME_CONFIG_TABL
     {0x13,      "Offline Monitor Data",                 Cloud_Protocol_0x13_Callback,                 NULL,                                       false,         0x00},
     {0x56,      "Time synchronization Settings",        NULL,                                         Cloud_Protocol_0x56_Callback,               true,          0x55},
     {0x55,      "Time synchronization Settings Ack",    Cloud_Protocol_0x55_Callback,                 NULL,                                       false,         0x00},
+    {0x58,      "Billing model Settings",               NULL,                                         Cloud_Protocol_0x58_Callback,               true,          0x57},
+    {0x57,      "Billing model Settings Ack",           Cloud_Protocol_0x57_Callback,                 NULL,                                       false,         0x00},
     {0x92,      "Remote reset",                         NULL,                                         Cloud_Protocol_0x92_Callback,               true,          0x91},
     {0x91,      "Remote reset Ack",                     Cloud_Protocol_0x91_Callback,                 NULL,                                       false,         0x00}
 };
