@@ -34,7 +34,7 @@
 typedef struct
 {
 	bool is_initialized;
-	uint8_t SN[CLOUD_PROTOCOL_SN_LENGTH];	// Serial Number(BCD Format)
+	uint8_t SN[CLOUD_PROTOCOL_SN_LENGTH];   // Charger Serial Number (BCD Format)
 	uint8_t SIM[CLOUD_PROTOCOL_SIM_LENGTH]; // SIM ICCID Card(BCD Format)
 } cloud_protocol_callback_func_commom_variable_t;
 
@@ -58,8 +58,6 @@ static cloud_protocol_callback_func_commom_variable_t cloud_protocol_callback_fu
 /*******************************************************************************
 |    Static Local Functions Declaration
 |******************************************************************************/
-int string_to_packed_bcd(const char *str, uint8_t *bcd, size_t bcd_size);
-char *uint8_array_to_hex_string(const uint8_t *array, size_t len);
 
 /*******************************************************************************
 |    Function Source Code
@@ -69,18 +67,15 @@ void Cloud_Protocol_CallbackFunc_Init(void)
 	// Initialize common variables
 	int Bcdlength = 0;
 	//SN
-	char SN[CLOUD_EV_SN_LEN] = {0};
-	Cloud_Ev_Get_Constant_Info(CLOUD_CONST_SERIAL_NUMBER, SN, sizeof(SN));
-	Bcdlength = string_to_packed_bcd(SN, &cloud_protocol_callback_func_commom_variable.SN[0], CLOUD_PROTOCOL_SN_LENGTH);
-	if (Bcdlength != CLOUD_PROTOCOL_SN_LENGTH)
+	if (!Cloud_Ev_Get_Constant_Info(CLOUD_CONST_SERIAL_NUMBER, &cloud_protocol_callback_func_commom_variable.SN[0], CLOUD_PROTOCOL_SN_LENGTH))
 	{
-		// Error handling
-		CLOUD_ERROR("%s: Invalid SN format\r\n", __func__);
+		CLOUD_ERROR("%s: Failed to get SN from constant info\r\n", __func__);
+		return;
 	}
 	//SIM ICCID Card
 	char simCard[YEECOM_ICCID_LENGTH + 1] = {0};
 	YeeCom_GetDeviceInfo(NULL, NULL, (char *)simCard, NULL, NULL, NULL);
-	Bcdlength = string_to_packed_bcd(simCard, &cloud_protocol_callback_func_commom_variable.SIM[0], CLOUD_PROTOCOL_SIM_LENGTH);
+	Bcdlength = Cloud_String_To_Packed_Bcd(simCard, &cloud_protocol_callback_func_commom_variable.SIM[0], CLOUD_PROTOCOL_SIM_LENGTH);
 	if (Bcdlength != CLOUD_PROTOCOL_SIM_LENGTH)
 	{
 		// Error handling
@@ -88,86 +83,6 @@ void Cloud_Protocol_CallbackFunc_Init(void)
 	}
 	cloud_protocol_callback_func_commom_variable.is_initialized = true;
 	CLOUD_INFO("<%s>init success\r\n", __func__);
-}
-
-/**
- * String to compressed BCD code
- * @param str Enter a numeric string
- * @param bcd Output the BCD buffer
- * @param bcd_size Buffer size
- * @return The number of BCD bytes successfully converted, and -1 returned if failed
- */
-int string_to_packed_bcd(const char *str, uint8_t *bcd, size_t bcd_size)
-{
-	if (str == NULL || bcd == NULL || bcd_size == 0)
-	{
-		return -1;
-	}
-
-	size_t len = strlen(str);
-	if (len == 0)
-	{
-		return 0;
-	}
-
-	// Calculate the required number of BCD bytes (storing 2 digits per byte)
-	size_t bcd_bytes_needed = (len + 1) / 2;
-	if (bcd_bytes_needed > bcd_size)
-	{
-		return -1; // Buffer is insufficient
-	}
-
-	memset(bcd, 0, bcd_size);
-
-	int bcd_index = 0;
-	int shift_high = 1; // Start from a high position
-
-	// Big-endian pattern: Processing from the beginning of the string backward (with the high bits first)
-	for (size_t i = 0; i < len; i++)
-	{
-		uint8_t digit = str[i] - '0';
-
-		if (shift_high)
-		{
-			bcd[bcd_index] = digit << 4; // The number is placed in the top four digits
-			shift_high = 0;
-		}
-		else
-		{
-			bcd[bcd_index] |= digit; // The number is placed in the bottom four digits
-			bcd_index++;
-			shift_high = 1;
-		}
-	}
-
-	return bcd_bytes_needed;
-}
-
-char *uint8_array_to_hex_string(const uint8_t *array, size_t len)
-{
-	if (array == NULL || len == 0)
-	{
-		return NULL;
-	}
-
-	// Each byte requires two characters to represent it, plus a string terminator
-	char *result = (char *)pvPortMalloc(len * 2 + 1);
-	if (result == NULL)
-	{
-		return NULL;
-	}
-
-	for (size_t i = 0; i < len; i++)
-	{
-		// Convert the high 4 bits and low 4 bits of each byte to hexadecimal characters respectively
-		sprintf(result + i * 2, "%02x", array[i]);
-	}
-
-	result[len * 2] = '\0'; // Add a string terminator
-
-	CLOUD_INFO("array:");
-	CLOUD_PRINT_HEX(array, len);
-	return result;
 }
 
 // Parse protocol frames

@@ -58,6 +58,15 @@ void Cloud_Protocol_SetBillingModelNumber(uint16_t number)
 
 void Cloud_Protocol_UpdateBillingModelTimeSlotInfo(cloud_protocol_billing_time_slot_t info)
 {
+    BIGLITTLEEND_SWAP_4_BYTES(info.high_rate.electricity_rate);
+    BIGLITTLEEND_SWAP_4_BYTES(info.high_rate.service_rate);
+    BIGLITTLEEND_SWAP_4_BYTES(info.peak_rate.electricity_rate);
+    BIGLITTLEEND_SWAP_4_BYTES(info.peak_rate.service_rate);
+    BIGLITTLEEND_SWAP_4_BYTES(info.normal_rate.electricity_rate);
+    BIGLITTLEEND_SWAP_4_BYTES(info.normal_rate.service_rate);
+    BIGLITTLEEND_SWAP_4_BYTES(info.valley_rate.electricity_rate);
+    BIGLITTLEEND_SWAP_4_BYTES(info.valley_rate.service_rate);
+    
     cloud_protocol_billing_model_manager.time_slot_info = info;
 }
 

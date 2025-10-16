@@ -16,6 +16,7 @@
 #include "stdint.h"
 #include "Cloud_Protocol_Cfg.h"
 #include "Cloud_Protocol_Session.h"
+#include "Mcal_BigLittle_Endian.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -66,6 +67,7 @@ typedef struct
 extern void Cloud_Protocol_Start_BillingModelRequest(void);
 extern void Cloud_Protocol_UpdateBillingModelRequest(void);
 extern void Cloud_Protocol_SetBillingModelFlag(void);
+extern void Cloud_Protocol_UpdateBillingModelTimeSlotInfo(cloud_protocol_billing_time_slot_t info);
 extern cloud_protocol_billing_model_manager_t Cloud_Protocol_GetBillingModelInfo(void);
 extern cloud_protocol_billing_time_slot_t Cloud_Protocol_GetBillingModelTimeSlotInfo(void);
 extern void Cloud_Protocol_SetBillingModelNumber(uint16_t number);

@@ -37,6 +37,7 @@
 #define CLOUD_PROTOCOL_0x91_BODY_LENGTH             (8)         // SN(7)+result(1)
 
 #define CLOUD_PROTOCOL_SN_LENGTH                    (7U)        // Device SN length
+#define CLOUD_PROTOCOL_TRANSACTION_ID_LENGTH        (16U)       // Transaction ID length
 #define CLOUD_PROTOCOL_PROTOCOL_VERSION             (0X10)      // Communication protocol version (actual version * 10, v1.0 = 0X0A, v1.6 = 0X10)
 #define CLOUD_PROTOCOL_SOFTWARE_VERSION_LENGTH      (8U)        // Software version length (including terminator)
 #define CLOUD_PROTOCOL_SIM_LENGTH                   (10U)       // SIM card number length (BCD code, 10 bits + 1 terminator)

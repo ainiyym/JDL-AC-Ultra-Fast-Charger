@@ -9,6 +9,7 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "Cloud_EV_Charger_Information.h"
+#include "Cloud_Protocol_ChargingOrder.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -53,6 +54,86 @@ void Cloud_Ev_InfoInit(void)
     memset(&Cloud_Ev_Charger_Dynamic_Info, 0, sizeof(Cloud_Ev_Charger_Dynamic_Info_T));
 }
 
+/**
+ * String to compressed BCD code
+ * @param str Enter a numeric string
+ * @param bcd Output the BCD buffer
+ * @param bcd_size Buffer size
+ * @return The number of BCD bytes successfully converted, and -1 returned if failed
+ */
+int Cloud_String_To_Packed_Bcd(const char *str, uint8_t *bcd, size_t bcd_size)
+{
+	if (str == NULL || bcd == NULL || bcd_size == 0)
+	{
+		return -1;
+	}
+
+	size_t len = strlen(str);
+	if (len == 0)
+	{
+		return 0;
+	}
+
+	// Calculate the required number of BCD bytes (storing 2 digits per byte)
+	size_t bcd_bytes_needed = (len + 1) / 2;
+	if (bcd_bytes_needed > bcd_size)
+	{
+		return -1; // Buffer is insufficient
+	}
+
+	memset(bcd, 0, bcd_size);
+
+	int bcd_index = 0;
+	int shift_high = 1; // Start from a high position
+
+	// Big-endian pattern: Processing from the beginning of the string backward (with the high bits first)
+	for (size_t i = 0; i < len; i++)
+	{
+		uint8_t digit = str[i] - '0';
+
+		if (shift_high)
+		{
+			bcd[bcd_index] = digit << 4; // The number is placed in the top four digits
+			shift_high = 0;
+		}
+		else
+		{
+			bcd[bcd_index] |= digit; // The number is placed in the bottom four digits
+			bcd_index++;
+			shift_high = 1;
+		}
+	}
+
+	return bcd_bytes_needed;
+}
+
+char *Cloud_Uint8_Array_To_Hex_String(const uint8_t *array, size_t len)
+{
+	if (array == NULL || len == 0)
+	{
+		return NULL;
+	}
+
+	// Each byte requires two characters to represent it, plus a string terminator
+	char *result = (char *)pvPortMalloc(len * 2 + 1);
+	if (result == NULL)
+	{
+		return NULL;
+	}
+
+	for (size_t i = 0; i < len; i++)
+	{
+		// Convert the high 4 bits and low 4 bits of each byte to hexadecimal characters respectively
+		sprintf(result + i * 2, "%02x", array[i]);
+	}
+
+	result[len * 2] = '\0'; // Add a string terminator
+
+	CLOUD_INFO("array:");
+	CLOUD_PRINT_HEX(array, len);
+	return result;
+}
+
 bool Cloud_Ev_Set_Constant_Info(Cloud_Constant_Field_E field, const void *value)
 {
     if (value == NULL && field != CLOUD_CONST_ALL_FIELDS)
@@ -74,36 +155,48 @@ bool Cloud_Ev_Set_Constant_Info(Cloud_Constant_Field_E field, const void *value)
             break;
 
         case CLOUD_CONST_SERIAL_NUMBER:
-            if (strlen((const char *)value) >= CLOUD_EV_SN_LEN)
             {
-                return false;
+                if (strlen((const char *)value) >= CLOUD_EV_SN_LEN)
+                {
+                    return false;
+                }
+                char SN[CLOUD_EV_SN_LEN] = {0};
+                int Bcdlength = 0;
+
+                strncpy(SN, (const char *)value, CLOUD_EV_SN_LEN - 1);
+                SN[CLOUD_EV_SN_LEN - 1] = '\0';
+                Bcdlength = Cloud_String_To_Packed_Bcd(SN, &Cloud_Ev_Charger_Constant_Info.serial_number[0], CLOUD_PROTOCOL_SN_LENGTH);
+                if (Bcdlength != CLOUD_PROTOCOL_SN_LENGTH)
+                {
+                    // Error handling
+                    CLOUD_ERROR("%s: Invalid SN format\r\n", __func__);
+                    return false;
+                }
+
+                cloud_protocol_transaction_id_config_t new_config = {0};
+                memcpy(new_config.SN, Cloud_Ev_Charger_Constant_Info.serial_number, CLOUD_PROTOCOL_SN_LENGTH);
+                cloud_protocol_charging_order_init(&new_config); // Reinitialize order module with new SN
             }
-            strncpy(Cloud_Ev_Charger_Constant_Info.serial_number,
-                    (const char *)value,
-                    CLOUD_EV_SN_LEN - 1);
-            Cloud_Ev_Charger_Constant_Info.serial_number[CLOUD_EV_SN_LEN - 1] = '\0';
             break;
 
         case CLOUD_CONST_FIRMWARE_VERSION:
-            if (strlen((const char *)value) >= CLOUD_EV_FIRMWARE_VERSION_LEN)
+            if (sizeof((const char *)value) >= CLOUD_EV_FIRMWARE_VERSION_LEN)
             {
                 return false;
             }
-            strncpy(Cloud_Ev_Charger_Constant_Info.firmware_version,
-                    (const char *)value,
-                    CLOUD_EV_FIRMWARE_VERSION_LEN - 1);
-            Cloud_Ev_Charger_Constant_Info.firmware_version[CLOUD_EV_FIRMWARE_VERSION_LEN - 1] = '\0';
+            memcpy(Cloud_Ev_Charger_Constant_Info.firmware_version,
+                   (const char *)value,
+                   CLOUD_EV_FIRMWARE_VERSION_LEN);
             break;
 
         case CLOUD_CONST_HARDWARE_VERSION:
-            if (strlen((const char *)value) >= CLOUD_EV_HARDWARE_VERSION_LEN)
+            if (sizeof((const char *)value) >= CLOUD_EV_HARDWARE_VERSION_LEN)
             {
                 return false;
             }
-            strncpy(Cloud_Ev_Charger_Constant_Info.hardware_version,
-                    (const char *)value,
-                    CLOUD_EV_HARDWARE_VERSION_LEN - 1);
-            Cloud_Ev_Charger_Constant_Info.hardware_version[CLOUD_EV_HARDWARE_VERSION_LEN - 1] = '\0';
+            memcpy(Cloud_Ev_Charger_Constant_Info.hardware_version,
+                   (const char *)value,
+                   CLOUD_EV_HARDWARE_VERSION_LEN);
             break;
 
         case CLOUD_CONST_CONNECTOR_TYPE:
@@ -186,12 +279,12 @@ bool Cloud_Ev_Set_Dynamic_Info(uint8_t connector_id , Cloud_Dynamic_Field_E fiel
             break;
         }
 
-        case CLOUD_DYNAMIC_CURRENT_POWER:
+        case CLOUD_DYNAMIC_CURRENT_VOLTAGE:
         {
             uint16_t power = *(const uint16_t *)value;
             if (power > Cloud_Ev_Charger_Constant_Info.max_charging_voltage)
                 return false;
-            Cloud_Ev_Charger_Dynamic_Info.current_power[connector_id] = power;
+            Cloud_Ev_Charger_Dynamic_Info.current_voltage[connector_id] = power;
             break;
         }
 
@@ -217,8 +310,15 @@ bool Cloud_Ev_Set_Dynamic_Info(uint8_t connector_id , Cloud_Dynamic_Field_E fiel
             Cloud_Ev_Charger_Dynamic_Info.total_energy_dispensed[connector_id] = *(const uint32_t *)value;
             break;
 
+        case CLOUD_DYNAMIC_TOTAL_ENERGY_TIME:
+            Cloud_Ev_Charger_Dynamic_Info.total_energy_dispensed_time[connector_id] = *(const uint16_t *)value;
+            break;
+
         case CLOUD_DYNAMIC_FAULT_CODE:
             Cloud_Ev_Charger_Dynamic_Info.fault_code = *(const uint32_t *)value;
+            break;
+        case CLOUD_DYNAMIC_HARDWARE_FAULT_CODE:
+            Cloud_Ev_Charger_Dynamic_Info.hardware_fault[connector_id] = *(const Cloud_Ev_RealTimedData_Hardware_Fault_t *)value;
             break;
 
         case CLOUD_DYNAMIC_ALL_FIELDS:
@@ -251,24 +351,21 @@ bool Cloud_Ev_Get_Constant_Info(Cloud_Constant_Field_E field, void *value, size_
             break;
 
         case CLOUD_CONST_SERIAL_NUMBER:
-            if (value_size < CLOUD_EV_SN_LEN)
+            if (value_size < CLOUD_PROTOCOL_SN_LENGTH)
                 return false;
-            strncpy((char *)value, Cloud_Ev_Charger_Constant_Info.serial_number, CLOUD_EV_SN_LEN - 1);
-            ((char *)value)[CLOUD_EV_SN_LEN - 1] = '\0';
+            memcpy((char *)value, Cloud_Ev_Charger_Constant_Info.serial_number, CLOUD_PROTOCOL_SN_LENGTH);
             break;
 
         case CLOUD_CONST_FIRMWARE_VERSION:
             if (value_size < CLOUD_EV_FIRMWARE_VERSION_LEN)
                 return false;
-            strncpy((char *)value, Cloud_Ev_Charger_Constant_Info.firmware_version, CLOUD_EV_FIRMWARE_VERSION_LEN - 1);
-            ((char *)value)[CLOUD_EV_FIRMWARE_VERSION_LEN - 1] = '\0';
+            memcpy((char *)value, Cloud_Ev_Charger_Constant_Info.firmware_version, CLOUD_EV_FIRMWARE_VERSION_LEN);
             break;
 
         case CLOUD_CONST_HARDWARE_VERSION:
             if (value_size < CLOUD_EV_HARDWARE_VERSION_LEN)
                 return false;
-            strncpy((char *)value, Cloud_Ev_Charger_Constant_Info.hardware_version, CLOUD_EV_HARDWARE_VERSION_LEN - 1);
-            ((char *)value)[CLOUD_EV_HARDWARE_VERSION_LEN - 1] = '\0';
+            memcpy((char *)value, Cloud_Ev_Charger_Constant_Info.hardware_version, CLOUD_EV_HARDWARE_VERSION_LEN);
             break;
 
         case CLOUD_CONST_CONNECTOR_TYPE:
@@ -330,9 +427,9 @@ bool Cloud_Ev_Get_Dynamic_Info(uint8_t connector_id, Cloud_Dynamic_Field_E field
             *(Cloud_Ev_Connector_StatusType_E *)value = Cloud_Ev_Charger_Dynamic_Info.connector_status[connector_id];
             break;
 
-        case CLOUD_DYNAMIC_CURRENT_POWER:
+        case CLOUD_DYNAMIC_CURRENT_VOLTAGE:
             if (value_size < sizeof(uint16_t)) return false;
-            *(uint16_t *)value = Cloud_Ev_Charger_Dynamic_Info.current_power[connector_id];
+            *(uint16_t *)value = Cloud_Ev_Charger_Dynamic_Info.current_voltage[connector_id];
             break;
             
         case CLOUD_DYNAMIC_CURRENT_CURRENT:
@@ -350,11 +447,21 @@ bool Cloud_Ev_Get_Dynamic_Info(uint8_t connector_id, Cloud_Dynamic_Field_E field
             *(uint32_t *)value = Cloud_Ev_Charger_Dynamic_Info.total_energy_dispensed[connector_id];
             break;
             
+        case CLOUD_DYNAMIC_TOTAL_ENERGY_TIME:
+            if (value_size < sizeof(uint16_t)) return false;
+            *(uint16_t *)value = Cloud_Ev_Charger_Dynamic_Info.total_energy_dispensed_time[connector_id];
+            break;
+
         case CLOUD_DYNAMIC_FAULT_CODE:
             if (value_size < sizeof(uint32_t)) return false;
             *(uint32_t *)value = Cloud_Ev_Charger_Dynamic_Info.fault_code;
             break;
             
+        case CLOUD_DYNAMIC_HARDWARE_FAULT_CODE:
+            if (value_size < sizeof(Cloud_Ev_RealTimedData_Hardware_Fault_t)) return false;
+            *(Cloud_Ev_RealTimedData_Hardware_Fault_t *)value = Cloud_Ev_Charger_Dynamic_Info.hardware_fault[connector_id];
+            break;
+
         case CLOUD_DYNAMIC_ALL_FIELDS:
             if (value_size < sizeof(Cloud_Ev_Charger_Dynamic_Info_T)) return false;
             memcpy(value, &Cloud_Ev_Charger_Dynamic_Info, sizeof(Cloud_Ev_Charger_Dynamic_Info_T));
