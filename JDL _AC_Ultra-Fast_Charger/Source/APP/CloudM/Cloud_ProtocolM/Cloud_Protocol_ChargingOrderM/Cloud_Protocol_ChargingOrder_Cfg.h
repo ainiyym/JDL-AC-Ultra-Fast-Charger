@@ -16,10 +16,10 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "STD_Rtc.h"
-#include "FlashDB_AppM.h"
 #include "Cloud_EV_Charger_Information.h"
 #include "Cloud_Protocol_BillingModelM.h"
 #include "Cloud_Cfg.h"
+#include "FlashDB_AppM.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -57,6 +57,9 @@
 
 #define CLOUD_PROTOCOL_GET_CP56TIME2A(pCp56_data)                               RTC_GetCP56Time2a((uint8_t *)(pCp56_data)) // get CP56Time2a(BCD)
 #define CLOUD_PROTOCOL_GET_BILLING_MODEL_TIME_SLOT_INFO()                       Cloud_Protocol_GetBillingModelTimeSlotInfo() // get billing model time slot info
+
+#define CLOUD_PROTOCOL_READ_ORDER_SEQUENCE(buff, bufflen)                       FlashDB_ReadValue(FLASHDB_KV_ORDER_SEQUENCE, buff, bufflen, NULL) // read order sequence from storage
+#define CLOUD_PROTOCOL_SAVE_ORDER_SEQUENCE(buff, bufflen)                       FlashDB_WriteValue(FLASHDB_KV_ORDER_SEQUENCE, buff, bufflen) // save order sequence to storage
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/

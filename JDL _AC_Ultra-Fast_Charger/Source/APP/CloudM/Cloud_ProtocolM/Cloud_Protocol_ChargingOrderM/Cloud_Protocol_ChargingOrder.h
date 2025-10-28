@@ -186,7 +186,7 @@ typedef struct
     cloud_protocol_transaction_type_t transaction_type;           // Transaction identifier
     CP56Time2a_t transaction_time;                                // Transaction time
     cloud_protocol_StopCharging_Type_E stop_reason;               // Stop reason
-    uint8_t physical_card[8];                                     // Physical card number (8 bytes BIN code)
+    uint8_t physical_card[CLOUD_PROTOCOL_RFID_UID_LENGTH];        // Physical card number (8 bytes BIN code)
 } cloud_protocol_charging_order_t;
 
 typedef struct

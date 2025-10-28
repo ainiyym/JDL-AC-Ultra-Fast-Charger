@@ -14,9 +14,9 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "stdint.h"
-#include "STD_Rtc.h"
 #include "STD_LogService.h"
 #include "MessageBuffer.h"
+#include "STD_Rtc.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -49,26 +49,26 @@
 #define CLOUDM_MALLOC(size)                                                 pvPortMalloc(size)
 #define CLOUDM_FREE(ptr)                                                    vPortFree(ptr)
 /* Time */
-#define CLOUD_GET_TIME_MS() ({                          \
-    static time_t base_time = 0;                        \
-    time_t current_ticks = xTaskGetTickCount();         \
-    time_t timestamp;                                   \
-    if (base_time == 0)                                 \
-    {                                                   \
+#define CLOUD_GET_TIME_MS() ({                            \
+    static time_t base_time = 0;                          \
+    time_t current_ticks = xTaskGetTickCount();           \
+    time_t timestamp;                                     \
+    if (base_time == 0)                                   \
+    {                                                     \
         base_time = 1756699200; /* 2025-09-01 12:00:00 */ \
-    }                                                   \
-    timestamp = base_time + current_ticks;              \
-    timestamp; /* return the timestamp */                         \
+    }                                                     \
+    timestamp = base_time + current_ticks;                \
+    timestamp; /* return the timestamp */                 \
 })
 
 #define CLOUD_GET_TIME_MS_PTR(timer)      \
-do                                    \
-{                                     \
-    if (timer != NULL)                \
-    {                                 \
-        *timer = CLOUD_GET_TIME_MS(); \
-    }                                 \
-} while (0)
+    do                                    \
+    {                                     \
+        if (timer != NULL)                \
+        {                                 \
+            *timer = CLOUD_GET_TIME_MS(); \
+        }                                 \
+    } while (0)
 /******************************************************************************
 |    Enum Definition
 |******************************************************************************/

@@ -180,22 +180,15 @@ static cloud_protocol_charging_cloud_protocol_order_manager_t *cloud_protocol_lo
 
 static bool cloud_protocol_load_sequence_from_storage(void)
 {
-    // TODO: Load the serial number from KVDB
-    CLOUD_INFO("Loading sequences from storage\r\n");
-    for (int i = 0; i < CLOUD_PROTOCOL_CHARGING_ORDER_MAX_GUNS; i++)
-    {
-        cloud_protocol_order_manager.config.sequence[i] = 1000 * (i + 1); // dummy data
-    }
+    CLOUD_PROTOCOL_READ_ORDER_SEQUENCE(&cloud_protocol_order_manager.config.sequence[0], sizeof(cloud_protocol_order_manager.config.sequence));
+    CLOUD_INFO("<%s> sequence0:%d sequence1:%d \r\n", __func__, cloud_protocol_order_manager.config.sequence[0], cloud_protocol_order_manager.config.sequence[1]);
     return true;
 }
 
 static bool cloud_protocol_save_sequence_to_storage(void)
 {
-    // TODO: Save the serial number to KVDB
-    for (int i = 0; i < CLOUD_PROTOCOL_CHARGING_ORDER_MAX_GUNS; i++)
-    {
-        CLOUD_INFO("<%s>Gun%d=%d \r\n", __func__, i + 1, cloud_protocol_order_manager.config.sequence[i]);
-    }
+    CLOUD_PROTOCOL_SAVE_ORDER_SEQUENCE(&cloud_protocol_order_manager.config.sequence[0], sizeof(cloud_protocol_order_manager.config.sequence));
+    CLOUD_INFO("<%s> sequence0:%d sequence1:%d \r\n", __func__, cloud_protocol_order_manager.config.sequence[0], cloud_protocol_order_manager.config.sequence[1]);
     return true;
 }
 
@@ -366,11 +359,11 @@ cloud_protocol_charging_cloud_protocol_order_manager_t *cloud_protocol_charging_
     // Set physical card number
     if (card != NULL)
     {
-        memcpy(order->active_orders.physical_card, card, 8);
+        memcpy(order->active_orders.physical_card, card, CLOUD_PROTOCOL_RFID_UID_LENGTH);
     }
     else
     {
-        memset(order->active_orders.physical_card, 0, 8);
+        memset(order->active_orders.physical_card, 0, CLOUD_PROTOCOL_RFID_UID_LENGTH);
     }
 
     // Set the trading hours
