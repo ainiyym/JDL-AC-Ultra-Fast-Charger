@@ -908,7 +908,7 @@ RTC_TestResult_t test_RTC_Boundary_Values(void)
         } else {
             MCAL_INFO("? 失败 - 期望: ");
             print_datetime(&test_cases[i]);
-            MCAL_INFO("       实际: ");
+            MCAL_INFO("    实际: ");
             print_datetime(&read_datetime);
         }
         
@@ -1216,10 +1216,73 @@ void Mcal_Cloud_TestTime(void)
     current_time = CLOUD_GET_TIME_MS();
     MCAL_INFO("当前时间戳: %lu\n", current_time);
 }
+
+#include "FlashDB_AppM.h"
+#include "Cloud_Protocol_ChargingOrder.h"
+
+void stress_test_high_frequency_append(void)
+{
+    MCAL_DEBUG("\n=== 高频追加压力测试 ===\n");
+
+    const int TEST_COUNT = 100;
+
+    for (int i = 0; i < TEST_COUNT; i++)
+    {
+        cloud_protocol_charging_cloud_protocol_order_manager_t order = {
+            .tsdb_id = FLASHDB_TSDB_OFFLINE_ORDER_GUN1,
+            .status = (cloud_protocol_order_status_t)(i % 5),
+            .order_type = (cloud_protocol_order_type_t)((i % 2) + 1),
+            .last_meter_reading = 1000 + i * 10,
+            .create_timestamp = i,
+            .update_timestamp = i
+        };
+        FlashDB_ReturnType_t ret = FlashDB_Append_Data(FLASHDB_TSDB_OFFLINE_ORDER_GUN1, &order, sizeof(order));
+    }
+}
+
+void test_set_record_status(void)
+{
+    MCAL_DEBUG("\n=== 设置记录状态测试 ===\n");
+
+    uint32_t total_records = FlashDB_TS_GetTotalRecordsCounts(FLASHDB_TSDB_OFFLINE_ORDER_GUN1, FDB_TSL_WRITE);
+    MCAL_DEBUG("总记录数: %lu\n", total_records);
+
+    for (uint32_t i = 0; i < total_records; i++)
+    {
+        FlashDB_ReturnType_t ret = FlashDB_TS_Set_Latest_Record_Status(FLASHDB_TSDB_OFFLINE_ORDER_GUN1, FLASHDB_ITERATOR_DIRECTION_FORWARD, FDB_TSL_DELETED);
+    }
+}
+
+int test_FlashDB_main()
+{
+    MCAL_DEBUG("开始FlashDB接口测试...\n");
+
+    // stress_test_high_frequency_append();
+    // test_set_record_status();
+
+
+    uint32_t count = FlashDB_TS_GetTotalRecordsCounts(FLASHDB_TSDB_OFFLINE_ORDER_GUN1, FDB_TSL_WRITE);
+    MCAL_DEBUG("FlashDB FDB_TSL_WRITE: %lu\n", count);
+    count = FlashDB_TS_GetTotalRecordsCounts(FLASHDB_TSDB_OFFLINE_ORDER_GUN1, FDB_TSL_DELETED);
+    MCAL_DEBUG("FlashDB FDB_TSL_DELETED: %lu\n", count);
+    count = FlashDB_TS_GetTotalRecordsCounts(FLASHDB_TSDB_OFFLINE_ORDER_GUN1, FDB_TSL_USER_STATUS1);
+    MCAL_DEBUG("FlashDB FDB_TSL_USER_STATUS1: %lu\n", count);
+
+    // fdb_tsl_clean(&tsdb_gun1);
+    // fdb_tsl_clean(&tsdb_gun2);
+    return 0;
+}
 #endif
+
 /* Run MCAL tests */
 void Mcal_Test_Run(void)
 {
+    static uint8_t initialized = 0;
+    if (!initialized)
+    {
+        initialized = 1;
+        // test_FlashDB_main();
+    }
     /* TODO: Add test code here */
     // Mcal_Test_StateMachine();
     // Mcal_Usart_Test();

@@ -62,11 +62,11 @@ extern "C" {
 
 /* log function. default FDB_PRINT macro is Core_printf() */
 #ifndef FDB_PRINT
-#define FDB_PRINT(...)                 
+#define FDB_PRINT(...)                 Core_printf(__VA_ARGS__)
 #endif
 #define FDB_LOG_PREFIX1()              FDB_PRINT("[FlashDB]" FDB_LOG_TAG)
 #define FDB_LOG_PREFIX2()              FDB_PRINT(" ")
-#define FDB_LOG_PREFIX()               FDB_LOG_PREFIX1();FDB_LOG_PREFIX2()
+#define FDB_LOG_PREFIX()               //FDB_LOG_PREFIX1();FDB_LOG_PREFIX2()
 #ifdef FDB_DEBUG_ENABLE
 #define FDB_DEBUG(...)                 FDB_LOG_PREFIX();FDB_PRINT("(%s:%d) ", __FILE__, __LINE__);FDB_PRINT(__VA_ARGS__)
 #else
@@ -110,7 +110,7 @@ if (!(EXPR))                                                                  \
 #ifdef FDB_USING_TIMESTAMP_64BIT
     typedef int64_t fdb_time_t;
 #else
-    typedef int32_t fdb_time_t;
+    typedef uint32_t fdb_time_t;
 #endif /* FDB_USING_TIMESTAMP_64BIT */
 
 typedef fdb_time_t (*fdb_get_time)(void);

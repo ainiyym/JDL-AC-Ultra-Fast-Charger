@@ -56,8 +56,8 @@ void MCALAPP_PeripheralInit(void)
   Mcal_Can_Init();
   Mcal_Spi_Init();
   Mcal_Adc_Init();
-  Mcal_Iwdg_Init();
   Mcal_RTC_InitTime();
+  Mcal_Iwdg_Init();
 }
 
 void MCALAPP_PeripheralDeInit(void)

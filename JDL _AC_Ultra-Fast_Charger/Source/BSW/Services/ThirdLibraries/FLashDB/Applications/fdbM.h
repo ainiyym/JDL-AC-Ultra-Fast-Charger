@@ -11,7 +11,8 @@
 #define _FDB_M_H_
 
 extern struct fdb_kvdb kvdb;
-extern struct fdb_tsdb tsdb;
+extern struct fdb_tsdb tsdb_gun1;
+extern struct fdb_tsdb tsdb_gun2;
 
 extern int fdb_init(void);
 

@@ -250,5 +250,94 @@ uint32_t fdb_wrapper_kv_count(fdb_kvdb_t db)
     }
     return count;
 }
+
+fdb_wrapper_err_t fdb_wrapper_tsl_append(fdb_tsdb_t db, const void *data, size_t size)
+{
+    if (!db || !data || size == 0)
+    {
+        return FDB_WRAPPER_INVALID_PARAM;
+    }
+    struct fdb_blob blob;
+    fdb_err_t err;
+
+    err = fdb_tsl_append(db, fdb_blob_make(&blob, data, size));
+    if (err != FDB_NO_ERR)
+    {
+        return FDB_WRAPPER_SET_ERROR;
+    }
+
+    return FDB_WRAPPER_OK;
+}
+
+fdb_wrapper_err_t fdb_wrapper_tsl_append_with_ts(fdb_tsdb_t db, const void *data, size_t size, fdb_time_t timestamp)
+{
+    if (!db || !data || size == 0)
+    {
+        return FDB_WRAPPER_INVALID_PARAM;
+    }
+    struct fdb_blob blob;
+    fdb_err_t err;
+
+    err = fdb_tsl_append_with_ts(db, fdb_blob_make(&blob, data, size), timestamp);
+    if (err != FDB_NO_ERR)
+    {
+        return FDB_WRAPPER_SET_ERROR;
+    }
+
+    return FDB_WRAPPER_OK;
+}
+
+void fdb_wrapper_tsl_iter(fdb_tsdb_t db, fdb_tsl_cb cb, void *arg)
+{
+    if (!db || !cb)
+    {
+        return;
+    }
+    fdb_tsl_iter(db, cb, arg);
+}
+
+void fdb_wrapper_tsl_iter_reverse(fdb_tsdb_t db, fdb_tsl_cb cb, void *arg)
+{
+    if (!db || !cb)
+    {
+        return;
+    }
+    fdb_tsl_iter_reverse(db, cb, arg);
+}
+
+void fdb_wrapper_tsl_iter_by_time(fdb_tsdb_t db, fdb_time_t from, fdb_time_t to, fdb_tsl_cb cb, void *cb_arg)
+{
+    if (!db || !cb)
+    {
+        return;
+    }
+    fdb_tsl_iter_by_time(db, from, to, cb, cb_arg);
+}
+
+fdb_wrapper_err_t fdb_wrapper_set_status(fdb_tsdb_t db, fdb_tsl_t tsl, fdb_tsl_status_t status)
+{
+    if (!db || !tsl)
+    {
+        return FDB_WRAPPER_INVALID_PARAM;
+    }
+
+    fdb_err_t err = fdb_tsl_set_status(db, tsl, status);
+    if (err != FDB_NO_ERR)
+    {
+        return FDB_WRAPPER_SET_ERROR;
+    }
+
+    return FDB_WRAPPER_OK;
+}
+
+void fdb_wrapper_set_clean(fdb_tsdb_t db)
+{
+    if (!db)
+    {
+        return;
+    }
+    fdb_tsl_clean(db);
+}
+
 /* EOL */
  

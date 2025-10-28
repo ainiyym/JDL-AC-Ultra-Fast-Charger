@@ -15,6 +15,7 @@
 #include "string.h"
 #include "STD_SysM.h"
 #include "Cloud_EV_Charger_Information.h"
+#include "Cloud_Protocol_ChargingOrder.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -23,13 +24,6 @@
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
-typedef enum 
-{
-    FLASHDB_TYPE_INT,
-    FLASHDB_TYPE_FLOAT,
-    FLASHDB_TYPE_STRING,
-    FLASHDB_TYPE_BLOB
-} FlashDB_DataType_t;
 
 /*******************************************************************************
 |    Typedef Definition
@@ -44,6 +38,16 @@ typedef struct
     size_t blob_size;
 } FlashDB_AppKvDBDefaultCfg_t;
 
+typedef struct
+{
+	FlashDB_App_TSDB_Enum tsdb_id; // TSDB ID
+	fdb_tsdb_t tsdb;               // TSDB instance
+	fdb_tsl_cb tsl_query_cb;       // TSL query callback function
+	fdb_tsl_cb set_status_cb;      // TSL set status callback function
+	uint32_t max_records;		   // Maximum record count
+	size_t item_size;		   	   // Data item size
+	uint16_t item_count;		   // Data item count
+} FlashDB_AppTsdb_InstanceCfg_t;
 /*******************************************************************************
 |    Static local KAM variables Declaration
 |******************************************************************************/
@@ -53,10 +57,19 @@ typedef struct
 |******************************************************************************/
 uint8_t YeeComxxx_Device_Init_Flag = 0;
 char SN[CLOUD_EV_SN_LEN] = "33030300000001";
+uint16_t Order_Sequence[SYS_CONNECTOR_NUM_MAX] = {1,1};
 
 /*******************************************************************************
 |    Global variables Declaration
 |******************************************************************************/
+
+/*******************************************************************************
+|    Static Local Functions Declaration
+|******************************************************************************/
+static bool FlashDB_Order_Gun1_Query_Cb(fdb_tsl_t tsl, void *arg);
+static bool FlashDB_Order_Gun2_Query_Cb(fdb_tsl_t tsl, void *arg);
+static bool FlashDB_Order_Gun1_Set_Status_Cb(fdb_tsl_t tsl, void *arg);
+static bool FlashDB_Order_Gun2_Set_Status_Cb(fdb_tsl_t tsl, void *arg);
 
 /*******************************************************************************
 |    Table Const Definition
@@ -65,15 +78,38 @@ static FlashDB_AppKvDBDefaultCfg_t FlashDB_AppKvDBDefaultCfgTable[] =
 {
 	{FLASHDB_KV_M4G_DEVICE_INIT_FLAG, 	&kvdb, 		"M4G_Device_Init_Flag",			FLASHDB_TYPE_INT, 					(uint8_t*)&YeeComxxx_Device_Init_Flag,					1},
 	{FLASHDB_KV_SN, 					&kvdb, 		"SN", 							FLASHDB_TYPE_STRING,				(char*)SN,												0},
+	{FLASHDB_KV_ORDER_SEQUENCE, 		&kvdb, 		"Order_Sequence", 				FLASHDB_TYPE_BLOB, 					(uint16_t*)&Order_Sequence,								4},
 };
 
-/*******************************************************************************
-|    Static Local Functions Declaration
-|******************************************************************************/
+static FlashDB_AppTsdb_InstanceCfg_t FlashDB_AppTsdbInstanceCfgTable[] =
+{
+	{
+		.tsdb_id = FLASHDB_TSDB_OFFLINE_ORDER_GUN1,
+		.tsdb = &tsdb_gun1,
+		.tsl_query_cb = FlashDB_Order_Gun1_Query_Cb,
+		.set_status_cb = FlashDB_Order_Gun1_Set_Status_Cb,
+		.max_records = 100,  
+		.item_size = sizeof(cloud_protocol_charging_cloud_protocol_order_manager_t),
+		.item_count = 1
+	},
+	{
+		.tsdb_id = FLASHDB_TSDB_OFFLINE_ORDER_GUN2,
+		.tsdb = &tsdb_gun2,
+		.tsl_query_cb = FlashDB_Order_Gun2_Query_Cb,
+		.set_status_cb = FlashDB_Order_Gun2_Set_Status_Cb,
+		.max_records = 100,
+		.item_size = sizeof(cloud_protocol_charging_cloud_protocol_order_manager_t),
+		.item_count = 1
+	}
+};
 
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
+/**
+ * @brief Initialize FlashDB and set default values if keys do not exist
+ * @return 0 on success, -1 on failure
+ */
 int FlashDB_AppM_Init(void)
 {
 	int ret = 0;
@@ -85,7 +121,7 @@ int FlashDB_AppM_Init(void)
 		FLASHDB_TRACE("FlashDB init fail! ret=%d\r\n", ret);
 		return -1;
 	}
- 
+  
 	vTaskDelay(pdMS_TO_TICKS(100));
 
 	for (uint16_t i = 0; i < sizeof(FlashDB_AppKvDBDefaultCfgTable)/sizeof(FlashDB_AppKvDBDefaultCfgTable[0]); i++)
@@ -264,4 +300,168 @@ FlashDB_ReturnType_t FlashDB_WriteValue(FlashDB_App_KvDB_Enum kv_id, void *value
 
 	return (wrapper_ret == FDB_WRAPPER_OK) ? FLASHDB_OK : FLASHDB_ERR_SET_FAIL;
 }
+
+/* TSDB */
+static bool FlashDB_Order_Gun1_Query_Cb(fdb_tsl_t tsl, void *arg)
+{
+	struct fdb_blob blob;
+	tsdb_iter_context_t *context = (tsdb_iter_context_t *)arg;
+	fdb_tsdb_t db = &tsdb_gun1;
+
+	if (!context->record_found && context->record_data != NULL)
+	{
+		fdb_blob_read((fdb_db_t)db, fdb_tsl_to_blob(tsl, fdb_blob_make(&blob, context->record_data, context->record_size)));
+		if (context->record_size == sizeof(cloud_protocol_charging_cloud_protocol_order_manager_t))
+		{
+			context->record_found = true;
+			return false;
+		}
+	}
+	return true;
+} 
+	
+static bool FlashDB_Order_Gun2_Query_Cb(fdb_tsl_t tsl, void *arg)
+{
+	struct fdb_blob blob;
+	tsdb_iter_context_t *context = (tsdb_iter_context_t *)arg;
+	fdb_tsdb_t db = &tsdb_gun2;
+
+	if (!context->record_found && context->record_data != NULL)
+	{
+		fdb_blob_read((fdb_db_t)db, fdb_tsl_to_blob(tsl, fdb_blob_make(&blob, context->record_data, context->record_size)));
+		if (context->record_size == sizeof(cloud_protocol_charging_cloud_protocol_order_manager_t))
+		{
+			context->record_found = true;
+			return false;
+		}
+	}
+	return true;
+}
+
+static bool FlashDB_Order_Gun1_Set_Status_Cb(fdb_tsl_t tsl, void *arg)
+{
+	fdb_tsdb_t db = &tsdb_gun1;
+	fdb_tsl_status_t status = *(fdb_tsl_status_t *)arg;
+
+	fdb_wrapper_set_status(db, tsl, status);
+	return false;
+}
+
+static bool FlashDB_Order_Gun2_Set_Status_Cb(fdb_tsl_t tsl, void *arg)
+{
+	fdb_tsdb_t db = &tsdb_gun2;
+	fdb_tsl_status_t status = *(fdb_tsl_status_t *)arg;
+
+	fdb_wrapper_set_status(db, tsl, status);
+	return false;
+}
+
+FlashDB_ReturnType_t FlashDB_Append_Data(FlashDB_App_TSDB_Enum tsdb_id, const void *data, size_t size)
+{
+	uint32_t timestamp = 0;
+	RTC_GetRtcSeconds(&timestamp);
+	return FlashDB_Append_Data_With_Ts(tsdb_id, data, size, timestamp);
+	// return FlashDB_Append_Data_With_Ts(tsdb_id, data, size, ++FlashDb_TsCounts);
+}
+
+FlashDB_ReturnType_t FlashDB_Append_Data_With_Ts(FlashDB_App_TSDB_Enum tsdb_id, const void *data, size_t size, uint32_t timestamp)
+{
+	if (data == NULL || size == 0 || tsdb_id >= sizeof(FlashDB_AppTsdbInstanceCfgTable)/sizeof(FlashDB_AppTsdbInstanceCfgTable[0]))
+	{
+		return FLASHDB_ERR_INVALID_PARAM;
+	}
+	FlashDB_AppTsdb_InstanceCfg_t *item_cfg = &FlashDB_AppTsdbInstanceCfgTable[tsdb_id];
+	if (item_cfg == NULL)
+	{
+		return FLASHDB_ERR_NOT_EXIST; // TSDB or item not found
+	}
+	if (size > item_cfg->item_size)
+	{
+		return FLASHDB_ERR_OUT_OF_MEMORY; // Data size exceeds maximum
+	}
+	// FLASHDB_TRACE("<%s> timestamp=%u\r\n", __func__, timestamp);
+	fdb_wrapper_err_t wrapper_ret = fdb_wrapper_tsl_append_with_ts(item_cfg->tsdb, data, size, timestamp);
+
+	return (wrapper_ret == FDB_WRAPPER_OK) ? FLASHDB_OK : FLASHDB_ERR_SET_FAIL;
+}
+
+FlashDB_ReturnType_t FlashDB_TS_Get_Record(FlashDB_App_TSDB_Enum tsdb_id, FlashDB_Iterator_Direction_t direction, void *data, size_t size, size_t *actual_len)
+{
+	if (data == NULL || size == 0 || actual_len == NULL)
+	{
+		return FLASHDB_ERR_INVALID_PARAM;
+	}
+	FlashDB_AppTsdb_InstanceCfg_t *item_cfg = &FlashDB_AppTsdbInstanceCfgTable[tsdb_id];
+	if (item_cfg == NULL)
+	{
+		return FLASHDB_ERR_NOT_EXIST; // TSDB or item not found
+	}
+	if (size < item_cfg->item_size)
+	{
+		return FLASHDB_ERR_OUT_OF_MEMORY; // Provided buffer too small
+	}
+
+	tsdb_iter_context_t context = {
+		.record_data = data,
+		.record_size = size,
+		.record_found = false
+	};
+
+	switch (direction)
+	{
+		case FLASHDB_ITERATOR_DIRECTION_FORWARD:
+			fdb_wrapper_tsl_iter(item_cfg->tsdb, item_cfg->tsl_query_cb, &context);
+			break;
+		case FLASHDB_ITERATOR_DIRECTION_BACKWARD:
+			fdb_wrapper_tsl_iter_reverse(item_cfg->tsdb, item_cfg->tsl_query_cb, &context);
+			break;
+		default:
+			return FLASHDB_ERR_INVALID_PARAM; // Invalid direction
+	}
+
+	if (context.record_found)
+	{
+		*actual_len = context.record_size;
+		return FLASHDB_OK;
+	}
+	else
+	{
+		return FLASHDB_ERR_NOT_EXIST; // No records found
+	}
+}
+
+FlashDB_ReturnType_t FlashDB_TS_Set_Latest_Record_Status(FlashDB_App_TSDB_Enum tsdb_id, FlashDB_Iterator_Direction_t direction, fdb_tsl_status_t status)
+{
+	FlashDB_AppTsdb_InstanceCfg_t *item_cfg = &FlashDB_AppTsdbInstanceCfgTable[tsdb_id];
+	if (item_cfg == NULL)
+	{
+		return FLASHDB_ERR_NOT_EXIST; // TSDB or item not found
+	}
+
+	switch (direction)
+	{
+		case FLASHDB_ITERATOR_DIRECTION_FORWARD:
+			fdb_wrapper_tsl_iter(item_cfg->tsdb, item_cfg->set_status_cb, &status);
+			break;
+		case FLASHDB_ITERATOR_DIRECTION_BACKWARD:
+			fdb_wrapper_tsl_iter_reverse(item_cfg->tsdb, item_cfg->set_status_cb, &status);
+			break;
+		default:
+			return FLASHDB_ERR_INVALID_PARAM; // Invalid direction
+	}
+
+	return FLASHDB_OK;
+}
+
+uint32_t FlashDB_TS_GetTotalRecordsCounts(FlashDB_App_TSDB_Enum tsdb_id, fdb_tsl_status_t status)
+{
+	fdb_tsdb_t tsdb = FlashDB_AppTsdbInstanceCfgTable[tsdb_id].tsdb;
+	if (tsdb == NULL)
+	{
+		return 0;
+	}
+
+	return fdb_tsl_query_count(tsdb, 0, 0xffffffff-1, status);
+}
+
 /* EOL */

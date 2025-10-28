@@ -30,6 +30,14 @@
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
+typedef enum 
+{
+    FLASHDB_TYPE_INT,
+    FLASHDB_TYPE_FLOAT,
+    FLASHDB_TYPE_STRING,
+    FLASHDB_TYPE_BLOB
+} FlashDB_DataType_t;
+
 typedef enum
 {
     FLASHDB_OK = 0,
@@ -47,11 +55,30 @@ typedef enum
 typedef enum
 {
     FLASHDB_KV_M4G_DEVICE_INIT_FLAG,
-    FLASHDB_KV_SN
+    FLASHDB_KV_SN,
+    FLASHDB_KV_ORDER_SEQUENCE
 } FlashDB_App_KvDB_Enum;
+
+typedef enum
+{
+    FLASHDB_TSDB_OFFLINE_ORDER_GUN1,
+    FLASHDB_TSDB_OFFLINE_ORDER_GUN2
+}FlashDB_App_TSDB_Enum;
+
+typedef enum
+{
+    FLASHDB_ITERATOR_DIRECTION_FORWARD,
+    FLASHDB_ITERATOR_DIRECTION_BACKWARD
+} FlashDB_Iterator_Direction_t;
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
+typedef struct
+{
+    void *record_data;
+    size_t record_size;
+    bool record_found;
+} tsdb_iter_context_t;
 
 /*******************************************************************************
 |    Table Definition
@@ -65,8 +92,14 @@ typedef enum
 |    Global Function Prototypes
 |******************************************************************************/
 extern int FlashDB_AppM_Init(void);
+//KV
 extern FlashDB_ReturnType_t FlashDB_ReadValue(FlashDB_App_KvDB_Enum kv_id, void *value, size_t buff_size, size_t* actual_len);
 extern FlashDB_ReturnType_t FlashDB_WriteValue(FlashDB_App_KvDB_Enum kv_id, void *value, size_t buff_size);
-
+//TSDB
+extern FlashDB_ReturnType_t FlashDB_Append_Data(FlashDB_App_TSDB_Enum tsdb_id, const void *data, size_t size);
+extern FlashDB_ReturnType_t FlashDB_Append_Data_With_Ts(FlashDB_App_TSDB_Enum tsdb_id, const void *data, size_t size, uint32_t timestamp);
+extern FlashDB_ReturnType_t FlashDB_TS_Get_Record(FlashDB_App_TSDB_Enum tsdb_id, FlashDB_Iterator_Direction_t direction, void *data, size_t size, size_t *actual_len);
+extern FlashDB_ReturnType_t FlashDB_TS_Set_Latest_Record_Status(FlashDB_App_TSDB_Enum tsdb_id, FlashDB_Iterator_Direction_t direction, fdb_tsl_status_t status);
+extern uint32_t FlashDB_TS_GetTotalRecordsCounts(FlashDB_App_TSDB_Enum tsdb_id, fdb_tsl_status_t status);
 #endif /* __FLASHDB_APP_M_H */
 /* EOL */

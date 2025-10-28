@@ -16,6 +16,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
+#include "STD_Rtc.h"
 
 #define FDB_LOG_TAG "[main]"
 
@@ -32,7 +33,8 @@ static struct fdb_default_kv_node default_kv_table[] = {
 /* KVDB object */
 struct fdb_kvdb kvdb = { 0 };
 /* TSDB object */
-struct fdb_tsdb tsdb = { 0 };
+struct fdb_tsdb tsdb_gun1 = { 0 };
+struct fdb_tsdb tsdb_gun2 = { 0 };
 /* counts for simulated timestamp */
 static int counts = 0;
 
@@ -60,7 +62,9 @@ static fdb_time_t get_time(void)
     /* Using the counts instead of timestamp.
      * Please change this function to return RTC time.
      */
-    return ++counts;
+    uint32_t counts = 0;
+    RTC_GetRtcSeconds((uint32_t *)&counts);
+    return counts;
 }
 
 extern int spi_flash_init(void);
@@ -112,8 +116,10 @@ int fdb_init(void)
 #ifdef FDB_USING_TSDB
     { /* TSDB Sample */
         /* set the lock and unlock function if you want */
-        fdb_tsdb_control(&tsdb, FDB_TSDB_CTRL_SET_LOCK, (void *)lock);
-        fdb_tsdb_control(&tsdb, FDB_TSDB_CTRL_SET_UNLOCK, (void *)unlock);
+        fdb_tsdb_control(&tsdb_gun1, FDB_TSDB_CTRL_SET_LOCK, (void *)lock);
+        fdb_tsdb_control(&tsdb_gun1, FDB_TSDB_CTRL_SET_UNLOCK, (void *)unlock);
+        fdb_tsdb_control(&tsdb_gun2, FDB_TSDB_CTRL_SET_LOCK, (void *)lock);
+        fdb_tsdb_control(&tsdb_gun2, FDB_TSDB_CTRL_SET_UNLOCK, (void *)unlock);
         /* Time series database initialization
          *
          *       &tsdb: database object
@@ -124,16 +130,8 @@ int fdb_init(void)
          *         128: maximum length of each log
          *        NULL: The user data if you need, now is empty.
          */
-        result = fdb_tsdb_init(&tsdb, "log", "fdb_tsdb1", get_time, 128, NULL);
-        /* read last saved time for simulated timestamp */
-        fdb_tsdb_control(&tsdb, FDB_TSDB_CTRL_GET_LAST_TIME, &counts);
-
-        if (result != FDB_NO_ERR) {
-            return -1;
-        }
-
-        /* run TSDB sample */
-        // tsdb_sample(&tsdb);
+        result = fdb_tsdb_init(&tsdb_gun1, "order_gun1", "fdb_tsdb1", get_time, 256, NULL);
+        result = fdb_tsdb_init(&tsdb_gun2, "order_gun2", "fdb_tsdb2", get_time, 256, NULL);
     }
 #endif /* FDB_USING_TSDB */
     return 0;

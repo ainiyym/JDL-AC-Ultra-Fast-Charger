@@ -7,7 +7,7 @@
 #ifndef _FAL_CFG_H_
 #define _FAL_CFG_H_
 
-#define FAL_DEBUG 0
+#define FAL_DEBUG 1
 #define FAL_PART_HAS_TABLE_CFG
 #define FAL_USING_SFUD_PORT
 
@@ -25,8 +25,9 @@ extern struct fal_flash_dev nor_flash0;
 /* partition table */
 #define FAL_PART_TABLE                                                                 \
 {                                                                                      \
-    {FAL_PART_MAGIC_WORD,  "fdb_tsdb1",       "norflash0",           0, 20*1024, 0}, \
-    {FAL_PART_MAGIC_WORD,  "fdb_kvdb1",       "norflash0",     20*1024, 20*1024, 0}, \
+    {FAL_PART_MAGIC_WORD,  "fdb_tsdb1",       "norflash0",           0, 40*1024, 0}, \
+    {FAL_PART_MAGIC_WORD,  "fdb_tsdb2",       "norflash0",      40*1024, 40*1024, 0}, \
+    {FAL_PART_MAGIC_WORD,  "fdb_kvdb1",       "norflash0",     80*1024, 20*1024, 0}, \
 }
 #endif /* FAL_PART_HAS_TABLE_CFG */
 
