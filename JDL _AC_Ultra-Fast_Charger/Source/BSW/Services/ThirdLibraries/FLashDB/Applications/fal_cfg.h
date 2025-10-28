@@ -29,6 +29,10 @@ extern struct fal_flash_dev nor_flash0;
     {FAL_PART_MAGIC_WORD,  "fdb_tsdb2",       "norflash0",      40*1024, 40*1024, 0}, \
     {FAL_PART_MAGIC_WORD,  "fdb_kvdb1",       "norflash0",     80*1024, 20*1024, 0}, \
 }
+
+#define FAL_PART_TABLE_TSDB_COUNT            2
+#define FAL_PART_TABLE_KVDB_COUNT            1
+
 #endif /* FAL_PART_HAS_TABLE_CFG */
 
 #endif /* _FAL_CFG_H_ */

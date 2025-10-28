@@ -28,6 +28,8 @@
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
+typedef uint32_t (*fdb_get_ts_cb)(void);
+
 typedef struct
 {
     FlashDB_App_KvDB_Enum kv_id;
@@ -44,6 +46,7 @@ typedef struct
 	fdb_tsdb_t tsdb;               // TSDB instance
 	fdb_tsl_cb tsl_query_cb;       // TSL query callback function
 	fdb_tsl_cb set_status_cb;      // TSL set status callback function
+	fdb_get_ts_cb get_ts_cb;       // Get timestamp callback function
 	uint32_t max_records;		   // Maximum record count
 	size_t item_size;		   	   // Data item size
 	uint16_t item_count;		   // Data item count
@@ -58,6 +61,7 @@ typedef struct
 uint8_t YeeComxxx_Device_Init_Flag = 0;
 char SN[CLOUD_EV_SN_LEN] = "33030300000001";
 uint16_t Order_Sequence[SYS_CONNECTOR_NUM_MAX] = {1,1};
+uint32_t FlashDb_TsCounts[FAL_PART_TABLE_TSDB_COUNT] = {0};
 
 /*******************************************************************************
 |    Global variables Declaration
@@ -76,9 +80,10 @@ static bool FlashDB_Order_Gun2_Set_Status_Cb(fdb_tsl_t tsl, void *arg);
 |******************************************************************************/
 static FlashDB_AppKvDBDefaultCfg_t FlashDB_AppKvDBDefaultCfgTable[] = 
 {
-	{FLASHDB_KV_M4G_DEVICE_INIT_FLAG, 	&kvdb, 		"M4G_Device_Init_Flag",			FLASHDB_TYPE_INT, 					(uint8_t*)&YeeComxxx_Device_Init_Flag,					1},
+	{FLASHDB_KV_M4G_DEVICE_INIT_FLAG, 	&kvdb, 		"M4G_Device_Init_Flag",			FLASHDB_TYPE_INT, 					(uint8_t*)&YeeComxxx_Device_Init_Flag,					sizeof(YeeComxxx_Device_Init_Flag)},
 	{FLASHDB_KV_SN, 					&kvdb, 		"SN", 							FLASHDB_TYPE_STRING,				(char*)SN,												0},
-	{FLASHDB_KV_ORDER_SEQUENCE, 		&kvdb, 		"Order_Sequence", 				FLASHDB_TYPE_BLOB, 					(uint16_t*)&Order_Sequence,								4},
+	{FLASHDB_KV_ORDER_SEQUENCE, 		&kvdb, 		"Order_Sequence", 				FLASHDB_TYPE_BLOB, 					(uint16_t*)&Order_Sequence,								sizeof(Order_Sequence)},
+	{FLASHDB_KV_TS_TOTAL_COUNT, 		&kvdb, 		"TS_Total_Count", 				FLASHDB_TYPE_BLOB, 					(uint32_t*)&FlashDb_TsCounts,							sizeof(FlashDb_TsCounts)},
 };
 
 static FlashDB_AppTsdb_InstanceCfg_t FlashDB_AppTsdbInstanceCfgTable[] =
@@ -88,7 +93,8 @@ static FlashDB_AppTsdb_InstanceCfg_t FlashDB_AppTsdbInstanceCfgTable[] =
 		.tsdb = &tsdb_gun1,
 		.tsl_query_cb = FlashDB_Order_Gun1_Query_Cb,
 		.set_status_cb = FlashDB_Order_Gun1_Set_Status_Cb,
-		.max_records = 100,  
+		.get_ts_cb = get_ts0_time,
+		.max_records = 100,
 		.item_size = sizeof(cloud_protocol_charging_cloud_protocol_order_manager_t),
 		.item_count = 1
 	},
@@ -97,6 +103,7 @@ static FlashDB_AppTsdb_InstanceCfg_t FlashDB_AppTsdbInstanceCfgTable[] =
 		.tsdb = &tsdb_gun2,
 		.tsl_query_cb = FlashDB_Order_Gun2_Query_Cb,
 		.set_status_cb = FlashDB_Order_Gun2_Set_Status_Cb,
+		.get_ts_cb = get_ts1_time,
 		.max_records = 100,
 		.item_size = sizeof(cloud_protocol_charging_cloud_protocol_order_manager_t),
 		.item_count = 1
@@ -167,8 +174,16 @@ int FlashDB_AppM_Init(void)
 #if (1 == FLASHDB_TEST_ENABLE)
 	FlashDB_WriteValue(FLASHDB_KV_M4G_DEVICE_INIT_FLAG, (uint8_t*)&YeeComxxx_Device_Init_Flag, 1);
 #endif
+	tsdb_time_synced_init(&FlashDb_TsCounts[0]);
 
 	return 0;
+}
+
+void FlashDB_Powerdown_Handler(void)
+{
+	memcpy(&FlashDb_TsCounts[0], powerdown_get_ts_timestamp(), sizeof(FlashDb_TsCounts));
+	FlashDB_WriteValue(FLASHDB_KV_TS_TOTAL_COUNT, &FlashDb_TsCounts, sizeof(FlashDb_TsCounts));
+	FLASHDB_TRACE("<%s>TS Counts saved to FlashDB. TsCount[0]%d TsCount[1]%d\r\n", __func__, FlashDb_TsCounts[0], FlashDb_TsCounts[1]);
 }
 
 /**
@@ -359,7 +374,7 @@ static bool FlashDB_Order_Gun2_Set_Status_Cb(fdb_tsl_t tsl, void *arg)
 FlashDB_ReturnType_t FlashDB_Append_Data(FlashDB_App_TSDB_Enum tsdb_id, const void *data, size_t size)
 {
 	uint32_t timestamp = 0;
-	RTC_GetRtcSeconds(&timestamp);
+	timestamp = FlashDB_AppTsdbInstanceCfgTable[tsdb_id].get_ts_cb();
 	return FlashDB_Append_Data_With_Ts(tsdb_id, data, size, timestamp);
 	// return FlashDB_Append_Data_With_Ts(tsdb_id, data, size, ++FlashDb_TsCounts);
 }

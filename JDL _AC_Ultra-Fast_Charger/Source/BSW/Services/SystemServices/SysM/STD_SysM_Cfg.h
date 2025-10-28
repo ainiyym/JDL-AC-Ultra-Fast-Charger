@@ -61,13 +61,15 @@ typedef enum
 #define SYSM_4HCT4851D_SOFTTIMER_PERIOD      (50U) /* 74HCT4851D软定时器周期，单位us */
 #define SYSM_ADC_PERIOD_COLLECTION_TIME      (SYSM_4HCT4851D_SOFTTIMER_PERIOD * 8)  /* ADC周期采样周期，单位us */
 
-//Log Service Macro Definition
-#define SYSM_DEBUG(fmt, ...) LOG_DEBUG(LOG_MODULE_SYSM, fmt, ##__VA_ARGS__) /* log output */
-#define SYSM_INFO(fmt, ...)  LOG_INFO(LOG_MODULE_SYSM, fmt, ##__VA_ARGS__)  /* log output */
-#define SYSM_WARN(fmt, ...)  LOG_WARN(LOG_MODULE_SYSM, fmt, ##__VA_ARGS__)  /* log output */
-#define SYSM_ERROR(fmt, ...) LOG_ERROR(LOG_MODULE_SYSM, fmt, ##__VA_ARGS__) /* log output */
-#define SYSM_CRITICAL(fmt, ...) LOG_CRITICAL(LOG_MODULE_SYSM, fmt, ##__VA_ARGS__) /* log output */
-#define SYSM_PRINT_HEX(BUFF, LEN, R) LogService_Print_Hex_Array(LOG_MODULE_SYSM, BUFF, LEN, R)  /* print hex array */
+/*Power Down*/
+#define SYSM_PowerDownStatus()                 Dummy_GetPowerDownStatus() /* Get power down status */
+#define SYSM_GetPowerDownVoltValue()           Dummy_GetPowerDownVoltValue() /* Get power down voltage value */
+#define SYSM_DisableAllMode()\
+do{\
+}while(0)
+#define SYSM_OUT_POWER_DOWN					     (10000U)   /* Power down voltage threshold value 100V */
+#define SYSM_POWERDOWN_FILTER_TIME				 (uint16_t)( 500 / SYSM_TASK_PERIOD )   /* 500ms */
+#define SYSM_DELAY_1S							 (uint16_t)( 1000U / SYSM_TASK_PERIOD)  /* 1s */
 
 //System parameters Macro Definition
 #define SYS_CONNECTOR_RATED_CURRENT           (32U)    /* A */
@@ -80,6 +82,13 @@ typedef enum
 #define SYS_CONNECTOR_TYPE                    (SYS_PILE_TYPE_AC)      // Connector type
 #define SYS_NUMBER_OF_CONNECTORS              (SYS_CONNECTOR_NUM_MAX) // Number of connectors
 
+//Log Service Macro Definition
+#define SYSM_DEBUG(fmt, ...) LOG_DEBUG(LOG_MODULE_SYSM, fmt, ##__VA_ARGS__) /* log output */
+#define SYSM_INFO(fmt, ...)  LOG_INFO(LOG_MODULE_SYSM, fmt, ##__VA_ARGS__)  /* log output */
+#define SYSM_WARN(fmt, ...)  LOG_WARN(LOG_MODULE_SYSM, fmt, ##__VA_ARGS__)  /* log output */
+#define SYSM_ERROR(fmt, ...) LOG_ERROR(LOG_MODULE_SYSM, fmt, ##__VA_ARGS__) /* log output */
+#define SYSM_CRITICAL(fmt, ...) LOG_CRITICAL(LOG_MODULE_SYSM, fmt, ##__VA_ARGS__) /* log output */
+#define SYSM_PRINT_HEX(BUFF, LEN, R) LogService_Print_Hex_Array(LOG_MODULE_SYSM, BUFF, LEN, R)  /* print hex array */
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/

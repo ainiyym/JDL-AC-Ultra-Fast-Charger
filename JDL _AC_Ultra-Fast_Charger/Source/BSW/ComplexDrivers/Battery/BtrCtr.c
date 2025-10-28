@@ -31,9 +31,7 @@ typedef enum
 typedef struct
 {
     uint8_t ucEnStatus;                          /*Module enabled state*/
-    uint16_t ucPowerDownStatusCnt;
     BtrCtr_MainMode_Enum enMainStatus;           /* Module main function working mode*/
-    LibFilterStruct stPowerDown;                 /*PwerDown fault condition*/
     uint16_t us12vAdData[BTRV_ADC_FIFO_MAX_NUM]; /*Btr cache ad value*/
     uint16_t us5vAdData[BTRV_ADC_FIFO_MAX_NUM];  /*Btr cache 5Vad value*/
     uint16_t us12vValidAdValue;                  /*Btr vaild ad value*/
@@ -57,10 +55,8 @@ static BtrCtr_Struct gv_stBtrCtr;
 /*******************************************************************************
 |    Static Local Functions Declaration
 |******************************************************************************/
-static void BTRCTR_PowerDownHandle(void);
 static void BTRCTR_12vCheck(void);
 static void BTRCTR_5vCheck(void);
-static void BTRCTR_PowerDownInfor(void);
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
@@ -310,8 +306,6 @@ Call By           : Task
 |******************************************************************************/
 void BTRCTR_10msMainFunction(void)
 {
-    BTRCTR_PowerDownHandle();
-
     switch (gv_stBtrCtr.enMainStatus)
     {
         case BTRCTR_IDLE:
@@ -345,85 +339,4 @@ void BTRCTR_10msMainFunction(void)
     }
 }
 
-/*******************************************************************************
-Name              : BTRCTR_PowerDownHandle
-Syntax            : void BTRCTR_PowerDownHandle(void)
-Sync/Async        : Synchronous
-Reentrancy        : None
-Parameters(in)    : None
-Parameters(out)   : None
-Return value      : None
-Description       :
-Call By           : BTRCTR_10msMainFunction
-History
-<No.>    <author>    <time>    <description>
-|******************************************************************************/
-static void BTRCTR_PowerDownHandle(void)
-{
-    if (STD_TRUE == BTRCTR_PowerDownStatus())
-    {
-        BTRCTR_PowerDownInfor();
-    }
-    else
-    {
-        gv_stBtrCtr.stPowerDown.ucStatus = STD_FALSE;
-        gv_stBtrCtr.ucPowerDownStatusCnt = 0;
-    }
-}
-
-/*******************************************************************************
-Name              : BTRCTR_PowerDownInfor
-Syntax            : void BTRCTR_PowerDownInfor(void)
-Sync/Async        : Synchronous
-Reentrancy        : None
-Parameters(in)    : None
-Parameters(out)   : None
-Return value      : None
-Description       :
-Call By           : BTRCTR_PowerDownHandle
-History
-<No.>    <author>    <time>    <description>
-|******************************************************************************/
-static void BTRCTR_PowerDownInfor(void)
-{
-    uint32_t ulAdVolValue = 0u;
-    /* 下电流程 */
-
-    Core_printf("\r\nStart Power Down!\r\n");
-
-    /*关相关外设*/
-    BTRCTR_DisableAllMode();
-
-    while (1)
-    {
-        ulAdVolValue = BTRCTR_GetPowerDownVoltValue();
-
-        if (BTRCTR_OUT_POWER_DOWN < ulAdVolValue)
-        {
-            gv_stBtrCtr.stPowerDown.ucStatus = STD_TRUE;
-        }
-        else
-        {
-            gv_stBtrCtr.stPowerDown.ucStatus = STD_FALSE;
-        }
-
-#if (MCAL_WDG_ENABLED)
-    Mcal_Iwdg_Feedback();
-#endif
-        LIB_StatusFilter(&gv_stBtrCtr.stPowerDown, BTRV_POWERDOWN_FILTER_TIME);
-        if (gv_stBtrCtr.stPowerDown.ucValidStatus == STD_TRUE)
-        {
-            Core_printf("\r\n下电恢复计数\r\n");
-            gv_stBtrCtr.ucPowerDownStatusCnt++;
-            if (gv_stBtrCtr.ucPowerDownStatusCnt > BTRCTR_DELAY_1S)
-            {
-                SYSM_ImmediatelyResetManage();
-            }
-        }
-        else
-        {
-            gv_stBtrCtr.ucPowerDownStatusCnt = 0;
-        }
-    }
-}
 /*EOF*/

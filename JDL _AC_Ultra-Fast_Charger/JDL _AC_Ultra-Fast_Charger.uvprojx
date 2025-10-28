@@ -1755,11 +1755,6 @@
               <FileType>1</FileType>
               <FilePath>.\Source\APP\FlashDBM\FlashDB_AppM.c</FilePath>
             </File>
-            <File>
-              <FileName>tsdb_sample.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\Source\BSW\Services\ThirdLibraries\FLashDB\tsdb_sample.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>

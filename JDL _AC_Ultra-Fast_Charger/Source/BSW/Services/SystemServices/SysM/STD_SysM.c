@@ -32,6 +32,7 @@
 #include "YeeComxxx_Device.h"
 #include "Cloud_EV_Charger_Information.h"
 #include "CloudM.h"
+#include "FlashDB_AppM.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -60,7 +61,9 @@ typedef struct
 	uint8_t ucLowPowerShutdownFlag;
 	uint8_t ucLowPowerShutdownCnt;
 	uint8_t usRemoteResetFlag; /* 0: No reset request; 1: Reset immediately; 2:Reset when the conditions are satisfied.*/
+	uint16_t ucPowerDownStatusCnt;	/* Power down status counter */
 	uint32_t ulSystemStatus[SYS_CONNECTOR_NUM_MAX];   /* System status word. Bitwise, definition see STD_SysM_SysStatus_t, 1: defined status exists; 0: does not exist.*/
+	LibFilterStruct stPowerDown;	/* Power down filter */
 } SysM_Struct;
 /*******************************************************************************
 |    Static local KAM variables Declaration
@@ -85,6 +88,7 @@ static STD_SysM_Reset_Condition_Result_t SYSM_CheckResetConditions(void);
 static void SYSM_ShowBasicInfo(void);
 static void SYSM_OutPutDefaultCurrManage(void);
 static void SYSM_SetDeviceConstParam(void);
+static void SYSM_PowerDownInfor(void);
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
@@ -346,7 +350,15 @@ uint8_t SYSM_CheckSysStatus(SysConnector_Num_Enum ch, uint32_t SysStatusMask, ui
  *****************************************************************************************/
 void SYSM_ShutDownMCtrl(void)
 {
-
+    if (STD_TRUE == SYSM_PowerDownStatus())
+    {
+        SYSM_PowerDownInfor();
+    }
+    else
+    {
+        stSysM.stPowerDown.ucStatus = STD_FALSE;
+        stSysM.ucPowerDownStatusCnt = 0;
+    }
 }
 
 /****************************************************************************************
@@ -575,6 +587,68 @@ static void SYSM_OutPutDefaultCurrManage(void)
 	}
 }
 
+/*******************************************************************************
+Name              : SYSM_PowerDownInfor
+Syntax            : void SYSM_PowerDownInfor(void)
+Sync/Async        : Synchronous
+Reentrancy        : None
+Parameters(in)    : None
+Parameters(out)   : None
+Return value      : None
+Description       :
+Call By           : SYSM_PowerDownHandle
+History
+|******************************************************************************/
+static void SYSM_PowerDownInfor(void)
+{
+    uint32_t ulAdVolValue = 0u;
+    /* 下电流程 */
+
+    Core_printf("\r\nStart Power Down!\r\n");
+
+	FlashDB_Powerdown_Handler();
+
+    /*关相关外设*/
+    SYSM_DisableAllMode();
+	SYSM_SetSysStatusBit(SYS_CONNECTOR1, STD_SYSM_SYSSTATUS_LOW_VOLTAGE, 1);
+	SYSM_SetSysStatusBit(SYS_CONNECTOR2, STD_SYSM_SYSSTATUS_LOW_VOLTAGE, 1);
+
+    while (1)
+    {
+        ulAdVolValue = SYSM_GetPowerDownVoltValue();
+
+        if (SYSM_OUT_POWER_DOWN < ulAdVolValue)
+        {
+            stSysM.stPowerDown.ucStatus = STD_TRUE;
+        }
+        else
+        {
+            stSysM.stPowerDown.ucStatus = STD_FALSE;
+        }
+
+#if (MCAL_WDG_ENABLED)
+    Mcal_Iwdg_Feedback();
+#endif
+        LIB_StatusFilter(&stSysM.stPowerDown, SYSM_POWERDOWN_FILTER_TIME);
+        if (stSysM.stPowerDown.ucValidStatus == STD_TRUE)
+        {
+            Core_printf("\r\n下电恢复计数\r\n");
+			stSysM.ucPowerDownStatusCnt++;
+			if (stSysM.ucPowerDownStatusCnt > SYSM_DELAY_1S)
+			{
+				SYSM_SetSysStatusBit(SYS_CONNECTOR1, STD_SYSM_SYSSTATUS_LOW_VOLTAGE, 0);
+				SYSM_SetSysStatusBit(SYS_CONNECTOR2, STD_SYSM_SYSSTATUS_LOW_VOLTAGE, 0);
+				Core_printf("\r\nPower Down Recover,restart system!\r\n");
+				SYSM_ImmediatelyResetManage();
+			}
+		}
+        else
+        {
+            stSysM.ucPowerDownStatusCnt = 0;
+        }
+    }
+}
+
 /****************************************************************************************
  * Function Name  : void SYSM_10msMainFunction( void )
  * Parameter      : void
@@ -588,6 +662,8 @@ void SYSM_10msMainFunction(void)
 	stSysM.ucSysReady10msCnt++;
 
 	SYSM_StandbyStatusCtrl();
+
+	SYSM_ShutDownMCtrl();
 
 	SYSM_RemoteResetManage();
 

@@ -46,20 +46,6 @@
 #define BTRCTR_VOL5V_ERRORCALLBACK(Flag)         ERRHDL_FaultStatusUpdata_CallBack(ERRHDL_ID_POWER_5V_FAULT,Flag)
 #define BTRCTR_VOL12V_ERRORCALLBACK(Flag)		 ERRHDL_FaultStatusUpdata_CallBack(ERRHDL_ID_POWER_RELAYPWR_FAULT,Flag)
 
-/*Power Down*/
-#define BTRCTR_PowerDownStatus()                 Dummy_GetPowerDownStatus() /* Get power down status */
-#define BTRCTR_GetPowerDownVoltValue()           Dummy_GetPowerDownVoltValue() /* Get power down voltage value */
-#define BTRCTR_DisableAllMode()\
-do{\
-}while(0)
-#define SYSM_SHUTDOWN_DELAY_MS                   (5000U) /* Shutdown delay time */
-#define BTRCTR_OUT_POWER_DOWN					 (10000U)
-#define BTRCTR_IN_POWER_DOWN					 (15000U)
-#define BTRV_POWERDOWN_FILTER_TIME				 (uint16_t)( 500 / BTRCTR_TASK_PERIOD )
-#define BTRCTR_DELAY_1S							 (uint16_t)( 1000U / BTRCTR_TASK_PERIOD)
-#define BTRCTR_POWER_DOWN_REC_WAIT_NUM			 (uint16_t)( 500U / BTRCTR_TASK_PERIOD)
-#define BTRCTR_RESET_PWR_WAIT_NUM		    	 (uint16_t)( 2000U / BTRCTR_TASK_PERIOD) /* Reset power wait time */
-
 #define BTRCTR_DEBUG(fmt, ...) 					  LOG_DEBUG(LOG_MODULE_BTRCTR, fmt, ##__VA_ARGS__)
 /*******************************************************************************
 |    Enum Definition

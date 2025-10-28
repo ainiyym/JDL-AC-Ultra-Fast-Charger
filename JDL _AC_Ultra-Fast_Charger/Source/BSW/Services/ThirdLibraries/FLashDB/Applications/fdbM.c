@@ -11,8 +11,8 @@
 
 #include <stdio.h>
 #include <board.h>
-#include <flashdb.h>
 #include <stm32f1xx_hal.h>
+#include <flashdb.h>
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
@@ -35,8 +35,8 @@ struct fdb_kvdb kvdb = { 0 };
 /* TSDB object */
 struct fdb_tsdb tsdb_gun1 = { 0 };
 struct fdb_tsdb tsdb_gun2 = { 0 };
-/* counts for simulated timestamp */
-static int counts = 0;
+/* ts_timestamp for simulated timestamp */
+static uint32_t ts_timestamp[FAL_PART_TABLE_TSDB_COUNT] = {0};
 
 extern void kvdb_basic_sample(fdb_kvdb_t kvdb);
 extern void kvdb_type_string_sample(fdb_kvdb_t kvdb);
@@ -57,14 +57,33 @@ static void unlock(fdb_db_t db)
     }
 }
 
-static fdb_time_t get_time(void)
+void tsdb_time_synced_init(uint32_t* timestamp)
 {
-    /* Using the counts instead of timestamp.
+    if (timestamp != NULL && sizeof(timestamp) == sizeof(ts_timestamp))
+    {
+        memcpy(ts_timestamp, timestamp, sizeof(ts_timestamp));
+    }
+}
+
+uint32_t* powerdown_get_ts_timestamp(void)
+{
+    return ts_timestamp;
+}
+
+uint32_t get_ts0_time(void)
+{
+    /* Using the ts_timestamp instead of timestamp.
      * Please change this function to return RTC time.
      */
-    uint32_t counts = 0;
-    RTC_GetRtcSeconds((uint32_t *)&counts);
-    return counts;
+    return ++ts_timestamp[0];
+}
+
+uint32_t get_ts1_time(void)
+{
+    /* Using the ts_timestamp instead of timestamp.
+     * Please change this function to return RTC time.
+     */
+    return ++ts_timestamp[1];
 }
 
 extern int spi_flash_init(void);
@@ -130,8 +149,8 @@ int fdb_init(void)
          *         128: maximum length of each log
          *        NULL: The user data if you need, now is empty.
          */
-        result = fdb_tsdb_init(&tsdb_gun1, "order_gun1", "fdb_tsdb1", get_time, 256, NULL);
-        result = fdb_tsdb_init(&tsdb_gun2, "order_gun2", "fdb_tsdb2", get_time, 256, NULL);
+        result = fdb_tsdb_init(&tsdb_gun1, "order_gun1", "fdb_tsdb1", get_ts0_time, 256, NULL);
+        result = fdb_tsdb_init(&tsdb_gun2, "order_gun2", "fdb_tsdb2", get_ts1_time, 256, NULL);
     }
 #endif /* FDB_USING_TSDB */
     return 0;

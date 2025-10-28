@@ -56,7 +56,8 @@ typedef enum
 {
     FLASHDB_KV_M4G_DEVICE_INIT_FLAG,
     FLASHDB_KV_SN,
-    FLASHDB_KV_ORDER_SEQUENCE
+    FLASHDB_KV_ORDER_SEQUENCE,
+    FLASHDB_KV_TS_TOTAL_COUNT
 } FlashDB_App_KvDB_Enum;
 
 typedef enum
@@ -92,6 +93,7 @@ typedef struct
 |    Global Function Prototypes
 |******************************************************************************/
 extern int FlashDB_AppM_Init(void);
+extern void FlashDB_Powerdown_Handler(void);
 //KV
 extern FlashDB_ReturnType_t FlashDB_ReadValue(FlashDB_App_KvDB_Enum kv_id, void *value, size_t buff_size, size_t* actual_len);
 extern FlashDB_ReturnType_t FlashDB_WriteValue(FlashDB_App_KvDB_Enum kv_id, void *value, size_t buff_size);
