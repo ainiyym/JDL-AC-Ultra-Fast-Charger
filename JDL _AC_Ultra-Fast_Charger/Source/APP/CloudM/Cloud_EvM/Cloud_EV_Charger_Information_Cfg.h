@@ -69,6 +69,21 @@ typedef enum
     CLOUD_EV_TRANSACTION_ID_TYPE_VIN = 3
 } Cloud_Ev_Transaction_IdentifierType_E;
 
+typedef enum
+{
+    CLOUD_EV_AUTH_STATUS_UNAUTHORIZED = 0,
+    CLOUD_EV_AUTH_STATUS_AUTHENTICATED
+}Cloud_Ev_Auth_StatusType_E;
+
+typedef enum
+{
+    CLOUD_EV_CHARGING_STATUS_IDLE = 0,       // Idle
+    CLOUD_EV_CHARGING_STATUS_CONNECTED,      // Connected
+    CLOUD_EV_CHARGING_STATUS_CHARGING,       // Charging
+    CLOUD_EV_CHARGING_STATUS_STOPPING,       // Stopping
+    CLOUD_EV_CHARGING_STATUS_FINISHED,       // Finished
+    CLOUD_EV_CHARGING_STATUS_ERROR           // Error
+}Cloud_Ev_Charging_StatusType_E;
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/

@@ -13,12 +13,11 @@
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
+#include "Cloud_Protocol_ChargingOrderInfomation.h"
+#include "Cloud_Ev_Charger_Information.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "STD_Rtc.h"
-#include "Cloud_EV_Charger_Information.h"
-#include "Cloud_Protocol_BillingModelM.h"
-#include "Cloud_Cfg.h"
 #include "FlashDB_AppM.h"
 
 /*******************************************************************************
@@ -28,34 +27,12 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
+#define CLOUD_PROTOCOL_ORDER_PROCESS_PERIOD_MS                                 (100U) // Order processing task period time in ms
+#define CLOUD_PROTOCOL_ORDER_UPDATE_PERIOD_MS                                  (30 * 1000U) // Order update period time in ms
+#define CLOUD_PROTOCOL_ORDER_OFFLINE_UPLOAD_CHECK_PERIOD_MS                    (60 * 1000U) // Offline order upload check period time in ms
+#define CLOUD_PROTOCOL_ORDER_AUTH_CHECK_PERIOD_MS                              (5 * 60 * 1000U) // Order authorization check period time in ms
+
 #define CLOUD_PROTOCOL_CHARGING_ORDER_MAX_GUNS                                  (CLOUD_EV_MAX_CONNECTORS) // Maximum number of guns supported by the order module
-
-#define CLOUD_PROTOCOL_GET_CURRENT_DATE_TIME(pData)                  \
-    do                                                               \
-    {                                                                \
-        RtcTimedate_Struct lv_stDateTime;                            \
-        RTCIF_GetDateTime(&lv_stDateTime);                           \
-        memcpy((pData), &lv_stDateTime, sizeof(RtcTimedate_Struct)); \
-    } while (0) // get datetime: YYMMDDHHMMSS
-
-#define CLOUD_PROTOCOL_GET_CURRENT_TIMESTAMP() \
-    ({                                         \
-        uint32_t __timestamp = 0;              \
-        RTC_GetRtcSeconds(&__timestamp);       \
-        __timestamp;                           \
-    }) // get timestamp: seconds since 1970-01-01 00:00:00
-
-#define CLOUD_PROTOCOL_TIMESTAMP_TO_CP56TIME2A(pTimestamp, pCp56_data)         \
-    ({                                                                         \
-        if ((pTimestamp) != NULL && (pCp56_data) != NULL)                      \
-        {                                                                      \
-            RtcTimedate_Struct lv_sttimeDate = {0};                            \
-            RTC_ConvertSecondsToTimeDate((pTimestamp), &lv_sttimeDate);        \
-            RTC_DatetimeToCp56time2a(&lv_sttimeDate, (uint8_t *)(pCp56_data)); \
-        }                                                                      \
-    }) // convert timestamp to CP56Time2a
-
-#define CLOUD_PROTOCOL_GET_CP56TIME2A(pCp56_data)                               RTC_GetCP56Time2a((uint8_t *)(pCp56_data)) // get CP56Time2a(BCD)
 #define CLOUD_PROTOCOL_GET_BILLING_MODEL_TIME_SLOT_INFO()                       Cloud_Protocol_GetBillingModelTimeSlotInfo() // get billing model time slot info
 
 #define CLOUD_PROTOCOL_READ_ORDER_SEQUENCE(buff, bufflen)                       FlashDB_ReadValue(FLASHDB_KV_ORDER_SEQUENCE, buff, bufflen, NULL) // read order sequence from storage
@@ -63,7 +40,29 @@
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
+// Enumeration of charging status
+typedef enum
+{
+    CHARGING_STATUS_IDLE = 0,  // Idle
+    CHARGING_STATUS_CONNECTED, // Connected
+    CHARGING_STATUS_CHARGING,  // Charging
+    CHARGING_STATUS_STOPPED,   // Stopped
+    CHARGING_STATUS_ERROR      // Error
+} cloud_protocol_order_charging_status_t;
 
+// Authorization status enumeration
+typedef enum
+{
+    AUTH_STATUS_UNAUTHORIZED = 0, // Unauthorized
+    AUTH_STATUS_AUTHORIZED        // Authorized
+} cloud_protocol_order_auth_status_t;
+
+// Charging connector status enumeration
+typedef enum
+{
+    CONNECTOR_STATUS_DISCONNECTED = 0, // Disconnected
+    CONNECTOR_STATUS_CONNECTED         // Connected
+} cloud_protocol_order_connector_status_t;
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
@@ -78,8 +77,15 @@
 extern uint32_t cloud_protocol_fixed_5dec(float value);
 extern uint32_t cloud_protocol_fixed_4dec(float value);
 extern uint64_t cloud_protocol_fixed_4dec_64(float value);
-extern float fixed_5dec_to_float(uint32_t value);
-extern float fixed_4dec_to_float(uint32_t value);
+extern float cloud_protocol_fixed_5dec_to_float(uint32_t value);
+extern float cloud_protocol_fixed_4dec_to_float(uint32_t value);
 
+extern cloud_protocol_charging_cloud_protocol_order_manager_t *cloud_protocol_get_active_charging_order(uint8_t gun_no);
+extern bool cloud_protocol_call_upload_offline_order(cloud_protocol_charging_cloud_protocol_order_manager_t *order);
+
+extern bool cloud_protocol_save_order_to_tsdb(uint8_t gun_no);
+extern bool cloud_protocol_update_active_order_to_tsdb(uint8_t gun_no);
+extern bool cloud_protocol_delete_active_order_in_tsdb(uint8_t gun_no);
+extern bool cloud_protocol_process_offline_order_upload(uint8_t gun_no);
 #endif /* __CLOUD_PROTOCOL_CHARGING_ORDER_CFG_H */
 /* EOL */

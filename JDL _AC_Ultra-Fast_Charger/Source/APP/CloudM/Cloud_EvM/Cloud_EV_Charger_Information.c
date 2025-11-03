@@ -172,10 +172,6 @@ bool Cloud_Ev_Set_Constant_Info(Cloud_Constant_Field_E field, const void *value)
                     CLOUD_ERROR("%s: Invalid SN format\r\n", __func__);
                     return false;
                 }
-
-                cloud_protocol_transaction_id_config_t new_config = {0};
-                memcpy(new_config.SN, Cloud_Ev_Charger_Constant_Info.serial_number, CLOUD_PROTOCOL_SN_LENGTH);
-                cloud_protocol_charging_order_init(&new_config); // Reinitialize order module with new SN
             }
             break;
 
@@ -326,6 +322,12 @@ bool Cloud_Ev_Set_Dynamic_Info(uint8_t connector_id , Cloud_Dynamic_Field_E fiel
                 return false;
             memcpy(&Cloud_Ev_Charger_Dynamic_Info, value, sizeof(Cloud_Ev_Charger_Dynamic_Info_T));
             break;
+        case CLOUD_DYNAMIC_AUTH_STATUS:
+            Cloud_Ev_Charger_Dynamic_Info.auth_status[connector_id] = *(const Cloud_Ev_Auth_StatusType_E *)value;
+            break;
+        case CLOUD_DYNAMIC_CHARGING_STATUS:
+            Cloud_Ev_Charger_Dynamic_Info.charging_status[connector_id] = *(const Cloud_Ev_Charging_StatusType_E *)value;
+            break;
 
         default:
             return false; // Unknown field
@@ -460,6 +462,16 @@ bool Cloud_Ev_Get_Dynamic_Info(uint8_t connector_id, Cloud_Dynamic_Field_E field
         case CLOUD_DYNAMIC_HARDWARE_FAULT_CODE:
             if (value_size < sizeof(Cloud_Ev_RealTimedData_Hardware_Fault_t)) return false;
             *(Cloud_Ev_RealTimedData_Hardware_Fault_t *)value = Cloud_Ev_Charger_Dynamic_Info.hardware_fault[connector_id];
+            break;
+
+        case CLOUD_DYNAMIC_AUTH_STATUS:
+            if (value_size < sizeof(Cloud_Ev_Auth_StatusType_E)) return false;
+            *(Cloud_Ev_Auth_StatusType_E *)value = Cloud_Ev_Charger_Dynamic_Info.auth_status[connector_id];
+            break;
+
+        case CLOUD_DYNAMIC_CHARGING_STATUS:
+            if (value_size < sizeof(Cloud_Ev_Charging_StatusType_E)) return false;
+            *(Cloud_Ev_Charging_StatusType_E *)value = Cloud_Ev_Charger_Dynamic_Info.charging_status[connector_id];
             break;
 
         case CLOUD_DYNAMIC_ALL_FIELDS:

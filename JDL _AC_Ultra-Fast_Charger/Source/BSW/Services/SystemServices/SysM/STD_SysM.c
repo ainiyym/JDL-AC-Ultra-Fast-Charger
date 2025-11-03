@@ -33,6 +33,7 @@
 #include "Cloud_EV_Charger_Information.h"
 #include "CloudM.h"
 #include "FlashDB_AppM.h"
+#include "Cloud_Protocol_ChargingOrder.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -606,6 +607,7 @@ static void SYSM_PowerDownInfor(void)
 
     Core_printf("\r\nStart Power Down!\r\n");
 
+	cloud_protocol_order_handle_power_loss();
 	FlashDB_Powerdown_Handler();
 
     /*关相关外设*/

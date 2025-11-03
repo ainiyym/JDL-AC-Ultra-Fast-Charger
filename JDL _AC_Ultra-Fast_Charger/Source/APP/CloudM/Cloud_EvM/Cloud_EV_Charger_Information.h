@@ -52,6 +52,8 @@ typedef enum {
     CLOUD_DYNAMIC_TOTAL_ENERGY,
     CLOUD_DYNAMIC_FAULT_CODE,
     CLOUD_DYNAMIC_HARDWARE_FAULT_CODE,
+    CLOUD_DYNAMIC_AUTH_STATUS,
+    CLOUD_DYNAMIC_CHARGING_STATUS,
     CLOUD_DYNAMIC_ALL_FIELDS  // Special values represent all fields
 } Cloud_Dynamic_Field_E;
 
@@ -101,6 +103,8 @@ typedef struct
     Cloud_Ev_ConnectorGoBack_StatusType_E go_back_status[CLOUD_EV_MAX_CONNECTORS];   // Connector go back Status
     Cloud_Ev_Connector_StatusType_E connector_status[CLOUD_EV_MAX_CONNECTORS];       // Connector status
     Cloud_Ev_RealTimedData_Hardware_Fault_t hardware_fault[CLOUD_EV_MAX_CONNECTORS]; // Hardware Faults
+    Cloud_Ev_Auth_StatusType_E auth_status[CLOUD_EV_MAX_CONNECTORS];                 // Auth status
+    Cloud_Ev_Charging_StatusType_E charging_status[CLOUD_EV_MAX_CONNECTORS];         // Charging status
 } Cloud_Ev_Charger_Dynamic_Info_T;
 /*******************************************************************************
 |    Table Definition
