@@ -74,11 +74,12 @@ typedef enum
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
+typedef bool (*user_processor_t)(fdb_tsl_t tsl, void* arg);
 typedef struct
 {
     void *record_data;
     size_t record_size;
-    bool record_found;
+    user_processor_t record_processor;
 } tsdb_iter_context_t;
 
 /*******************************************************************************
@@ -100,8 +101,8 @@ extern FlashDB_ReturnType_t FlashDB_WriteValue(FlashDB_App_KvDB_Enum kv_id, void
 //TSDB
 extern FlashDB_ReturnType_t FlashDB_Append_Data(FlashDB_App_TSDB_Enum tsdb_id, const void *data, size_t size);
 extern FlashDB_ReturnType_t FlashDB_Append_Data_With_Ts(FlashDB_App_TSDB_Enum tsdb_id, const void *data, size_t size, uint32_t timestamp);
-extern FlashDB_ReturnType_t FlashDB_TS_Get_Record(FlashDB_App_TSDB_Enum tsdb_id, FlashDB_Iterator_Direction_t direction, void *data, size_t size, size_t *actual_len);
-extern FlashDB_ReturnType_t FlashDB_TS_Set_Latest_Record_Status(FlashDB_App_TSDB_Enum tsdb_id, FlashDB_Iterator_Direction_t direction, fdb_tsl_status_t status);
+extern FlashDB_ReturnType_t FlashDB_TS_Iterate(FlashDB_App_TSDB_Enum tsdb_id, FlashDB_Iterator_Direction_t direction, void *data, size_t size, user_processor_t record_processor_cb);
+extern void FlashDB_TS_Set_Record_Status(FlashDB_App_TSDB_Enum tsdb_id, fdb_tsl_t tsl, fdb_tsl_status_t status);
 extern uint32_t FlashDB_TS_GetTotalRecordsCounts(FlashDB_App_TSDB_Enum tsdb_id, fdb_tsl_status_t status);
 #endif /* __FLASHDB_APP_M_H */
 /* EOL */

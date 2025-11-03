@@ -48,7 +48,14 @@
 #define CLOUDM_TASK_DELAY_MS(ms)                                            vTaskDelay(pdMS_TO_TICKS(ms))
 #define CLOUDM_MALLOC(size)                                                 pvPortMalloc(size)
 #define CLOUDM_FREE(ptr)                                                    vPortFree(ptr)
+    
 /* Time */
+#define CLOUD_TIME_1S_IN_MS                   (1000U)
+#define CLOUD_TIME_1MIN_IN_MS                 (60U * CLOUD_TIME_1S_IN_MS)
+#define CLOUD_TIME_1H_IN_MS                   (60U * CLOUD_TIME_1MIN_IN_MS)
+#define CLOUD_TIME_1D_IN_MS                   (24U * CLOUD_TIME_1H_IN_MS)
+
+/* Get current time during power on */
 #define CLOUD_GET_TIME_MS() ({                            \
     static time_t base_time = 0;                          \
     time_t current_ticks = xTaskGetTickCount();           \
@@ -69,6 +76,44 @@
             *timer = CLOUD_GET_TIME_MS(); \
         }                                 \
     } while (0)
+
+#define CLOUD_PROTOCOL_GET_CURRENT_DATE_TIME(pData)                  \
+    do                                                               \
+    {                                                                \
+        RtcTimedate_Struct lv_stDateTime;                            \
+        RTCIF_GetDateTime(&lv_stDateTime);                           \
+        memcpy((pData), &lv_stDateTime, sizeof(RtcTimedate_Struct)); \
+    } while (0) // get datetime: YYMMDDHHMMSS
+
+#define CLOUD_PROTOCOL_GET_CURRENT_TIMESTAMP() \
+    ({                                         \
+        uint32_t __timestamp = 0;              \
+        RTC_GetRtcSeconds(&__timestamp);       \
+        __timestamp;                           \
+    }) // get timestamp: seconds since 1970-01-01 00:00:00
+
+#define CLOUD_PROTOCOL_TIMESTAMP_CONVERT_TO_CP56TIME2A(pTimestamp, pCp56_data) \
+    ({                                                                         \
+        if ((pTimestamp) != NULL && (pCp56_data) != NULL)                      \
+        {                                                                      \
+            RtcTimedate_Struct lv_sttimeDate = {0};                            \
+            RTC_ConvertSecondsToTimeDate((pTimestamp), &lv_sttimeDate);        \
+            RTC_DatetimeToCp56time2a(&lv_sttimeDate, (uint8_t *)(pCp56_data)); \
+        }                                                                      \
+    }) // convert timestamp to CP56Time2a
+
+#define CLOUD_PROTOCOL_CP56TIME2A_CONVERT_TO_TIMESTAMP(pCp56_data, pTimestamp) \
+    ({                                                                         \
+        if ((pCp56_data) != NULL && (pTimestamp) != NULL)                      \
+        {                                                                      \
+            RtcTimedate_Struct lv_sttimeDate = {0};                            \
+            RTC_Cp56time2aToDatetime((uint8_t *)(pCp56_data), &lv_sttimeDate); \
+            RTC_ConvertTimeDateToSeconds(&lv_sttimeDate, (pTimestamp));        \
+        }                                                                      \
+    }) // convert CP56Time2a to timestamp
+
+#define CLOUD_PROTOCOL_GET_CP56TIME2A(pCp56_data)                               RTC_GetCP56Time2a((uint8_t *)(pCp56_data)) // get CP56Time2a(BCD)
+
 /******************************************************************************
 |    Enum Definition
 |******************************************************************************/

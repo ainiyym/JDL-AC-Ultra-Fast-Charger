@@ -28,7 +28,7 @@
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
-typedef uint32_t (*fdb_get_ts_cb)(void);
+typedef uint32_t (*fdb_get_ts_time_cb)(void);
 
 typedef struct
 {
@@ -46,7 +46,7 @@ typedef struct
 	fdb_tsdb_t tsdb;               // TSDB instance
 	fdb_tsl_cb tsl_query_cb;       // TSL query callback function
 	fdb_tsl_cb set_status_cb;      // TSL set status callback function
-	fdb_get_ts_cb get_ts_cb;       // Get timestamp callback function
+	fdb_get_ts_time_cb get_ts_time_cb;       // Get timestamp callback function
 	uint32_t max_records;		   // Maximum record count
 	size_t item_size;		   	   // Data item size
 	uint16_t item_count;		   // Data item count
@@ -93,7 +93,7 @@ static FlashDB_AppTsdb_InstanceCfg_t FlashDB_AppTsdbInstanceCfgTable[] =
 		.tsdb = &tsdb_gun1,
 		.tsl_query_cb = FlashDB_Order_Gun1_Query_Cb,
 		.set_status_cb = FlashDB_Order_Gun1_Set_Status_Cb,
-		.get_ts_cb = get_ts0_time,
+		.get_ts_time_cb = get_ts0_time,
 		.max_records = 100,
 		.item_size = sizeof(cloud_protocol_charging_cloud_protocol_order_manager_t),
 		.item_count = 1
@@ -103,7 +103,7 @@ static FlashDB_AppTsdb_InstanceCfg_t FlashDB_AppTsdbInstanceCfgTable[] =
 		.tsdb = &tsdb_gun2,
 		.tsl_query_cb = FlashDB_Order_Gun2_Query_Cb,
 		.set_status_cb = FlashDB_Order_Gun2_Set_Status_Cb,
-		.get_ts_cb = get_ts1_time,
+		.get_ts_time_cb = get_ts1_time,
 		.max_records = 100,
 		.item_size = sizeof(cloud_protocol_charging_cloud_protocol_order_manager_t),
 		.item_count = 1
@@ -323,17 +323,16 @@ static bool FlashDB_Order_Gun1_Query_Cb(fdb_tsl_t tsl, void *arg)
 	tsdb_iter_context_t *context = (tsdb_iter_context_t *)arg;
 	fdb_tsdb_t db = &tsdb_gun1;
 
-	if (!context->record_found && context->record_data != NULL)
+	if (!context->record_processor && context->record_data != NULL)
 	{
 		fdb_blob_read((fdb_db_t)db, fdb_tsl_to_blob(tsl, fdb_blob_make(&blob, context->record_data, context->record_size)));
 		if (context->record_size == sizeof(cloud_protocol_charging_cloud_protocol_order_manager_t))
 		{
-			context->record_found = true;
-			return false;
+			return context->record_processor(tsl, context->record_data);
 		}
 	}
-	return true;
-} 
+	return false;
+}
 	
 static bool FlashDB_Order_Gun2_Query_Cb(fdb_tsl_t tsl, void *arg)
 {
@@ -341,16 +340,15 @@ static bool FlashDB_Order_Gun2_Query_Cb(fdb_tsl_t tsl, void *arg)
 	tsdb_iter_context_t *context = (tsdb_iter_context_t *)arg;
 	fdb_tsdb_t db = &tsdb_gun2;
 
-	if (!context->record_found && context->record_data != NULL)
+	if (!context->record_processor && context->record_data != NULL)
 	{
 		fdb_blob_read((fdb_db_t)db, fdb_tsl_to_blob(tsl, fdb_blob_make(&blob, context->record_data, context->record_size)));
 		if (context->record_size == sizeof(cloud_protocol_charging_cloud_protocol_order_manager_t))
 		{
-			context->record_found = true;
-			return false;
+			return context->record_processor(tsl, context->record_data);
 		}
 	}
-	return true;
+	return false;
 }
 
 static bool FlashDB_Order_Gun1_Set_Status_Cb(fdb_tsl_t tsl, void *arg)
@@ -374,7 +372,7 @@ static bool FlashDB_Order_Gun2_Set_Status_Cb(fdb_tsl_t tsl, void *arg)
 FlashDB_ReturnType_t FlashDB_Append_Data(FlashDB_App_TSDB_Enum tsdb_id, const void *data, size_t size)
 {
 	uint32_t timestamp = 0;
-	timestamp = FlashDB_AppTsdbInstanceCfgTable[tsdb_id].get_ts_cb();
+	timestamp = FlashDB_AppTsdbInstanceCfgTable[tsdb_id].get_ts_time_cb();
 	return FlashDB_Append_Data_With_Ts(tsdb_id, data, size, timestamp);
 	// return FlashDB_Append_Data_With_Ts(tsdb_id, data, size, ++FlashDb_TsCounts);
 }
@@ -400,9 +398,9 @@ FlashDB_ReturnType_t FlashDB_Append_Data_With_Ts(FlashDB_App_TSDB_Enum tsdb_id, 
 	return (wrapper_ret == FDB_WRAPPER_OK) ? FLASHDB_OK : FLASHDB_ERR_SET_FAIL;
 }
 
-FlashDB_ReturnType_t FlashDB_TS_Get_Record(FlashDB_App_TSDB_Enum tsdb_id, FlashDB_Iterator_Direction_t direction, void *data, size_t size, size_t *actual_len)
+FlashDB_ReturnType_t FlashDB_TS_Iterate(FlashDB_App_TSDB_Enum tsdb_id, FlashDB_Iterator_Direction_t direction, void *data, size_t size, user_processor_t record_processor_cb)
 {
-	if (data == NULL || size == 0 || actual_len == NULL)
+	if (data == NULL || size == 0 || record_processor_cb == NULL)
 	{
 		return FLASHDB_ERR_INVALID_PARAM;
 	}
@@ -419,7 +417,7 @@ FlashDB_ReturnType_t FlashDB_TS_Get_Record(FlashDB_App_TSDB_Enum tsdb_id, FlashD
 	tsdb_iter_context_t context = {
 		.record_data = data,
 		.record_size = size,
-		.record_found = false
+		.record_processor = record_processor_cb
 	};
 
 	switch (direction)
@@ -433,39 +431,19 @@ FlashDB_ReturnType_t FlashDB_TS_Get_Record(FlashDB_App_TSDB_Enum tsdb_id, FlashD
 		default:
 			return FLASHDB_ERR_INVALID_PARAM; // Invalid direction
 	}
-
-	if (context.record_found)
-	{
-		*actual_len = context.record_size;
-		return FLASHDB_OK;
-	}
-	else
-	{
-		return FLASHDB_ERR_NOT_EXIST; // No records found
-	}
+	return FLASHDB_OK;
 }
 
-FlashDB_ReturnType_t FlashDB_TS_Set_Latest_Record_Status(FlashDB_App_TSDB_Enum tsdb_id, FlashDB_Iterator_Direction_t direction, fdb_tsl_status_t status)
+void FlashDB_TS_Set_Record_Status(FlashDB_App_TSDB_Enum tsdb_id, fdb_tsl_t tsl, fdb_tsl_status_t status)
 {
 	FlashDB_AppTsdb_InstanceCfg_t *item_cfg = &FlashDB_AppTsdbInstanceCfgTable[tsdb_id];
-	if (item_cfg == NULL)
+	if (item_cfg == NULL || item_cfg->set_status_cb == NULL)
 	{
-		return FLASHDB_ERR_NOT_EXIST; // TSDB or item not found
+		return; // TSDB not found
 	}
 
-	switch (direction)
-	{
-		case FLASHDB_ITERATOR_DIRECTION_FORWARD:
-			fdb_wrapper_tsl_iter(item_cfg->tsdb, item_cfg->set_status_cb, &status);
-			break;
-		case FLASHDB_ITERATOR_DIRECTION_BACKWARD:
-			fdb_wrapper_tsl_iter_reverse(item_cfg->tsdb, item_cfg->set_status_cb, &status);
-			break;
-		default:
-			return FLASHDB_ERR_INVALID_PARAM; // Invalid direction
-	}
-
-	return FLASHDB_OK;
+	fdb_tsl_status_t status_copy = (fdb_tsl_status_t)status;
+	(void)item_cfg->set_status_cb(tsl, &status_copy);
 }
 
 uint32_t FlashDB_TS_GetTotalRecordsCounts(FlashDB_App_TSDB_Enum tsdb_id, fdb_tsl_status_t status)
