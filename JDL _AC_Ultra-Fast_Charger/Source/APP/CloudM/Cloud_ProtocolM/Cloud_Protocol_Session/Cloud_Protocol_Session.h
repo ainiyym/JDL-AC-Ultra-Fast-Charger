@@ -111,5 +111,6 @@ extern Cloud_Protocol_Send_Status_T Cloud_Protocol_CallSendFunc(uint8_t frame_ty
                                                                uint8_t *buffer,
                                                                uint16_t buffer_size);
 extern void Cloud_Protocol_CheckTimeoutRequests(void *arg);
+extern const Cloud_Protocol_Frame_Type_Config_T *Cloud_Protocol_GetFrameConfig(uint8_t frame_type);
 #endif /* __CLOUD_PROTOCOL_SESSION_H */
 /* EOL */

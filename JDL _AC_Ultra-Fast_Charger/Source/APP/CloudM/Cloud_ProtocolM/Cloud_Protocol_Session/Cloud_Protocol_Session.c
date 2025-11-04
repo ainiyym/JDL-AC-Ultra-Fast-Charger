@@ -77,7 +77,7 @@ static Cloud_Protocol_Frame_T cloud_protocol_recv_frame;
 |    Table Const Definition
 |******************************************************************************/
 static const Cloud_Protocol_Frame_Type_Config_T CLOUD_PROTOCOL_FRAME_CONFIG_TABLE[] = 
-{    
+{
 // FrameType    | Name                                  | Send func                                   | recv func                                 | NeedAck       | ExpectedAck
     {0x01,      "Pile Login Auth",                      Cloud_Protocol_0x01_Callback,                 NULL,                                       true,          0x02},
     {0x02,      "Login Auth Ack",                       NULL,                                         Cloud_Protocol_0x02_Callback,               false,         0x00},
@@ -94,7 +94,9 @@ static const Cloud_Protocol_Frame_Type_Config_T CLOUD_PROTOCOL_FRAME_CONFIG_TABL
     {0x58,      "Billing model Settings",               NULL,                                         Cloud_Protocol_0x58_Callback,               true,          0x57},
     {0x57,      "Billing model Settings Ack",           Cloud_Protocol_0x57_Callback,                 NULL,                                       false,         0x00},
     {0x92,      "Remote reset",                         NULL,                                         Cloud_Protocol_0x92_Callback,               true,          0x91},
-    {0x91,      "Remote reset Ack",                     Cloud_Protocol_0x91_Callback,                 NULL,                                       false,         0x00}
+    {0x91,      "Remote reset Ack",                     Cloud_Protocol_0x91_Callback,                 NULL,                                       false,         0x00},
+    {0x3B,      "Transaction record",                   Cloud_Protocol_0x3B_Callback,                 NULL,                                       true,          0x40},
+    {0x40,      "Transaction record Ack",               NULL,                                         Cloud_Protocol_0x40_Callback,               false,         0x00}
 };
 #define CLOUD_PROTOCOL_FRAME_CONFIG_COUNT (sizeof(CLOUD_PROTOCOL_FRAME_CONFIG_TABLE) / sizeof(Cloud_Protocol_Frame_Type_Config_T))
 /*******************************************************************************
@@ -133,7 +135,7 @@ void Cloud_Protocol_ResetLogInStatus(void)
 }
 
 // Get frame type configuration by frame type code
-static const Cloud_Protocol_Frame_Type_Config_T *Cloud_Protocol_GetFrameConfig(uint8_t frame_type)
+const Cloud_Protocol_Frame_Type_Config_T *Cloud_Protocol_GetFrameConfig(uint8_t frame_type)
 {
     for (size_t i = 0; i < CLOUD_PROTOCOL_FRAME_CONFIG_COUNT; i++)
     {

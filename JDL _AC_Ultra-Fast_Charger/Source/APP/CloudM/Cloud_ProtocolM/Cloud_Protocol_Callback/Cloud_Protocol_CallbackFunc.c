@@ -492,4 +492,133 @@ Cloud_Protocol_Send_Status_T Cloud_Protocol_0x57_Callback(void *arg, uint8_t *bu
 	Cloud_Protocol_SendMsg(buff, frame_length + 1, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
 	return CLOUD_PROTOCOL_SEND_SUCCESS;
 }
+
+void Cloud_Protocol_Order_Upload_Callback(const cloud_protocol_charging_cloud_protocol_order_manager_t *order)
+{
+    if (order == NULL)
+    {
+        CLOUD_ERROR("%s: Invalid order parameter\r\n", __func__);
+        return;
+    }
+    uint8_t msg_buffer[CLOUD_MESSAGE_BUFFER_MAX_LENGTH] = {0};
+    const Cloud_Protocol_Frame_Type_Config_T *config = Cloud_Protocol_GetFrameConfig(0x3B);
+
+    if (config == NULL || config->send_func == NULL)
+    {
+        CLOUD_ERROR("%s: Invalid frame type: %02x\r\n", __func__, 0x3B);
+        return;
+    }
+
+    // Call the send function
+    config->send_func(order, msg_buffer, sizeof(msg_buffer));
+}
+
+Cloud_Protocol_Send_Status_T Cloud_Protocol_0x3B_Callback(void *arg, uint8_t *buff, uint16_t buffSize)
+{
+	// Handle frame type 0x3B (Transaction record)
+	// Add your processing logic here
+	cloud_protocol_charging_cloud_protocol_order_manager_t *order_manager = (cloud_protocol_charging_cloud_protocol_order_manager_t *)arg;
+	cloud_protocol_charging_order_t *order = &order_manager->active_orders;
+
+	uint8_t body[CLOUD_PROTOCOL_0x3B_BODY_LENGTH] = {0};
+	uint16_t bodylen = 0;
+	// Fill in the message body
+	// 1. Transaction serial number (16-byte BCD code)
+	memcpy(&body[bodylen], order->transaction_id, CLOUD_PROTOCOL_TRANSACTION_ID_LENGTH);
+	bodylen += CLOUD_PROTOCOL_TRANSACTION_ID_LENGTH;
+
+	// 2. Stub number (7-byte BCD code, with zeros added if less than 7 bits)
+	memcpy(&body[bodylen], order->SN, CLOUD_PROTOCOL_SN_LENGTH);
+	bodylen += CLOUD_PROTOCOL_SN_LENGTH;
+
+	// 3. Gun number (1-byte BCD code)
+	body[bodylen++] = order->connector_id;
+
+	// 4. Start time (7-byte CP56Time2a format)
+	memcpy(&body[bodylen], &order->start_time, sizeof(CP56Time2a_t));
+	bodylen += sizeof(CP56Time2a_t);
+
+	// 5. End time (7-byte CP56Time2a format)
+	memcpy(&body[bodylen], &order->end_time, sizeof(CP56Time2a_t));
+	bodylen += sizeof(CP56Time2a_t);
+
+	// 6-9. Peak rate information (unit price 4B + electricity 4B + loss electricity 4B + amount 4B)
+	memcpy(&body[bodylen], &order->peak, sizeof(cloud_protocol_rate_info_t));
+	bodylen += sizeof(cloud_protocol_rate_info_t);
+
+	// 10-13. High rate information
+	memcpy(&body[bodylen], &order->high, sizeof(cloud_protocol_rate_info_t));
+	bodylen += sizeof(cloud_protocol_rate_info_t);
+
+	// 14-17. Normal rate information
+	memcpy(&body[bodylen], &order->normal, sizeof(cloud_protocol_rate_info_t));
+	bodylen += sizeof(cloud_protocol_rate_info_t);
+
+	// 18-21. Valley rate information
+	memcpy(&body[bodylen], &order->valley, sizeof(cloud_protocol_rate_info_t));
+	bodylen += sizeof(cloud_protocol_rate_info_t);
+
+	// 22. Total starting value of the electricity meter (5-byte BIN)
+	memcpy(&body[bodylen], &order->total_start, 5);
+	bodylen += 5;
+
+	// 23. Total ending value of the electricity meter (5-byte BIN)
+	memcpy(&body[bodylen], &order->total_end, 5);
+	bodylen += 5;
+
+	// 24. total charged electricity (4-byte BIN)
+	memcpy(&body[bodylen], &order->total_energy, 4);
+	bodylen += 4;
+
+	// 25. total loss electricity (4-byte BIN)
+	memcpy(&body[bodylen], &order->total_loss_energy, 4);
+	bodylen += 4;
+
+	// 26. total amount (4-byte BIN)
+	memcpy(&body[bodylen], &order->total_amount, 4);
+	bodylen += 4;
+
+	// 27. VIN (17-byte ASCII)
+	memcpy(&body[bodylen], order->vin, 17);
+	bodylen += 17;
+
+	// 28. transaction type (1-byte BIN)
+	body[bodylen++] = (uint8_t)order->transaction_type;
+
+	// 29. transaction date and time (7-byte CP56Time2a format)
+	memcpy(&body[bodylen], &order->transaction_time, sizeof(CP56Time2a_t));
+	bodylen += sizeof(CP56Time2a_t);
+
+	// 30. Stop reason (1-byte BIN)
+	body[bodylen++] = (uint8_t)order->stop_reason;
+
+	// 31. physical card number (8-byte BIN)
+	memcpy(&body[bodylen], order->physical_card, CLOUD_PROTOCOL_RFID_UID_LENGTH);
+	bodylen += CLOUD_PROTOCOL_RFID_UID_LENGTH;
+
+	if (bodylen != CLOUD_PROTOCOL_0x3B_BODY_LENGTH)
+	{
+		CLOUD_ERROR("%s: Message length mismatch, expected %d, got %d\r\n", __func__, CLOUD_PROTOCOL_0x3B_BODY_LENGTH, bodylen);
+		return CLOUD_PROTOCOL_SEND_ERROR_MESSAGE_LENGTH_MISMATCH;
+	}
+	// Prepare the full frame
+	uint16_t frame_length = Cloud_Protocol_PrepareSendFrame(NULL, 0x3B, &buff[1], buffSize - 1, body, bodylen);
+	if (frame_length == 0)
+	{
+		CLOUD_ERROR("%s: Failed to prepare send frame\r\n", __func__);
+		return CLOUD_PROTOCOL_SEND_ERROR_INVALID_PARAM;
+	}
+	// buff[0] is reserved for message type
+	buff[0] = CLOUD_MESSAGE_DATA_TYPE_CLOUD_PROTOCOL;
+	// Send the message
+	Cloud_Protocol_SendMsg(buff, frame_length + 1, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
+
+	return CLOUD_PROTOCOL_SEND_SUCCESS;
+}
+
+void Cloud_Protocol_0x40_Callback(void *arg, uint8_t *msg, uint16_t bodylen)
+{
+	// Handle frame type 0x40 (Firmware Upgrade Command)
+	// Add your processing logic here
+}
 /* EOL */

@@ -485,4 +485,5 @@ bool Cloud_Ev_Get_Dynamic_Info(uint8_t connector_id, Cloud_Dynamic_Field_E field
     
     return true;
 }
+
 /* EOL */

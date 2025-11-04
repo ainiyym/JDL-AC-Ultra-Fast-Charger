@@ -44,6 +44,7 @@ typedef struct
     cloud_protocol_charging_status_cb_t charging_status_callback;
     cloud_protocol_auth_status_cb_t auth_status_callback;
     cloud_protocol_connector_status_cb_t connector_status_callback;
+    cloud_protocol_get_meter_reading_cb_t get_meter_reading_callback;
 } cloud_protocol_order_manager_internal_t;
 
 typedef struct
@@ -51,7 +52,6 @@ typedef struct
     bool initialized;                                                                                           // Whether initialized
     cloud_protocol_charging_cloud_protocol_order_manager_t *order_info[CLOUD_PROTOCOL_CHARGING_ORDER_MAX_GUNS]; // Order information
     cloud_protocol_transaction_id_config_t config;                                                              // Configuration information
-    cloud_protocol_energy_interface_t energy_iface;                                                             // Electrical energy interface
     cloud_protocol_order_state_t order_state[CLOUD_PROTOCOL_CHARGING_ORDER_MAX_GUNS];                           // The order status of each gun
     cloud_protocol_order_charging_status_t charging_status[CLOUD_PROTOCOL_CHARGING_ORDER_MAX_GUNS];             // last charging status
     cloud_protocol_order_auth_status_t auth_status[CLOUD_PROTOCOL_CHARGING_ORDER_MAX_GUNS];                     // last auth status
@@ -111,9 +111,10 @@ bool cloud_protocol_order_manager_init(cloud_protocol_order_upload_cb_t upload_c
                                        cloud_protocol_network_status_cb_t network_status_cb,
                                        cloud_protocol_charging_status_cb_t charging_status_cb,
                                        cloud_protocol_auth_status_cb_t auth_status_cb,
-                                       cloud_protocol_connector_status_cb_t connector_status_cb)
+                                       cloud_protocol_connector_status_cb_t connector_status_cb,
+                                       cloud_protocol_get_meter_reading_cb_t get_meter_reading_cb)
 {
-    if (upload_cb == NULL || network_status_cb == NULL || charging_status_cb == NULL || auth_status_cb == NULL || connector_status_cb == NULL) {
+    if (upload_cb == NULL || network_status_cb == NULL || charging_status_cb == NULL || auth_status_cb == NULL || connector_status_cb == NULL || get_meter_reading_cb == NULL) {
         return false;
     }
     // callback assignments
@@ -122,6 +123,7 @@ bool cloud_protocol_order_manager_init(cloud_protocol_order_upload_cb_t upload_c
     order_mgr_internal.charging_status_callback = charging_status_cb;
     order_mgr_internal.auth_status_callback = auth_status_cb;
     order_mgr_internal.connector_status_callback = connector_status_cb;
+    order_mgr_internal.get_meter_reading_callback = get_meter_reading_cb;
     // Initialize timestamps
     order_mgr_internal.last_update_time = CLOUD_GET_TIME_MS();
     order_mgr_internal.last_upload_check_time = CLOUD_GET_TIME_MS();
@@ -135,7 +137,7 @@ bool cloud_protocol_order_manager_init(cloud_protocol_order_upload_cb_t upload_c
 }
 
 // Initialize the order module
-bool cloud_protocol_charging_order_init(const cloud_protocol_transaction_id_config_t *config, const cloud_protocol_energy_interface_t *interface)
+bool cloud_protocol_charging_order_init(const cloud_protocol_transaction_id_config_t *config)
 {
     if (cloud_protocol_order_manager.initialized)
     {
@@ -152,13 +154,6 @@ bool cloud_protocol_charging_order_init(const cloud_protocol_transaction_id_conf
     {
         memset(&cloud_protocol_order_manager.config, 0, sizeof(cloud_protocol_transaction_id_config_t));
     }
-    // initialize energy interface
-    if (interface == NULL)
-    {
-        CLOUD_ERROR("Invalid energy interface\n");
-        return false;
-    }
-    memcpy(&cloud_protocol_order_manager.energy_iface, interface, sizeof(cloud_protocol_energy_interface_t));
 
     // Initialize the order status of all guns to idle
     for (uint8_t i = 0; i < CLOUD_PROTOCOL_CHARGING_ORDER_MAX_GUNS; i++)
@@ -229,7 +224,7 @@ bool cloud_protocol_call_upload_offline_order(cloud_protocol_charging_cloud_prot
     // Call the upload callback
     if (order_mgr_internal.upload_callback)
     {
-        order_mgr_internal.upload_callback(order->active_orders.connector_id, order);
+        order_mgr_internal.upload_callback(order);
         return true;
     }
     else
@@ -421,9 +416,9 @@ static bool cloud_protocol_update_order_meter_reading(uint8_t gun_no)
         return false;
     }
 
-    if (cloud_protocol_order_manager.energy_iface.get_meter_reading != NULL)
+    if (order_mgr_internal.get_meter_reading_callback != NULL)
     {
-        uint32_t current_reading = cloud_protocol_order_manager.energy_iface.get_meter_reading(gun_no);
+        uint32_t current_reading = order_mgr_internal.get_meter_reading_callback(gun_no);
         // Prevent the electricity meter reading from reverting
         if (current_reading >= order->last_meter_reading)
         {
@@ -531,9 +526,9 @@ static bool cloud_protocol_create_order_internal(uint8_t gun_no, cloud_protocol_
     order->active_orders.start_time = order->active_orders.transaction_time;
     
     // Set the start energy
-    if (cloud_protocol_order_manager.energy_iface.get_meter_reading != NULL)
+    if (order_mgr_internal.get_meter_reading_callback != NULL)
     {
-        order->last_meter_reading = cloud_protocol_order_manager.energy_iface.get_meter_reading(gun_no);
+        order->last_meter_reading = order_mgr_internal.get_meter_reading_callback(gun_no);
         order->active_orders.total_start = order->last_meter_reading;
     }
     else
@@ -641,9 +636,9 @@ static bool cloud_protocol_charging_order_finish_internal(uint8_t gun_no, cloud_
     }
 
     // Get final meter reading
-    if (cloud_protocol_order_manager.energy_iface.get_meter_reading != NULL)
+    if (order_mgr_internal.get_meter_reading_callback != NULL)
     {
-        order->active_orders.total_end = cloud_protocol_order_manager.energy_iface.get_meter_reading(gun_no);
+        order->active_orders.total_end = order_mgr_internal.get_meter_reading_callback(gun_no);
     }
     else
     {
@@ -855,7 +850,7 @@ static bool cloud_protocol_handle_state_uploading(uint8_t gun_no)
         {
             cloud_protocol_calibrate_offline_orders(&order->active_orders);
         }
-        order_mgr_internal.upload_callback(gun_no, order);
+        order_mgr_internal.upload_callback(order);
     }
 
     // Mark as uploaded

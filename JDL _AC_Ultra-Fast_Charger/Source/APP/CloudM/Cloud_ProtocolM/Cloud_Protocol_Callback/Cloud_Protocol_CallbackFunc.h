@@ -16,6 +16,7 @@
 #include "stdint.h"
 #include "Cloud_Protocol_Msg.h"
 #include "Cloud_Protocol_Cfg.h"
+#include "Cloud_Protocol_ChargingOrder.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -57,5 +58,8 @@ void Cloud_Protocol_0x92_Callback(void *arg, uint8_t *msg, uint16_t bodylen);
 Cloud_Protocol_Send_Status_T Cloud_Protocol_0x91_Callback(void *arg, uint8_t *buff, uint16_t buffSize);
 void Cloud_Protocol_0x58_Callback(void *arg, uint8_t *msg, uint16_t bodylen);
 Cloud_Protocol_Send_Status_T Cloud_Protocol_0x57_Callback(void *arg, uint8_t *buff, uint16_t buffSize);
+void Cloud_Protocol_Order_Upload_Callback(const cloud_protocol_charging_cloud_protocol_order_manager_t *order);
+Cloud_Protocol_Send_Status_T Cloud_Protocol_0x3B_Callback(void *arg, uint8_t *buff, uint16_t buffSize);
+void Cloud_Protocol_0x40_Callback(void *arg, uint8_t *msg, uint16_t bodylen);
 #endif /* __CLOUD_PROTOCOL_CALLBACK_FUNC_H */
 /* EOL */

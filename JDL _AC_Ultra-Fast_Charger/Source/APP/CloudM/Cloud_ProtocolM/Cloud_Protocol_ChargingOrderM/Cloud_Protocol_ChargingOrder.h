@@ -30,17 +30,12 @@
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
-typedef void (*cloud_protocol_order_upload_cb_t)(uint8_t gun_no, const cloud_protocol_charging_cloud_protocol_order_manager_t *order);
+typedef void (*cloud_protocol_order_upload_cb_t)(const cloud_protocol_charging_cloud_protocol_order_manager_t *order);
 typedef bool (*cloud_protocol_network_status_cb_t)(void);
 typedef cloud_protocol_order_charging_status_t (*cloud_protocol_charging_status_cb_t)(uint8_t gun_no);
 typedef cloud_protocol_order_auth_status_t (*cloud_protocol_auth_status_cb_t)(uint8_t gun_no);
 typedef cloud_protocol_order_connector_status_t (*cloud_protocol_connector_status_cb_t)(uint8_t gun_no);
-
-typedef struct
-{
-    uint32_t (*get_meter_reading)(uint8_t gun_no);   // Obtain the electricity meter reading
-    bool (*is_charging)(uint8_t gun_no);             // Specify whether the gun is in the charging state
-} cloud_protocol_energy_interface_t;
+typedef uint32_t (*cloud_protocol_get_meter_reading_cb_t)(uint8_t gun_no);
 
 typedef struct
 {
@@ -56,11 +51,12 @@ typedef struct
 |    Global Function Prototypes
 |******************************************************************************/
 extern bool cloud_protocol_order_manager_init(cloud_protocol_order_upload_cb_t upload_cb,
-                                       cloud_protocol_network_status_cb_t network_status_cb,
-                                       cloud_protocol_charging_status_cb_t charging_status_cb,
-                                       cloud_protocol_auth_status_cb_t auth_status_cb,
-                                       cloud_protocol_connector_status_cb_t connector_status_cb);
-extern bool cloud_protocol_charging_order_init(const cloud_protocol_transaction_id_config_t *config, const cloud_protocol_energy_interface_t *interface);
+                                              cloud_protocol_network_status_cb_t network_status_cb,
+                                              cloud_protocol_charging_status_cb_t charging_status_cb,
+                                              cloud_protocol_auth_status_cb_t auth_status_cb,
+                                              cloud_protocol_connector_status_cb_t connector_status_cb,
+                                              cloud_protocol_get_meter_reading_cb_t get_meter_reading_cb);
+extern bool cloud_protocol_charging_order_init(const cloud_protocol_transaction_id_config_t *config);
 extern bool cloud_protocol_order_creat(uint8_t gun_no, cloud_protocol_order_type_t type,
                                         cloud_protocol_transaction_type_t trans_type,
                                         const uint8_t *platform_transaction_id,

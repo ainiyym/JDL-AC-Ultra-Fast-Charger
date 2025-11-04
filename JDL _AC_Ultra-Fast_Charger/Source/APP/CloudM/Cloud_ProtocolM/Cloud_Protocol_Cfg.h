@@ -35,6 +35,7 @@
 #define CLOUD_PROTOCOL_0x55_BODY_LENGTH             (14)        // SN(7)+device CP56Time2a(7)
 #define CLOUD_PROTOCOL_0x57_BODY_LENGTH             (8)         // SN(7)+result(1)
 #define CLOUD_PROTOCOL_0x91_BODY_LENGTH             (8)         // SN(7)+result(1)
+#define CLOUD_PROTOCOL_0x3B_BODY_LENGTH             (158)       // see V1.6 protocol
 
 #define CLOUD_PROTOCOL_SN_LENGTH                    (7U)        // Device SN length
 #define CLOUD_PROTOCOL_TRANSACTION_ID_LENGTH        (16U)       // Transaction ID length
