@@ -64,6 +64,10 @@ static cloud_protocol_callback_func_commom_variable_t cloud_protocol_callback_fu
 |******************************************************************************/
 void Cloud_Protocol_CallbackFunc_Init(void)
 {
+	if (true == cloud_protocol_callback_func_commom_variable.is_initialized)
+	{
+		return;
+	}
 	// Initialize common variables
 	int Bcdlength = 0;
 	//SN
@@ -500,7 +504,7 @@ void Cloud_Protocol_Order_Upload_Callback(const cloud_protocol_charging_cloud_pr
         CLOUD_ERROR("%s: Invalid order parameter\r\n", __func__);
         return;
     }
-    uint8_t msg_buffer[CLOUD_MESSAGE_BUFFER_MAX_LENGTH] = {0};
+    uint8_t msg_buffer[CLOUD_PROTOCOL_GAGA_DATA_BUFFER_MAX_LENGTH] = {0};
     const Cloud_Protocol_Frame_Type_Config_T *config = Cloud_Protocol_GetFrameConfig(0x3B);
 
     if (config == NULL || config->send_func == NULL)

@@ -27,6 +27,7 @@
 |******************************************************************************/
 #define CLOUDM_TASK_PERIOD								                    (20U)
 #define CLOUD_MESSAGE_BUFFER_MAX_LENGTH                                     (256U)
+#define CLOUD_PROTOCOL_GAGA_DATA_BUFFER_MAX_LENGTH                          (256U)
 #define CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH                                 (MESSAGE_BUFFER_TYPE_DATA)
 #define CLOUD_MESSAGE_TYPE_CTRL                                             (MESSAGE_BUFFER_TYPE_CTRL)
 /* Cloud Client */

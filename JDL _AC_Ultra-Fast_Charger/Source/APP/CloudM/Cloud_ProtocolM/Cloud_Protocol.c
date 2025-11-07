@@ -35,20 +35,12 @@ enum
     CLOUD_PROTOCOL_STEP_MAX
 } cloud_protocol_step_t;
 
-enum
-{
-    CLOUD_PROTOCOL_RUNNING_STEP_INIT,
-    CLOUD_PROTOCOL_RUNNING_STEP_PROCESS_DATA,
-    CLOUD_PROTOCOL_RUNNING_STEP_MAX
-} cloud_protocol_running_step_t;
-
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
 typedef struct
 {
     uint8_t step;
-    uint8_t running_step;
     bool heartbeat_param_is_set;
     bool regpkg_param_is_set;
     bool dtu_is_wake_up;
@@ -77,15 +69,14 @@ static cloud_protocol_ctrl_t cloud_protocol_ctrl;
 /*******************************************************************************
 |    Static Local Functions Declaration
 |******************************************************************************/
-static void Cloud_Protocol_NormalOperationProcess(void);
-static void Cloud_Protocol_NormalHeartbeatProcess(void);
-static void Cloud_Protocol_ResetLogIn(void);
+
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
 void Cloud_Protocol_Init(void)
 {
     memset(&cloud_protocol_ctrl, 0, sizeof(cloud_protocol_ctrl));
+    Cloud_GagaProtocol_Init();
 }
 
 void Cloud_Protocol_AckDeviceStatus(cloud_device_status_e status)
@@ -134,9 +125,8 @@ static void Cloud_Protocol_ResetToInitPolling(void)
 {
     if (CLOUD_DEVICE_STATUS_INIT == cloud_protocol_ctrl.device_status)
     {
-        cloud_protocol_ctrl.step = CLOUD_PROTOCOL_STEP_INIT;
-        cloud_protocol_ctrl.running_step = CLOUD_PROTOCOL_RUNNING_STEP_INIT;
-        Cloud_Protocol_ResetLogInStatus();
+       cloud_protocol_ctrl.step = CLOUD_PROTOCOL_STEP_INIT;
+       Cloud_GagaProtocol_DeviceResetChecking();
     }
 }
 
@@ -152,7 +142,7 @@ static void Cloud_Protocol_SetupNetworkProcess(void)
 {
     uint8_t msg[2] = {0};
     msg[0] = (uint8_t)CLOUD_MESSAGE_CTRL_TYPE_SET_NETWORK_PARAM;
-    msg[1] = (uint8_t)TCP_ID_PROTOCOL;
+    msg[1] = (uint8_t)CLOUD_PROTOCOL_ACTIVE_TCP_ID;
     Cloud_Protocol_SendMsg(msg, sizeof(msg), CLOUD_MESSAGE_TYPE_CTRL);
     cloud_protocol_ctrl.step = CLOUD_PROTOCOL_STEP_WAIT_NETWORK_ACK;
 }
@@ -243,76 +233,9 @@ static void Cloud_Protocol_WaitWakeUpDTUAckProcess(void)
     }
 }
 
-static void Cloud_Protocol_ResetLogIn(void)
-{
-    cloud_protocol_ctrl.running_step = CLOUD_PROTOCOL_RUNNING_STEP_INIT;
-    Cloud_Protocol_ResetLogInStatus();
-}
-
-static void Cloud_Protocol_NormalHeartbeatProcess(void)
-{
-    if (Cloud_Protocol_Get_HeartbeatIsNormal())
-    {
-        // Process non-heartbeat messages
-    }
-    else
-    {
-        CLOUD_DEBUG("Heartbeat abnormal, resetting login status\r\n");
-        Cloud_Protocol_ResetLogIn();
-    }
-}
-
-static void Cloud_Protocol_NormalOperationProcess(void)
-{
-    // Placeholder for normal operation tasks
-    Cloud_Protocol_Heartbeat_Handler();
-    // Process not heatbeat messages
-    Cloud_Protocol_NormalHeartbeatProcess();
-}
-
 static void Cloud_Protocol_RunningStepProcess(void)
 {
-    uint8_t msg_buffer[CLOUD_MESSAGE_BUFFER_MAX_LENGTH] = {0};
-
-    switch (cloud_protocol_ctrl.running_step)
-    {
-        case CLOUD_PROTOCOL_RUNNING_STEP_INIT:
-            // Initialize callback functions
-            Cloud_Protocol_CallbackFunc_Init();
-            // send login authentication frame
-            Cloud_Protocol_CallSendFunc(0x01, msg_buffer, CLOUD_MESSAGE_BUFFER_MAX_LENGTH);
-            cloud_protocol_ctrl.running_step = CLOUD_PROTOCOL_RUNNING_STEP_PROCESS_DATA;
-            break;
-        case CLOUD_PROTOCOL_RUNNING_STEP_PROCESS_DATA:
-            switch (Cloud_Protocol_GetLogInStatus())
-            {
-                case CLOUD_PROTOCOL_AUTHENTICATION_SUCCESS:
-                    // normal operation
-                    Cloud_Protocol_NormalOperationProcess();
-                    Cloud_Protocol_Clear_Timeout();
-                    break;
-                case CLOUD_PROTOCOL_AUTHENTICATION_FAILED:
-                    // Authentication failed, re-initiate authentication
-                    Cloud_Protocol_ResetLogIn();
-                    // break;
-                case CLOUD_PROTOCOL_AUTHENTICATION_INIT:
-                    // 30 seconds without authentication response, reset device
-                    if (cloud_protocol_ctrl.timer < CLOUD_RESET_DEVICE_DELAY_TIME_S)
-                    {
-                        cloud_protocol_ctrl.timer++;
-                    }
-                    else
-                    {   
-                        Cloud_Protocol_Clear_Timeout();
-                        CLOUD_ERROR("Authentication timeout, restarting device\r\n");
-                        CLOUD_PROTOCOL_RESTART_DEVICE();
-                    }
-                    break;
-                default:
-                    break;
-            }
-            break;
-    }
+    Cloud_GagaProtocol_MainProcess();
 }
 
 void Cloud_Protocol_Main(void)

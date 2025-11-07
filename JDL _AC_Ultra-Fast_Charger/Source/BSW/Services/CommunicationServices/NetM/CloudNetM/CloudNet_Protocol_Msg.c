@@ -75,7 +75,7 @@ void CloudNet_Protocol_RcvMsg_Process(void)
                 switch (CloudNet_ProtocolMsg.MsgData[0])
                 {
                     case CLOUD_MESSAGE_DATA_TYPE_CLOUD_PROTOCOL:
-                        YeeCom_At_DataPassthrougth(TCP_ID_PROTOCOL, &CloudNet_ProtocolMsg.MsgData[1], CloudNet_ProtocolMsg.MsgLen - 1);
+                        YeeCom_At_DataPassthrougth(TCP_ID_PROTOCOL_GAGA, &CloudNet_ProtocolMsg.MsgData[1], CloudNet_ProtocolMsg.MsgLen - 1);
                         break;
                     default:
                         CLOUDNET_ERROR("Cloud Protocol Unknown Data Command: %d\r\n", CloudNet_ProtocolMsg.MsgData[0]);
@@ -93,9 +93,13 @@ void CloudNet_Protocol_RcvMsg_Process(void)
                     case CLOUD_MESSAGE_CTRL_TYPE_SET_NETWORK_PARAM:
                         switch (CloudNet_ProtocolMsg.MsgData[1])
                         {
-                            case TCP_ID_PROTOCOL:
+                            case TCP_ID_PROTOCOL_GAGA:
                                 // Set protocol TCP parameters
-                                tcp_connect(TCP_ID_PROTOCOL);
+                                tcp_connect(TCP_ID_PROTOCOL_GAGA);
+                                break;
+                            case TCP_ID_PROTOCOL_SG:
+                                // Set protocol TCP parameters
+                                tcp_connect(TCP_ID_PROTOCOL_SG);
                                 break;
                             default:
                                 CLOUDNET_ERROR("Cloud Protocol Unknown Network Parameter Command: %d\r\n", CloudNet_ProtocolMsg.MsgData[1]);

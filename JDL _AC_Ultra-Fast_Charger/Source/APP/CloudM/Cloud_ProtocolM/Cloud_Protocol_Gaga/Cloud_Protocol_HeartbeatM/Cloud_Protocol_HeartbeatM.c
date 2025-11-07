@@ -69,14 +69,14 @@ void Cloud_Protocol_Set_HeartbeatResponse(void)
 // Activate heartbeat
 void Cloud_Protocol_Start_Heartbeat(void)
 {
-    uint8_t msg_buffer[CLOUD_MESSAGE_BUFFER_MAX_LENGTH] = {0};
+    uint8_t msg_buffer[CLOUD_PROTOCOL_GAGA_DATA_BUFFER_MAX_LENGTH] = {0};
 
     cloud_protocol_heartbeat_manager.is_heartbeat_active = true;
     cloud_protocol_heartbeat_manager.timeout_count = 0;
     cloud_protocol_heartbeat_manager.last_send_time = CLOUD_GET_TIME_MS();
 	cloud_protocol_heartbeat_manager.last_response_time = cloud_protocol_heartbeat_manager.last_send_time;
     // Send the first heartbeat immediately
-    Cloud_Protocol_CallSendFunc(0x03, msg_buffer, CLOUD_MESSAGE_BUFFER_MAX_LENGTH);
+    Cloud_Protocol_CallSendFunc(0x03, msg_buffer, CLOUD_PROTOCOL_GAGA_DATA_BUFFER_MAX_LENGTH);
     CLOUD_INFO("<%s>\r\n", __func__);
 }
 
@@ -131,13 +131,13 @@ static void Cloud_Protocol_Check_Heartbeat_Timeout(void)
 void Cloud_Protocol_Heartbeat_Handler(void)
 {
     uint32_t current_time = CLOUD_GET_TIME_MS();
-    uint8_t msg_buffer[CLOUD_MESSAGE_BUFFER_MAX_LENGTH] = {0};
+    uint8_t msg_buffer[CLOUD_PROTOCOL_GAGA_DATA_BUFFER_MAX_LENGTH] = {0};
 
     // Check if a heartbeat needs to be sent
     if (cloud_protocol_heartbeat_manager.is_heartbeat_active &&
         (current_time - cloud_protocol_heartbeat_manager.last_send_time >= CLOUD_PROTOCOL_HEARTBEAT_INTERVAL_S))
     {
-        Cloud_Protocol_CallSendFunc(0x03, msg_buffer, CLOUD_MESSAGE_BUFFER_MAX_LENGTH);
+        Cloud_Protocol_CallSendFunc(0x03, msg_buffer, CLOUD_PROTOCOL_GAGA_DATA_BUFFER_MAX_LENGTH);
         cloud_protocol_heartbeat_manager.last_send_time = current_time;
         CLOUD_INFO("Heartbeat sent at time: %lu\r\n", current_time);
     }

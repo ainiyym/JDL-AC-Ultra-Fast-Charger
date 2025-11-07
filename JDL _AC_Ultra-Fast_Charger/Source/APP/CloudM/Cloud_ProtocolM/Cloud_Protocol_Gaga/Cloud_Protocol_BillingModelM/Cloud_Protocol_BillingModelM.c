@@ -82,18 +82,18 @@ cloud_protocol_billing_time_slot_t Cloud_Protocol_GetBillingModelTimeSlotInfo(vo
 
 void Cloud_Protocol_Start_BillingModelRequest(void)
 {
-    uint8_t msg_buffer[CLOUD_MESSAGE_BUFFER_MAX_LENGTH] = {0};
+    uint8_t msg_buffer[CLOUD_PROTOCOL_GAGA_DATA_BUFFER_MAX_LENGTH] = {0};
 
     // Send the first billing model request immediately
-    Cloud_Protocol_CallSendFunc(0x05, msg_buffer, CLOUD_MESSAGE_BUFFER_MAX_LENGTH);
+    Cloud_Protocol_CallSendFunc(0x05, msg_buffer, CLOUD_PROTOCOL_GAGA_DATA_BUFFER_MAX_LENGTH);
 }
 
 void Cloud_Protocol_UpdateBillingModelRequest(void)
 {
-    uint8_t msg_buffer[CLOUD_MESSAGE_BUFFER_MAX_LENGTH] = {0};
+    uint8_t msg_buffer[CLOUD_PROTOCOL_GAGA_DATA_BUFFER_MAX_LENGTH] = {0};
 
     // Send the billing model update request
-    Cloud_Protocol_CallSendFunc(0x09, msg_buffer, CLOUD_MESSAGE_BUFFER_MAX_LENGTH);
+    Cloud_Protocol_CallSendFunc(0x09, msg_buffer, CLOUD_PROTOCOL_GAGA_DATA_BUFFER_MAX_LENGTH);
 }
 
 /* EOL */

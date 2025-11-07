@@ -9,9 +9,14 @@ static tcp_manager_t* tcp_manager[TCP_ID_MAXIMUM] = {NULL};
 tcp_paramater Cloud_Tcp_Parameter[TCP_ID_MAXIMUM] =
 {
     {
-        .socket_id = TCP_ID_PROTOCOL,
-        .ip = CLOUD_PROTOCOL_IP,
-        .port = CLOUD_PROTOCOL_PORT
+        .socket_id = TCP_ID_PROTOCOL_GAGA,
+        .ip = CLOUD_PROTOCOL_GAGA_IP,
+        .port = CLOUD_PROTOCOL_GAGA_PORT
+    },
+    {
+        .socket_id = TCP_ID_PROTOCOL_SG,
+        .ip = CLOUD_PROTOCOL_SG_IP,
+        .port = CLOUD_PROTOCOL_SG_PORT
     }
 };
 
@@ -106,7 +111,7 @@ uint8_t tcp_connect(tcp_id_enum manager_id)
         conn->state = TCP_STATE_CONNECTING;
 
         // Send AT connection command
-        Tcp_At_Cmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_WORKING_MODE, NULL, conn->conn_id, YEECOM_WORKING_TCP, conn->remote_ip, conn->remote_port);
+        Tcp_At_Cmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_WORKING_MODE, NULL, conn->conn_id, YEECOM_WORKING_MQTT_ONENET, conn->remote_ip, conn->remote_port);
         // Query connection status
         Tcp_At_Cmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_WORKING_MODE, NULL, conn->conn_id);
 

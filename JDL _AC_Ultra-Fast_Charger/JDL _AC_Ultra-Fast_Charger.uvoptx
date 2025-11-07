@@ -182,7 +182,7 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Callback\Cloud_Protocol_CallbackFunc.c</Filename>
+          <Filename>C:\Users\Mr_zh\Desktop\softwareProject\JDL AC Ultra-Fast Charger\MDK5\JDL _AC_Ultra-Fast_Charger\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Callback\Cloud_Protocol_CallbackFunc.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CloudM/Cloud_ProtocolM/Cloud_Protocol_Callback/Cloud_Protocol_CallbackFunc.c\236</Expression>
         </Bp>
@@ -2569,80 +2569,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Callback\Cloud_Protocol_CallbackFunc.c</PathWithFileName>
-      <FilenameWithoutPath>Cloud_Protocol_CallbackFunc.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>46</GroupNumber>
-      <FileNumber>156</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
       <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol.c</PathWithFileName>
       <FilenameWithoutPath>Cloud_Protocol.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>46</GroupNumber>
-      <FileNumber>157</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Session\Cloud_Protocol_Session.c</PathWithFileName>
-      <FilenameWithoutPath>Cloud_Protocol_Session.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>46</GroupNumber>
-      <FileNumber>158</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_BillingModelM\Cloud_Protocol_BillingModelM.c</PathWithFileName>
-      <FilenameWithoutPath>Cloud_Protocol_BillingModelM.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>46</GroupNumber>
-      <FileNumber>159</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_ChargingOrderM\Cloud_Protocol_ChargingOrder.c</PathWithFileName>
-      <FilenameWithoutPath>Cloud_Protocol_ChargingOrder.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>46</GroupNumber>
-      <FileNumber>160</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_ChargingOrderM\Cloud_Protocol_ChargingOrder_Cfg.c</PathWithFileName>
-      <FilenameWithoutPath>Cloud_Protocol_ChargingOrder_Cfg.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>46</GroupNumber>
-      <FileNumber>161</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_HeartbeatM\Cloud_Protocol_HeartbeatM.c</PathWithFileName>
-      <FilenameWithoutPath>Cloud_Protocol_HeartbeatM.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -2656,7 +2584,7 @@
     <RteFlg>0</RteFlg>
     <File>
       <GroupNumber>47</GroupNumber>
-      <FileNumber>162</FileNumber>
+      <FileNumber>156</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -2668,7 +2596,7 @@
     </File>
     <File>
       <GroupNumber>47</GroupNumber>
-      <FileNumber>163</FileNumber>
+      <FileNumber>157</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -2680,7 +2608,7 @@
     </File>
     <File>
       <GroupNumber>47</GroupNumber>
-      <FileNumber>164</FileNumber>
+      <FileNumber>158</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -2692,7 +2620,7 @@
     </File>
     <File>
       <GroupNumber>47</GroupNumber>
-      <FileNumber>165</FileNumber>
+      <FileNumber>159</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -2704,7 +2632,7 @@
     </File>
     <File>
       <GroupNumber>47</GroupNumber>
-      <FileNumber>166</FileNumber>
+      <FileNumber>160</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -2718,13 +2646,13 @@
 
   <Group>
     <GroupName>wrappers</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
     <File>
       <GroupNumber>48</GroupNumber>
-      <FileNumber>167</FileNumber>
+      <FileNumber>161</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -2736,7 +2664,7 @@
     </File>
     <File>
       <GroupNumber>48</GroupNumber>
-      <FileNumber>168</FileNumber>
+      <FileNumber>162</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -2756,13 +2684,105 @@
     <RteFlg>0</RteFlg>
     <File>
       <GroupNumber>49</GroupNumber>
-      <FileNumber>169</FileNumber>
+      <FileNumber>163</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>.\Source\BSW\Services\ThirdLibraries\CJson\cJSON.c</PathWithFileName>
       <FilenameWithoutPath>cJSON.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+  </Group>
+
+  <Group>
+    <GroupName>GagaCloud</GroupName>
+    <tvExp>1</tvExp>
+    <tvExpOptDlg>0</tvExpOptDlg>
+    <cbSel>0</cbSel>
+    <RteFlg>0</RteFlg>
+    <File>
+      <GroupNumber>50</GroupNumber>
+      <FileNumber>164</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Gaga\Cloud_Protocol_Session\Cloud_Protocol_Session.c</PathWithFileName>
+      <FilenameWithoutPath>Cloud_Protocol_Session.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>50</GroupNumber>
+      <FileNumber>165</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Gaga\Cloud_Protocol_HeartbeatM\Cloud_Protocol_HeartbeatM.c</PathWithFileName>
+      <FilenameWithoutPath>Cloud_Protocol_HeartbeatM.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>50</GroupNumber>
+      <FileNumber>166</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Gaga\Cloud_Protocol_ChargingOrderM\Cloud_Protocol_ChargingOrder_Cfg.c</PathWithFileName>
+      <FilenameWithoutPath>Cloud_Protocol_ChargingOrder_Cfg.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>50</GroupNumber>
+      <FileNumber>167</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Gaga\Cloud_Protocol_ChargingOrderM\Cloud_Protocol_ChargingOrder.c</PathWithFileName>
+      <FilenameWithoutPath>Cloud_Protocol_ChargingOrder.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>50</GroupNumber>
+      <FileNumber>168</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Gaga\Cloud_Protocol_Callback\Cloud_Protocol_CallbackFunc.c</PathWithFileName>
+      <FilenameWithoutPath>Cloud_Protocol_CallbackFunc.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>50</GroupNumber>
+      <FileNumber>169</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Gaga\Cloud_Protocol_BillingModelM\Cloud_Protocol_BillingModelM.c</PathWithFileName>
+      <FilenameWithoutPath>Cloud_Protocol_BillingModelM.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>50</GroupNumber>
+      <FileNumber>170</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Gaga\Cloud_Protocol_GagaM.c</PathWithFileName>
+      <FilenameWithoutPath>Cloud_Protocol_GagaM.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

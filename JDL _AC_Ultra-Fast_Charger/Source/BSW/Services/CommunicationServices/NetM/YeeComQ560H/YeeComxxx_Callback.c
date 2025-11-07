@@ -179,7 +179,7 @@ void YeeCom_At_OOB_Data_Passthrough_Callback(void *arg, char *buf, int buflen)
 
                 switch (socket_id)
                 {
-                    case TCP_ID_PROTOCOL:
+                    case TCP_ID_PROTOCOL_GAGA:
                         msg[0] = CLOUD_MESSAGE_DATA_TYPE_CLOUD_PROTOCOL;
                         YeeCom_Log("<%s> rcv len: %d send data passthrough:\r\n", __func__, hex_data_len);
                         YeeCom_Print_Hex(msg, sizeof(msg));
@@ -342,6 +342,20 @@ void YeeCom_At_Get_SERVERnCallback(void *arg, char *buf, int buflen)
             if (socket_id < TCP_ID_MAXIMUM)
             {
                 if (connect_type == YEECOM_WORKING_TCP || connect_type == YEECOM_WORKING_TCPS) // TCP or SSL
+                {
+                    if (strcmp((const char *)ip, (const char *)Cloud_Tcp_Parameter[socket_id].ip) == 0 && port == Cloud_Tcp_Parameter[socket_id].port)
+                    {
+                        msg[0] = CLOUD_MESSAGE_CTRL_TYPE_SET_NETWORK_PARAM;
+                        msg[1] = CLOUD_DEVICE_STATUS_CONNECTED;
+                        CloudNet_Protocol_SendMsg((uint8_t *)msg, 2, CLOUD_MESSAGE_TYPE_CTRL);
+                        YeeCom_Log("<%s> socket_id: %d parameters match\r\n", __func__, socket_id);
+                    }
+                    else
+                    {
+                        YeeCom_Log("<%s> socket_id: %d parameters mismatch, reconfigure\r\n", __func__, socket_id);
+                    }
+                }
+                else if (connect_type == YEECOM_WORKING_MQTT_ONENET)
                 {
                     if (strcmp((const char *)ip, (const char *)Cloud_Tcp_Parameter[socket_id].ip) == 0 && port == Cloud_Tcp_Parameter[socket_id].port)
                     {
@@ -577,7 +591,7 @@ void YeeCom_At_Get_GSTATECallback(void *arg, char *buf, int buflen)
         if (parsed == 4)
         {
             CLOUD_INFO("GSTATE parsed: =%s\r\n", status);
-            for(tcp_id_enum i = TCP_ID_PROTOCOL; i < TCP_ID_MAXIMUM; i++)
+            for(tcp_id_enum i = TCP_ID_PROTOCOL_GAGA; i < TCP_ID_MAXIMUM; i++)
             {
                 YeeCom_SetDeviceInfo_gstate(i, atoi((const char *)&status[i]));
             }
