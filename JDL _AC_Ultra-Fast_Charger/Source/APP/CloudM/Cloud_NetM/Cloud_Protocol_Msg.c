@@ -105,6 +105,41 @@ void Cloud_Protocol_RcvMsg_Process(void)
                     case CLOUD_MESSAGE_CTRL_TYPE_WAKE_UP_DTU:
                         Cloud_Protocol_AckWakeUpDTU(true);
                         break;
+                    case CLOUD_MESSAGE_CTRL_TYPE_CLOUD_MQTT_SG:
+                        switch (Cloud_ProtocolMsg.MsgData[1])
+                        {
+                            case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_CONNECT:
+                                // Handle MQTT connect acknowledgment
+                                CLOUD_DEBUG("%s: SG MQTT Connect Acknowledged\r\n", __func__);
+                                break;
+                            case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_DISCONNECT:
+                                // Handle MQTT disconnect acknowledgment
+                                CLOUD_DEBUG("%s: SG MQTT Disconnect Acknowledged\r\n", __func__);
+                                break;
+                            case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_PUBLISH:
+                                // Handle MQTT publish acknowledgment
+                                CLOUD_DEBUG("%s: SG MQTT Publish Acknowledged\r\n", __func__);
+                                break;
+                            case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_SUBSCRIBE:
+                                // Handle MQTT subscribe acknowledgment
+                                CLOUD_DEBUG("%s: SG MQTT Subscribe Acknowledged\r\n", __func__);
+                                break;
+                            case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_UNSUBSCRIBE:
+                                // Handle MQTT unsubscribe acknowledgment
+                                CLOUD_DEBUG("%s: SG MQTT Unsubscribe Acknowledged\r\n", __func__);
+                                break;
+                            case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_SUBSCRIBE_PUBLISH:
+                                // Handle MQTT subscribe and publish acknowledgment
+                                CLOUD_DEBUG("%s: SG MQTT Subscribe and Publish Acknowledged\r\n", __func__);
+                                break;
+                            case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_SET_WILL:
+                                // Handle MQTT set will acknowledgment
+                                CLOUD_DEBUG("%s: SG MQTT Set Will Acknowledged\r\n", __func__);
+                                break;
+                            default:
+                                CLOUD_ERROR("Cloud Protocol Unknown SG MQTT Command: %d\r\n", Cloud_ProtocolMsg.MsgData[1]);
+                                break;
+                        }
                     default:
                         CLOUD_ERROR("Cloud Protocol Unknown Control Command: %d\r\n", Cloud_ProtocolMsg.MsgData[0]);
                         break;

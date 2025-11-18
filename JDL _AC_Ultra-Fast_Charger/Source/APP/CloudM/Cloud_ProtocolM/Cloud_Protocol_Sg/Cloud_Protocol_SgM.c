@@ -1,16 +1,15 @@
 //******************************************************************************
-//* File Name: CloudNet_Cfg.c
+//* File Name: Cloud_Protocol_SgM.c
 //* Project Name: JDL _AC_Ultra-Fast_Charger
 //* Version: v1.0
 //* Date: 2025-08-18 10:00:00
 //* Author: JDLzhou
-//* Description: Cloud Net module configuration source file
+//* Description: State Grid Charging Pile Cloud Platform Protocol module source file
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "Cloud_Cfg.h"
-#include "CloudNet_Cfg.h"
-
+#include "Cloud_Protocol_SgM.h"
+#include "Cloud_Protocol_Mqtt_Cfg.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -32,6 +31,10 @@
 |******************************************************************************/
 
 /*******************************************************************************
+|    Global variables Declaration
+|******************************************************************************/
+
+/*******************************************************************************
 |    Table Const Definition
 |******************************************************************************/
 
@@ -42,52 +45,13 @@
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
-// Unpacking string (corresponding to the sender)
-uint16_t CloudNet_Protocol_Mqtt_UnpackString(uint8_t *msg, uint16_t offset, char *output)
+char* Cloud_Protocol_Sg_GetMqttTopic_Subscribe_Current(void)
 {
-    if (msg == NULL || output == NULL)
-        return offset;
-
-    // Read length (big-endian order)
-    uint16_t len = (msg[offset] << 8) | msg[offset + 1];
-    offset += 2;
-
-    if (len > 0)
-    {
-        output = (char *)CLOUDM_MALLOC(len + 1);
-        if (output != NULL)
-        {
-            memcpy(output, &msg[offset], len);
-            output[len] = '\0'; // Add the string terminator
-        }
-        offset += len;
-    }
-    else
-    {
-        output = NULL;   
-    }
-
-    return offset;
+    return "sg/device/cmd";
 }
 
-// Unpack the JSON payload
-uint16_t CloudNet_Protocol_Mqtt_UnpackJsonPayload(uint8_t *msg, uint16_t offset, char *payload)
+char* Cloud_Protocol_Sg_GetMqttTopic_Publish_Current(void)
 {
-    return CloudNet_Protocol_Mqtt_UnpackString(msg, offset, payload);
-}
-
-char *CloudNet_Strdup(const char *s)
-{
-    if (s == NULL)
-    {
-        return NULL;
-    }
-    size_t len = strlen(s) + 1;
-    char *new_str = (char *)CLOUDM_MALLOC(len);
-    if (new_str != NULL)
-    {
-        memcpy(new_str, s, len);
-    }
-    return new_str;
+    return "sg/device/status";
 }
 /* EOL */

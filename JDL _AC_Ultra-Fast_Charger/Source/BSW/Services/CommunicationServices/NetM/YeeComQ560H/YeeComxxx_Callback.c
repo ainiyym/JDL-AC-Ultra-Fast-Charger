@@ -317,6 +317,25 @@ void YeeCom_At_Set_WAKEUP_Callback(void *arg, char *buf, int buflen)
         CloudNet_Protocol_SendMsg((uint8_t *)msg, 2, CLOUD_MESSAGE_TYPE_CTRL);
     }
 }
+
+void YeeCom_At_Set_MQSET_Callback(void *arg, char *buf, int buflen)
+{
+    // Handle the received server response success
+    YeeCom_Log("<%s> %s\r\n", __func__, buf);
+}
+
+void YeeCom_At_Set_MQTOP_Callback(void *arg, char *buf, int buflen)
+{
+    // Handle the received server response success
+    YeeCom_Log("<%s> %s\r\n", __func__, buf);
+}
+
+void YeeCom_At_Set_PUBTOP_Callback(void *arg, char *buf, int buflen)
+{
+    // Handle the received server response success
+    YeeCom_Log("<%s> %s\r\n", __func__, buf);
+}
+
 /* at get cmd */
 void YeeCom_At_Get_SERVERnCallback(void *arg, char *buf, int buflen)
 {
@@ -604,5 +623,179 @@ void YeeCom_At_Get_GSTATECallback(void *arg, char *buf, int buflen)
     else
     {
         CLOUD_ERROR("<%s> Failed to find +GSTATE in response: %s\r\n", __func__, buf);
+    }
+}
+
+/* +MQSETn:<ClientID>,< user name>,<password>
+OK */
+void YeeCom_At_Get_MQSET_Callback(void *arg, char *buf, int buflen)
+{
+    // Handle the received server response success
+    const char *start = buf;
+
+    const char *reset_pos = strstr(buf, "+MQSET");
+    if (reset_pos != NULL)
+    {
+        int socket_id = 0;
+        uint8_t ClientID[65] = {0};
+        uint8_t UserName[65] = {0};
+        uint8_t Password[65] = {0};
+        uint8_t msg[3] = {0};
+
+        int result = sscanf(start, "+MQSET%d:%64[^,],%64[^,],%64[^\r\n]",
+                            &socket_id, ClientID, UserName, Password);
+
+        if (result == 4)
+        {
+            YeeCom_Log("<%s> socket_id: %d, ClientID: %s, UserName: %s, Password: %s\r\n", __func__, socket_id, ClientID, UserName, Password);
+
+            if (socket_id < TCP_ID_MAXIMUM)
+            {
+                if (socket_id == TCP_ID_PROTOCOL_SG)
+                {
+                    if (strcmp((const char *)ClientID, (const char *)CLOUD_PROTOCOL_SG_MQTT_CLIENT_IDCLIENT_ID) == 0 &&
+                        strcmp((const char *)UserName, (const char *)CLOUD_PROTOCOL_SG_MQTT_CLIENT_IDUSERNAME) == 0 &&
+                        strcmp((const char *)Password, (const char *)CLOUD_PROTOCOL_SG_MQTT_CLIENT_IDPASSWORD) == 0)
+                    {
+                        msg[0] = CLOUD_MESSAGE_CTRL_TYPE_CLOUD_MQTT_SG;
+                        msg[1] = CLOUD_PROTOCOL_MQTT_CTRL_TYPE_CONNECT;
+                        msg[2] = 1; // Success
+                        CloudNet_Protocol_SendMsg((uint8_t *)msg, 3, CLOUD_MESSAGE_TYPE_CTRL);
+                        YeeCom_Log("<%s> socket_id: %d parameters match\r\n", __func__, socket_id);
+                    }
+                    else
+                    {
+                        YeeCom_Log("<%s> socket_id: %d parameters mismatch, reconfigure\r\n", __func__, socket_id);
+                    }
+                }
+                else
+                {
+                    YeeCom_Log("<%s> socket_id: %d unsupported MQTT socket\r\n", __func__, socket_id);
+                }
+            }
+            else
+            {
+                YeeCom_Log("<%s> Unknown socket_id: %d\r\n", __func__, socket_id);
+            }
+        }
+        else
+        {
+            YeeCom_Log("<%s> Failed to parse MQSETn response: %s\r\n", __func__, buf);
+            return;
+        }
+    }
+}
+
+extern char* Cloud_Protocol_Sg_GetMqttTopic_Subscribe_Current(void);
+extern char* Cloud_Protocol_Sg_GetMqttTopic_Publish_Current(void);
+/* +MQTOPn:<sub topic>,<pub topic>
+OK */
+void YeeCom_At_Get_MQTOP_Callback(void *arg, char *buf, int buflen)
+{
+    // Handle the received server response success
+    const char *start = buf;
+
+    const char *reset_pos = strstr(buf, "+MQTOP");
+    if (reset_pos != NULL)
+    {
+        int socket_id = 0;
+        uint8_t sub_topic[128] = {0};
+        uint8_t pub_topic[64] = {0};
+        uint8_t msg[3] = {0};
+
+        int result = sscanf(start, "+MQTOP%d:%128[^,],%64[^\r\n]",
+                            &socket_id, sub_topic, pub_topic);
+
+        if (result == 3)
+        {
+            YeeCom_Log("<%s> socket_id: %d, sub_topic: %s, pub_topic: %s\r\n", __func__, socket_id, sub_topic, pub_topic);
+
+            if (socket_id < TCP_ID_MAXIMUM)
+            {
+                if (socket_id == TCP_ID_PROTOCOL_SG)
+                {
+                    if (strcmp((const char *)sub_topic, (const char *)Cloud_Protocol_Sg_GetMqttTopic_Subscribe_Current()) == 0 \
+                        && strcmp((const char *)pub_topic, (const char *)Cloud_Protocol_Sg_GetMqttTopic_Publish_Current()) == 0)
+                    {
+                        msg[0] = CLOUD_MESSAGE_CTRL_TYPE_CLOUD_MQTT_SG;
+                        msg[1] = CLOUD_PROTOCOL_MQTT_CTRL_TYPE_SUBSCRIBE_PUBLISH;
+                        msg[2] = 1; // Success
+                        CloudNet_Protocol_SendMsg((uint8_t *)msg, 3, CLOUD_MESSAGE_TYPE_CTRL);
+                        YeeCom_Log("<%s> socket_id: %d parameters match\r\n", __func__, socket_id);
+                    }
+                    else
+                    {
+                        YeeCom_Log("<%s> socket_id: %d parameters mismatch, reconfigure\r\n", __func__, socket_id);
+                    }
+                }
+                else
+                {
+                    YeeCom_Log("<%s> socket_id: %d unsupported MQTT socket\r\n", __func__, socket_id);
+                }
+            }
+            else
+            {
+                YeeCom_Log("<%s> Unknown socket_id: %d\r\n", __func__, socket_id);
+            }
+        }
+        else
+        {
+            YeeCom_Log("<%s> Failed to parse MQTOP response: %s\r\n", __func__, buf);
+            return;
+        }
+    }
+}
+
+void YeeCom_At_Get_PUBTOP_Callback(void *arg, char *buf, int buflen)
+{
+    // Handle the received server response success
+    const char *start = buf;
+
+    const char *reset_pos = strstr(buf, "+PUBTOP");
+    if (reset_pos != NULL)
+    {
+        int socket_id = 0;
+        uint8_t pub_topic[64] = {0};
+        uint8_t msg[3] = {0};
+
+        int result = sscanf(start, "+PUBTOP%d:%64[^\r\n]",
+                            &socket_id, pub_topic);
+
+        if (result == 2)
+        {
+            YeeCom_Log("<%s> socket_id: %d, pub_topic: %s\r\n", __func__, socket_id, pub_topic);
+
+            if (socket_id < TCP_ID_MAXIMUM)
+            {
+                if (socket_id == TCP_ID_PROTOCOL_GAGA)
+                {
+                    if (strcmp((const char *)pub_topic, (const char *)Cloud_Protocol_Sg_GetMqttTopic_Publish_Current()) == 0)
+                    {
+                        msg[0] = CLOUD_MESSAGE_CTRL_TYPE_CLOUD_MQTT_SG;
+                        msg[1] = CLOUD_PROTOCOL_MQTT_CTRL_TYPE_PUBLISH;
+                        msg[2] = 1; // Success
+                        CloudNet_Protocol_SendMsg((uint8_t *)msg, 3, CLOUD_MESSAGE_TYPE_CTRL);
+                        YeeCom_Log("<%s> socket_id: %d parameters match\r\n", __func__, socket_id);
+                    }
+                    else
+                    {
+                        YeeCom_Log("<%s> socket_id: %d parameters mismatch, reconfigure\r\n", __func__, socket_id);
+                    }
+                }
+                else
+                {
+                    YeeCom_Log("<%s> socket_id: %d unsupported MQTT socket\r\n", __func__, socket_id);
+                }
+            }
+            else
+            {
+                YeeCom_Log("<%s> Unknown socket_id: %d\r\n", __func__, socket_id);
+            }
+        }
+        else
+        {
+            YeeCom_Log("<%s> Failed to parse PUBTOP response: %s\r\n", __func__, buf);
+            return;
+        }
     }
 }

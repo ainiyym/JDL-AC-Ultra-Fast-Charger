@@ -125,6 +125,7 @@ typedef enum
     CLOUD_MESSAGE_CTRL_TYPE_SET_HEARTBEAT_PARAM = 0x03,
     CLOUD_MESSAGE_CTRL_TYPE_SET_REGPKG_MODE = 0x04,
     CLOUD_MESSAGE_CTRL_TYPE_WAKE_UP_DTU = 0x05,
+    CLOUD_MESSAGE_CTRL_TYPE_CLOUD_MQTT_SG = 0x06,
     CLOUD_MESSAGE_CTRL_TYPE_MAXIMUM
 }cloud_message_type_ctrl_e;
 
@@ -141,6 +142,17 @@ typedef enum
     CLOUD_DEVICE_STATUS_CONNECTED = 0x02,
     CLOUD_DEVICE_STATUS_MAXIMUM
 }cloud_device_status_e;
+
+typedef enum
+{
+    CLOUD_PROTOCOL_MQTT_CTRL_TYPE_CONNECT = 0x10,     // MQTT connect
+    CLOUD_PROTOCOL_MQTT_CTRL_TYPE_DISCONNECT = 0x11,  // MQTT break connect
+    CLOUD_PROTOCOL_MQTT_CTRL_TYPE_PUBLISH = 0x12,     // MQTT publish
+    CLOUD_PROTOCOL_MQTT_CTRL_TYPE_SUBSCRIBE = 0x13,   // MQTT subscribe
+    CLOUD_PROTOCOL_MQTT_CTRL_TYPE_UNSUBSCRIBE = 0x14, // MQTT cancel subscribe
+    CLOUD_PROTOCOL_MQTT_CTRL_TYPE_SUBSCRIBE_PUBLISH = 0x15, // MQTT subscribe and publish
+    CLOUD_PROTOCOL_MQTT_CTRL_TYPE_SET_WILL = 0x16,    // Set up MQTT will messages
+} cloud_protocol_mqtt_ctrl_type_e;
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/

@@ -84,6 +84,9 @@ typedef enum
     YEECOM_AT_CMD_RSSI, /* Get device RSSI */
     YEECOM_AT_CMD_GSTATE, /* Get the online status of the connected server */
     YEECOM_AT_CMD_WAKEUP, /* Wake up DTU */
+    YEECOM_AT_CMD_MQSET, /* Set MQTT parameters */
+    YEECOM_AT_CMD_MQTOP, /* Set MQTT topic parameters */
+    YEECOM_AT_CMD_PUBTOP /* Set MQTT publish topic parameters */
 } YeeCom_AT_Cmd;
 
 #endif

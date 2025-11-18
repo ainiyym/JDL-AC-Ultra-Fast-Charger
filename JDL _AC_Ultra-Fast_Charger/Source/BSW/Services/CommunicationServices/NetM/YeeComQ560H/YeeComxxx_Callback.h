@@ -27,7 +27,9 @@ void YeeCom_At_Set_DFI_Callback(void *arg, char *buf, int buflen);
 void YeeCom_At_Set_RESET_Callback(void *arg, char *buf, int buflen);
 void YeeCom_At_Set_RESTART_Callback(void *arg, char *buf, int buflen);
 void YeeCom_At_Set_WAKEUP_Callback(void *arg, char *buf, int buflen);
-
+void YeeCom_At_Set_MQSET_Callback(void *arg, char *buf, int buflen);
+void YeeCom_At_Set_MQTOP_Callback(void *arg, char *buf, int buflen);
+void YeeCom_At_Set_PUBTOP_Callback(void *arg, char *buf, int buflen);
 /* at get cmd */
 void YeeCom_At_Get_SERVERnCallback(void *arg, char *buf, int buflen);
 void YeeCom_At_Get_GPRSMODECallback(void *arg, char *buf, int buflen);
@@ -43,4 +45,7 @@ void YeeCom_At_Get_ICCIDCallback(void *arg, char *buf, int buflen);
 void YeeCom_At_Get_IMEICallback(void *arg, char *buf, int buflen);
 void YeeCom_At_Get_RSSICallback(void *arg, char *buf, int buflen);
 void YeeCom_At_Get_GSTATECallback(void *arg, char *buf, int buflen);
+void YeeCom_At_Get_MQSET_Callback(void *arg, char *buf, int buflen);
+void YeeCom_At_Get_MQTOP_Callback(void *arg, char *buf, int buflen);
+void YeeCom_At_Get_PUBTOP_Callback(void *arg, char *buf, int buflen);
 #endif

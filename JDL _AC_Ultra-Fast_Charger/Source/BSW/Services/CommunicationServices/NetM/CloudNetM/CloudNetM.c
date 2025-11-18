@@ -9,6 +9,8 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "CloudNetM.h"
+#include "CloudNet_Protocol_Msg.h"
+#include "CloudNet_MqttM.h"
 
 /*******************************************************************************
 |    Macro Definition

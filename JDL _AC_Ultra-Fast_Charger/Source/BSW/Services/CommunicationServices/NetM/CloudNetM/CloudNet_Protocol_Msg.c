@@ -9,6 +9,7 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "CloudNet_Protocol_Msg.h"
+#include "CloudNet_MqttM.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -119,6 +120,35 @@ void CloudNet_Protocol_RcvMsg_Process(void)
                         break;
                     case CLOUD_MESSAGE_CTRL_TYPE_WAKE_UP_DTU:
                         YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_WAKEUP, NULL);
+                        break;
+                    case CLOUD_MESSAGE_CTRL_TYPE_CLOUD_MQTT_SG:
+                        switch (CloudNet_ProtocolMsg.MsgData[1])
+                        {
+                            case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_CONNECT:
+                                CloudNetM_MqttConnect((uint8_t)TCP_ID_PROTOCOL_SG, &CloudNet_ProtocolMsg.MsgData[2], CloudNet_ProtocolMsg.MsgLen - 2);
+                                break;
+                            case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_DISCONNECT:
+                                CloudNetM_MqttDisconnect((uint8_t)TCP_ID_PROTOCOL_SG, &CloudNet_ProtocolMsg.MsgData[2], CloudNet_ProtocolMsg.MsgLen - 2);
+                                break;
+                            case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_PUBLISH:
+                                CloudNetM_MqttPublish((uint8_t)TCP_ID_PROTOCOL_SG, &CloudNet_ProtocolMsg.MsgData[2], CloudNet_ProtocolMsg.MsgLen - 2);
+                                break;
+                            case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_SUBSCRIBE:
+                                CloudNetM_MqttSubscribe((uint8_t)TCP_ID_PROTOCOL_SG, &CloudNet_ProtocolMsg.MsgData[2], CloudNet_ProtocolMsg.MsgLen - 2);
+                                break;
+                            case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_UNSUBSCRIBE:
+                                CloudNetM_MqttUnsubscribe((uint8_t)TCP_ID_PROTOCOL_SG, &CloudNet_ProtocolMsg.MsgData[2], CloudNet_ProtocolMsg.MsgLen - 2);
+                                break;
+                            case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_SUBSCRIBE_PUBLISH:
+                                CloudNetM_MqttSubscribePublish((uint8_t)TCP_ID_PROTOCOL_SG, &CloudNet_ProtocolMsg.MsgData[2], CloudNet_ProtocolMsg.MsgLen - 2);
+                                break;
+                            case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_SET_WILL:
+                                CloudNetM_MqttSetWill((uint8_t)TCP_ID_PROTOCOL_SG, &CloudNet_ProtocolMsg.MsgData[2], CloudNet_ProtocolMsg.MsgLen - 2);
+                                break;
+                            default:
+                                CLOUDNET_ERROR("Cloud Protocol Unknown SG MQTT Command: %d\r\n", CloudNet_ProtocolMsg.MsgData[1]);
+                                break;
+                        }
                         break;
                     default:
                         CLOUDNET_ERROR("Cloud Protocol Unknown Control Command: %d\r\n", CloudNet_ProtocolMsg.MsgData[0]);

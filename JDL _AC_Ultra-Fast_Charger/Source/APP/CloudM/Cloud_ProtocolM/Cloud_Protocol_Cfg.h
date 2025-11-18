@@ -49,7 +49,12 @@
 #define CLOUD_PROTOCOL_SIM_LENGTH                   (10U)       // SIM card number length (BCD code, 10 bits + 1 terminator)
 
 /* TCP_ID_PROTOCOL_SG */
+#define CLOUD_PROTOCOL_SG_MQTT_CLIENT_IDCLIENT_ID                 "device1"  // MQTT Client ID
+#define CLOUD_PROTOCOL_SG_MQTT_CLIENT_IDUSERNAME                  "T4BO0x6cb1"  // MQTT Username
+#define CLOUD_PROTOCOL_SG_MQTT_CLIENT_IDPASSWORD                  "Rk9FaWVuY0swS1JITEJucWNVSVBoWk9SR0dJcjNYeXQ="   // MQTT Password
 
+#define CLOUD_PROTOCOL_MQTT_CONNECT_MINIMUM_LENGTH   (9U)
+#define CLOUD_PROTOCOL_MQTT_SUB_PUB_MINIMUM_LENGTH   (4U)
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/

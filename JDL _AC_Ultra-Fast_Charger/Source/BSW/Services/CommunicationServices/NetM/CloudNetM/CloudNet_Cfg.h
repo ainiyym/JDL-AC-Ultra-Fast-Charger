@@ -1,19 +1,19 @@
 //******************************************************************************
-//* File Name: CloudNetM.h
+//* File Name: CloudNet_Cfg.h
 //* Project Name: JDL _AC_Ultra-Fast_Charger
 //* Version: v1.0
 //* Date: 2025-08-18 10:00:00
 //* Author: JDLzhou
-//* Description: CloudNetM module header file
+//* Description: Cloud Net module configration header file
 /*******************************************************************************/
-#if !defined (__CLOUDNETM_H)
+#if !defined (__CLOUDNET_CFG_H)
 /* polyspace:begin<MISRA-C3:2.5:Not a defect:Justified> Normal. */
 /* polyspace<MISRA-C3:21.1:Not a defect:Justified> Normal. */
-#define __CLOUDNETM_H
+#define __CLOUDNET_CFG_H
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "stdint.h"
+#include "Cloud_Cfg.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -22,6 +22,10 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
+#define CLOUDNET_MQTT_PROCESS_INTERVAL_MS 			10	  	// processing interval 10 ms
+#define CLOUDNET_MQTT_AT_RESPONSE_TIMEOUT_MS 		5000 	// AT response timeout 5 seconds
+#define CLOUDNET_MQTT_MAX_QUEUE_SIZE 				50		// maximum queue size
+#define CLOUDNET_MQTT_MAX_RETRY_COUNT 				3		// maximum retry attempts
 
 /*******************************************************************************
 |    Enum Definition
@@ -38,8 +42,8 @@
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-extern void CloudNetM_Init(void);
-extern void CloudNetM_Main(void);
-
-#endif /* __CLOUDNETM_H */
+extern uint16_t CloudNet_Protocol_Mqtt_UnpackString(uint8_t *msg, uint16_t offset, char *output);
+extern uint16_t CloudNet_Protocol_Mqtt_UnpackJsonPayload(uint8_t *msg, uint16_t offset, char *payload);
+extern char *CloudNet_Strdup(const char *s);
+#endif /* __CLOUDNET_CFG_H */
 /* EOL */

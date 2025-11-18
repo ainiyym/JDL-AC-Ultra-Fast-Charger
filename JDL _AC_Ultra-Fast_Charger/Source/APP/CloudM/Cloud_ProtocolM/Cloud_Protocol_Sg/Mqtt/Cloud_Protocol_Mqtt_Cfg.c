@@ -1,15 +1,14 @@
 //******************************************************************************
-//* File Name: CloudNet_Cfg.c
+//* File Name: Cloud_Protocol_Mqtt_Cfg.c
 //* Project Name: JDL _AC_Ultra-Fast_Charger
 //* Version: v1.0
 //* Date: 2025-08-18 10:00:00
 //* Author: JDLzhou
-//* Description: Cloud Net module configuration source file
+//* Description: State Grid Charging Pile Cloud Platform Protocol module source file
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "Cloud_Cfg.h"
-#include "CloudNet_Cfg.h"
+#include "Cloud_Protocol_Mqtt_Cfg.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -34,6 +33,49 @@
 /*******************************************************************************
 |    Table Const Definition
 |******************************************************************************/
+const cloud_protocol_mqtt_config_t cloud_sg_mqtt_default_config = 
+{
+	.client_id = CLOUD_PROTOCOL_SG_MQTT_CLIENT_IDCLIENT_ID,
+	.username = CLOUD_PROTOCOL_SG_MQTT_CLIENT_IDUSERNAME,
+	.password = CLOUD_PROTOCOL_SG_MQTT_CLIENT_IDPASSWORD,
+	.qos = CLOUD_PROTOCOL_MQTT_QOS_1,
+	.keep_alive = 60,
+	.clean_session = true,
+	.will_qos = CLOUD_PROTOCOL_MQTT_QOS_0,
+	.will_retain = false
+};
+
+// 主题配置示例
+cloud_protocol_mqtt_topic_config_t topic_configs[] = {
+    {
+        .publish_topic = "/sys/device/service/get",
+        .subscribe_topic = "/sys/device/service/get_reply",
+        .ack_type = CLOUD_PROTOCOL_MQTT_NEED_ACK,
+        .ack_timeout_ms = 5000,
+        .max_retry_count = 3
+    },
+    {
+        .publish_topic = "/sys/device/property/post", 
+        .subscribe_topic = "/sys/device/property/post_reply",
+        .ack_type = CLOUD_PROTOCOL_MQTT_NEED_ACK,
+        .ack_timeout_ms = 3000,
+        .max_retry_count = 2
+    },
+    {
+        .publish_topic = "/sys/device/event/post",
+        .subscribe_topic = "/sys/device/event/post_reply", 
+        .ack_type = CLOUD_PROTOCOL_MQTT_MSG_NO_ACK,  // 事件不需要应答
+        .ack_timeout_ms = 0,
+        .max_retry_count = 0
+    },
+    {
+        .publish_topic = "",  // 仅用于接收服务器请求
+        .subscribe_topic = "/sys/device/service/set",
+        .ack_type = CLOUD_PROTOCOL_MQTT_MSG_NO_ACK,
+        .ack_timeout_ms = 0,
+        .max_retry_count = 0
+    }
+};
 
 /*******************************************************************************
 |    Static Local Functions Declaration
@@ -42,41 +84,7 @@
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
-// Unpacking string (corresponding to the sender)
-uint16_t CloudNet_Protocol_Mqtt_UnpackString(uint8_t *msg, uint16_t offset, char *output)
-{
-    if (msg == NULL || output == NULL)
-        return offset;
-
-    // Read length (big-endian order)
-    uint16_t len = (msg[offset] << 8) | msg[offset + 1];
-    offset += 2;
-
-    if (len > 0)
-    {
-        output = (char *)CLOUDM_MALLOC(len + 1);
-        if (output != NULL)
-        {
-            memcpy(output, &msg[offset], len);
-            output[len] = '\0'; // Add the string terminator
-        }
-        offset += len;
-    }
-    else
-    {
-        output = NULL;   
-    }
-
-    return offset;
-}
-
-// Unpack the JSON payload
-uint16_t CloudNet_Protocol_Mqtt_UnpackJsonPayload(uint8_t *msg, uint16_t offset, char *payload)
-{
-    return CloudNet_Protocol_Mqtt_UnpackString(msg, offset, payload);
-}
-
-char *CloudNet_Strdup(const char *s)
+char *Cloud_Protocol_Strdup(const char *s)
 {
     if (s == NULL)
     {
@@ -90,4 +98,5 @@ char *CloudNet_Strdup(const char *s)
     }
     return new_str;
 }
+
 /* EOL */

@@ -1,15 +1,15 @@
 //******************************************************************************
-//* File Name: CloudNetM.h
+//* File Name: Cloud_Protocol_SgM.h
 //* Project Name: JDL _AC_Ultra-Fast_Charger
 //* Version: v1.0
 //* Date: 2025-08-18 10:00:00
 //* Author: JDLzhou
-//* Description: CloudNetM module header file
+//* Description: State Grid Charging Pile Cloud Platform Protocol module header file
 /*******************************************************************************/
-#if !defined (__CLOUDNETM_H)
+#if !defined (__CLOUD_PROTOCOL_SGM_H)
 /* polyspace:begin<MISRA-C3:2.5:Not a defect:Justified> Normal. */
 /* polyspace<MISRA-C3:21.1:Not a defect:Justified> Normal. */
-#define __CLOUDNETM_H
+#define __CLOUD_PROTOCOL_SGM_H
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
@@ -38,8 +38,7 @@
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-extern void CloudNetM_Init(void);
-extern void CloudNetM_Main(void);
-
-#endif /* __CLOUDNETM_H */
+extern char* Cloud_Protocol_Sg_GetMqttTopic_Subscribe_Current(void);
+extern char* Cloud_Protocol_Sg_GetMqttTopic_Publish_Current(void);
+#endif /* __CLOUD_PROTOCOL_SGM_H */
 /* EOL */
