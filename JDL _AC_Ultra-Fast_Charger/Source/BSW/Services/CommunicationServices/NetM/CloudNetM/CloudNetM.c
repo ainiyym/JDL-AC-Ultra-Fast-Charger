@@ -50,10 +50,12 @@
 void CloudNetM_Init(void)
 {
     CloudNet_Protocol_Msg_Init();
+    CloudNet_MqttM_Init();
 }
 
 void CloudNetM_Main(void)
 {
     CloudNet_Protocol_RcvMsg_Process();
+    CloudNet_MqttM_Main();
 }
 /* EOL */

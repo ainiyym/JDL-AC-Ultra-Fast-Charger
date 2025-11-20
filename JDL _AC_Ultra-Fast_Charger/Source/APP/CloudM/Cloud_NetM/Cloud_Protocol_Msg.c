@@ -12,6 +12,7 @@
 #include "Cloud_Protocol.h"
 #include "FreeRTOS.h"
 #include "semphr.h"
+#include "Cloud_Protocol_Mqtt.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -80,6 +81,10 @@ void Cloud_Protocol_RcvMsg_Process(void)
                         // Process data message
                         Cloud_Protocol_ParseProtocolFrame((const uint8_t *)&Cloud_ProtocolMsg.MsgData[1], Cloud_ProtocolMsg.MsgLen - 1);
                         break;
+                    case CLOUD_MESSAGE_DATA_TYPE_CLOUD_MQTT_PAYLOAD:
+                        // Process MQTT payload message
+                        Cloud_Protocol_Mqtt_HandleReceivedMessage((const char *)&Cloud_ProtocolMsg.MsgData[1]);
+                        break;
                     default:
                         CLOUD_ERROR("Cloud Protocol Unknown Data Command: %d\r\n", Cloud_ProtocolMsg.MsgData[0]);
                         break;
@@ -110,7 +115,8 @@ void Cloud_Protocol_RcvMsg_Process(void)
                         {
                             case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_CONNECT:
                                 // Handle MQTT connect acknowledgment
-                                CLOUD_DEBUG("%s: SG MQTT Connect Acknowledged\r\n", __func__);
+                                // CLOUD_DEBUG("%s: SG MQTT Connect Acknowledged\r\n", __func__);
+                                Cloud_Protocol_Mqtt_HandleConnected();
                                 break;
                             case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_DISCONNECT:
                                 // Handle MQTT disconnect acknowledgment
@@ -130,7 +136,8 @@ void Cloud_Protocol_RcvMsg_Process(void)
                                 break;
                             case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_SUBSCRIBE_PUBLISH:
                                 // Handle MQTT subscribe and publish acknowledgment
-                                CLOUD_DEBUG("%s: SG MQTT Subscribe and Publish Acknowledged\r\n", __func__);
+                                // CLOUD_DEBUG("%s: SG MQTT Subscribe and Publish Acknowledged\r\n", __func__);
+                                Cloud_Protocol_Mqtt_HandleSubscribeAck((const char *)Cloud_ProtocolMsg.MsgData + 2);
                                 break;
                             case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_SET_WILL:
                                 // Handle MQTT set will acknowledgment

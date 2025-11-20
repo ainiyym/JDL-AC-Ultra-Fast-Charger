@@ -9,7 +9,9 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "CloudNet_MqttM.h"
+#include "CloudNet_Protocol_Msg.h"
 #include "CloudNet_Cfg.h"
+#include "Tcp_Cfg.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -43,10 +45,36 @@
 /*******************************************************************************
 |    Static Local Functions Declaration
 |******************************************************************************/
+static bool CloudNetM_MqttSendAtTopic(const char *at_parameter, uint8_t context);
+static bool CloudNetM_MqttSendAtPayload(const char *at_parameter, uint8_t context);
 
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
+static bool CloudNetM_MqttSendAtTopic(const char *at_parameter, uint8_t context)
+{
+    uint8_t ret = 0;
+
+    ret = YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_PUBTOP, NULL, context, at_parameter);
+    if (0 == ret)
+    {
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_PUBTOP, NULL, context);
+    }
+    return ret == 0 ? true : false;
+}
+
+static bool CloudNetM_MqttSendAtPayload(const char *at_parameter, uint8_t context)
+{
+    uint8_t ret = 0;
+
+    ret = YeeCom_At_DataPassthrougth(context, (const uint8_t *)at_parameter, (uint16_t)strlen(at_parameter) + 1);
+
+    if (0 == ret)
+    {
+        CloudNetM_MqttHandleATPayloadSendSuccess();
+    }
+    return ret == 0 ? true : false;
+}
 
 bool CloudNetM_MqttConnect(uint8_t socket_id, uint8_t *payload, uint16_t length)
 {
@@ -174,8 +202,9 @@ bool CloudNetM_MqttConnect(uint8_t socket_id, uint8_t *payload, uint16_t length)
     // CLOUD_DEBUG("Password: %s\r\n", config.password ? "***" : "NULL");
     // CLOUD_DEBUG("QoS: %d, KeepAlive: %d, CleanSession: %d\r\n",
                 // config.qos, config.keep_alive, config.clean_session);
+    YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_DTUID, NULL, config.client_id ? config.client_id : "");
     YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_MQSET, NULL, socket_id,
-                      config.client_id ? config.client_id : "",
+                      "{DTUID}",
                       config.username ? config.username : "",
                       config.password ? config.password : "");
     if (config.client_id)
@@ -193,6 +222,9 @@ bool CloudNetM_MqttConnect(uint8_t socket_id, uint8_t *payload, uint16_t length)
         CLOUDM_FREE(config.password);
         config.password = NULL;
     }
+    YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_DTUID, NULL);
+    YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_MQSET, NULL, socket_id);
+
 
     return true;
 
@@ -345,12 +377,12 @@ bool CloudNetM_MqttSubscribePublish(uint8_t socket_id, uint8_t *payload, uint16_
 	if (queue_result == 0)
 	{
 		CLOUD_INFO("<%s>Subscribe-publish message processed successfully, socket: %d\r\n", __func__, socket_id);
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_MQTOP, NULL, socket_id);
 	}
 	else
 	{
 		CLOUD_ERROR("<%s>Failed to process subscribe-publish message, socket: %d\r\n", __func__, socket_id);
 	}
-    YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_MQTOP, NULL, socket_id);
 
 	return queue_result == 0 ? true : false;
 }
@@ -358,5 +390,21 @@ bool CloudNetM_MqttSubscribePublish(uint8_t socket_id, uint8_t *payload, uint16_
 bool CloudNetM_MqttSetWill(uint8_t socket_id, uint8_t *payload, uint16_t length)
 {
     return false;
+}
+
+void CloudNet_MqttM_Init(void)
+{
+    cloud_net_mqtt_at_callback_t mqtt_at_callback;
+
+    mqtt_at_callback.context = (uint8_t)TCP_ID_PROTOCOL_SG;
+    mqtt_at_callback.topic_send_cb = CloudNetM_MqttSendAtTopic;
+    mqtt_at_callback.payload_send_cb = CloudNetM_MqttSendAtPayload;
+
+    CloudNetM_MqttPublishManagerInit(mqtt_at_callback);
+}
+
+void CloudNet_MqttM_Main(void)
+{
+    CloudNetM_MqttPublishManagerProcess();
 }
 /* EOL */

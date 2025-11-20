@@ -29,7 +29,7 @@ typedef struct
 {
     cloud_protocol_mqtt_state_e state;
     bool is_initialized;
-    uint8_t reconnect_count;
+    bool device_is_online;
     uint32_t last_connect_time;
 } mqtt_client_ctrl_t;
 
@@ -48,7 +48,7 @@ typedef struct
     mqtt_client_ctrl_t ctrl; /* control state */
 
     /* topic configuration */
-    cloud_protocol_mqtt_topic_config_t *topic_configs; /* topic config array */
+    cloud_protocol_mqtt_topic_config_t *cloud_protocol_mqtt_topic_configs; /* topic config array */
     uint16_t topic_count;			   /* number of topics */
 
     /* message queue */
@@ -71,7 +71,7 @@ typedef struct
 
     /* callbacks */
     void (*connect_callback)(bool connected);
-    void (*message_callback)(const char *topic, const char *payload);
+    void (*message_callback)(const char *payload);
 } mqtt_client_manager_t;
 /*******************************************************************************
 |    Static local KAM variables Declaration
@@ -94,8 +94,9 @@ static mqtt_client_manager_t cloud_protocol_mqtt_client;
 /*******************************************************************************
 |    Static Local Functions Declaration
 |******************************************************************************/
-static void Cloud_Protocol_Mqtt_StartReconnect(void);
 static void Cloud_Protocol_Mqtt_StartConnection(void);
+static void Cloud_Protocol_Mqtt_HandleDisconnected(void);
+static void Cloud_Protocol_Mqtt_StartReconnect(void);
 static void Cloud_Protocol_Mqtt_RemoveMessageFromQueue(cloud_protocol_mqtt_message_item_t *msg);
 static void Cloud_Protocol_Mqtt_FreePublishItem(cloud_protocol_mqtt_message_item_t *item);
 static void Cloud_Protocol_Mqtt_SendConnectMsg(void);
@@ -120,11 +121,11 @@ static void Cloud_Protocol_Mqtt_HandleMessageSendFail(cloud_protocol_mqtt_messag
 /**
  * @brief Initialize MQTT client manager
  */
-bool Cloud_Protocol_Mqtt_ClientManagerInit(cloud_protocol_mqtt_topic_config_t *topic_configs, uint16_t topic_count,
+bool Cloud_Protocol_Mqtt_ClientManagerInit(cloud_protocol_mqtt_topic_config_t *cloud_protocol_mqtt_topic_configs, uint16_t topic_count,
                             void (*connect_cb)(bool connected),
-                            void (*msg_cb)(const char *topic, const char *payload))
+                            void (*msg_cb)(const char *payload))
 {
-    if (topic_configs == NULL || topic_count == 0)
+    if (cloud_protocol_mqtt_topic_configs == NULL || topic_count == 0)
     {
         return false;
     }
@@ -132,7 +133,7 @@ bool Cloud_Protocol_Mqtt_ClientManagerInit(cloud_protocol_mqtt_topic_config_t *t
     memset(&cloud_protocol_mqtt_client, 0, sizeof(cloud_protocol_mqtt_client));
     memset(&cloud_protocol_mqtt_config, 0, sizeof(cloud_protocol_mqtt_config));
 
-    cloud_protocol_mqtt_client.topic_configs = topic_configs;
+    cloud_protocol_mqtt_client.cloud_protocol_mqtt_topic_configs = cloud_protocol_mqtt_topic_configs;
     cloud_protocol_mqtt_client.topic_count = topic_count;
     cloud_protocol_mqtt_client.max_queue_size = CLOUD_PROTOCOL_MQTT_MAX_QUEUE_SIZE;
     cloud_protocol_mqtt_client.subscribe_switch_interval = CLOUD_PROTOCOL_MQTT_PROCESS_INTERVAL_MS; /* subscribe switch interval (ms) */
@@ -156,23 +157,39 @@ bool Cloud_Protocol_Mqtt_ClientManagerInit(cloud_protocol_mqtt_topic_config_t *t
 }
 
 /**
+ * @brief Set device online status
+ */
+void Cloud_Protocol_Mqtt_SetDeviceOnlineStatus(bool online)
+{
+	cloud_protocol_mqtt_client.ctrl.device_is_online = online;
+    if (online)
+    {
+        Cloud_Protocol_Mqtt_StartConnection();
+    }
+    else
+    {
+        CLOUD_INFO("Device set to offline, disconnecting MQTT\r\n");
+        Cloud_Protocol_Mqtt_HandleDisconnected();
+    }
+}
+
+/**
  * @brief Handle received message (server request)
- * @param topic message topic
  * @param payload message payload
  */
-void Cloud_Protocol_Mqtt_HandleReceivedMessage(const char *topic, const char *payload)
+void Cloud_Protocol_Mqtt_HandleReceivedMessage(const char *payload)
 {
-    if (topic == NULL || payload == NULL)
+    if (payload == NULL)
     {
         return;
     }
 
-    CLOUD_INFO("Received message: %s -> %s\r\n", topic, payload);
+    CLOUD_INFO("Received message: %s\r\n", payload);
 
     /* Call message callback */
     if (cloud_protocol_mqtt_client.message_callback != NULL)
     {
-        cloud_protocol_mqtt_client.message_callback(topic, payload);
+        cloud_protocol_mqtt_client.message_callback(payload);
     }
 }
 
@@ -181,10 +198,7 @@ void Cloud_Protocol_Mqtt_HandleReceivedMessage(const char *topic, const char *pa
  */
 void Cloud_Protocol_Mqtt_HandleConnected(void)
 {
-    CLOUD_INFO("MQTT connected successfully\r\n");
-
     cloud_protocol_mqtt_client.ctrl.state = CLOUD_PROTOCOL_MQTT_STATE_CONNECTED;
-    cloud_protocol_mqtt_client.ctrl.reconnect_count = 0;
 
     /* Call connect callback */
     if (cloud_protocol_mqtt_client.connect_callback != NULL)
@@ -197,13 +211,63 @@ void Cloud_Protocol_Mqtt_HandleConnected(void)
     cloud_protocol_mqtt_client.current_poll_index = 0;
     cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_IDLE;
 
-    CLOUD_DEBUG("<%s> Connected, starting in polling mode\r\n", __func__);
+    CLOUD_DEBUG("<%s> MQTT connected successfully, starting in polling mode\r\n", __func__);
+}
+
+/**
+ * @brief Handle subscribe acknowledgment
+ * @param subscribe_topic subscribed topic
+ */
+void Cloud_Protocol_Mqtt_HandleSubscribeAck(const char *subscribe_topic)
+{
+    if (subscribe_topic == NULL)
+    {
+        return;
+    }
+
+    /* Validate ACK belongs to current subscribe topic */
+    if (cloud_protocol_mqtt_client.current_subscribe_topic == NULL || strcmp(cloud_protocol_mqtt_client.current_subscribe_topic, subscribe_topic) != 0)
+    {
+        CLOUD_WARN("Subscribe ACK for unexpected topic: %s, current: %s\r\n", subscribe_topic, cloud_protocol_mqtt_client.current_subscribe_topic);
+        cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_IDLE;
+        return;
+    }
+    else
+    {
+        CLOUD_INFO("<%s> Subscribe ACK success: %s\r\n", __func__, subscribe_topic);
+        cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_ACTIVE;
+        cloud_protocol_mqtt_client.current_topic_polling = true;
+        cloud_protocol_mqtt_client.last_subscribe_time = CLOUD_GET_TIME_MS();
+    }
+}
+
+/**
+ * @brief Start connection
+ */
+static void Cloud_Protocol_Mqtt_StartConnection(void)
+{
+    if (!cloud_protocol_mqtt_client.ctrl.is_initialized)
+    {
+        return;
+    }
+
+    if (cloud_protocol_mqtt_client.ctrl.state == CLOUD_PROTOCOL_MQTT_STATE_CONNECTED ||
+        cloud_protocol_mqtt_client.ctrl.state == CLOUD_PROTOCOL_MQTT_STATE_CONNECTING)
+    {
+        return;
+    }
+
+    CLOUD_INFO("<%s>Starting MQTT connection...\r\n", __func__);
+    cloud_protocol_mqtt_client.ctrl.state = CLOUD_PROTOCOL_MQTT_STATE_CONNECTING;
+    cloud_protocol_mqtt_client.ctrl.last_connect_time = CLOUD_GET_TIME_MS();
+
+    Cloud_Protocol_Mqtt_SendConnectMsg();
 }
 
 /**
  * @brief Handle disconnection event
  */
-void Cloud_Protocol_Mqtt_HandleDisconnected(void)
+static void Cloud_Protocol_Mqtt_HandleDisconnected(void)
 {
     CLOUD_WARN("MQTT disconnected\r\n");
 
@@ -229,40 +293,6 @@ void Cloud_Protocol_Mqtt_HandleDisconnected(void)
 }
 
 /**
- * @brief Handle subscribe acknowledgment
- * @param subscribe_topic subscribed topic
- * @param publish_topic publish topic
- * @param success whether subscription succeeded
- */
-void Cloud_Protocol_Mqtt_HandleSubscribeAck(const char *subscribe_topic, const char *publish_topic, bool success)
-{
-    if (subscribe_topic == NULL)
-    {
-        return;
-    }
-
-    /* Validate ACK belongs to current subscribe topic */
-    if (cloud_protocol_mqtt_client.current_subscribe_topic == NULL || strcmp(cloud_protocol_mqtt_client.current_subscribe_topic, subscribe_topic) != 0)
-    {
-        CLOUD_WARN("Subscribe ACK for unexpected topic: %s, current: %s\r\n", subscribe_topic, cloud_protocol_mqtt_client.current_subscribe_topic);
-        return;
-    }
-
-    if (success)
-    {
-        CLOUD_INFO("Subscribe ACK success: %s\r\n", subscribe_topic);
-        cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_ACTIVE;
-        cloud_protocol_mqtt_client.current_topic_polling = true;
-        cloud_protocol_mqtt_client.last_subscribe_time = CLOUD_GET_TIME_MS();
-    }
-    else
-    {
-        CLOUD_ERROR("Subscribe ACK failed: %s\r\n", subscribe_topic);
-        cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_IDLE;
-    }
-}
-
-/**
  * @brief Start reconnect attempts
  */
 static void Cloud_Protocol_Mqtt_StartReconnect(void)
@@ -274,41 +304,7 @@ static void Cloud_Protocol_Mqtt_StartReconnect(void)
     {
         return;
     }
-
-    if (cloud_protocol_mqtt_client.ctrl.reconnect_count < 10)
-    {
-        cloud_protocol_mqtt_client.ctrl.reconnect_count++;
-        CLOUD_INFO("Attempting reconnect %d...\r\n", cloud_protocol_mqtt_client.ctrl.reconnect_count);
-
-        Cloud_Protocol_Mqtt_StartConnection();
-    }
-    else
-    {
-        CLOUD_ERROR("Max reconnect attempts reached\r\n");
-    }
-}
-
-/**
- * @brief Start connection
- */
-static void Cloud_Protocol_Mqtt_StartConnection(void)
-{
-    if (!cloud_protocol_mqtt_client.ctrl.is_initialized)
-    {
-        return;
-    }
-
-    if (cloud_protocol_mqtt_client.ctrl.state == CLOUD_PROTOCOL_MQTT_STATE_CONNECTED ||
-        cloud_protocol_mqtt_client.ctrl.state == CLOUD_PROTOCOL_MQTT_STATE_CONNECTING)
-    {
-        return;
-    }
-
-    CLOUD_INFO("Starting MQTT connection...\r\n");
-    cloud_protocol_mqtt_client.ctrl.state = CLOUD_PROTOCOL_MQTT_STATE_CONNECTING;
-    cloud_protocol_mqtt_client.ctrl.last_connect_time = CLOUD_GET_TIME_MS();
-
-    Cloud_Protocol_Mqtt_SendConnectMsg();
+	Cloud_Protocol_Mqtt_StartConnection();
 }
 
 /**
@@ -360,6 +356,7 @@ bool Cloud_Protocol_Mqtt_AddPublishMessage(const char *topic, const char *payloa
     if (new_msg->publish.topic == NULL || new_msg->publish.payload == NULL || (ack_topic != NULL && new_msg->ack_topic == NULL))
     {
         Cloud_Protocol_Mqtt_FreePublishItem(new_msg);
+        CLOUD_ERROR("<%s> Memory allocation failed for new message\r\n", __func__);
         return false;
     }
 
@@ -747,13 +744,13 @@ static void Cloud_Protocol_Mqtt_PollingCurrentSubscribe(void)
 
                 /* Set polling flag to indicate more messages may remain */
                 cloud_protocol_mqtt_client.current_topic_polling = true;
-                CLOUD_DEBUG("Processed one message for current topic, polling continues\r\n");
+                CLOUD_DEBUG("<%s>Processed one message for current topic, polling continues\r\n", __func__);
                 return;
             }
             else
             {
                 /* Processing failed, continue to next */
-                CLOUD_DEBUG("Message processing failed, continue to next\r\n");
+                CLOUD_WARN("<%s>Message processing failed, continue to next\r\n", __func__);
             }
         }
 
@@ -764,9 +761,8 @@ static void Cloud_Protocol_Mqtt_PollingCurrentSubscribe(void)
     /* No matching messages found or iteration complete */
     cloud_protocol_mqtt_client.current_topic_polling = false;
     cloud_protocol_mqtt_client.last_processed_msg = NULL;
-    cloud_protocol_mqtt_client.polling_enabled = ENABLE;
 
-    CLOUD_DEBUG("No more messages for current topic, switching back to polling mode\r\n");
+    CLOUD_DEBUG("<%s>No more messages for current topic, stop current polling\r\n", __func__);
 }
 
 /**
@@ -786,7 +782,8 @@ static void Cloud_Protocol_Mqtt_ProcessMessageQueue(void)
     if (cloud_protocol_mqtt_client.current_topic_polling == false && cloud_protocol_mqtt_client.sub_state != CLOUD_PROTOCOL_SUB_STATE_WAITING_MSG_ACK)
     {
         cloud_protocol_mqtt_client.polling_enabled = ENABLE;
-        CLOUD_DEBUG("Queue finished, enabling subscription polling\r\n");
+        cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_IDLE;
+        CLOUD_DEBUG("<%s>Queue finished, enabling subscription polling\r\n", __func__);
     }
 }
 
@@ -795,7 +792,10 @@ static void Cloud_Protocol_Mqtt_ProcessMessageQueue(void)
  */
 static void Cloud_Protocol_Mqtt_ProcessPollingSubscribe(void)
 {
-    if (!cloud_protocol_mqtt_client.polling_enabled || cloud_protocol_mqtt_client.ctrl.state != CLOUD_PROTOCOL_MQTT_STATE_CONNECTED)
+    if (!cloud_protocol_mqtt_client.polling_enabled || 
+        cloud_protocol_mqtt_client.ctrl.state != CLOUD_PROTOCOL_MQTT_STATE_CONNECTED ||
+        cloud_protocol_mqtt_client.sub_state != CLOUD_PROTOCOL_SUB_STATE_IDLE ||
+        cloud_protocol_mqtt_client.queue_size == 0)
     {
         return;
     }
@@ -816,7 +816,7 @@ static void Cloud_Protocol_Mqtt_ProcessPollingSubscribe(void)
 
     /* Advance to next topic */
     cloud_protocol_mqtt_client.current_poll_index = (cloud_protocol_mqtt_client.current_poll_index + 1) % cloud_protocol_mqtt_client.topic_count;
-    cloud_protocol_mqtt_topic_config_t *next_topic = &cloud_protocol_mqtt_client.topic_configs[cloud_protocol_mqtt_client.current_poll_index];
+    cloud_protocol_mqtt_topic_config_t *next_topic = &cloud_protocol_mqtt_client.cloud_protocol_mqtt_topic_configs[cloud_protocol_mqtt_client.current_poll_index];
 
     /* Send subscribe request */
     CLOUD_DEBUG("Polling subscribe: %s\r\n", next_topic->subscribe_topic);
@@ -878,9 +878,9 @@ static void Cloud_Protocol_Mqtt_HandleMessageSendFail(cloud_protocol_mqtt_messag
     uint8_t max_retry = CLOUD_PROTOCOL_MQTT_RETRY_COUNT;
     for (uint16_t i = 0; i < cloud_protocol_mqtt_client.topic_count; i++)
     {
-        if (strcmp(cloud_protocol_mqtt_client.topic_configs[i].publish_topic, msg->publish.topic) == 0)
+        if (strcmp(cloud_protocol_mqtt_client.cloud_protocol_mqtt_topic_configs[i].publish_topic, msg->publish.topic) == 0)
         {
-            max_retry = cloud_protocol_mqtt_client.topic_configs[i].max_retry_count;
+            max_retry = cloud_protocol_mqtt_client.cloud_protocol_mqtt_topic_configs[i].max_retry_count;
             break;
         }
     }
@@ -904,7 +904,7 @@ static void Cloud_Protocol_Mqtt_HandleMessageSendFail(cloud_protocol_mqtt_messag
 void Cloud_Protocol_Mqtt_ClientManagerProcess(void)
 {
     /* Handle connection state */
-    if (cloud_protocol_mqtt_client.ctrl.state == CLOUD_PROTOCOL_MQTT_STATE_DISCONNECTED)
+    if (cloud_protocol_mqtt_client.ctrl.state == CLOUD_PROTOCOL_MQTT_STATE_DISCONNECTED && cloud_protocol_mqtt_client.ctrl.device_is_online)
     {
         Cloud_Protocol_Mqtt_StartReconnect();
     }

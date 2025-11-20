@@ -23,7 +23,9 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
-#define CLOUD_PROTOCOL_ACTIVE_TCP_ID                (TCP_ID_PROTOCOL_SG)                     // Active TCP connection ID
+#define CLOUD_PROTOCOL_DEFAULT_TCP_ID               (TCP_ID_PROTOCOL_GAGA)                         // Active TCP connection ID
+#define CLOUD_PROTOCOL_SG_PROTOCOL_ENABLE           (1)                                           // Enable SG protocol
+#define CLOUD_PROTOCOL_GAGA_PROTOCOL_ENABLE         (0)                                           // Enable GAGA protocol
 
 #define CLOUD_4G_HEARTBEAT_INTERVAL_S               (0)                                            // close auto heartbeat by 4G DTU
 #define CLOUD_PROTOCOL_HEARTBEAT_INTERVAL_S         (10 * 1000)                                    // Heartbeat interval in seconds
@@ -49,9 +51,9 @@
 #define CLOUD_PROTOCOL_SIM_LENGTH                   (10U)       // SIM card number length (BCD code, 10 bits + 1 terminator)
 
 /* TCP_ID_PROTOCOL_SG */
-#define CLOUD_PROTOCOL_SG_MQTT_CLIENT_IDCLIENT_ID                 "device1"  // MQTT Client ID
-#define CLOUD_PROTOCOL_SG_MQTT_CLIENT_IDUSERNAME                  "T4BO0x6cb1"  // MQTT Username
-#define CLOUD_PROTOCOL_SG_MQTT_CLIENT_IDPASSWORD                  "Rk9FaWVuY0swS1JITEJucWNVSVBoWk9SR0dJcjNYeXQ="   // MQTT Password
+#define CLOUD_PROTOCOL_SG_MQTT_CLIENT_ID                        "device1"  // MQTT Client ID
+#define CLOUD_PROTOCOL_SG_MQTT_CLIENT_USERNAME                  "T4BO0x6cb1"  // MQTT Username
+#define CLOUD_PROTOCOL_SG_MQTT_CLIENT_PASSWORD                  "Rk9FaWVuY0swS1JITEJucWNVSVBoWk9SR0dJcjNYeXQ="   // MQTT Password
 
 #define CLOUD_PROTOCOL_MQTT_CONNECT_MINIMUM_LENGTH   (9U)
 #define CLOUD_PROTOCOL_MQTT_SUB_PUB_MINIMUM_LENGTH   (4U)

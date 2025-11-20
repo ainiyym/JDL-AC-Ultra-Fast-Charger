@@ -132,6 +132,7 @@ typedef enum
 typedef enum
 {
     CLOUD_MESSAGE_DATA_TYPE_CLOUD_PROTOCOL = 0x01,
+    CLOUD_MESSAGE_DATA_TYPE_CLOUD_MQTT_PAYLOAD = 0x02,
     CLOUD_MESSAGE_DATA_TYPE_MAXIMUM
 }cloud_message_type_data_e;
 

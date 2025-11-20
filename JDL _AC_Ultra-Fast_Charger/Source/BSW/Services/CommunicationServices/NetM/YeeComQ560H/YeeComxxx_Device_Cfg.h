@@ -13,6 +13,7 @@
 
 #define YEECOM_ICCID_LENGTH                     (20U)
 #define YEECOM_IMEI_LENGTH                      (15U)
+#define YEECOM_DTUID_LENGTH                     (96U)
 #define YEECOM_GSTATE_NUMBER                    (TCP_ID_MAXIMUM) // The online status of the connected server: 0-disconnected, 1-connected
 
 #define YEECOM_PERIODIC_TASK_PERIOD             (60000 / YEECOM_PERIOD_MS)   // 60s

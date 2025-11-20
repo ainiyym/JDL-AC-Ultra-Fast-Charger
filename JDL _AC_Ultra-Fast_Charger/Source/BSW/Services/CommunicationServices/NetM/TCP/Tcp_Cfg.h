@@ -13,8 +13,8 @@ typedef enum
 #define CLOUD_PROTOCOL_GAGA_IP                                           ("150.158.17.77")
 #define CLOUD_PROTOCOL_GAGA_PORT                                         (2030U)
 
-#define CLOUD_PROTOCOL_SG_IP                                             ("183.230.40.16")
-#define CLOUD_PROTOCOL_SG_PORT                                           (1883U)
+#define CLOUD_PROTOCOL_SG_IP                                             ("47.114.190.246")
+#define CLOUD_PROTOCOL_SG_PORT                                           (30183U)
 
 #define Tcp_At_Cmd_Send(cmd_type, cmd, format, ...)                  YeeCom_AtCmd_Send(cmd_type, cmd, format, ##__VA_ARGS__)
 #define Tcp_Data_Passthrough(ch, data, len)                          YeeCom_At_DataPassthrougth(ch, data, len)

@@ -29,7 +29,7 @@
 #define CLOUD_PROTOCOL_MQTT_RECONNECT_INTERVAL_MS 			                5000	// reconnect interval 5 seconds
 
 #define CLOUD_PROTOCOL_MQTT_RETRY_COUNT 				                    3		// maximum retry attempts
-
+#define CLOUD_PROTOCOL_MQTT_TOPIC_CONFIG_COUNT                              4       // number of topic configurations
 #define CLOUD_PROTOCOL_MQTT_DEFAULT_PUBLISH_TOPIC			                "SG_Charger_001/pub/topic"	// default publish topic
 #define CLOUD_PROTOCOL_MQTT_DEFAULT_SUBSCRIBE_TOPIC		                    "SG_Charger_001/sub/topic"	// default subscribe topic
 /*******************************************************************************
@@ -108,12 +108,14 @@ typedef struct
 /*******************************************************************************
 |    Table Definition
 |******************************************************************************/
-extern const cloud_protocol_mqtt_config_t cloud_sg_mqtt_default_config;
+extern cloud_protocol_mqtt_config_t cloud_sg_mqtt_default_config;
+extern cloud_protocol_mqtt_topic_config_t cloud_protocol_mqtt_topic_configs[CLOUD_PROTOCOL_MQTT_TOPIC_CONFIG_COUNT];
 
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
 extern char *Cloud_Protocol_Strdup(const char *s);
+extern void Cloud_Protocol_SetMqttConfig(const cloud_protocol_mqtt_config_t *config);
 
 #endif /* __CLOUD_PROTOCOL_SGM_CFG_H */
 /* EOL */

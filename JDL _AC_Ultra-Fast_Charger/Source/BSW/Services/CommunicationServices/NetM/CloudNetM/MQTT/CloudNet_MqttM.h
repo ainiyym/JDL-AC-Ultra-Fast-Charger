@@ -46,5 +46,7 @@ extern bool CloudNetM_MqttSubscribe(uint8_t socket_id, uint8_t *payload, uint16_
 extern bool CloudNetM_MqttUnsubscribe(uint8_t socket_id, uint8_t *payload, uint16_t length);
 extern bool CloudNetM_MqttSubscribePublish(uint8_t socket_id, uint8_t *payload, uint16_t length);
 extern bool CloudNetM_MqttSetWill(uint8_t socket_id, uint8_t *payload, uint16_t length);
+extern void CloudNet_MqttM_Init(void);
+extern void CloudNet_MqttM_Main(void);
 #endif /* __CLOUDNET_MQTTM_H */
 /* EOL */

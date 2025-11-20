@@ -37,9 +37,7 @@
 |    Global variables Declaration
 ******************************************************************************/
 static cloud_net_mqtt_publish_manager_t cloud_net_mqtt_publish_manager = {0};
-static cloud_net_at_send_callback_t cloud_net_mqtt_at_send_callback = NULL;
-static cloud_net_at_response_handler_t cloud_net_mqtt_at_response_handler = NULL;
-static void *cloud_net_mqtt_at_context = NULL;
+static cloud_net_mqtt_at_callback_t cloud_net_mqtt_at_callbacks = {0};
 
 /******************************************************************************
 |    Table Const Definition
@@ -54,28 +52,23 @@ static cloud_net_mqtt_publish_item_t *CloudNetM_MqttPeekQueueHead(void);
 static bool CloudNetM_MqttNeedSendTopicAT(const char *current_topic);
 static bool CloudNetM_MqttSendTopicAT(const char *topic);
 static bool CloudNetM_MqttSendPayloadAT(const char *payload);
+static void CloudNetM_MqttRetryTopicATHandler(void);
+static void CloudNetM_MqttRetryPayloadHandler(void);
 static void CloudNetM_MqttHandleTimeout(void);
 
 /******************************************************************************
 |    Function Source Code
 ******************************************************************************/
 /* Initialize the publish manager */
-bool CloudNetM_MqttPublishManagerInit(cloud_net_at_send_callback_t send_cb, cloud_net_at_response_handler_t resp_handler, void *context)
+bool CloudNetM_MqttPublishManagerInit(cloud_net_mqtt_at_callback_t config)
 {
-    if (send_cb == NULL || resp_handler == NULL)
-    {
-        return FALSE;
-    }
-
     memset(&cloud_net_mqtt_publish_manager, 0, sizeof(cloud_net_mqtt_publish_manager));
 
     cloud_net_mqtt_publish_manager.max_queue_size = CLOUDNET_MQTT_MAX_QUEUE_SIZE;
     cloud_net_mqtt_publish_manager.max_retry_count = CLOUDNET_MQTT_MAX_RETRY_COUNT;
-    cloud_net_mqtt_at_send_callback = send_cb;
-    cloud_net_mqtt_at_response_handler = resp_handler;
-    cloud_net_mqtt_at_context = context; 
+    cloud_net_mqtt_at_callbacks = config;
 
-    CLOUDNET_DEBUG("Publish manager initialized\n");
+    CLOUDNET_DEBUG("NetM mqtt publish manager initialized\n");
     return TRUE;
 }
 
@@ -210,19 +203,18 @@ static bool CloudNetM_MqttNeedSendTopicAT(const char *current_topic)
 /* Send topic AT command */
 static bool CloudNetM_MqttSendTopicAT(const char *topic)
 {
-    if (cloud_net_mqtt_at_send_callback == NULL || topic == NULL)
+    if (cloud_net_mqtt_at_callbacks.topic_send_cb == NULL || topic == NULL)
     {
         return FALSE;
     }
 
     CLOUDNET_DEBUG("Sending topic AT: %s\n", topic);
 
-    if (cloud_net_mqtt_at_send_callback(topic))
+    if (cloud_net_mqtt_at_callbacks.topic_send_cb(topic, cloud_net_mqtt_at_callbacks.context))
     {
         cloud_net_mqtt_publish_manager.topic_at_sent = TRUE;
         cloud_net_mqtt_publish_manager.waiting_topic_ok = TRUE;
         cloud_net_mqtt_publish_manager.topic_sent_time = CLOUD_GET_TIME_MS();
-        cloud_net_mqtt_publish_manager.retry_count = 0;
         return TRUE;
     }
 
@@ -233,14 +225,14 @@ static bool CloudNetM_MqttSendTopicAT(const char *topic)
 /* Send payload AT command */
 static bool CloudNetM_MqttSendPayloadAT(const char *payload)
 {
-    if (cloud_net_mqtt_at_send_callback == NULL || payload == NULL)
+    if (cloud_net_mqtt_at_callbacks.payload_send_cb == NULL || payload == NULL)
     {
         return FALSE;
     }
 
     CLOUDNET_DEBUG("Sending payload AT: %s\n", payload);
 
-    if (cloud_net_mqtt_at_send_callback(payload))
+    if (cloud_net_mqtt_at_callbacks.payload_send_cb(payload, cloud_net_mqtt_at_callbacks.context))
     {
         cloud_net_mqtt_publish_manager.waiting_payload_ok = TRUE;
         cloud_net_mqtt_publish_manager.payload_sent_time = CLOUD_GET_TIME_MS();
@@ -249,6 +241,62 @@ static bool CloudNetM_MqttSendPayloadAT(const char *payload)
 
     CLOUDNET_DEBUG("Failed to send payload AT\n");
     return FALSE;
+}
+
+static void CloudNetM_MqttRetryTopicATHandler(void)
+{
+    cloud_net_mqtt_publish_manager.waiting_topic_ok = FALSE;
+    cloud_net_mqtt_publish_manager.topic_at_sent = FALSE;
+
+    /* Retry logic */
+    if (cloud_net_mqtt_publish_manager.retry_count < cloud_net_mqtt_publish_manager.max_retry_count)
+    {
+        cloud_net_mqtt_publish_manager.retry_count++;
+        if (cloud_net_mqtt_publish_manager.last_topic != NULL)
+        {
+            CLOUDM_FREE(cloud_net_mqtt_publish_manager.last_topic);
+            cloud_net_mqtt_publish_manager.last_topic = NULL;
+        }
+        CLOUDNET_DEBUG("<topic:%s>Starting retry #%d\r\n", cloud_net_mqtt_publish_manager.current_msg->topic, cloud_net_mqtt_publish_manager.retry_count);
+    }
+    else
+    {
+        CLOUDNET_ERROR("<topic:%s>Reached max retry count, dropping message\r\n", cloud_net_mqtt_publish_manager.current_msg->topic);
+        if (cloud_net_mqtt_publish_manager.current_msg != NULL)
+        {
+            CloudNetM_MqttRemoveQueueHead();
+            cloud_net_mqtt_publish_manager.current_msg = NULL;
+        }
+    }
+}
+
+static void CloudNetM_MqttRetryPayloadHandler(void)
+{
+    cloud_net_mqtt_publish_manager.waiting_payload_ok = FALSE;
+
+    /* Retry logic */
+    if (cloud_net_mqtt_publish_manager.retry_count < cloud_net_mqtt_publish_manager.max_retry_count)
+    {
+        cloud_net_mqtt_publish_manager.retry_count++;
+        CLOUDNET_DEBUG("<%s>Mag:%d Starting retry #%d\n", __func__, cloud_net_mqtt_publish_manager.queue_size, cloud_net_mqtt_publish_manager.retry_count);
+        /* Restart from topic AT for the current message */
+        cloud_net_mqtt_publish_manager.topic_at_sent = FALSE;
+        cloud_net_mqtt_publish_manager.waiting_topic_ok = FALSE;
+        if (cloud_net_mqtt_publish_manager.last_topic != NULL)
+        {
+            CLOUDM_FREE(cloud_net_mqtt_publish_manager.last_topic);
+            cloud_net_mqtt_publish_manager.last_topic = NULL;
+        }
+    }
+    else
+    {
+        CLOUDNET_DEBUG("<%s>Mag:%d Reached max retry count, dropping message\n", __func__, cloud_net_mqtt_publish_manager.queue_size);
+        if (cloud_net_mqtt_publish_manager.current_msg != NULL)
+        {
+            CloudNetM_MqttRemoveQueueHead();
+            cloud_net_mqtt_publish_manager.current_msg = NULL;
+        }
+    }
 }
 
 /* Handle AT response timeouts and retry logic */
@@ -261,27 +309,8 @@ static void CloudNetM_MqttHandleTimeout(void)
     {
         if (current_time - cloud_net_mqtt_publish_manager.topic_sent_time > CLOUDNET_MQTT_AT_RESPONSE_TIMEOUT_MS)
         {
-            CLOUDNET_DEBUG("Topic AT response timeout\n");
-            cloud_net_mqtt_publish_manager.waiting_topic_ok = FALSE;
-            cloud_net_mqtt_publish_manager.topic_at_sent = FALSE;
-
-            /* Retry logic */
-            if (cloud_net_mqtt_publish_manager.retry_count < cloud_net_mqtt_publish_manager.max_retry_count)
-            {
-                cloud_net_mqtt_publish_manager.retry_count++;
-                CLOUDNET_DEBUG("Starting retry #%d\n", cloud_net_mqtt_publish_manager.retry_count);
-                /* Reset current message to trigger resend */
-                cloud_net_mqtt_publish_manager.current_msg = NULL;
-            }
-            else
-            {
-                CLOUDNET_DEBUG("Reached max retry count, dropping message\n");
-                if (cloud_net_mqtt_publish_manager.current_msg != NULL)
-                {
-                    CloudNetM_MqttRemoveQueueHead();
-                    cloud_net_mqtt_publish_manager.current_msg = NULL;
-                }
-            }
+            CLOUDNET_ERROR("<%s> err", __func__);
+            CloudNetM_MqttRetryTopicATHandler();
         }
     }
 
@@ -290,28 +319,43 @@ static void CloudNetM_MqttHandleTimeout(void)
     {
         if (current_time - cloud_net_mqtt_publish_manager.payload_sent_time > CLOUDNET_MQTT_AT_RESPONSE_TIMEOUT_MS)
         {
-            CLOUDNET_DEBUG("Payload AT response timeout\n");
-            cloud_net_mqtt_publish_manager.waiting_payload_ok = FALSE;
-
-            /* Retry logic */
-            if (cloud_net_mqtt_publish_manager.retry_count < cloud_net_mqtt_publish_manager.max_retry_count)
-            {
-                cloud_net_mqtt_publish_manager.retry_count++;
-                CLOUDNET_DEBUG("Starting retry #%d\n", cloud_net_mqtt_publish_manager.retry_count);
-                /* Restart from topic AT for the current message */
-                cloud_net_mqtt_publish_manager.topic_at_sent = FALSE;
-                cloud_net_mqtt_publish_manager.waiting_topic_ok = FALSE;
-            }
-            else
-            {
-                CLOUDNET_DEBUG("Reached max retry count, dropping message\n");
-                if (cloud_net_mqtt_publish_manager.current_msg != NULL)
-                {
-                    CloudNetM_MqttRemoveQueueHead();
-                    cloud_net_mqtt_publish_manager.current_msg = NULL;
-                }
-            }
+            CLOUDNET_ERROR("<%s> err", __func__);
+            CloudNetM_MqttRetryPayloadHandler();
         }
+    }
+}
+
+void CloudNetM_MqttHandleAtTopicResponse(const char *pub_topic)
+{
+    if (pub_topic == NULL)
+    {
+        return;
+    }
+
+    /* Check for OK response */
+    if (strstr(pub_topic, cloud_net_mqtt_publish_manager.current_msg->topic) != NULL)
+    {
+        CLOUDNET_DEBUG("<topic:%s>ack succeeded\r\n", cloud_net_mqtt_publish_manager.current_msg->topic);
+        cloud_net_mqtt_publish_manager.waiting_topic_ok = false;
+
+        /* Topic AT succeeded: send payload AT */
+        if (cloud_net_mqtt_publish_manager.current_msg->payload != NULL)
+        {
+            CloudNetM_MqttSendPayloadAT(cloud_net_mqtt_publish_manager.current_msg->payload);
+        }
+    }
+}
+
+void CloudNetM_MqttHandleATPayloadSendSuccess(void)
+{
+    cloud_net_mqtt_publish_manager.waiting_payload_ok = false;
+    cloud_net_mqtt_publish_manager.topic_at_sent = false;
+
+    /* Remove sent message from queue */
+    if (cloud_net_mqtt_publish_manager.current_msg != NULL)
+    {
+        CloudNetM_MqttRemoveQueueHead();
+        cloud_net_mqtt_publish_manager.current_msg = NULL;
     }
 }
 
@@ -392,83 +436,4 @@ void CloudNetM_MqttPublishManagerProcess(void)
         CloudNetM_MqttSendPayloadAT(current_msg->payload);
     }
 }
-
-/* AT response handler */
-void CloudNetM_MqttHandleATResponse(const char *response)
-{
-    if (response == NULL)
-    {
-        return;
-    }
-
-    CLOUDNET_DEBUG("Received AT response: %s\n", response);
-
-    /* Call user-registered response handler */
-    if (cloud_net_mqtt_at_response_handler != NULL)
-    {
-        cloud_net_mqtt_at_response_handler(response, cloud_net_mqtt_at_context);
-    }
-
-    /* Check for OK response */
-    if (strstr(response, "OK") != NULL)
-    {
-        if (cloud_net_mqtt_publish_manager.waiting_topic_ok)
-        {
-            CLOUDNET_DEBUG("Topic AT command succeeded\n");
-            cloud_net_mqtt_publish_manager.waiting_topic_ok = false;
-            /* Topic AT succeeded: send payload AT */
-            if (cloud_net_mqtt_publish_manager.current_msg != NULL)
-            {
-                CloudNetM_MqttSendPayloadAT(cloud_net_mqtt_publish_manager.current_msg->payload);
-            }
-        }
-        else if (cloud_net_mqtt_publish_manager.waiting_payload_ok)
-        {
-            CLOUDNET_DEBUG("Payload AT command succeeded, message sent\n");
-            cloud_net_mqtt_publish_manager.waiting_payload_ok = false;
-            cloud_net_mqtt_publish_manager.topic_at_sent = false;
-
-            /* Remove sent message from queue */
-            if (cloud_net_mqtt_publish_manager.current_msg != NULL)
-            {
-                CloudNetM_MqttRemoveQueueHead();
-                cloud_net_mqtt_publish_manager.current_msg = NULL;
-            }
-        }
-    }
-    else if (strstr(response, "ERROR") != NULL)
-    {
-        /* Handle error response */
-        CLOUDNET_DEBUG("AT command failed\n");
-
-        if (cloud_net_mqtt_publish_manager.waiting_topic_ok)
-        {
-            cloud_net_mqtt_publish_manager.waiting_topic_ok = false;
-            cloud_net_mqtt_publish_manager.topic_at_sent = false;
-        }
-        else if (cloud_net_mqtt_publish_manager.waiting_payload_ok)
-        {
-            cloud_net_mqtt_publish_manager.waiting_payload_ok = false;
-        }
-
-        /* Retry logic */
-        if (cloud_net_mqtt_publish_manager.retry_count < cloud_net_mqtt_publish_manager.max_retry_count)
-        {
-            cloud_net_mqtt_publish_manager.retry_count++;
-            CLOUDNET_DEBUG("Starting retry #%d\n", cloud_net_mqtt_publish_manager.retry_count);
-            /* Reset state to resend next cycle */
-            cloud_net_mqtt_publish_manager.topic_at_sent = false;
-        }
-        else
-        {
-            CLOUDNET_DEBUG("Reached max retry count, dropping message\n");
-            if (cloud_net_mqtt_publish_manager.current_msg != NULL)
-            {
-                CloudNetM_MqttRemoveQueueHead();
-                cloud_net_mqtt_publish_manager.current_msg = NULL;
-            }
-        }
-    }
-}
 /* EOL */
-// ...existing code...

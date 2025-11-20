@@ -35,8 +35,14 @@
 |    Typedef Definition
 |******************************************************************************/
 /* AT command callback types */
-typedef bool (*cloud_net_at_send_callback_t)(const char *at_parameter);
-typedef void (*cloud_net_at_response_handler_t)(const char *response, void *context);
+typedef bool (*cloud_net_at_send_callback_t)(const char *at_parameter, uint8_t context);
+
+typedef struct
+{
+    uint8_t context;                                            /* User context */
+    cloud_net_at_send_callback_t topic_send_cb;               /* Callback to send topic AT command */
+    cloud_net_at_send_callback_t payload_send_cb;             /* Callback to send payload AT command */
+} cloud_net_mqtt_at_callback_t;
 
 /* MQTT publish queue item */
 typedef struct cloud_net_mqtt_publish_item
@@ -74,9 +80,10 @@ typedef struct
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-extern bool CloudNetM_MqttPublishManagerInit(cloud_net_at_send_callback_t send_cb, cloud_net_at_response_handler_t resp_handler, void *context);
+extern bool CloudNetM_MqttPublishManagerInit(cloud_net_mqtt_at_callback_t config);
 extern bool CloudNetM_MqttAddMessageToQueue(const char *topic, const char *payload, bool retain, uint8_t qos);
+extern void CloudNetM_MqttHandleAtTopicResponse(const char *pub_topic);
+extern void CloudNetM_MqttHandleATPayloadSendSuccess(void);
 extern void CloudNetM_MqttPublishManagerProcess(void);
-extern void CloudNetM_MqttHandleATResponse(const char *response);
 #endif /* __CLOUDNET_MQTT_PUBLISHM_H */
 /* EOL */

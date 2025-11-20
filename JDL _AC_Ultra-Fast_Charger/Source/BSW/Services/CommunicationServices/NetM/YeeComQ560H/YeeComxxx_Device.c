@@ -51,6 +51,7 @@ typedef struct
     uint16_t Rssi;                                  /* Signal Strength */
     char ICCID[YEECOM_ICCID_LENGTH + 1];            /* SIM ICCID */
     char IMEI[YEECOM_IMEI_LENGTH + 1];              /* device imei */
+    char DTUID[YEECOM_DTUID_LENGTH + 1];            /* device DTUID */
     uint8_t GState[YEECOM_GSTATE_NUMBER];           /* The online status of the connected server: 0-disconnected, 1-connected */            
 }YeeComxxx_DeviceInfo_struct;
 
@@ -248,6 +249,16 @@ void YeeCom_SetDeviceInfo_imei(const char* imei)
     }
 }
 
+void YeeCom_SetDeviceInfo_dtuid(const char* dtuid)
+{
+    if (dtuid != NULL)
+    {
+        memcpy(&gv_YeeComxxx_device_info.DTUID, dtuid, YEECOM_DTUID_LENGTH);
+        gv_YeeComxxx_device_info.DTUID[YEECOM_DTUID_LENGTH] = '\0';
+        YeeCom_Log("<%s> DTUID: %s\r\n", __func__, gv_YeeComxxx_device_info.DTUID);
+    }
+}
+
 void YeeCom_SetDeviceInfo_gstate(uint8_t id, const uint8_t gstate)
 {
     if (id < YEECOM_GSTATE_NUMBER)
@@ -284,6 +295,15 @@ void YeeCom_GetDeviceInfo(uint8_t* sim_status, uint16_t* rssi, char* iccid, char
         {
             *gstate_num = YEECOM_GSTATE_NUMBER;
         }
+    }
+}
+
+void YeeCom_GetDeviceDTUID(char* dtuid)
+{
+    if (dtuid != NULL)
+    {
+        memcpy(dtuid, &gv_YeeComxxx_device_info.DTUID, YEECOM_DTUID_LENGTH);
+        dtuid[YEECOM_DTUID_LENGTH] = '\0';
     }
 }
 

@@ -13,6 +13,7 @@
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
+#include "Cloud_Protocol_Mqtt.h"
 #include "stdint.h"
 
 /*******************************************************************************
@@ -38,7 +39,7 @@
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-extern char* Cloud_Protocol_Sg_GetMqttTopic_Subscribe_Current(void);
-extern char* Cloud_Protocol_Sg_GetMqttTopic_Publish_Current(void);
+extern void Cloud_Protocol_Mqtt_init(void);
+extern void Cloud_Protocol_Mqtt_MainProcess(void);
 #endif /* __CLOUD_PROTOCOL_SGM_H */
 /* EOL */

@@ -33,11 +33,11 @@
 /*******************************************************************************
 |    Table Const Definition
 |******************************************************************************/
-const cloud_protocol_mqtt_config_t cloud_sg_mqtt_default_config = 
+cloud_protocol_mqtt_config_t cloud_sg_mqtt_default_config = 
 {
-	.client_id = CLOUD_PROTOCOL_SG_MQTT_CLIENT_IDCLIENT_ID,
-	.username = CLOUD_PROTOCOL_SG_MQTT_CLIENT_IDUSERNAME,
-	.password = CLOUD_PROTOCOL_SG_MQTT_CLIENT_IDPASSWORD,
+	.client_id = CLOUD_PROTOCOL_SG_MQTT_CLIENT_ID,
+	.username = CLOUD_PROTOCOL_SG_MQTT_CLIENT_USERNAME,
+	.password = CLOUD_PROTOCOL_SG_MQTT_CLIENT_PASSWORD,
 	.qos = CLOUD_PROTOCOL_MQTT_QOS_1,
 	.keep_alive = 60,
 	.clean_session = true,
@@ -45,8 +45,8 @@ const cloud_protocol_mqtt_config_t cloud_sg_mqtt_default_config =
 	.will_retain = false
 };
 
-// 主题配置示例
-cloud_protocol_mqtt_topic_config_t topic_configs[] = {
+// sg mqtt topic configuration table
+cloud_protocol_mqtt_topic_config_t cloud_protocol_mqtt_topic_configs[CLOUD_PROTOCOL_MQTT_TOPIC_CONFIG_COUNT] = {
     {
         .publish_topic = "/sys/device/service/get",
         .subscribe_topic = "/sys/device/service/get_reply",
@@ -64,12 +64,12 @@ cloud_protocol_mqtt_topic_config_t topic_configs[] = {
     {
         .publish_topic = "/sys/device/event/post",
         .subscribe_topic = "/sys/device/event/post_reply", 
-        .ack_type = CLOUD_PROTOCOL_MQTT_MSG_NO_ACK,  // 事件不需要应答
+        .ack_type = CLOUD_PROTOCOL_MQTT_MSG_NO_ACK,
         .ack_timeout_ms = 0,
         .max_retry_count = 0
     },
     {
-        .publish_topic = "",  // 仅用于接收服务器请求
+        .publish_topic = "",
         .subscribe_topic = "/sys/device/service/set",
         .ack_type = CLOUD_PROTOCOL_MQTT_MSG_NO_ACK,
         .ack_timeout_ms = 0,
@@ -97,6 +97,16 @@ char *Cloud_Protocol_Strdup(const char *s)
         memcpy(new_str, s, len);
     }
     return new_str;
+}
+
+void Cloud_Protocol_SetMqttConfig(const cloud_protocol_mqtt_config_t *config)
+{
+    if (config == NULL)
+    {
+        return;
+    }
+    // Copy the provided configuration to the default configuration
+    memcpy(&cloud_sg_mqtt_default_config, config, sizeof(cloud_protocol_mqtt_config_t));
 }
 
 /* EOL */

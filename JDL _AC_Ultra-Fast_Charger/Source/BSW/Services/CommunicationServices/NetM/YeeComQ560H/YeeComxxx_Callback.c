@@ -3,6 +3,7 @@
 #include "YeeComxxx_Device_Cfg.h"
 #include "CloudNet_Protocol_Msg.h"
 #include "Cloud_Protocol_Cfg.h"
+#include "CloudNet_Mqtt_PublishM.h"
 
 /* oob cmd */
 void YeeCom_At_OOB_Power_On_Callback(void *arg, char *buf, int buflen)
@@ -165,30 +166,26 @@ void YeeCom_At_OOB_Data_Passthrough_Callback(void *arg, char *buf, int buflen)
         uint16_t hex_data_len = buflen - (data_start - buf);
         if (hex_data_len > 0)
         {
-            uint8_t *binary_data = (uint8_t *)pvPortMalloc(hex_data_len);
-            if (binary_data != NULL)
+            uint8_t msg[hex_data_len + 1];
+
+            memcpy(&msg[1], data_start, hex_data_len);
+
+            switch (socket_id)
             {
-                for (int i = 0; i < hex_data_len; i++)
-                {
-                    memcpy(binary_data + i, data_start + i, 1);
-                }
-
-                uint8_t msg[hex_data_len + 1];
-                memcpy(&msg[1], binary_data, hex_data_len);
-                vPortFree(binary_data);
-
-                switch (socket_id)
-                {
-                    case TCP_ID_PROTOCOL_GAGA:
-                        msg[0] = CLOUD_MESSAGE_DATA_TYPE_CLOUD_PROTOCOL;
-                        YeeCom_Log("<%s> rcv len: %d send data passthrough:\r\n", __func__, hex_data_len);
-                        YeeCom_Print_Hex(msg, sizeof(msg));
-                        CloudNet_Protocol_SendMsg((uint8_t *)msg, sizeof(msg), CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
-                        break;
-                    default:
-                        // Handle unknown socket
-                        break;
-                }
+            case TCP_ID_PROTOCOL_GAGA:
+                msg[0] = CLOUD_MESSAGE_DATA_TYPE_CLOUD_PROTOCOL;
+                YeeCom_Log("<%s> rcv len: %d send data passthrough:\r\n", __func__, hex_data_len);
+                YeeCom_Print_Hex(msg, sizeof(msg));
+                CloudNet_Protocol_SendMsg((uint8_t *)msg, sizeof(msg), CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
+                break;
+            case TCP_ID_PROTOCOL_SG:
+                msg[0] = CLOUD_MESSAGE_DATA_TYPE_CLOUD_MQTT_PAYLOAD;
+                YeeCom_Log("<%s> rcv len: %d send mqtt payload data passthrough:%s\r\n", __func__, hex_data_len, &msg[1]);
+                CloudNet_Protocol_SendMsg((uint8_t *)msg, sizeof(msg), CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
+                break;
+            default:
+                // Handle unknown socket
+                break;
             }
         }
     }
@@ -318,10 +315,15 @@ void YeeCom_At_Set_WAKEUP_Callback(void *arg, char *buf, int buflen)
     }
 }
 
+void YeeCom_At_Set_DTUID_Callback(void *arg, char *buf, int buflen)
+{
+    YeeCom_Log("<%s> %s\r\n", __func__,  buf);
+}
+
 void YeeCom_At_Set_MQSET_Callback(void *arg, char *buf, int buflen)
 {
     // Handle the received server response success
-    YeeCom_Log("<%s> %s\r\n", __func__, buf);
+    YeeCom_Log("<%s> %s\r\n", __func__,  buf);
 }
 
 void YeeCom_At_Set_MQTOP_Callback(void *arg, char *buf, int buflen)
@@ -626,6 +628,37 @@ void YeeCom_At_Get_GSTATECallback(void *arg, char *buf, int buflen)
     }
 }
 
+/* +DTUID:<id>
+OK
+*/
+void YeeCom_At_Get_DTUID_Callback(void *arg, char *buf, int buflen)
+{
+    // Handle the received DTU ID response success
+    const char *start = buf;
+    const char *current = buf;
+
+    const char *reset_pos = strstr(buf, "+DTUID:");
+    if (reset_pos != NULL)
+    {
+        start = reset_pos + strlen("+DTUID:");
+        while (*start == ' ' || *start == ':')
+        {
+            start++;
+        }
+        current = start;
+        while (*current != '\r' && *current != '\n' && *current != '\0')
+        {
+            current++;
+        }
+        if (current > start)
+        {
+            char dtuid[128] = {0};
+            strncpy(dtuid, start, current - start);
+            YeeCom_SetDeviceInfo_dtuid(dtuid);
+        }
+    }
+}
+
 /* +MQSETn:<ClientID>,< user name>,<password>
 OK */
 void YeeCom_At_Get_MQSET_Callback(void *arg, char *buf, int buflen)
@@ -637,25 +670,28 @@ void YeeCom_At_Get_MQSET_Callback(void *arg, char *buf, int buflen)
     if (reset_pos != NULL)
     {
         int socket_id = 0;
-        uint8_t ClientID[65] = {0};
+        uint8_t ClientID[10] = {0};
         uint8_t UserName[65] = {0};
         uint8_t Password[65] = {0};
         uint8_t msg[3] = {0};
+        uint8_t dtuid[YEECOM_DTUID_LENGTH + 1] = {0};
 
-        int result = sscanf(start, "+MQSET%d:%64[^,],%64[^,],%64[^\r\n]",
+        int result = sscanf(start, "+MQSET%d:%10[^,],%64[^,],%64[^\r\n]",
                             &socket_id, ClientID, UserName, Password);
 
         if (result == 4)
         {
             YeeCom_Log("<%s> socket_id: %d, ClientID: %s, UserName: %s, Password: %s\r\n", __func__, socket_id, ClientID, UserName, Password);
+            YeeCom_GetDeviceDTUID((char*)dtuid);
 
             if (socket_id < TCP_ID_MAXIMUM)
             {
                 if (socket_id == TCP_ID_PROTOCOL_SG)
                 {
-                    if (strcmp((const char *)ClientID, (const char *)CLOUD_PROTOCOL_SG_MQTT_CLIENT_IDCLIENT_ID) == 0 &&
-                        strcmp((const char *)UserName, (const char *)CLOUD_PROTOCOL_SG_MQTT_CLIENT_IDUSERNAME) == 0 &&
-                        strcmp((const char *)Password, (const char *)CLOUD_PROTOCOL_SG_MQTT_CLIENT_IDPASSWORD) == 0)
+                    if (strcmp((const char *)ClientID, (const char *)"{DTUID}") == 0 &&
+                        strcmp((const char *)UserName, (const char *)CLOUD_PROTOCOL_SG_MQTT_CLIENT_USERNAME) == 0 &&
+                        strcmp((const char *)Password, (const char *)CLOUD_PROTOCOL_SG_MQTT_CLIENT_PASSWORD) == 0 &&
+                        strcmp((const char *)dtuid, (const char *)CLOUD_PROTOCOL_SG_MQTT_CLIENT_ID) == 0)
                     {
                         msg[0] = CLOUD_MESSAGE_CTRL_TYPE_CLOUD_MQTT_SG;
                         msg[1] = CLOUD_PROTOCOL_MQTT_CTRL_TYPE_CONNECT;
@@ -686,8 +722,6 @@ void YeeCom_At_Get_MQSET_Callback(void *arg, char *buf, int buflen)
     }
 }
 
-extern char* Cloud_Protocol_Sg_GetMqttTopic_Subscribe_Current(void);
-extern char* Cloud_Protocol_Sg_GetMqttTopic_Publish_Current(void);
 /* +MQTOPn:<sub topic>,<pub topic>
 OK */
 void YeeCom_At_Get_MQTOP_Callback(void *arg, char *buf, int buflen)
@@ -701,7 +735,7 @@ void YeeCom_At_Get_MQTOP_Callback(void *arg, char *buf, int buflen)
         int socket_id = 0;
         uint8_t sub_topic[128] = {0};
         uint8_t pub_topic[64] = {0};
-        uint8_t msg[3] = {0};
+        uint8_t msg[128 + 3] = {0};
 
         int result = sscanf(start, "+MQTOP%d:%128[^,],%64[^\r\n]",
                             &socket_id, sub_topic, pub_topic);
@@ -714,19 +748,10 @@ void YeeCom_At_Get_MQTOP_Callback(void *arg, char *buf, int buflen)
             {
                 if (socket_id == TCP_ID_PROTOCOL_SG)
                 {
-                    if (strcmp((const char *)sub_topic, (const char *)Cloud_Protocol_Sg_GetMqttTopic_Subscribe_Current()) == 0 \
-                        && strcmp((const char *)pub_topic, (const char *)Cloud_Protocol_Sg_GetMqttTopic_Publish_Current()) == 0)
-                    {
-                        msg[0] = CLOUD_MESSAGE_CTRL_TYPE_CLOUD_MQTT_SG;
-                        msg[1] = CLOUD_PROTOCOL_MQTT_CTRL_TYPE_SUBSCRIBE_PUBLISH;
-                        msg[2] = 1; // Success
-                        CloudNet_Protocol_SendMsg((uint8_t *)msg, 3, CLOUD_MESSAGE_TYPE_CTRL);
-                        YeeCom_Log("<%s> socket_id: %d parameters match\r\n", __func__, socket_id);
-                    }
-                    else
-                    {
-                        YeeCom_Log("<%s> socket_id: %d parameters mismatch, reconfigure\r\n", __func__, socket_id);
-                    }
+                    msg[0] = CLOUD_MESSAGE_CTRL_TYPE_CLOUD_MQTT_SG;
+                    msg[1] = CLOUD_PROTOCOL_MQTT_CTRL_TYPE_SUBSCRIBE_PUBLISH;
+                    strcpy((char *)msg + 2, (const char *)sub_topic);
+                    CloudNet_Protocol_SendMsg((uint8_t *)msg, 3, CLOUD_MESSAGE_TYPE_CTRL);
                 }
                 else
                 {
@@ -746,6 +771,10 @@ void YeeCom_At_Get_MQTOP_Callback(void *arg, char *buf, int buflen)
     }
 }
 
+/*
++PUBTOPn:<pub topic>
+OK 
+*/
 void YeeCom_At_Get_PUBTOP_Callback(void *arg, char *buf, int buflen)
 {
     // Handle the received server response success
@@ -755,11 +784,9 @@ void YeeCom_At_Get_PUBTOP_Callback(void *arg, char *buf, int buflen)
     if (reset_pos != NULL)
     {
         int socket_id = 0;
-        uint8_t pub_topic[64] = {0};
-        uint8_t msg[3] = {0};
+        char pub_topic[64 + 1] = {0};
 
-        int result = sscanf(start, "+PUBTOP%d:%64[^\r\n]",
-                            &socket_id, pub_topic);
+        int result = sscanf(start, "+PUBTOP%d:%64[^\r\n]", &socket_id, pub_topic);
 
         if (result == 2)
         {
@@ -767,20 +794,13 @@ void YeeCom_At_Get_PUBTOP_Callback(void *arg, char *buf, int buflen)
 
             if (socket_id < TCP_ID_MAXIMUM)
             {
-                if (socket_id == TCP_ID_PROTOCOL_GAGA)
+                if (socket_id == TCP_ID_PROTOCOL_SG)
                 {
-                    if (strcmp((const char *)pub_topic, (const char *)Cloud_Protocol_Sg_GetMqttTopic_Publish_Current()) == 0)
-                    {
-                        msg[0] = CLOUD_MESSAGE_CTRL_TYPE_CLOUD_MQTT_SG;
-                        msg[1] = CLOUD_PROTOCOL_MQTT_CTRL_TYPE_PUBLISH;
-                        msg[2] = 1; // Success
-                        CloudNet_Protocol_SendMsg((uint8_t *)msg, 3, CLOUD_MESSAGE_TYPE_CTRL);
-                        YeeCom_Log("<%s> socket_id: %d parameters match\r\n", __func__, socket_id);
-                    }
-                    else
-                    {
-                        YeeCom_Log("<%s> socket_id: %d parameters mismatch, reconfigure\r\n", __func__, socket_id);
-                    }
+                    CloudNetM_MqttHandleAtTopicResponse((const char *)pub_topic);
+                    // msg[0] = CLOUD_MESSAGE_CTRL_TYPE_CLOUD_MQTT_SG;
+                    // msg[1] = CLOUD_PROTOCOL_MQTT_CTRL_TYPE_PUBLISH;
+                    // strncpy((char *)msg + 2, (const char *)pub_topic, 64);
+                    // CloudNet_Protocol_SendMsg((uint8_t *)msg, strlen((const char *)pub_topic) + 2, CLOUD_MESSAGE_TYPE_CTRL);
                 }
                 else
                 {

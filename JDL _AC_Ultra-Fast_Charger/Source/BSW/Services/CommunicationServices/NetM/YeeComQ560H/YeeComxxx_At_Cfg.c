@@ -25,6 +25,7 @@ const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Set_Param[YEECOM_AT_CMD_SET_PARAM
     { YEECOM_AT_CMD_DEVICE_RESET,                  "AT*RESET=%d#\r\n",                  { NULL,           "OK\r\n",    "ERROR\r\n", 30000,         YeeCom_At_Set_RESET_Callback } },
     { YEECOM_AT_CMD_DEVICE_RESTART,                "AT*RESTART#\r\n",                   { NULL,           "OK\r\n",    "ERROR\r\n", 30000,         YeeCom_At_Set_RESTART_Callback } },
     { YEECOM_AT_CMD_WAKEUP,                        "AT*WAKEUP#\r\n",                    { NULL,           "OK\r\n",    "ERROR\r\n", 30000,         YeeCom_At_Set_WAKEUP_Callback } },
+    { YEECOM_AT_CMD_DTUID,                         "AT*DTUID=%s#\r\n",                  { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_DTUID_Callback } },
     { YEECOM_AT_CMD_MQSET,                         "AT*MQSET%d=%s,%s,%s#\r\n",          { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_MQSET_Callback } },
     { YEECOM_AT_CMD_MQTOP,                         "AT*MQTOP%d=%s,%s#\r\n",             { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_MQTOP_Callback } },
     { YEECOM_AT_CMD_PUBTOP,                        "AT*MQPUB%d=%s#\r\n",                { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_PUBTOP_Callback } }
@@ -47,7 +48,8 @@ const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Get_Param[YEECOM_AT_CMD_GET_PARAM
     { YEECOM_AT_CMD_IMEI,                          "AT*IMEI?\r\n",                      { "+IMEI",         "OK",    NULL,       3000,             YeeCom_At_Get_IMEICallback } },
     { YEECOM_AT_CMD_RSSI,                          "AT*CSQ?\r\n",                       { "+CSQ",          "OK",    NULL,       2000,             YeeCom_At_Get_RSSICallback } },
     { YEECOM_AT_CMD_GSTATE,                        "AT*GSTATE?\r\n",                    { "+GSTATE",       "OK",    NULL,       2000,             YeeCom_At_Get_GSTATECallback } },
+    { YEECOM_AT_CMD_DTUID,                         "AT*DTUID?\r\n",                     { "+DTUID",        "OK",    NULL,       2000,             YeeCom_At_Get_DTUID_Callback } },
     { YEECOM_AT_CMD_MQSET,                         "AT*MQSET%d?\r\n",                   { "+MQSET",        "OK",    NULL,       2000,             YeeCom_At_Get_MQSET_Callback } },
     { YEECOM_AT_CMD_MQTOP,                         "AT*MQTOP%d?\r\n",                   { "+MQTOP",        "OK",    NULL,       2000,             YeeCom_At_Get_MQTOP_Callback } },
-    { YEECOM_AT_CMD_PUBTOP,                        "AT*MQPUB%d?\r\n",                   { "+MQPUB",        "OK",    NULL,       2000,             YeeCom_At_Get_MQTOP_Callback } }
+    { YEECOM_AT_CMD_PUBTOP,                        "AT*MQPUB%d?\r\n",                   { "+MQPUB",        "OK",    NULL,       2000,             YeeCom_At_Get_PUBTOP_Callback } }
 };

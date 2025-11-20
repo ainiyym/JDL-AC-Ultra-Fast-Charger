@@ -68,12 +68,12 @@ typedef struct
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-bool Cloud_Protocol_Mqtt_ClientManagerInit(cloud_protocol_mqtt_topic_config_t *topic_configs, uint16_t topic_count, void (*connect_cb)(bool connected), void (*msg_cb)(const char *topic, const char *payload));
+bool Cloud_Protocol_Mqtt_ClientManagerInit(cloud_protocol_mqtt_topic_config_t *topic_configs, uint16_t topic_count, void (*connect_cb)(bool connected), void (*msg_cb)(const char *payload));
+void Cloud_Protocol_Mqtt_SetDeviceOnlineStatus(bool online);
 void Cloud_Protocol_Mqtt_HandleConnected(void);
-void Cloud_Protocol_Mqtt_HandleDisconnected(void);
-void Cloud_Protocol_Mqtt_HandleSubscribeAck(const char *subscribe_topic, const char *publish_topic, bool success);
 bool Cloud_Protocol_Mqtt_AddPublishMessage(const char *topic, const char *payload, bool retain, cloud_protocol_mqtt_msg_ack_type_e ack_type, const char *ack_topic);
-void Cloud_Protocol_Mqtt_HandleReceivedMessage(const char *topic, const char *payload);
+void Cloud_Protocol_Mqtt_HandleSubscribeAck(const char *subscribe_topic);
+void Cloud_Protocol_Mqtt_HandleReceivedMessage(const char *payload);
 void Cloud_Protocol_Mqtt_ClientManagerProcess(void);
 #endif /* __CLOUD_PROTOCOL_MQTT_H */
 /* EOL */

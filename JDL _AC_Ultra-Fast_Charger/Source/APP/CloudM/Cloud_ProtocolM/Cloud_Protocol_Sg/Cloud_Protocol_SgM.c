@@ -9,7 +9,7 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "Cloud_Protocol_SgM.h"
-#include "Cloud_Protocol_Mqtt_Cfg.h"
+
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -45,13 +45,15 @@
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
-char* Cloud_Protocol_Sg_GetMqttTopic_Subscribe_Current(void)
+void Cloud_Protocol_Mqtt_init(void)
 {
-    return "sg/device/cmd";
+    Cloud_Protocol_SetMqttConfig(&cloud_sg_mqtt_default_config);
+    Cloud_Protocol_Mqtt_ClientManagerInit(&cloud_protocol_mqtt_topic_configs[0], CLOUD_PROTOCOL_MQTT_TOPIC_CONFIG_COUNT, NULL, NULL);
 }
 
-char* Cloud_Protocol_Sg_GetMqttTopic_Publish_Current(void)
+void Cloud_Protocol_Mqtt_MainProcess(void)
 {
-    return "sg/device/status";
+    // MQTT client manager process
+    Cloud_Protocol_Mqtt_ClientManagerProcess();
 }
 /* EOL */

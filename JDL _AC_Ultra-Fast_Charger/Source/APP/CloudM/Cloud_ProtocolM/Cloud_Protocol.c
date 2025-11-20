@@ -11,6 +11,8 @@
 #include "Cloud_Protocol.h"
 #include "Cloud_Protocol_Msg.h"
 #include "tcp.h"
+#include "Cloud_Protocol_GagaM.h"
+#include "Cloud_Protocol_SgM.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -76,7 +78,12 @@ static cloud_protocol_ctrl_t cloud_protocol_ctrl;
 void Cloud_Protocol_Init(void)
 {
     memset(&cloud_protocol_ctrl, 0, sizeof(cloud_protocol_ctrl));
+#if (CLOUD_PROTOCOL_SG_PROTOCOL_ENABLE == 1)
+    Cloud_Protocol_Mqtt_init();
+#endif
+#if (CLOUD_PROTOCOL_DEFAULT_TCP_ID == TCP_ID_PROTOCOL_GAGA)
     Cloud_GagaProtocol_Init();
+#endif
 }
 
 void Cloud_Protocol_AckDeviceStatus(cloud_device_status_e status)
@@ -96,6 +103,12 @@ void Cloud_Protocol_AckRegpkgParam(bool status)
 void Cloud_Protocol_AckWakeUpDTU(bool status)
 {
     cloud_protocol_ctrl.dtu_is_wake_up = status;
+#if (CLOUD_PROTOCOL_SG_PROTOCOL_ENABLE == 1)
+    if (status)
+    {
+        Cloud_Protocol_Mqtt_SetDeviceOnlineStatus(true);
+    }
+#endif
 }
 
 void Cloud_Protocol_FlashNetTime(void)
@@ -127,6 +140,9 @@ static void Cloud_Protocol_ResetToInitPolling(void)
     {
        cloud_protocol_ctrl.step = CLOUD_PROTOCOL_STEP_INIT;
        Cloud_GagaProtocol_DeviceResetChecking();
+#if (CLOUD_PROTOCOL_SG_PROTOCOL_ENABLE == 1)
+       Cloud_Protocol_Mqtt_SetDeviceOnlineStatus(false);
+#endif
     }
 }
 
@@ -142,7 +158,13 @@ static void Cloud_Protocol_SetupNetworkProcess(void)
 {
     uint8_t msg[2] = {0};
     msg[0] = (uint8_t)CLOUD_MESSAGE_CTRL_TYPE_SET_NETWORK_PARAM;
-    msg[1] = (uint8_t)CLOUD_PROTOCOL_ACTIVE_TCP_ID;
+#if (CLOUD_PROTOCOL_DEFAULT_TCP_ID == TCP_ID_PROTOCOL_SG)
+    msg[1] = (uint8_t)TCP_ID_PROTOCOL_SG;
+#elif (CLOUD_PROTOCOL_DEFAULT_TCP_ID == TCP_ID_PROTOCOL_GAGA)
+    msg[1] = (uint8_t)TCP_ID_PROTOCOL_GAGA;
+#else
+
+#endif
     Cloud_Protocol_SendMsg(msg, sizeof(msg), CLOUD_MESSAGE_TYPE_CTRL);
     cloud_protocol_ctrl.step = CLOUD_PROTOCOL_STEP_WAIT_NETWORK_ACK;
 }
@@ -214,7 +236,7 @@ static void Cloud_Protocol_WakeUpDTUProcess(void)
     // Wake up DTU
     uint8_t msg[2] = {0};
     msg[0] = (uint8_t)CLOUD_MESSAGE_CTRL_TYPE_WAKE_UP_DTU;
-    msg[1] = 0; // No additional parameters
+    msg[1] = 0; // No need additional parameters
     Cloud_Protocol_SendMsg(msg, sizeof(msg), CLOUD_MESSAGE_TYPE_CTRL);
     cloud_protocol_ctrl.step = CLOUD_PROTOCOL_STEP_WAIT_WAKE_UP_DTU_ACK;
 }
@@ -235,7 +257,12 @@ static void Cloud_Protocol_WaitWakeUpDTUAckProcess(void)
 
 static void Cloud_Protocol_RunningStepProcess(void)
 {
+#if (CLOUD_PROTOCOL_SG_PROTOCOL_ENABLE == 1)
+    Cloud_Protocol_Mqtt_MainProcess();
+#endif
+#if (CLOUD_PROTOCOL_GAGA_PROTOCOL_ENABLE == 1)
     Cloud_GagaProtocol_MainProcess();
+#endif
 }
 
 void Cloud_Protocol_Main(void)
