@@ -51,11 +51,6 @@
 #define CLOUD_PROTOCOL_SIM_LENGTH                   (10U)       // SIM card number length (BCD code, 10 bits + 1 terminator)
 
 /* TCP_ID_PROTOCOL_SG */
-#define CLOUD_PROTOCOL_SG_MQTT_CLIENT_ID                        "device1"  // MQTT Client ID
-#define CLOUD_PROTOCOL_SG_MQTT_CLIENT_USERNAME                  "T4BO0x6cb1"  // MQTT Username
-#define CLOUD_PROTOCOL_SG_MQTT_CLIENT_PASSWORD                  "Rk9FaWVuY0swS1JITEJucWNVSVBoWk9SR0dJcjNYeXQ="   // MQTT Password
-
-#define CLOUD_PROTOCOL_MQTT_CONNECT_MINIMUM_LENGTH   (9U)
 #define CLOUD_PROTOCOL_MQTT_SUB_PUB_MINIMUM_LENGTH   (4U)
 /*******************************************************************************
 |    Enum Definition
@@ -88,6 +83,7 @@ typedef enum
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-
+extern char *Cloud_Protocol_Strdup(const char *s);
+extern int Cloud_Protocol_Hex2Ascii(const uint8_t *hex_array, size_t array_size, char *ascii_string, size_t buffer_size);
 #endif /* __CLOUD_PROTOCOL_CFG_H */
 /* EOL */

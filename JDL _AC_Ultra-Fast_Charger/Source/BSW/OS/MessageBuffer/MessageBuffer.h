@@ -42,7 +42,8 @@
 typedef enum
 {
     MESSAGE_BUFFER_TYPE_DATA = 0x55, // data message
-    MESSAGE_BUFFER_TYPE_CTRL = 0xCC // control message
+    MESSAGE_BUFFER_TYPE_CTRL = 0xCC, // control message
+    MESSAGE_BUFFER_TYPE_NOTIFY = 0xAA // notify message
 } MessageBuffer_type_t;
 
 // message header

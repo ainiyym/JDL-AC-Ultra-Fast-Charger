@@ -39,7 +39,9 @@
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-extern void Cloud_Protocol_AckDeviceStatus(cloud_device_status_e status);
+extern void Cloud_Protocol_NotifyDeviceStatus(cloud_device_status_e status);
+extern void Cloud_Protocol_NotifyNetworkStatus(cloud_net_status_e status, uint8_t tcp_id);
+extern void Cloud_Protocol_NotifySignalStrength(int16_t signal_strength);
 extern void Cloud_Protocol_AckHeartbeatParam(bool status);
 extern void Cloud_Protocol_AckRegpkgParam(bool status);
 extern void Cloud_Protocol_AckWakeUpDTU(bool status);

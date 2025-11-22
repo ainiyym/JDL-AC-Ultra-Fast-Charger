@@ -37,7 +37,7 @@ extern tcp_paramater Cloud_Tcp_Parameter[TCP_ID_MAXIMUM];
 
 extern void tcp_init(void);
 extern void tcp_destroy(tcp_id_enum manager_id);
-extern uint8_t tcp_connect(tcp_id_enum manager_id);
+extern uint8_t tcp_connect(tcp_id_enum manager_id, YeeCom_WorkingMode_E type);
 extern void tcp_disconnect(tcp_id_enum manager_id);
 extern void tcp_set_conn_state(tcp_id_enum manager_id, tcp_state_t state);
 extern uint8_t tcp_send_data(tcp_id_enum manager_id, const uint8_t *data, size_t length);

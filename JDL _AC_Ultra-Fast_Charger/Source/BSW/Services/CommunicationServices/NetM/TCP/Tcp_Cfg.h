@@ -5,8 +5,8 @@
 
 typedef enum
 {
-    TCP_ID_PROTOCOL_GAGA = 0,   /* https://gaga.yuyangdev.cn */
-    TCP_ID_PROTOCOL_SG, /* mqtts.heclouds.com */
+    TCP_ID_PROTOCOL_SG = 0, /* 47.114.190.246:30183 */
+    TCP_ID_PROTOCOL_GAGA,   /* https://gaga.yuyangdev.cn */
     TCP_ID_MAXIMUM
 }tcp_id_enum;
 

@@ -1,4 +1,4 @@
-#include "YeeComxxx_Device.h"
+#include "CloudNet_Protocol_Msg.h"
 #include "YeeComxxx_Device_Cfg.h"
 #include "FlashDB_AppM.h"
 #include "FreeRTOS.h"
@@ -227,6 +227,11 @@ void YeeCom_SetDeviceInfo_rssi(uint16_t rssi)
 {
     gv_YeeComxxx_device_info.Rssi = rssi;
     YeeCom_Log("<%s> RSSI: %d\r\n", __func__, gv_YeeComxxx_device_info.Rssi);
+
+    uint8_t msg[2] = {0};
+    msg[0] = CLOUD_MESSAGE_NOTIFY_TYPE_SIGNAL_STRENGTH;
+    msg[1] = rssi;
+    CloudNet_Protocol_SendMsg((uint8_t *)msg, 2, CLOUD_MESSAGE_TYPE_NOTIFY);
 }
 
 void YeeCom_SetDeviceInfo_iccid(const char* iccid)
@@ -253,7 +258,7 @@ void YeeCom_SetDeviceInfo_dtuid(const char* dtuid)
 {
     if (dtuid != NULL)
     {
-        memcpy(&gv_YeeComxxx_device_info.DTUID, dtuid, YEECOM_DTUID_LENGTH);
+        strncpy(gv_YeeComxxx_device_info.DTUID, dtuid, YEECOM_DTUID_LENGTH);
         gv_YeeComxxx_device_info.DTUID[YEECOM_DTUID_LENGTH] = '\0';
         YeeCom_Log("<%s> DTUID: %s\r\n", __func__, gv_YeeComxxx_device_info.DTUID);
     }
@@ -265,6 +270,12 @@ void YeeCom_SetDeviceInfo_gstate(uint8_t id, const uint8_t gstate)
     {
         gv_YeeComxxx_device_info.GState[id] = gstate;
         YeeCom_Log("<%s> GState[%d]: %d\r\n", __func__, id, gv_YeeComxxx_device_info.GState[id]);
+
+        uint8_t msg[3] = {0};
+        msg[0] = CLOUD_MESSAGE_NOTIFY_TYPE_NETWORK_STATUS;
+        msg[1] = gstate;
+        msg[2] = id;
+        CloudNet_Protocol_SendMsg((uint8_t *)msg, 3, CLOUD_MESSAGE_TYPE_NOTIFY);
     }
 }
 
@@ -302,7 +313,7 @@ void YeeCom_GetDeviceDTUID(char* dtuid)
 {
     if (dtuid != NULL)
     {
-        memcpy(dtuid, &gv_YeeComxxx_device_info.DTUID, YEECOM_DTUID_LENGTH);
+        strncpy(dtuid, gv_YeeComxxx_device_info.DTUID, YEECOM_DTUID_LENGTH);
         dtuid[YEECOM_DTUID_LENGTH] = '\0';
     }
 }
@@ -413,7 +424,6 @@ static void YeeCom_SetDefaultCenterWorkingMode(void)
 
 static void YeeCom_SetDefaultCHMode(void)
 {
-    YeeCom_ResetDevice();
     YeeCom_ClearTimeout();
     YeeCom_ParameterTimeoutJudgy(YeeCom_At_Cmd_Set_Param[YEECOM_AT_CMD_CH_MODE].rcvCfg.reply_timeout);
     YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_CH_MODE, NULL, YEECOM_CENTRAL_MODE_MULTI_HOMED_CONNECTION_STANDALONE);
@@ -450,9 +460,8 @@ static void YeeCom_CfgParameter(void)
         YeeCom_Log("<%s> cmd: %d\r\n", __func__, gv_YeeComxxx.CurrentCmd);
         break;
     }
-    while (YeeCom_GetDeviceState(YEECOM_DEVICE_RESET_CH) && YeeCom_GetDeviceParameters(YEECOM_DEVICE_PARAM_CH_MODE) && gv_YeeComxxx_device_info.SimReadyStatus)
+    while (YeeCom_GetDeviceParameters(YEECOM_DEVICE_PARAM_CH_MODE))
     {
-        YeeCom_SetDeviceState(YEECOM_DEVICE_RESET_CH, 0);
         YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_CH_MODE, 0);
         YeeCom_SetCmd(YEECOM_AT_CMD_GPRS_MODE);
         // Configure default GPRS mode
@@ -534,9 +543,9 @@ static void YeeCom_ReadyHandle(void)
     if (YeeComxxx_Device_Init_Flag && gv_YeeComxxx_device_info.SimReadyStatus)
     {
         YeeCom_SetDeviceState(YEECOM_NET_READY, 1);
-        msg[0] = (uint8_t)CLOUD_MESSAGE_CTRL_TYPE_DEVICE_READY;
+        msg[0] = (uint8_t)CLOUD_MESSAGE_NOTIFY_TYPE_DEVICE_STATUS;
         msg[1] = (uint8_t)CLOUD_DEVICE_STATUS_READY;
-        CloudNet_MessageBuffer_SendMessage((const uint8_t *)&msg, 2, CLOUD_MESSAGE_TYPE_CTRL);
+        CloudNet_MessageBuffer_SendMessage((const uint8_t *)&msg, 2, CLOUD_MESSAGE_TYPE_NOTIFY);
         YeeCom_Log("<%s> YeeComxxxState goto running..\r\n", __func__);
         YeeCom_SetState(YEECOM_STATE_RUNNING);
     }
@@ -549,9 +558,9 @@ static void YeeCom_RunningHandle(void)
     {
         YeeCom_SetDeviceState(YEECOM_NET_READY, 0);
         YeeCom_ResetDevice();
-        msg[0] = (uint8_t)CLOUD_MESSAGE_CTRL_TYPE_DEVICE_READY;
+        msg[0] = (uint8_t)CLOUD_MESSAGE_NOTIFY_TYPE_DEVICE_STATUS;
         msg[1] = (uint8_t)CLOUD_DEVICE_STATUS_INIT;
-        CloudNet_MessageBuffer_SendMessage((const uint8_t *)&msg, 2, CLOUD_MESSAGE_TYPE_CTRL);
+        CloudNet_MessageBuffer_SendMessage((const uint8_t *)&msg, 2, CLOUD_MESSAGE_TYPE_NOTIFY);
         YeeCom_SetState(YEECOM_STATE_GETTING_CONST_INFO);
         YeeCom_Log("<%s> YeeComxxx reset..\r\n", __func__);
         return;
@@ -591,7 +600,7 @@ static void YeeCom_PeriodicHandle(void)
     // Handle periodic tasks
     if(1 == YeeCom_GetDeviceState(YEECOM_NET_READY))
     {
-        while (gv_YeeComxxx.TimerCnt++ > YEECOM_PERIODIC_TASK_PERIOD) // 60s
+        while (gv_YeeComxxx.TimerCnt++ > YEECOM_PERIODIC_TASK_PERIOD) // 30s
         {
             YeeCom_ClearTimeout();
             // Get RSSI periodically
@@ -599,19 +608,6 @@ static void YeeCom_PeriodicHandle(void)
             vTaskDelay(pdMS_TO_TICKS(50));
             YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_GSTATE, NULL);
             break;
-        }
-    }
-    // judgy gstate
-    while(gv_YeeComxxx.TimerCnt++ % YEECOM_PERIODIC_TASK_JUDGY_PERIOD == 0) // 10s
-    {
-        for (uint8_t i = 0; i < YEECOM_GSTATE_NUMBER; i++)
-        {
-            if (gv_YeeComxxx_device_info.GState[i] == 0)
-            {
-                YeeCom_DeviceRestart();
-                YeeCom_Log("<%s> YeeComxxx reset..\r\n", __func__);
-                break;
-            }
         }
     }
 }

@@ -48,7 +48,9 @@ typedef struct
     bool dtu_is_wake_up;
     bool nettime_is_flash;
     uint16_t timer;
+    uint16_t signal_strength;
     cloud_device_status_e device_status;
+    cloud_net_status_e  net_status[TCP_ID_MAXIMUM];
 } cloud_protocol_ctrl_t;
 
 /*******************************************************************************
@@ -79,16 +81,29 @@ void Cloud_Protocol_Init(void)
 {
     memset(&cloud_protocol_ctrl, 0, sizeof(cloud_protocol_ctrl));
 #if (CLOUD_PROTOCOL_SG_PROTOCOL_ENABLE == 1)
-    Cloud_Protocol_Mqtt_init();
+    Cloud_Protocol_Mqtt_init(); 
 #endif
 #if (CLOUD_PROTOCOL_DEFAULT_TCP_ID == TCP_ID_PROTOCOL_GAGA)
     Cloud_GagaProtocol_Init();
 #endif
 }
 
-void Cloud_Protocol_AckDeviceStatus(cloud_device_status_e status)
+void Cloud_Protocol_NotifyDeviceStatus(cloud_device_status_e status)
 {
     cloud_protocol_ctrl.device_status = status;
+}
+
+void Cloud_Protocol_NotifyNetworkStatus(cloud_net_status_e status, uint8_t tcp_id)
+{
+    if (tcp_id < TCP_ID_MAXIMUM)
+    {
+        cloud_protocol_ctrl.net_status[tcp_id] = status;
+    }
+}
+
+void Cloud_Protocol_NotifySignalStrength(int16_t signal_strength)
+{
+    cloud_protocol_ctrl.signal_strength = (uint16_t)signal_strength;
 }
 
 void Cloud_Protocol_AckHeartbeatParam(bool status)
@@ -103,12 +118,6 @@ void Cloud_Protocol_AckRegpkgParam(bool status)
 void Cloud_Protocol_AckWakeUpDTU(bool status)
 {
     cloud_protocol_ctrl.dtu_is_wake_up = status;
-#if (CLOUD_PROTOCOL_SG_PROTOCOL_ENABLE == 1)
-    if (status)
-    {
-        Cloud_Protocol_Mqtt_SetDeviceOnlineStatus(true);
-    }
-#endif
 }
 
 void Cloud_Protocol_FlashNetTime(void)
@@ -141,7 +150,7 @@ static void Cloud_Protocol_ResetToInitPolling(void)
        cloud_protocol_ctrl.step = CLOUD_PROTOCOL_STEP_INIT;
        Cloud_GagaProtocol_DeviceResetChecking();
 #if (CLOUD_PROTOCOL_SG_PROTOCOL_ENABLE == 1)
-       Cloud_Protocol_Mqtt_SetDeviceOnlineStatus(false);
+       Cloud_Protocol_Mqtt_SetDeviceIPConnectionStatus(false);
 #endif
     }
 }
@@ -172,7 +181,7 @@ static void Cloud_Protocol_SetupNetworkProcess(void)
 static void Cloud_Protocol_WaitNetworkAckProcess(void)
 {
     // Waiting for network setup acknowledgment
-    if (CLOUD_DEVICE_STATUS_CONNECTED == cloud_protocol_ctrl.device_status)
+    if (CLOUD_DEVICE_SET_NET_OK == cloud_protocol_ctrl.device_status)
     {
         cloud_protocol_ctrl.step = CLOUD_PROTOCOL_STEP_SET_HEARTBEAT_INTERVAL;
         Cloud_Protocol_Clear_Timeout();
@@ -248,6 +257,9 @@ static void Cloud_Protocol_WaitWakeUpDTUAckProcess(void)
         cloud_protocol_ctrl.step = CLOUD_PROTOCOL_STEP_RUNNING;
         CLOUD_DEBUG("%s: DTU is awake\r\n", __func__);
         Cloud_Protocol_Clear_Timeout();
+ #if (CLOUD_PROTOCOL_SG_PROTOCOL_ENABLE == 1)
+        Cloud_Protocol_Mqtt_SetDeviceIPConnectionStatus(true); 
+#endif       
     }
     else
     {
@@ -272,7 +284,7 @@ void Cloud_Protocol_Main(void)
     {
         case CLOUD_PROTOCOL_STEP_INIT:
         {
-			Cloud_Protocol_InitStepProcess();
+            Cloud_Protocol_InitStepProcess();
             break;
         }
         case CLOUD_PROTOCOL_STEP_SETUP_NETWORK:

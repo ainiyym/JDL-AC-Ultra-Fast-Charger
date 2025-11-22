@@ -1,14 +1,14 @@
 //******************************************************************************
-//* File Name: Cloud_Protocol_Mqtt_Cfg.c
+//* File Name: Cloud_Protocol_Cfg.c
 //* Project Name: JDL _AC_Ultra-Fast_Charger
 //* Version: v1.0
 //* Date: 2025-08-18 10:00:00
 //* Author: JDLzhou
-//* Description: State Grid Charging Pile Cloud Platform Protocol module source file
+//* Description: Cloud Protocol module configuration source file
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "Cloud_Protocol_Mqtt_Cfg.h"
+#include "Cloud_Protocol_Cfg.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -33,37 +33,6 @@
 /*******************************************************************************
 |    Table Const Definition
 |******************************************************************************/
-// sg mqtt topic configuration table
-cloud_protocol_mqtt_topic_config_t cloud_protocol_mqtt_topic_configs[CLOUD_PROTOCOL_MQTT_TOPIC_CONFIG_COUNT] = {
-    {
-        .publish_topic = "/sys/device/service/get",
-        .subscribe_topic = "/sys/device/service/get_reply",
-        .ack_type = CLOUD_PROTOCOL_MQTT_NEED_ACK,
-        .ack_timeout_ms = 5000,
-        .max_retry_count = 3
-    },
-    {
-        .publish_topic = "/sys/device/property/post", 
-        .subscribe_topic = "/sys/device/property/post_reply",
-        .ack_type = CLOUD_PROTOCOL_MQTT_NEED_ACK,
-        .ack_timeout_ms = 3000,
-        .max_retry_count = 2
-    },
-    {
-        .publish_topic = "/sys/device/event/post",
-        .subscribe_topic = "/sys/device/event/post_reply", 
-        .ack_type = CLOUD_PROTOCOL_MQTT_MSG_NO_ACK,
-        .ack_timeout_ms = 0,
-        .max_retry_count = 0
-    },
-    {
-        .publish_topic = "",
-        .subscribe_topic = "/sys/device/service/set",
-        .ack_type = CLOUD_PROTOCOL_MQTT_MSG_NO_ACK,
-        .ack_timeout_ms = 0,
-        .max_retry_count = 0
-    }
-};
 
 /*******************************************************************************
 |    Static Local Functions Declaration
@@ -72,5 +41,50 @@ cloud_protocol_mqtt_topic_config_t cloud_protocol_mqtt_topic_configs[CLOUD_PROTO
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
+char *Cloud_Protocol_Strdup(const char *s)
+{
+    if (s == NULL)
+    {
+        return NULL;
+    }
+    size_t len = strlen(s) + 1;
+    char *new_str = (char *)CLOUDM_MALLOC(len);
+    if (new_str != NULL)
+    {
+        memcpy(new_str, s, len);
+    }
+    return new_str;
+}
 
+/**
+ * @brief Convert hex array to ASCII string using sprintf
+ * @param hex_array Input hex array
+ * @param array_size Size of hex array
+ * @param ascii_string Output ASCII string buffer
+ * @param buffer_size Size of output buffer
+ * @return Length of ASCII string, -1 on error
+ */
+int Cloud_Protocol_Hex2Ascii(const uint8_t *hex_array, size_t array_size, char *ascii_string, size_t buffer_size)
+{
+    if (!hex_array || !ascii_string || buffer_size == 0)
+    {
+        return -1;
+    }
+
+    size_t required_size = array_size + 1;
+    
+    if (required_size > buffer_size)
+    {
+        return -1;
+    }
+
+    for (size_t i = 0; i < array_size; i++)
+    {
+        sprintf(ascii_string + i, "%c", hex_array[i]);
+    }
+
+    ascii_string[array_size] = '\0';
+
+    return array_size;
+}
 /* EOL */

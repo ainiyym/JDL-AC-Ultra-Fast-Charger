@@ -4,6 +4,7 @@
 #include "CloudNet_Protocol_Msg.h"
 #include "Cloud_Protocol_Cfg.h"
 #include "CloudNet_Mqtt_PublishM.h"
+#include "Cloud_Protocol_Mqtt.h"
 
 /* oob cmd */
 void YeeCom_At_OOB_Power_On_Callback(void *arg, char *buf, int buflen)
@@ -366,9 +367,9 @@ void YeeCom_At_Get_SERVERnCallback(void *arg, char *buf, int buflen)
                 {
                     if (strcmp((const char *)ip, (const char *)Cloud_Tcp_Parameter[socket_id].ip) == 0 && port == Cloud_Tcp_Parameter[socket_id].port)
                     {
-                        msg[0] = CLOUD_MESSAGE_CTRL_TYPE_SET_NETWORK_PARAM;
-                        msg[1] = CLOUD_DEVICE_STATUS_CONNECTED;
-                        CloudNet_Protocol_SendMsg((uint8_t *)msg, 2, CLOUD_MESSAGE_TYPE_CTRL);
+                        msg[0] = CLOUD_MESSAGE_NOTIFY_TYPE_DEVICE_STATUS;
+                        msg[1] = CLOUD_DEVICE_SET_NET_OK;
+                        CloudNet_Protocol_SendMsg((uint8_t *)msg, 2, CLOUD_MESSAGE_TYPE_NOTIFY);
                         YeeCom_Log("<%s> socket_id: %d parameters match\r\n", __func__, socket_id);
                     }
                     else
@@ -376,13 +377,13 @@ void YeeCom_At_Get_SERVERnCallback(void *arg, char *buf, int buflen)
                         YeeCom_Log("<%s> socket_id: %d parameters mismatch, reconfigure\r\n", __func__, socket_id);
                     }
                 }
-                else if (connect_type == YEECOM_WORKING_MQTT_ONENET)
+                else if (connect_type == YEECOM_WORKING_MQTTS)
                 {
                     if (strcmp((const char *)ip, (const char *)Cloud_Tcp_Parameter[socket_id].ip) == 0 && port == Cloud_Tcp_Parameter[socket_id].port)
                     {
-                        msg[0] = CLOUD_MESSAGE_CTRL_TYPE_SET_NETWORK_PARAM;
-                        msg[1] = CLOUD_DEVICE_STATUS_CONNECTED;
-                        CloudNet_Protocol_SendMsg((uint8_t *)msg, 2, CLOUD_MESSAGE_TYPE_CTRL);
+                        msg[0] = CLOUD_MESSAGE_NOTIFY_TYPE_DEVICE_STATUS;
+                        msg[1] = CLOUD_DEVICE_SET_NET_OK;
+                        CloudNet_Protocol_SendMsg((uint8_t *)msg, 2, CLOUD_MESSAGE_TYPE_NOTIFY);
                         YeeCom_Log("<%s> socket_id: %d parameters match\r\n", __func__, socket_id);
                     }
                     else
@@ -612,7 +613,7 @@ void YeeCom_At_Get_GSTATECallback(void *arg, char *buf, int buflen)
         if (parsed == 4)
         {
             CLOUD_INFO("GSTATE parsed: =%s\r\n", status);
-            for(tcp_id_enum i = TCP_ID_PROTOCOL_GAGA; i < TCP_ID_MAXIMUM; i++)
+            for(tcp_id_enum i = TCP_ID_PROTOCOL_SG; i < TCP_ID_MAXIMUM; i++)
             {
                 YeeCom_SetDeviceInfo_gstate(i, atoi((const char *)&status[i]));
             }
@@ -688,21 +689,25 @@ void YeeCom_At_Get_MQSET_Callback(void *arg, char *buf, int buflen)
             {
                 if (socket_id == TCP_ID_PROTOCOL_SG)
                 {
-                    if (strcmp((const char *)ClientID, (const char *)"{DTUID}") == 0 &&
-                        strcmp((const char *)UserName, (const char *)CLOUD_PROTOCOL_SG_MQTT_CLIENT_USERNAME) == 0 &&
-                        strcmp((const char *)Password, (const char *)CLOUD_PROTOCOL_SG_MQTT_CLIENT_PASSWORD) == 0 &&
-                        strcmp((const char *)dtuid, (const char *)CLOUD_PROTOCOL_SG_MQTT_CLIENT_ID) == 0)
+                    iotx_sign_mqtt_t mqtt_sign;
+                    Cloud_Protocol_Mqtt_GetClientConfig(&mqtt_sign);
+
+                    if (strcmp((const char *)dtuid, mqtt_sign.clientid) == 0 &&
+                        strcmp((const char *)UserName, mqtt_sign.username) == 0 &&
+                        strcmp((const char *)Password, mqtt_sign.password) == 0)
                     {
-                        msg[0] = CLOUD_MESSAGE_CTRL_TYPE_CLOUD_MQTT_SG;
-                        msg[1] = CLOUD_PROTOCOL_MQTT_CTRL_TYPE_CONNECT;
-                        msg[2] = 1; // Success
-                        CloudNet_Protocol_SendMsg((uint8_t *)msg, 3, CLOUD_MESSAGE_TYPE_CTRL);
-                        YeeCom_Log("<%s> socket_id: %d parameters match\r\n", __func__, socket_id);
+                        msg[2] = 1; // MQTT parameters match
+                        YeeCom_Log("<%s> socket_id: %d MQTT parameters match\r\n", __func__, socket_id);
                     }
                     else
                     {
-                        YeeCom_Log("<%s> socket_id: %d parameters mismatch, reconfigure\r\n", __func__, socket_id);
+                        msg[2] = 0; // MQTT parameters mismatch
+                        YeeCom_Log("<%s> socket_id: %d MQTT parameters mismatch, reconfigure\r\n", __func__, socket_id);
                     }
+
+                    msg[0] = CLOUD_MESSAGE_CTRL_TYPE_CLOUD_MQTT_SG;
+                    msg[1] = CLOUD_PROTOCOL_MQTT_CTRL_TYPE_CONNECT;
+                    CloudNet_Protocol_SendMsg((uint8_t *)msg, 3, CLOUD_MESSAGE_TYPE_CTRL);
                 }
                 else
                 {

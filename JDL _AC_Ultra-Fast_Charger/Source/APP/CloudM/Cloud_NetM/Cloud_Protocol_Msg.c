@@ -95,11 +95,8 @@ void Cloud_Protocol_RcvMsg_Process(void)
                 // Process control message
                 switch (Cloud_ProtocolMsg.MsgData[0])
                 {
-                    case CLOUD_MESSAGE_CTRL_TYPE_DEVICE_READY:
-                        Cloud_Protocol_AckDeviceStatus((cloud_device_status_e)Cloud_ProtocolMsg.MsgData[1]);
-                        break;
                     case CLOUD_MESSAGE_CTRL_TYPE_SET_NETWORK_PARAM:
-                        Cloud_Protocol_AckDeviceStatus((cloud_device_status_e)Cloud_ProtocolMsg.MsgData[1]);
+
                         break;
                     case CLOUD_MESSAGE_CTRL_TYPE_SET_HEARTBEAT_PARAM:
                         Cloud_Protocol_AckHeartbeatParam(true);
@@ -115,8 +112,10 @@ void Cloud_Protocol_RcvMsg_Process(void)
                         {
                             case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_CONNECT:
                                 // Handle MQTT connect acknowledgment
-                                // CLOUD_DEBUG("%s: SG MQTT Connect Acknowledged\r\n", __func__);
-                                Cloud_Protocol_Mqtt_HandleConnected();
+                                if (Cloud_ProtocolMsg.MsgData[2] == 1)
+                                {
+                                    Cloud_Protocol_Mqtt_HandleConnected();
+                                }
                                 break;
                             case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_DISCONNECT:
                                 // Handle MQTT disconnect acknowledgment
@@ -147,8 +146,29 @@ void Cloud_Protocol_RcvMsg_Process(void)
                                 CLOUD_ERROR("Cloud Protocol Unknown SG MQTT Command: %d\r\n", Cloud_ProtocolMsg.MsgData[1]);
                                 break;
                         }
+                        break;
                     default:
                         CLOUD_ERROR("Cloud Protocol Unknown Control Command: %d\r\n", Cloud_ProtocolMsg.MsgData[0]);
+                        break;
+                }
+                break;
+
+            case CLOUD_MESSAGE_TYPE_NOTIFY:
+                // Process notify message
+                switch (Cloud_ProtocolMsg.MsgData[0])
+                {
+                    case CLOUD_MESSAGE_NOTIFY_TYPE_DEVICE_STATUS:
+                        Cloud_Protocol_NotifyDeviceStatus((cloud_device_status_e)Cloud_ProtocolMsg.MsgData[1]);
+                        CLOUD_INFO("Device Status Notified: %d\r\n", Cloud_ProtocolMsg.MsgData[1]);
+                        break;
+                    case CLOUD_MESSAGE_NOTIFY_TYPE_NETWORK_STATUS:
+                        Cloud_Protocol_NotifyNetworkStatus((cloud_net_status_e)Cloud_ProtocolMsg.MsgData[1], (uint8_t)Cloud_ProtocolMsg.MsgData[2]);
+                        break;
+                    case CLOUD_MESSAGE_NOTIFY_TYPE_SIGNAL_STRENGTH:
+                        Cloud_Protocol_NotifySignalStrength((int8_t)Cloud_ProtocolMsg.MsgData[1]);
+                        break;
+                    default:
+                        CLOUD_ERROR("Cloud Protocol Unknown Notify Command: %d\r\n", Cloud_ProtocolMsg.MsgData[0]);
                         break;
                 }
                 break;

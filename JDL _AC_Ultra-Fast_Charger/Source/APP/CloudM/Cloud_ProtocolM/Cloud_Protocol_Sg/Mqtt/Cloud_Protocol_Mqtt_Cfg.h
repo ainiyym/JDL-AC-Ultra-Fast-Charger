@@ -61,21 +61,6 @@ typedef enum
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
-// MQTT configuration parameters
-typedef struct
-{
-    char *client_id;     // Client ID
-    char *username;      // User name
-    char *password;      // Password
-    uint8_t qos;         // Service quality
-    uint16_t keep_alive; // Survival time
-    bool clean_session;  // Clear the session
-    char *will_topic;    // Will theme
-    char *will_message;  // Will Message
-    uint8_t will_qos;    // Will QoS
-    bool will_retain;    // Reservation by will
-} cloud_protocol_mqtt_config_t;
-
 // MQTT publishes parameters
 typedef struct
 {
@@ -108,14 +93,11 @@ typedef struct
 /*******************************************************************************
 |    Table Definition
 |******************************************************************************/
-extern cloud_protocol_mqtt_config_t cloud_sg_mqtt_default_config;
 extern cloud_protocol_mqtt_topic_config_t cloud_protocol_mqtt_topic_configs[CLOUD_PROTOCOL_MQTT_TOPIC_CONFIG_COUNT];
 
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-extern char *Cloud_Protocol_Strdup(const char *s);
-extern void Cloud_Protocol_SetMqttConfig(const cloud_protocol_mqtt_config_t *config);
 
 #endif /* __CLOUD_PROTOCOL_SGM_CFG_H */
 /* EOL */

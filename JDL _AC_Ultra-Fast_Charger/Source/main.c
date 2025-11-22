@@ -172,7 +172,7 @@ static void init_task(void *argument)
         AppTask_TaskInfo, "TaskInfo", TASK_INFO_TASK_STACK_SIZE, NULL, TASK_START_PRIO_1, &TaskInfo_StaticTask);
     vTaskDelay(pdMS_TO_TICKS(10));
 #endif
-    
+
     // 标记初始化完成
     Core_printf("[Init] All initialization complete\n");
  

@@ -201,7 +201,8 @@ BaseType_t MessageBuffer_ReceiveMessage(MessageBuffer_Comm_System_t *comm, Messa
 	header = (MessageBuffer_header_t *)message_buf;
 
 	// 4. Verify message type
-	if (header->type != MESSAGE_BUFFER_TYPE_DATA && header->type != MESSAGE_BUFFER_TYPE_CTRL)
+	if (header->type != MESSAGE_BUFFER_TYPE_DATA && header->type != MESSAGE_BUFFER_TYPE_CTRL &&
+		header->type != MESSAGE_BUFFER_TYPE_NOTIFY)
 	{
 		MESSAGE_BUFFER_ERROR("<%s %d> Invalid message type: %d\r\n", __func__, __LINE__, header->type);
 		return pdFAIL;

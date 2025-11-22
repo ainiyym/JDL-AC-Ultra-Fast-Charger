@@ -10,6 +10,7 @@
 |******************************************************************************/
 #include "CloudNet_MqttM.h"
 #include "CloudNet_Protocol_Msg.h"
+#include "Cloud_Protocol_Mqtt.h"
 #include "CloudNet_Cfg.h"
 #include "Tcp_Cfg.h"
 
@@ -78,174 +79,27 @@ static bool CloudNetM_MqttSendAtPayload(const char *at_parameter, uint8_t contex
 
 bool CloudNetM_MqttConnect(uint8_t socket_id, uint8_t *payload, uint16_t length)
 {
-    cloud_protocol_mqtt_config_t config = {0};
     // Parse the payload and fill the config structure
-    if (payload == NULL || length < CLOUD_PROTOCOL_MQTT_CONNECT_MINIMUM_LENGTH)
+    if (payload == NULL)
     {
         CLOUD_ERROR("Invalid parameters for MQTT connect parsing\r\n");
         return false;
     }
-    uint16_t offset = 0;
-    uint16_t client_id_len = 0;
-    uint16_t username_len = 0;
-    uint16_t password_len = 0;
-    
-    // parse ClientID
-    client_id_len = (payload[offset] << 8) | payload[offset + 1];
-    offset += 2;
-
-    if (client_id_len > 0)
-    {
-        if (offset + client_id_len > length)
-        {
-            CLOUD_ERROR("ClientID length exceeds payload length\r\n");
-            goto cleanup_memory;
-        }
-
-        config.client_id = CLOUDM_MALLOC(client_id_len + 1);
-        if (config.client_id == NULL)
-        {
-            CLOUD_ERROR("Failed to allocate memory for ClientID\r\n");
-            goto cleanup_memory;
-        }
-        memcpy(config.client_id, &payload[offset], client_id_len);
-        config.client_id[client_id_len] = '\0';
-        offset += client_id_len;
-    }
-    else
-    {
-        config.client_id = NULL;
-    }
-
-    // parse username
-    username_len = (payload[offset] << 8) | payload[offset + 1];
-    offset += 2;
-
-    if (username_len > 0)
-    {
-        if (offset + username_len > length)
-        {
-            CLOUD_ERROR("Username length exceeds payload length\r\n");
-            goto cleanup_memory;
-        }
-
-        config.username = CLOUDM_MALLOC(username_len + 1);
-        if (config.username == NULL)
-        {
-            CLOUD_ERROR("Failed to allocate memory for username\r\n");
-            goto cleanup_memory;
-        }
-        memcpy(config.username, &payload[offset], username_len);
-        config.username[username_len] = '\0';
-        offset += username_len;
-    }
-    else
-    {
-        config.username = NULL;
-    }
-
-    // parse password
-    password_len = (payload[offset] << 8) | payload[offset + 1];
-    offset += 2;
-
-    if (password_len > 0)
-    {
-        if (offset + password_len > length)
-        {
-            CLOUD_ERROR("Password length exceeds payload length\r\n");
-            goto cleanup_memory;
-        }
-
-        config.password = CLOUDM_MALLOC(password_len + 1);
-        if (config.password == NULL)
-        {
-            CLOUD_ERROR("Failed to allocate memory for password\r\n");
-            goto cleanup_memory;
-        }
-        memcpy(config.password, &payload[offset], password_len);
-        config.password[password_len] = '\0';
-        offset += password_len;
-    }
-    else
-    {
-        config.password = NULL;
-    }
-
-    // parse QoS
-    if (offset >= length)
-    {
-        CLOUD_ERROR("Payload too short for QoS field\r\n");
-        goto cleanup_memory;
-    }
-    config.qos = payload[offset++];
-
-    // parse keep alive
-    if (offset + 1 >= length)
-    {
-        CLOUD_ERROR("Payload too short for keep alive field\r\n");
-        goto cleanup_memory;
-    }
-    config.keep_alive = (payload[offset] << 8) | payload[offset + 1];
-    offset += 2;
-
-    // Parse clean session
-    if (offset >= length)
-    {
-        CLOUD_ERROR("Payload too short for clean session field\r\n");
-        goto cleanup_memory;
-    }
-    config.clean_session = payload[offset];
-
-    // CLOUD_DEBUG("MQTT Connect payload parsed successfully\r\n");
-    // CLOUD_DEBUG("ClientID: %s\r\n", config.client_id ? config.client_id : "NULL");
-    // CLOUD_DEBUG("Username: %s\r\n", config.username ? config.username : "NULL");
-    // CLOUD_DEBUG("Password: %s\r\n", config.password ? "***" : "NULL");
-    // CLOUD_DEBUG("QoS: %d, KeepAlive: %d, CleanSession: %d\r\n",
-                // config.qos, config.keep_alive, config.clean_session);
-    YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_DTUID, NULL, config.client_id ? config.client_id : "");
+    iotx_sign_mqtt_t config;
+    Cloud_Protocol_Mqtt_GetClientConfig(&config);
+    CLOUD_DEBUG("ClientID: %s\r\n", config.clientid);
+    CLOUD_DEBUG("Username: %s\r\n", config.username);
+    CLOUD_DEBUG("Password: %s\r\n", config.password);
+    YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_DTUID, NULL, config.clientid);
     YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_MQSET, NULL, socket_id,
                       "{DTUID}",
-                      config.username ? config.username : "",
-                      config.password ? config.password : "");
-    if (config.client_id)
-    {
-        CLOUDM_FREE(config.client_id);
-        config.client_id = NULL;
-    }
-    if (config.username)
-    {
-        CLOUDM_FREE(config.username);
-        config.username = NULL;
-    }
-    if (config.password)
-    {
-        CLOUDM_FREE(config.password);
-        config.password = NULL;
-    }
+                      config.username,
+                      config.password);
     YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_DTUID, NULL);
     YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_MQSET, NULL, socket_id);
-
+    YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_GSTATE, NULL);
 
     return true;
-
-cleanup_memory:
-    // Clear the allocated memory
-    if (config.client_id)
-    {
-        CLOUDM_FREE(config.client_id);
-        config.client_id = NULL;
-    }
-    if (config.username)
-    {
-        CLOUDM_FREE(config.username);
-        config.username = NULL;
-    }
-    if (config.password)
-    {
-        CLOUDM_FREE(config.password);
-        config.password = NULL;
-    }
-    return false;
 }
 
 bool CloudNetM_MqttDisconnect(uint8_t socket_id, uint8_t *payload, uint16_t length)
@@ -258,7 +112,7 @@ bool CloudNetM_MqttPublish(uint8_t socket_id, uint8_t *payload, uint16_t length)
     cloud_protocol_mqtt_publish_t publish = {0};
 
     // Parameter checking
-    if (payload == NULL || length < CLOUD_PROTOCOL_MQTT_CONNECT_MINIMUM_LENGTH)
+    if (payload == NULL)
     {
         CLOUD_ERROR("Invalid parameters for MQTT connect parsing\r\n");
         return false;

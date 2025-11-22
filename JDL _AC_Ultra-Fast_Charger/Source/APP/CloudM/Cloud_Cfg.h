@@ -30,6 +30,7 @@
 #define CLOUD_PROTOCOL_GAGA_DATA_BUFFER_MAX_LENGTH                          (256U)
 #define CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH                                 (MESSAGE_BUFFER_TYPE_DATA)
 #define CLOUD_MESSAGE_TYPE_CTRL                                             (MESSAGE_BUFFER_TYPE_CTRL)
+#define CLOUD_MESSAGE_TYPE_NOTIFY                                           (MESSAGE_BUFFER_TYPE_NOTIFY)
 /* Cloud Client */
 #define Cloud_MessageBuffer_SendMessage(pMsg, datalen, Type)                MessageBuffer_SendMessage(MessageBuffer_APP_And_NET, (MessageBuffer_type_t)Type, pMsg, datalen, MESSAGE_BUFFER_ID_APP2, pdTICKS_TO_MS(100))
 #define Cloud_MessageBuffer_ReceiveMessage(pMsgBuffer, pType, pRcvLen)      MessageBuffer_ReceiveMessage(MessageBuffer_APP_And_NET, (MessageBuffer_type_t*)pType, pMsgBuffer, CLOUD_MESSAGE_BUFFER_MAX_LENGTH, pRcvLen, MESSAGE_BUFFER_ID_APP1, 0)
@@ -120,12 +121,11 @@
 |******************************************************************************/
 typedef enum
 {
-    CLOUD_MESSAGE_CTRL_TYPE_DEVICE_READY = 0x01,
-    CLOUD_MESSAGE_CTRL_TYPE_SET_NETWORK_PARAM = 0x02,
-    CLOUD_MESSAGE_CTRL_TYPE_SET_HEARTBEAT_PARAM = 0x03,
-    CLOUD_MESSAGE_CTRL_TYPE_SET_REGPKG_MODE = 0x04,
-    CLOUD_MESSAGE_CTRL_TYPE_WAKE_UP_DTU = 0x05,
-    CLOUD_MESSAGE_CTRL_TYPE_CLOUD_MQTT_SG = 0x06,
+    CLOUD_MESSAGE_CTRL_TYPE_SET_NETWORK_PARAM = 0x01,
+    CLOUD_MESSAGE_CTRL_TYPE_SET_HEARTBEAT_PARAM = 0x02,
+    CLOUD_MESSAGE_CTRL_TYPE_SET_REGPKG_MODE = 0x03,
+    CLOUD_MESSAGE_CTRL_TYPE_WAKE_UP_DTU = 0x04,
+    CLOUD_MESSAGE_CTRL_TYPE_CLOUD_MQTT_SG = 0x05,
     CLOUD_MESSAGE_CTRL_TYPE_MAXIMUM
 }cloud_message_type_ctrl_e;
 
@@ -138,11 +138,25 @@ typedef enum
 
 typedef enum
 {
+    CLOUD_MESSAGE_NOTIFY_TYPE_DEVICE_STATUS = 0x01,
+    CLOUD_MESSAGE_NOTIFY_TYPE_NETWORK_STATUS = 0x02,
+    CLOUD_MESSAGE_NOTIFY_TYPE_SIGNAL_STRENGTH = 0x03,
+    CLOUD_MESSAGE_NOTIFY_TYPE_MAXIMUM
+}cloud_message_type_notify_e;
+
+typedef enum
+{
     CLOUD_DEVICE_STATUS_INIT = 0x00,
     CLOUD_DEVICE_STATUS_READY = 0x01,
-    CLOUD_DEVICE_STATUS_CONNECTED = 0x02,
+    CLOUD_DEVICE_SET_NET_OK = 0x02,
     CLOUD_DEVICE_STATUS_MAXIMUM
 }cloud_device_status_e;
+
+typedef enum
+{
+    CLOUD_NET_STATUS_OFFLINE = 0x00,
+    CLOUD_NET_STATUS_ONLINE = 0x01,
+}cloud_net_status_e;
 
 typedef enum
 {

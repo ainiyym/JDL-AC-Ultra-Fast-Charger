@@ -88,19 +88,16 @@ void CloudNet_Protocol_RcvMsg_Process(void)
                 // Process control message
                 switch (CloudNet_ProtocolMsg.MsgData[0])
                 {
-                    case CLOUD_MESSAGE_CTRL_TYPE_DEVICE_READY:
-
-                        break;
                     case CLOUD_MESSAGE_CTRL_TYPE_SET_NETWORK_PARAM:
                         switch (CloudNet_ProtocolMsg.MsgData[1])
                         {
                             case TCP_ID_PROTOCOL_GAGA:
                                 // Set protocol TCP parameters
-                                tcp_connect(TCP_ID_PROTOCOL_GAGA);
+                                tcp_connect(TCP_ID_PROTOCOL_GAGA, YEECOM_WORKING_TCP);
                                 break;
                             case TCP_ID_PROTOCOL_SG:
                                 // Set protocol TCP parameters
-                                tcp_connect(TCP_ID_PROTOCOL_SG);
+                                tcp_connect(TCP_ID_PROTOCOL_SG, YEECOM_WORKING_MQTTS);
                                 break;
                             default:
                                 CLOUDNET_ERROR("Cloud Protocol Unknown Network Parameter Command: %d\r\n", CloudNet_ProtocolMsg.MsgData[1]);
@@ -153,6 +150,25 @@ void CloudNet_Protocol_RcvMsg_Process(void)
                     default:
                         CLOUDNET_ERROR("Cloud Protocol Unknown Control Command: %d\r\n", CloudNet_ProtocolMsg.MsgData[0]);
                         break;
+                }
+                break;
+
+            case CLOUD_MESSAGE_TYPE_NOTIFY:
+                // Process notify message
+                switch (CloudNet_ProtocolMsg.MsgData[0])
+                {
+                    case CLOUD_MESSAGE_NOTIFY_TYPE_DEVICE_STATUS:
+
+                        break;
+                    case CLOUD_MESSAGE_NOTIFY_TYPE_NETWORK_STATUS:
+
+                        break;
+                    case CLOUD_MESSAGE_NOTIFY_TYPE_SIGNAL_STRENGTH:
+
+                        break;
+                    default:
+                        CLOUDNET_ERROR("Cloud Protocol Unknown Notify Command: %d\r\n", CloudNet_ProtocolMsg.MsgData[0]);
+                        break;  
                 }
                 break;
 

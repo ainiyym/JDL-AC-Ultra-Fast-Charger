@@ -123,6 +123,7 @@ int FlashDB_AppM_Init(void)
 	size_t actual_len = 0;
 
 	ret = fdb_init();
+
 	if (ret != 0)
 	{
 		FLASHDB_TRACE("FlashDB init fail! ret=%d\r\n", ret);

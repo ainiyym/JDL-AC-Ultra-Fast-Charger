@@ -22,6 +22,7 @@
 #define INFRA_CJSON
 #define INFRA_MD5
 #define INFRA_SHA256
+#define INFRA_SHA1
 #define INFRA_REPORT
 #define INFRA_HTTPC
 #define INFRA_COMPAT

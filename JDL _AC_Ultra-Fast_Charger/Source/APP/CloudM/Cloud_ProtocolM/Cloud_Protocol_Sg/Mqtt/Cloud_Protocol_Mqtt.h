@@ -68,8 +68,12 @@ typedef struct
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-bool Cloud_Protocol_Mqtt_ClientManagerInit(cloud_protocol_mqtt_topic_config_t *topic_configs, uint16_t topic_count, void (*connect_cb)(bool connected), void (*msg_cb)(const char *payload));
-void Cloud_Protocol_Mqtt_SetDeviceOnlineStatus(bool online);
+bool Cloud_Protocol_Mqtt_ClientManagerInit(cloud_protocol_mqtt_topic_config_t *cloud_protocol_mqtt_topic_configs, uint16_t topic_count,
+                            iotx_sign_mqtt_t *mqtt_client,
+                            void (*connect_cb)(bool connected),
+                            void (*msg_cb)(const char *payload));
+void Cloud_Protocol_Mqtt_GetClientConfig(iotx_sign_mqtt_t *mqtt_client);
+void Cloud_Protocol_Mqtt_SetDeviceIPConnectionStatus(bool connected);
 void Cloud_Protocol_Mqtt_HandleConnected(void);
 bool Cloud_Protocol_Mqtt_AddPublishMessage(const char *topic, const char *payload, bool retain, cloud_protocol_mqtt_msg_ack_type_e ack_type, const char *ack_topic);
 void Cloud_Protocol_Mqtt_HandleSubscribeAck(const char *subscribe_topic);
