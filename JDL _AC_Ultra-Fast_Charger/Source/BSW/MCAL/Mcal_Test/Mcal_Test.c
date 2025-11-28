@@ -96,7 +96,7 @@ void Mcal_CP_Test(void)
         }
         break;
     case 6:
-        // Ê¹ï¿½ï¿½ï¿½ï¿½Ø¶ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        // Ê¹ÄÜÏà¹Ø¶¨Ê±Æ÷¹¦ÄÜ
 #if 0
             Mcal_GptDrrv_Icu_It_GetValue(MCAL_GPT_PWM_CAPTURE1_TEST, &CaptureValue[0]);
             if(CaptureValue[0] != 0)
@@ -109,7 +109,7 @@ void Mcal_CP_Test(void)
                 MCAL_DEBUG("Capture1 Value: %lu\r\n", CaptureValue[1]);
             }
            
-            //ï¿½ï¿½È¡Æµï¿½Êºï¿½Õ¼ï¿½Õ±ï¿½
+            //»ñÈ¡ÆµÂÊºÍÕ¼¿Õ±È
             Mcal_GptDrrv_Icu_It_GetFrequency(MCAL_GPT_PWM_CAPTURE1_TEST, &Frequency);
             Mcal_GptDrrv_Icu_It_GetDutyCycle(MCAL_GPT_PWM_CAPTURE1_TEST, &duty);
             if(Frequency != FrequencyLast)
@@ -344,7 +344,7 @@ void Mcal_Test_Spi(void)
     switch (step)
     {
         case 0:
-            /* ï¿½ï¿½È¡ Flash Device ID */
+            /* »ñÈ¡ Flash Device ID */
             W25Q64_Read_ID((uint8_t*)&DeviceID);
             MCAL_DEBUG("Manufacturer Device ID is 0x%X\r\n", DeviceID);
             step++;
@@ -486,9 +486,9 @@ void Mcal_Test_FlashDB_Del(void)
 }
 
 static const uint8_t test_data_normal[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
-static const uint8_t test_data_oversize[300] = {0}; // 300ï¿½Ö½Ú£ï¿½ï¿½ï¿½ï¿½ï¿½256ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+static const uint8_t test_data_oversize[300] = {0}; // 300×Ö½Ú£¬³¬¹ý256µÄÏÞÖÆ
 
-// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä½á¹¹
+// ²âÊÔÉÏÏÂÎÄ½á¹¹
 typedef struct {
     test_state_t current_state;
     test_state_t next_state;
@@ -501,7 +501,7 @@ typedef struct {
     uint32_t timeout_ms;
 } test_context_t;
 
-// ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// ³õÊ¼»¯²âÊÔÉÏÏÂÎÄ
 static void init_test_context(test_context_t *context, MessageBuffer_Comm_System_t *comm_system) {
     context->current_state = TEST_STATE_IDLE;
     context->next_state = TEST_STATE_INIT;
@@ -511,10 +511,10 @@ static void init_test_context(test_context_t *context, MessageBuffer_Comm_System
     context->fail_count = 0;
     context->comm_system = comm_system;
     context->start_time = xTaskGetTickCount();
-    context->timeout_ms = 10000; // 10ï¿½ï¿½ï¿½Ü³ï¿½Ê±
+    context->timeout_ms = 10000; // 10Ãë×Ü³¬Ê±
 }
 
-// ×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
+// ×´Ì¬»ú´¦Àíº¯Êý 
 static test_result_t process_test_state(test_context_t *context)
 {
     BaseType_t result;
@@ -525,14 +525,14 @@ static test_result_t process_test_state(test_context_t *context)
     switch (context->current_state)
     {
         case TEST_STATE_IDLE:
-            MCAL_INFO("ï¿½ï¿½ï¿½ï¿½×´Ì¬: IDLE -> INIT\r\n");
+            MCAL_INFO("²âÊÔ×´Ì¬: IDLE -> INIT\r\n");
             context->current_state = TEST_STATE_INIT;
             break;
 
         case TEST_STATE_INIT:
-            MCAL_INFO("ï¿½ï¿½ï¿½ï¿½×´Ì¬: INIT - ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½Ô»ï¿½ï¿½ï¿½\r\n");
-            MCAL_INFO("ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½Ð¡: %u ï¿½Ö½ï¿½\r\n", context->comm_system->max_message_size);
-            MCAL_INFO("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½: APP1->APP2: %u, APP2->APP1: %u\r\n",
+            MCAL_INFO("²âÊÔ×´Ì¬: INIT - ³õÊ¼»¯²âÊÔ»·¾³\r\n");
+            MCAL_INFO("×î´óÏûÏ¢´óÐ¡: %u ×Ö½Ú\r\n", context->comm_system->max_message_size);
+            MCAL_INFO("»º³åÇø¿Õ¼ä: APP1->APP2: %u, APP2->APP1: %u\r\n",
                     xMessageBufferSpacesAvailable(context->comm_system->app1_to_app2_buf),
                     xMessageBufferSpacesAvailable(context->comm_system->app2_to_app1_buf));
             context->next_state = TEST_STATE_SEND_NORMAL;
@@ -541,20 +541,20 @@ static test_result_t process_test_state(test_context_t *context)
 
         // ...existing code...
         case TEST_STATE_SEND_NORMAL:
-            MCAL_INFO("ï¿½ï¿½ï¿½ï¿½×´Ì¬: SEND_NORMAL - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½\r\n");
+            MCAL_INFO("²âÊÔ×´Ì¬: SEND_NORMAL - ²âÊÔÕý³£ÏûÏ¢·¢ËÍ\r\n");
             result = MessageBuffer_SendMessage(context->comm_system, MESSAGE_BUFFER_TYPE_DATA,
                             test_data_normal, sizeof(test_data_normal),
                             MESSAGE_BUFFER_ID_APP2, pdMS_TO_TICKS(100));
 
             if (result == pdPASS)
             {
-                MCAL_INFO("? ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½Í³É¹ï¿½: ï¿½ï¿½ï¿½ï¿½=%u\r\n", sizeof(test_data_normal));
+                MCAL_INFO("? Õý³£ÏûÏ¢·¢ËÍ³É¹¦: ³¤¶È=%u\r\n", sizeof(test_data_normal));
                 context->pass_count++;
                 context->next_state = TEST_STATE_RECEIVE_NORMAL;
             }
             else
             {
-                MCAL_INFO("? ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½\r\n");
+                MCAL_INFO("? Õý³£ÏûÏ¢·¢ËÍÊ§°Ü\r\n");
                 context->fail_count++;
                 context->next_state = TEST_STATE_ERROR;
             }
@@ -562,7 +562,7 @@ static test_result_t process_test_state(test_context_t *context)
             break;
 
         case TEST_STATE_RECEIVE_NORMAL:
-            MCAL_INFO("ï¿½ï¿½ï¿½ï¿½×´Ì¬: RECEIVE_NORMAL - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½\r\n");
+            MCAL_INFO("²âÊÔ×´Ì¬: RECEIVE_NORMAL - ²âÊÔÕý³£ÏûÏ¢½ÓÊÕ\r\n");
             result = MessageBuffer_ReceiveMessage(context->comm_system,
                                 &received_type, receive_buffer, sizeof(receive_buffer),
                                 &received_length, MESSAGE_BUFFER_ID_APP2, pdMS_TO_TICKS(500));
@@ -570,13 +570,13 @@ static test_result_t process_test_state(test_context_t *context)
             if (result == pdPASS && received_type == MESSAGE_BUFFER_TYPE_DATA && received_length == sizeof(test_data_normal) &&
                 memcmp(receive_buffer, test_data_normal, received_length) == 0)
             {
-                MCAL_INFO("? ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½Õ³É¹ï¿½: ï¿½ï¿½ï¿½ï¿½=%d, ï¿½ï¿½ï¿½ï¿½=%u\r\n", MESSAGE_BUFFER_TYPE_DATA, received_length);
+                MCAL_INFO("? Õý³£ÏûÏ¢½ÓÊÕ³É¹¦: ÀàÐÍ=%d, ³¤¶È=%u\r\n", MESSAGE_BUFFER_TYPE_DATA, received_length);
                 context->pass_count++;
                 context->next_state = TEST_STATE_SEND_OVERSIZE;
             }
             else
             {
-                MCAL_INFO("? ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½: ï¿½ï¿½ï¿½=%d, ï¿½ï¿½ï¿½ï¿½=%d, ï¿½ï¿½ï¿½ï¿½=%u\r\n",
+                MCAL_INFO("? Õý³£ÏûÏ¢½ÓÊÕÊ§°Ü: ½á¹û=%d, ÀàÐÍ=%d, ³¤¶È=%u\r\n",
                         result, received_type, received_length);
                 context->fail_count++;
                 context->next_state = TEST_STATE_ERROR;
@@ -585,21 +585,21 @@ static test_result_t process_test_state(test_context_t *context)
             break;
 
         case TEST_STATE_SEND_OVERSIZE:
-            MCAL_INFO("ï¿½ï¿½ï¿½ï¿½×´Ì¬: SEND_OVERSIZE - ï¿½ï¿½ï¿½Ô³ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½Í£ï¿½Ó¦Ê§ï¿½Ü£ï¿½\r\n");
+            MCAL_INFO("²âÊÔ×´Ì¬: SEND_OVERSIZE - ²âÊÔ³¬³¤ÏûÏ¢·¢ËÍ£¨Ó¦Ê§°Ü£©\r\n");
             result = MessageBuffer_SendMessage(context->comm_system, MESSAGE_BUFFER_TYPE_DATA,
                             test_data_oversize, sizeof(test_data_oversize),
                             MESSAGE_BUFFER_ID_APP2, pdMS_TO_TICKS(100));
 
             if (result == pdFAIL)
             {
-                MCAL_INFO("? ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½È·ï¿½Ü¾ï¿½: ï¿½ï¿½ï¿½ï¿½=%u > ï¿½ï¿½ï¿½=%u\r\n",
+                MCAL_INFO("? ³¬³¤ÏûÏ¢ÕýÈ·¾Ü¾ø: ³¤¶È=%u > ×î´ó=%u\r\n",
                         sizeof(test_data_oversize), context->comm_system->max_message_size);
                 context->pass_count++;
                 context->next_state = TEST_STATE_SEND_ZERO_LENGTH;
             }
             else
             {
-                MCAL_INFO("? ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢Î´ï¿½ï¿½ï¿½ï¿½È·ï¿½Ü¾ï¿½\r\n");
+                MCAL_INFO("? ³¬³¤ÏûÏ¢Î´±»ÕýÈ·¾Ü¾ø\r\n");
                 context->fail_count++;
                 context->next_state = TEST_STATE_ERROR;
             }
@@ -607,36 +607,36 @@ static test_result_t process_test_state(test_context_t *context)
             break;
 
         case TEST_STATE_SEND_ZERO_LENGTH:
-            MCAL_INFO("ï¿½ï¿½ï¿½ï¿½×´Ì¬: SEND_ZERO_LENGTH - ï¿½ï¿½ï¿½ï¿½ï¿½ã³¤ï¿½ï¿½ï¿½ï¿½Ï¢\r\n");
+            MCAL_INFO("²âÊÔ×´Ì¬: SEND_ZERO_LENGTH - ²âÊÔÁã³¤¶ÈÏûÏ¢\r\n");
             result = MessageBuffer_SendMessage(context->comm_system, MESSAGE_BUFFER_TYPE_CTRL,
                             NULL, 0, MESSAGE_BUFFER_ID_APP2, pdMS_TO_TICKS(100));
 
             if (result == pdPASS)
             {
-                MCAL_INFO("? ï¿½ã³¤ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½Í³É¹ï¿½\r\n");
+                MCAL_INFO("? Áã³¤¶ÈÏûÏ¢·¢ËÍ³É¹¦\r\n");
                 context->pass_count++;
 
-                // ï¿½ï¿½Ö¤ï¿½ã³¤ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½
+                // ÑéÖ¤Áã³¤¶ÈÏûÏ¢½ÓÊÕ
                 result = MessageBuffer_ReceiveMessage(context->comm_system,
                                     &received_type, receive_buffer, sizeof(receive_buffer),
                                     &received_length, MESSAGE_BUFFER_ID_APP2, pdMS_TO_TICKS(100));
 
                 if (result == pdPASS && received_type == MESSAGE_BUFFER_TYPE_CTRL && received_length == 0)
                 {
-                    MCAL_INFO("? ï¿½ã³¤ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½Õ³É¹ï¿½\r\n");
+                    MCAL_INFO("? Áã³¤¶ÈÏûÏ¢½ÓÊÕ³É¹¦\r\n");
                     context->pass_count++;
                     context->next_state = TEST_STATE_RECEIVE_TIMEOUT;
                 }
                 else
                 {
-                    MCAL_INFO("? ï¿½ã³¤ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½\r\n");
+                    MCAL_INFO("? Áã³¤¶ÈÏûÏ¢½ÓÊÕÊ§°Ü\r\n");
                     context->fail_count++;
                     context->next_state = TEST_STATE_ERROR;
                 }
             }
             else
             {
-                MCAL_INFO("? ï¿½ã³¤ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½\r\n");
+                MCAL_INFO("? Áã³¤¶ÈÏûÏ¢·¢ËÍÊ§°Ü\r\n");
                 context->fail_count++;
                 context->next_state = TEST_STATE_ERROR;
             }
@@ -644,7 +644,7 @@ static test_result_t process_test_state(test_context_t *context)
             break;
 
         case TEST_STATE_RECEIVE_TIMEOUT:
-            MCAL_INFO("ï¿½ï¿½ï¿½ï¿½×´Ì¬: RECEIVE_TIMEOUT - ï¿½ï¿½ï¿½Ô½ï¿½ï¿½Õ³ï¿½Ê±\r\n");
+            MCAL_INFO("²âÊÔ×´Ì¬: RECEIVE_TIMEOUT - ²âÊÔ½ÓÊÕ³¬Ê±\r\n");
             TickType_t start_time = xTaskGetTickCount();
             result = MessageBuffer_ReceiveMessage(context->comm_system, &received_type,
                                 receive_buffer, sizeof(receive_buffer),
@@ -654,14 +654,14 @@ static test_result_t process_test_state(test_context_t *context)
 
             if (result == pdFAIL && elapsed_time >= pdMS_TO_TICKS(100))
             {
-                MCAL_INFO("? ï¿½ï¿½ï¿½Õ³ï¿½Ê±ï¿½ï¿½ï¿½Ô³É¹ï¿½: ï¿½ï¿½Ê±=%lu ms\r\n",
+                MCAL_INFO("? ½ÓÊÕ³¬Ê±²âÊÔ³É¹¦: ºÄÊ±=%lu ms\r\n",
                         pdTICKS_TO_MS(elapsed_time));
                 context->pass_count++;
                 context->next_state = TEST_STATE_STRESS_TEST;
             }
             else
             {
-                MCAL_INFO("? ï¿½ï¿½ï¿½Õ³ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½: ï¿½ï¿½ï¿½=%d, ï¿½ï¿½Ê±=%lu ms\r\n",
+                MCAL_INFO("? ½ÓÊÕ³¬Ê±²âÊÔÊ§°Ü: ½á¹û=%d, ºÄÊ±=%lu ms\r\n",
                         result, pdTICKS_TO_MS(elapsed_time));
                 context->fail_count++;
                 context->next_state = TEST_STATE_ERROR;
@@ -670,11 +670,11 @@ static test_result_t process_test_state(test_context_t *context)
             break;
 
         case TEST_STATE_STRESS_TEST:
-            MCAL_INFO("ï¿½ï¿½ï¿½ï¿½×´Ì¬: STRESS_TEST - Ñ¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\r\n");
+            MCAL_INFO("²âÊÔ×´Ì¬: STRESS_TEST - Ñ¹Á¦²âÊÔ\r\n");
             static uint32_t stress_count = 0;
             uint8_t stress_data[32];
 
-            // ï¿½ï¿½ï¿½É²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            // Éú³É²âÊÔÊý¾Ý
             for (int i = 0; i < sizeof(stress_data); i++)
             {
                 stress_data[i] = (stress_count + i) & 0xFF;
@@ -695,27 +695,27 @@ static test_result_t process_test_state(test_context_t *context)
                     stress_count++;
                     if (stress_count >= 30)
                     {
-                        MCAL_INFO("? Ñ¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: %u ï¿½ï¿½Ñ­ï¿½ï¿½\r\n", stress_count);
+                        MCAL_INFO("? Ñ¹Á¦²âÊÔÍê³É: %u ´ÎÑ­»·\r\n", stress_count);
                         context->pass_count++;
                         context->next_state = TEST_STATE_COMPLETE;
                     }
                     else
                     {
-                        MCAL_INFO("Ñ¹ï¿½ï¿½ï¿½ï¿½ï¿½Ô½ï¿½ï¿½ï¿½: %u/10\r\n", stress_count);
-                        // ï¿½ï¿½ï¿½ï¿½Ñ¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                        MCAL_INFO("Ñ¹Á¦²âÊÔ½ø¶È: %u/10\r\n", stress_count);
+                        // ¼ÌÐøÑ¹Á¦²âÊÔ
                         vTaskDelay(pdMS_TO_TICKS(10));
                     }
                 }
                 else
                 {
-                    MCAL_INFO("? Ñ¹ï¿½ï¿½ï¿½ï¿½ï¿½Ô½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½\r\n");
+                    MCAL_INFO("? Ñ¹Á¦²âÊÔ½ÓÊÕÊ§°Ü\r\n");
                     context->fail_count++;
                     context->next_state = TEST_STATE_ERROR;
                 }
             }
             else
             {
-                MCAL_INFO("? Ñ¹ï¿½ï¿½ï¿½ï¿½ï¿½Ô·ï¿½ï¿½ï¿½Ê§ï¿½ï¿½\r\n");
+                MCAL_INFO("? Ñ¹Á¦²âÊÔ·¢ËÍÊ§°Ü\r\n");
                 context->fail_count++;
                 context->next_state = TEST_STATE_ERROR;
             }
@@ -723,17 +723,17 @@ static test_result_t process_test_state(test_context_t *context)
             break;
 
         case TEST_STATE_COMPLETE:
-            MCAL_INFO("ï¿½ï¿½ï¿½ï¿½×´Ì¬: COMPLETE - ï¿½ï¿½ï¿½Ð²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\r\n");
+            MCAL_INFO("²âÊÔ×´Ì¬: COMPLETE - ËùÓÐ²âÊÔÍê³É\r\n");
             context->overall_result = (context->fail_count == 0) ? TEST_RESULT_PASS : TEST_RESULT_FAIL;
             break;
 
         case TEST_STATE_ERROR:
-            MCAL_INFO("ï¿½ï¿½ï¿½ï¿½×´Ì¬: ERROR - ï¿½ï¿½ï¿½Ô¹ï¿½ï¿½ï¿½ï¿½Ð·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\r\n");
+            MCAL_INFO("²âÊÔ×´Ì¬: ERROR - ²âÊÔ¹ý³ÌÖÐ·¢Éú´íÎó\r\n");
             context->overall_result = TEST_RESULT_FAIL;
             break;
 
         default:
-            MCAL_INFO("Î´Öªï¿½ï¿½ï¿½ï¿½×´Ì¬: %d\r\n", context->current_state);
+            MCAL_INFO("Î´Öª²âÊÔ×´Ì¬: %d\r\n", context->current_state);
             context->overall_result = TEST_RESULT_FAIL;
             break;
     }
@@ -742,50 +742,50 @@ static test_result_t process_test_state(test_context_t *context)
     return context->overall_result;
 }
 
-// ï¿½ï¿½Ó¡ï¿½ï¿½ï¿½ï¿½ï¿½Ü½ï¿½
+// ´òÓ¡²âÊÔ×Ü½á
 void print_test_summary(const test_context_t *context)
 {
-    MCAL_INFO("ï¿½ï¿½ï¿½ï¿½ï¿½Ü½ï¿½:\r\n");
-    MCAL_INFO("ï¿½Ü²ï¿½ï¿½ï¿½ï¿½ï¿½: %lu\r\n", context->test_counter);
-    MCAL_INFO("Í¨ï¿½ï¿½ï¿½ï¿½: %lu\r\n", context->pass_count);
-    MCAL_INFO("Ê§ï¿½ï¿½ï¿½ï¿½: %lu\r\n", context->fail_count);
-    MCAL_INFO("Í¨ï¿½ï¿½ï¿½ï¿½: %.1f%%\r\n",
+    MCAL_INFO("²âÊÔ×Ü½á:\r\n");
+    MCAL_INFO("×Ü²âÊÔÊý: %lu\r\n", context->test_counter);
+    MCAL_INFO("Í¨¹ýÊý: %lu\r\n", context->pass_count);
+    MCAL_INFO("Ê§°ÜÊý: %lu\r\n", context->fail_count);
+    MCAL_INFO("Í¨¹ýÂÊ: %.1f%%\r\n",
               (context->pass_count + context->fail_count) > 0 ? (float)context->pass_count / (context->pass_count + context->fail_count) * 100.0f : 0.0f);
 }
 
-// ï¿½ï¿½ï¿½ï¿½ï¿½Ôºï¿½ï¿½ï¿½
+// Ö÷²âÊÔº¯Êý
 test_result_t run_comm_test(MessageBuffer_Comm_System_t *comm_system)
 {
     test_context_t context;
 
-    MCAL_INFO("ï¿½ï¿½Ê¼Í¨ï¿½Å½Ó¿Ú²ï¿½ï¿½ï¿½...\r\n");
+    MCAL_INFO("¿ªÊ¼Í¨ÐÅ½Ó¿Ú²âÊÔ...\r\n");
     MCAL_INFO("==========================================\r\n");
 
     init_test_context(&context, comm_system);
 
-    // ×´Ì¬ï¿½ï¿½Ñ­ï¿½ï¿½
+    // ×´Ì¬»úÑ­»·
     while (context.overall_result == TEST_RESULT_IN_PROGRESS)
     {
         test_result_t result = process_test_state(&context);
 
-        // ï¿½ï¿½é³¬Ê±
+        // ¼ì²é³¬Ê±
         TickType_t elapsed_time = xTaskGetTickCount() - context.start_time;
         if (pdTICKS_TO_MS(elapsed_time) > context.timeout_ms)
         {
-            MCAL_INFO("ï¿½ï¿½ï¿½Ô³ï¿½Ê±: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ %lu ms\r\n", pdTICKS_TO_MS(elapsed_time));
+            MCAL_INFO("²âÊÔ³¬Ê±: ÒÑÔËÐÐ %lu ms\r\n", pdTICKS_TO_MS(elapsed_time));
             context.overall_result = TEST_RESULT_FAIL;
             break;
         }
 
-        // ï¿½ï¿½ï¿½ï¿½ï¿½Ó³Ù£ï¿½ï¿½Ã³ï¿½CPU
+        // ¶ÌÔÝÑÓ³Ù£¬ÈÃ³öCPU
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 
-    // ï¿½ï¿½Ó¡ï¿½ï¿½ï¿½ï¿½ï¿½Ü½ï¿½
+    // ´òÓ¡²âÊÔ×Ü½á
     print_test_summary(&context);
 
     MCAL_INFO("==========================================\r\n");
-    MCAL_INFO("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: %s\r\n",
+    MCAL_INFO("²âÊÔÍê³É: %s\r\n",
               context.overall_result == TEST_RESULT_PASS ? "PASS" : "FAIL");
 
     return context.overall_result;
@@ -793,18 +793,18 @@ test_result_t run_comm_test(MessageBuffer_Comm_System_t *comm_system)
 
 #include "Mcal_Rtc_Cfg.h"
 
-// ï¿½ï¿½ï¿½Ô½ï¿½ï¿½Ã¶ï¿½ï¿½
+// ²âÊÔ½á¹ûÃ¶¾Ù
 typedef enum {
     RTC_TEST_PASS,
     RTC_TEST_FAIL,
     RTC_TEST_ERROR
 } RTC_TestResult_t;
 
-// ï¿½ï¿½Ó¡ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ï¢
+// ´òÓ¡ÈÕÆÚÊ±¼äÐÅÏ¢
 void print_datetime(const Mcal_RTC_DateTime_t* datetime)
 {
     MCAL_INFO("Date: %04d-%02d-%02d, Time: %02d:%02d:%02d\r\n",
-           datetime->Date.Year + 2000,  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½2Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½2000
+           datetime->Date.Year + 2000,  // ¼ÙÉèÄê·ÝÊÇ2Î»Êý£¬ÐèÒª¼ÓÉÏ2000
            datetime->Date.Month,
            datetime->Date.Date,
            datetime->Time.Hours,
@@ -812,7 +812,7 @@ void print_datetime(const Mcal_RTC_DateTime_t* datetime)
            datetime->Time.Seconds);
 }
 
-// ï¿½È½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½
+// ±È½ÏÁ½¸öÈÕÆÚÊ±¼äÊÇ·ñÏàµÈ
 int compare_datetime(const Mcal_RTC_DateTime_t* dt1, const Mcal_RTC_DateTime_t* dt2)
 {
     return (dt1->Date.Year == dt2->Date.Year &&
@@ -823,68 +823,68 @@ int compare_datetime(const Mcal_RTC_DateTime_t* dt1, const Mcal_RTC_DateTime_t* 
             dt1->Time.Seconds == dt2->Time.Seconds);
 }
 
-// ï¿½ï¿½ï¿½ï¿½1: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÃºÍ»ï¿½È¡ï¿½ï¿½ï¿½ï¿½
+// ²âÊÔ1: »ù±¾µÄÉèÖÃºÍ»ñÈ¡¹¦ÄÜ
 RTC_TestResult_t test_RTC_DateTime_SetGet(void)
 {
-    MCAL_INFO("=== ï¿½ï¿½ï¿½ï¿½1: RTCï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½È¡ï¿½ï¿½ï¿½ï¿½ ===\r\n");
+    MCAL_INFO("=== ²âÊÔ1: RTCÈÕÆÚÊ±¼äÉèÖÃ»ñÈ¡²âÊÔ ===\r\n");
     
     Mcal_RTC_DateTime_t original_datetime, set_datetime, get_datetime;
     
-    // ï¿½ï¿½ï¿½È»ï¿½È¡ï¿½ï¿½Ç°RTCÊ±ï¿½ï¿½
+    // Ê×ÏÈ»ñÈ¡µ±Ç°RTCÊ±¼ä
     Mcal_RTC_Get_DateTime(&original_datetime);
-    MCAL_INFO("ï¿½ï¿½Ç°RTCÊ±ï¿½ï¿½: ");
+    MCAL_INFO("µ±Ç°RTCÊ±¼ä: ");
     print_datetime(&original_datetime);
     
-    // ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ø¶ï¿½ï¿½Ä²ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
-    set_datetime.Date.Year = 23;    // 2023ï¿½ï¿½
+    // ÉèÖÃÒ»¸öÌØ¶¨µÄ²âÊÔÊ±¼ä
+    set_datetime.Date.Year = 23;    // 2023Äê
     set_datetime.Date.Month = 12;
     set_datetime.Date.Date = 31;
     set_datetime.Time.Hours = 23;
     set_datetime.Time.Minutes = 59;
     set_datetime.Time.Seconds = 30;
     
-    MCAL_INFO("ï¿½ï¿½ï¿½ï¿½RTCÊ±ï¿½ï¿½Îª: ");
+    MCAL_INFO("ÉèÖÃRTCÊ±¼äÎª: ");
     print_datetime(&set_datetime);
     
-    // ï¿½ï¿½ï¿½ï¿½RTCÊ±ï¿½ï¿½
+    // ÉèÖÃRTCÊ±¼ä
     Mcal_RTC_SetDateTime(set_datetime);
-    HAL_Delay(100);  // ï¿½È´ï¿½RTCï¿½ï¿½ï¿½ï¿½
+    HAL_Delay(100);  // µÈ´ýRTC¸üÐÂ
     
-    // ï¿½ï¿½È¡RTCÊ±ï¿½ï¿½ï¿½ï¿½Ö¤
+    // »ñÈ¡RTCÊ±¼äÑéÖ¤
     Mcal_RTC_Get_DateTime(&get_datetime);
-    MCAL_INFO("ï¿½ï¿½È¡ï¿½ï¿½RTCÊ±ï¿½ï¿½: ");
+    MCAL_INFO("»ñÈ¡µÄRTCÊ±¼ä: ");
     print_datetime(&get_datetime);
     
-    // ï¿½È½ï¿½ï¿½ï¿½ï¿½ÃºÍ»ï¿½È¡ï¿½ï¿½Ê±ï¿½ï¿½
+    // ±È½ÏÉèÖÃºÍ»ñÈ¡µÄÊ±¼ä
     if (compare_datetime(&set_datetime, &get_datetime)) {
-        MCAL_INFO("? ï¿½ï¿½ï¿½Ã»ï¿½È¡ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½\r\n");
+        MCAL_INFO("? ÉèÖÃ»ñÈ¡²âÊÔÍ¨¹ý\r\n");
         
-        // ï¿½Ö¸ï¿½Ô­Ê¼Ê±ï¿½ï¿½
+        // »Ö¸´Ô­Ê¼Ê±¼ä
         Mcal_RTC_SetDateTime(original_datetime);
         return RTC_TEST_PASS;
     } else {
-        MCAL_INFO("? ï¿½ï¿½ï¿½Ã»ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½\r\n");
+        MCAL_INFO("? ÉèÖÃ»ñÈ¡²âÊÔÊ§°Ü\r\n");
         return RTC_TEST_FAIL;
     }
 }
 
-// ï¿½ï¿½ï¿½ï¿½2: ï¿½ß½ï¿½Öµï¿½ï¿½ï¿½ï¿½
+// ²âÊÔ2: ±ß½çÖµ²âÊÔ
 RTC_TestResult_t test_RTC_Boundary_Values(void)
 {
-    MCAL_INFO("\n=== ï¿½ï¿½ï¿½ï¿½2: RTCï¿½ß½ï¿½Öµï¿½ï¿½ï¿½ï¿½ ===\r\n");
+    MCAL_INFO("\n=== ²âÊÔ2: RTC±ß½çÖµ²âÊÔ ===\r\n");
     
     Mcal_RTC_DateTime_t original_datetime, read_datetime;
     
-    // ï¿½ï¿½ï¿½ï¿½Ô­Ê¼Ê±ï¿½ï¿½
+    // ±£´æÔ­Ê¼Ê±¼ä
     Mcal_RTC_Get_DateTime(&original_datetime);
     
-    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    // ²âÊÔÓÃÀýÊý×é
     Mcal_RTC_DateTime_t test_cases[] = {
-        // ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+        // ×îÐ¡ÈÕÆÚÊ±¼ä
         {{RTC_WEEKDAY_SUNDAY, 1, 1, 0}, {0, 0, 0}},  // 2000-01-01 00:00:00
-        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ä£¨ï¿½ï¿½ï¿½ï¿½RTCÖ§ï¿½ÖµÄ·ï¿½Î§ï¿½ï¿½
+        // ×î´óÈÕÆÚÊ±¼ä£¨¸ù¾ÝRTCÖ§³ÖµÄ·¶Î§£©
         {{RTC_WEEKDAY_SUNDAY, 12, 31, 99}, {23, 59, 59}}, // 2099-12-31 23:59:59
-        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        // ÈòÄê²âÊÔ
         {{RTC_WEEKDAY_SUNDAY, 2, 29, 20}, {12, 0, 0}},  // 2020-02-29 12:00:00
     };
     
@@ -892,140 +892,140 @@ RTC_TestResult_t test_RTC_Boundary_Values(void)
     int passed_tests = 0;
     
     for (int i = 0; i < num_tests; i++) {
-        MCAL_INFO("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ %d: ", i + 1);
+        MCAL_INFO("²âÊÔÓÃÀý %d: ", i + 1);
         print_datetime(&test_cases[i]);
         
-        // ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+        // ÉèÖÃÊ±¼ä
         Mcal_RTC_SetDateTime(test_cases[i]);
         HAL_Delay(50);
         
-        // ï¿½ï¿½È¡Ê±ï¿½ï¿½ï¿½ï¿½Ö¤
+        // »ñÈ¡Ê±¼äÑéÖ¤
         Mcal_RTC_Get_DateTime(&read_datetime);
         
         if (compare_datetime(&test_cases[i], &read_datetime)) {
-            MCAL_INFO("? Í¨ï¿½ï¿½\r\n");
+            MCAL_INFO("? Í¨¹ý\r\n");
             passed_tests++;
         } else {
-            MCAL_INFO("? Ê§ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½: ");
+            MCAL_INFO("? Ê§°Ü - ÆÚÍû: ");
             print_datetime(&test_cases[i]);
-            MCAL_INFO("    Êµï¿½ï¿½: ");
+            MCAL_INFO("    Êµ¼Ê: ");
             print_datetime(&read_datetime);
         }
         
         HAL_Delay(100);
     }
     
-    // ï¿½Ö¸ï¿½Ô­Ê¼Ê±ï¿½ï¿½
+    // »Ö¸´Ô­Ê¼Ê±¼ä
     Mcal_RTC_SetDateTime(original_datetime);
     
     if (passed_tests == num_tests) {
-        MCAL_INFO("ï¿½ß½ï¿½Öµï¿½ï¿½ï¿½ï¿½: È«ï¿½ï¿½Í¨ï¿½ï¿½ (%d/%d)\r\n", passed_tests, num_tests);
+        MCAL_INFO("±ß½çÖµ²âÊÔ: È«²¿Í¨¹ý (%d/%d)\r\n", passed_tests, num_tests);
         return RTC_TEST_PASS;
     } else {
-        MCAL_INFO("ï¿½ß½ï¿½Öµï¿½ï¿½ï¿½ï¿½: ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½ (%d/%d)\r\n", passed_tests, num_tests);
+        MCAL_INFO("±ß½çÖµ²âÊÔ: ²¿·ÖÊ§°Ü (%d/%d)\r\n", passed_tests, num_tests);
         return RTC_TEST_FAIL;
     }
 }
 
-// ï¿½ï¿½ï¿½ï¿½3: ï¿½ï¿½ï¿½Ú¹ï¿½ï¿½É²ï¿½ï¿½Ô£ï¿½ï¿½Âµ×µï¿½ï¿½Â³ï¿½ï¿½ï¿½
+// ²âÊÔ3: ÈÕÆÚ¹ý¶É²âÊÔ£¨ÔÂµ×µ½ÔÂ³õ£©
 RTC_TestResult_t test_RTC_Date_Transition(void)
 {
-    MCAL_INFO("\n=== ï¿½ï¿½ï¿½ï¿½3: RTCï¿½ï¿½ï¿½Ú¹ï¿½ï¿½É²ï¿½ï¿½ï¿½ ===\r\n");
+    MCAL_INFO("\n=== ²âÊÔ3: RTCÈÕÆÚ¹ý¶É²âÊÔ ===\r\n");
     
     Mcal_RTC_DateTime_t original_datetime, test_datetime, read_datetime;
     
-    // ï¿½ï¿½ï¿½ï¿½Ô­Ê¼Ê±ï¿½ï¿½
+    // ±£´æÔ­Ê¼Ê±¼ä
     Mcal_RTC_Get_DateTime(&original_datetime);
     
-    // ï¿½ï¿½ï¿½ï¿½ï¿½Âµ×µï¿½ï¿½Â³ï¿½ï¿½Ä¹ï¿½ï¿½É£ï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½ï¿½31ï¿½Õµï¿½2ï¿½ï¿½1ï¿½Õ£ï¿½
+    // ²âÊÔÔÂµ×µ½ÔÂ³õµÄ¹ý¶É£¨ÀýÈç1ÔÂ31ÈÕµ½2ÔÂ1ÈÕ£©
     test_datetime.Date.Year = 23;
-    test_datetime.Date.Month = 1;  // 1ï¿½ï¿½
+    test_datetime.Date.Month = 1;  // 1ÔÂ
     test_datetime.Date.Date = 31;
     test_datetime.Time.Hours = 23;
     test_datetime.Time.Minutes = 59;
     test_datetime.Time.Seconds = 50;
     
-    MCAL_INFO("ï¿½ï¿½ï¿½ï¿½ï¿½Âµï¿½Ê±ï¿½ï¿½: ");
+    MCAL_INFO("ÉèÖÃÔÂµ×Ê±¼ä: ");
     print_datetime(&test_datetime);
     
     Mcal_RTC_SetDateTime(test_datetime);
     HAL_Delay(100);
     
     Mcal_RTC_Get_DateTime(&read_datetime);
-    MCAL_INFO("ï¿½ï¿½È¡ï¿½ï¿½Ê±ï¿½ï¿½: ");
+    MCAL_INFO("¶ÁÈ¡µÄÊ±¼ä: ");
     print_datetime(&read_datetime);
     
-    // ï¿½Ö¸ï¿½Ô­Ê¼Ê±ï¿½ï¿½
+    // »Ö¸´Ô­Ê¼Ê±¼ä
     Mcal_RTC_SetDateTime(original_datetime);
     
     if (compare_datetime(&test_datetime, &read_datetime)) {
-        MCAL_INFO("? ï¿½ï¿½ï¿½Ú¹ï¿½ï¿½É²ï¿½ï¿½ï¿½Í¨ï¿½ï¿½\r\n");
+        MCAL_INFO("? ÈÕÆÚ¹ý¶É²âÊÔÍ¨¹ý\r\n");
         return RTC_TEST_PASS;
     } else {
-        MCAL_INFO("? ï¿½ï¿½ï¿½Ú¹ï¿½ï¿½É²ï¿½ï¿½ï¿½Ê§ï¿½ï¿½\r\n");
+        MCAL_INFO("? ÈÕÆÚ¹ý¶É²âÊÔÊ§°Ü\r\n");
         return RTC_TEST_FAIL;
     }
 }
 
-// ï¿½ï¿½ï¿½ï¿½4: Ê±ï¿½ï¿½ï¿½ï¿½É²ï¿½ï¿½Ô£ï¿½59ï¿½ëµ½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ó£ï¿½
+// ²âÊÔ4: Ê±¼ä¹ý¶É²âÊÔ£¨59Ãëµ½ÏÂÒ»·ÖÖÓ£©
 RTC_TestResult_t test_RTC_Time_Transition(void)
 {
-    MCAL_INFO("\n=== ï¿½ï¿½ï¿½ï¿½4: RTCÊ±ï¿½ï¿½ï¿½ï¿½É²ï¿½ï¿½ï¿½ ===\r\n");
+    MCAL_INFO("\n=== ²âÊÔ4: RTCÊ±¼ä¹ý¶É²âÊÔ ===\r\n");
     
     Mcal_RTC_DateTime_t original_datetime, test_datetime, read_datetime;
     
-    // ï¿½ï¿½ï¿½ï¿½Ô­Ê¼Ê±ï¿½ï¿½
+    // ±£´æÔ­Ê¼Ê±¼ä
     Mcal_RTC_Get_DateTime(&original_datetime);
     
-    // ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Îª59ï¿½ë£¬ï¿½ï¿½ï¿½Ô·ï¿½ï¿½Ó¹ï¿½ï¿½ï¿½
+    // ÉèÖÃÊ±¼äÎª59Ãë£¬²âÊÔ·ÖÖÓ¹ý¶É
     test_datetime = original_datetime;
     test_datetime.Time.Seconds = 59;
     
-    MCAL_INFO("ï¿½ï¿½ï¿½ï¿½59ï¿½ï¿½Ê±ï¿½ï¿½: ");
+    MCAL_INFO("ÉèÖÃ59ÃëÊ±¼ä: ");
     print_datetime(&test_datetime);
     
     Mcal_RTC_SetDateTime(test_datetime);
     HAL_Delay(100);
     
     Mcal_RTC_Get_DateTime(&read_datetime);
-    MCAL_INFO("ï¿½ï¿½È¡ï¿½ï¿½Ê±ï¿½ï¿½: ");
+    MCAL_INFO("¶ÁÈ¡µÄÊ±¼ä: ");
     print_datetime(&read_datetime);
     
-    // ï¿½Ö¸ï¿½Ô­Ê¼Ê±ï¿½ï¿½
+    // »Ö¸´Ô­Ê¼Ê±¼ä
     Mcal_RTC_SetDateTime(original_datetime);
     
     if (compare_datetime(&test_datetime, &read_datetime)) {
-        MCAL_INFO("? Ê±ï¿½ï¿½ï¿½ï¿½É²ï¿½ï¿½ï¿½Í¨ï¿½ï¿½\r\n");
+        MCAL_INFO("? Ê±¼ä¹ý¶É²âÊÔÍ¨¹ý\r\n");
         return RTC_TEST_PASS;
     } else {
-        MCAL_INFO("? Ê±ï¿½ï¿½ï¿½ï¿½É²ï¿½ï¿½ï¿½Ê§ï¿½ï¿½\r\n");
+        MCAL_INFO("? Ê±¼ä¹ý¶É²âÊÔÊ§°Ü\r\n");
         return RTC_TEST_FAIL;
     }
 }
 
-// ï¿½ï¿½Ó¡ï¿½ï¿½ï¿½Ô½ï¿½ï¿½
+// ´òÓ¡²âÊÔ½á¹û
 void print_test_result(const char* test_name, RTC_TestResult_t result)
 {
-    const char* status_str[] = {"Í¨ï¿½ï¿½", "Ê§ï¿½ï¿½", "ï¿½ï¿½ï¿½ï¿½"};
-    MCAL_INFO("ï¿½ï¿½ï¿½ï¿½ %s: %s\r\n", test_name, status_str[result]);
+    const char* status_str[] = {"Í¨¹ý", "Ê§°Ü", "´íÎó"};
+    MCAL_INFO("²âÊÔ %s: %s\r\n", test_name, status_str[result]);
 }
 
-// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð²ï¿½ï¿½ï¿½
+// ÔËÐÐËùÓÐ²âÊÔ
 void run_all_rtc_tests(void)
 {
-    MCAL_INFO("\n********** RTCï¿½ï¿½ï¿½Ô³ï¿½ï¿½ï¿½Ê¼ **********\r\n");
+    MCAL_INFO("\n********** RTC²âÊÔ³ÌÐò¿ªÊ¼ **********\r\n");
     
     RTC_TestResult_t results[4];
     int passed = 0, total = 0;
     
-    // Ö´ï¿½Ð²ï¿½ï¿½ï¿½
+    // Ö´ÐÐ²âÊÔ
     results[0] = test_RTC_DateTime_SetGet();
     results[1] = test_RTC_Boundary_Values();
     results[2] = test_RTC_Date_Transition();
     results[3] = test_RTC_Time_Transition();
     
-    // Í³ï¿½Æ½ï¿½ï¿½
-    MCAL_INFO("\n********** ï¿½ï¿½ï¿½Ô½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ **********\r\n");
+    // Í³¼Æ½á¹û
+    MCAL_INFO("\n********** ²âÊÔ½á¹û»ã×Ü **********\r\n");
     for (int i = 0; i < 4; i++) {
         if (results[i] == RTC_TEST_PASS) {
             passed++;
@@ -1033,37 +1033,37 @@ void run_all_rtc_tests(void)
         total++;
     }
     
-    MCAL_INFO("ï¿½Ü²ï¿½ï¿½ï¿½ï¿½ï¿½: %d, Í¨ï¿½ï¿½: %d, Ê§ï¿½ï¿½: %d\r\n", 
+    MCAL_INFO("×Ü²âÊÔÊý: %d, Í¨¹ý: %d, Ê§°Ü: %d\r\n", 
            total, passed, total - passed);
     
     if (passed == total) {
-        MCAL_INFO("? ï¿½ï¿½ï¿½Ð²ï¿½ï¿½ï¿½Í¨ï¿½ï¿½ï¿½ï¿½\r\n");
+        MCAL_INFO("? ËùÓÐ²âÊÔÍ¨¹ý£¡\r\n");
     } else {
-        MCAL_INFO("? ï¿½Ð²ï¿½ï¿½ï¿½Ê§ï¿½Ü£ï¿½ï¿½ï¿½ï¿½ï¿½RTCÓ²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\r\n");
+        MCAL_INFO("? ÓÐ²âÊÔÊ§°Ü£¬Çë¼ì²éRTCÓ²¼þºÍÇý¶¯\r\n");
     }
     
-    MCAL_INFO("********** RTCï¿½ï¿½ï¿½Ô³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ **********\r\n");
+    MCAL_INFO("********** RTC²âÊÔ³ÌÐò½áÊø **********\r\n");
 }
 
 void print_current_time(void)
 {
     Mcal_RTC_DateTime_t read_datetime;
     Mcal_RTC_Get_DateTime(&read_datetime);
-    MCAL_INFO("ï¿½ï¿½È¡ï¿½ï¿½Ê±ï¿½ï¿½: ");
+    MCAL_INFO("¶ÁÈ¡µÄÊ±¼ä: ");
     print_datetime(&read_datetime);
 }
 
 #include "STD_Rtc.h"
 
-// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¡RTCÊ±ï¿½ï¿½
+// ¸¨Öúº¯Êý£º´òÓ¡RTCÊ±¼ä
 void print_rtc_time(const RtcTimedate_Struct *time)
 {
-    MCAL_INFO("RTCÊ±ï¿½ï¿½: %04d-%02d-%02d %02d:%02d:%02d\n",
+    MCAL_INFO("RTCÊ±¼ä: %04d-%02d-%02d %02d:%02d:%02d\n",
            time->usYear, time->usMonth, time->usDay,
            time->usHour, time->usMinutes, time->ucSeconds);
 }
 
-// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¡CP56Time2aï¿½ï¿½ï¿½ï¿½
+// ¸¨Öúº¯Êý£º´òÓ¡CP56Time2aÊý¾Ý
 void print_cp56_data(const uint8_t *cp56_data)
 {
     MCAL_INFO("CP56Time2a: ");
@@ -1072,98 +1072,98 @@ void print_cp56_data(const uint8_t *cp56_data)
     }
 }
 
-// ï¿½ï¿½ï¿½ï¿½1: RTC_GetRtcSeconds
+// ²âÊÔ1: RTC_GetRtcSeconds
 void test_RTC_GetRtcSeconds(void)
 {
-    MCAL_INFO("=== ï¿½ï¿½ï¿½ï¿½ RTC_GetRtcSeconds ===\n");
+    MCAL_INFO("=== ²âÊÔ RTC_GetRtcSeconds ===\n");
     
     uint32_t seconds = 0;
     uint8_t result = RTC_GetRtcSeconds(&seconds);
     
-    MCAL_INFO("ï¿½ï¿½ï¿½: %s\n", result ? "ï¿½É¹ï¿½" : "Ê§ï¿½ï¿½");
-    MCAL_INFO("ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: %lu\n", seconds);
+    MCAL_INFO("½á¹û: %s\n", result ? "³É¹¦" : "Ê§°Ü");
+    MCAL_INFO("»ñÈ¡µÄÃëÊý: %lu\n", seconds);
     
     if(result == STD_TRUE)
-    MCAL_INFO("ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½!\n\n");
+    MCAL_INFO("²âÊÔÍ¨¹ý!\n\n");
 }
 
-// ï¿½ï¿½ï¿½ï¿½2: RTC_GetCP56Time2a
+// ²âÊÔ2: RTC_GetCP56Time2a
 void test_RTC_GetCP56Time2a(void)
 {
-    MCAL_INFO("=== ï¿½ï¿½ï¿½ï¿½ RTC_GetCP56Time2a ===\n");
+    MCAL_INFO("=== ²âÊÔ RTC_GetCP56Time2a ===\n");
     
     uint8_t cp56_data[7] = {0};
     uint8_t result = RTC_GetCP56Time2a(cp56_data);
     
-    MCAL_INFO("ï¿½ï¿½ï¿½: %s\n", result ? "ï¿½É¹ï¿½" : "Ê§ï¿½ï¿½");
+    MCAL_INFO("½á¹û: %s\n", result ? "³É¹¦" : "Ê§°Ü");
     print_cp56_data(cp56_data);
     
     if(result == STD_TRUE)
-    MCAL_INFO("ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½!\n\n");
+    MCAL_INFO("²âÊÔÍ¨¹ý!\n\n");
 }
 
-// ï¿½ï¿½ï¿½ï¿½3: RTC_SecondsSetRtcDateTime
+// ²âÊÔ3: RTC_SecondsSetRtcDateTime
 void test_RTC_SecondsSetRtcDateTime(void)
 {
-    MCAL_INFO("=== ï¿½ï¿½ï¿½ï¿½ RTC_SecondsSetRtcDateTime ===\n");
+    MCAL_INFO("=== ²âÊÔ RTC_SecondsSetRtcDateTime ===\n");
     
-    uint32_t test_seconds = 1758706080; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    uint32_t test_seconds = 1764317044; // ²âÊÔÃëÊý
     uint8_t result = RTC_SecondsSetRtcDateTime(test_seconds);
     
-    MCAL_INFO("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: %lu\n", test_seconds);
-    MCAL_INFO("ï¿½ï¿½ï¿½: %s\n", result ? "ï¿½É¹ï¿½" : "Ê§ï¿½ï¿½");
+    MCAL_INFO("ÉèÖÃÃëÊý: %lu\n", test_seconds);
+    MCAL_INFO("½á¹û: %s\n", result ? "³É¹¦" : "Ê§°Ü");
     
-    // ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½É¹ï¿½
+    // ÑéÖ¤ÉèÖÃÊÇ·ñ³É¹¦
     RtcTimedate_Struct current_time;
     RTCIF_GetDateTime(&current_time);
     print_rtc_time(&current_time);
     
     if(result == STD_TRUE)
-    MCAL_INFO("ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½!\n\n");
+    MCAL_INFO("²âÊÔÍ¨¹ý!\n\n");
 }
 
-// ï¿½ï¿½ï¿½ï¿½4: RTC_CP56Time2aSetRtcDateTime
+// ²âÊÔ4: RTC_CP56Time2aSetRtcDateTime
 void test_RTC_CP56Time2aSetRtcDateTime(void)
 {
-    MCAL_INFO("=== ï¿½ï¿½ï¿½ï¿½ RTC_CP56Time2aSetRtcDateTime ===\n");
+    MCAL_INFO("=== ²âÊÔ RTC_CP56Time2aSetRtcDateTime ===\n");
     
-    // ï¿½ï¿½ï¿½ï¿½CP56Time2aï¿½ï¿½ï¿½Ý£ï¿½2024ï¿½ï¿½1ï¿½ï¿½15ï¿½ï¿½ 14:30:25
+    // ²âÊÔCP56Time2aÊý¾Ý£º2024Äê1ÔÂ15ÈÕ 14:30:25
     uint8_t test_cp56[7] = {0x98,0xB7,0x0E,0x11,0x10,0x03,0x14};
     
-    MCAL_INFO("ï¿½ï¿½ï¿½ï¿½CP56Time2aï¿½ï¿½ï¿½ï¿½: ");
+    MCAL_INFO("ÉèÖÃCP56Time2aÊý¾Ý: ");
     print_cp56_data(test_cp56);
     
     uint8_t result = RTC_CP56Time2aSetRtcDateTime(test_cp56);
-    MCAL_INFO("ï¿½ï¿½ï¿½: %s\n", result ? "ï¿½É¹ï¿½" : "Ê§ï¿½ï¿½");
+    MCAL_INFO("½á¹û: %s\n", result ? "³É¹¦" : "Ê§°Ü");
     
-    // ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½É¹ï¿½
+    // ÑéÖ¤ÉèÖÃÊÇ·ñ³É¹¦
     RtcTimedate_Struct current_time;
     RTCIF_GetDateTime(&current_time);
     print_rtc_time(&current_time);
     
     if(result == STD_TRUE)
-    MCAL_INFO("ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½!\n\n");
+    MCAL_INFO("²âÊÔÍ¨¹ý!\n\n");
 }
 
-// ï¿½ï¿½ï¿½ï¿½5: ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// ²âÊÔ5: Íù·µ×ª»»²âÊÔ
 void test_round_trip_conversion(void)
 {
-    MCAL_INFO("=== ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ===\n");
+    MCAL_INFO("=== Íù·µ×ª»»²âÊÔ ===\n");
     
-    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    // ²âÊÔÊý¾Ý
     uint32_t original_seconds = 1758706412;
     
-    // ï¿½ï¿½ï¿½ï¿½ -> RTC -> ï¿½ï¿½ï¿½ï¿½
-    MCAL_INFO("1. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½RTCï¿½ï¿½ï¿½ï¿½:\n");
+    // ÃëÊý -> RTC -> ÃëÊý
+    MCAL_INFO("1. ÃëÊýÉèÖÃRTC²âÊÔ:\n");
     RTC_SecondsSetRtcDateTime(original_seconds);
     
     uint32_t retrieved_seconds;
     RTC_GetRtcSeconds(&retrieved_seconds);
     
-    MCAL_INFO("Ô­Ê¼ï¿½ï¿½ï¿½ï¿½: %lu, ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½: %lu\n", original_seconds, retrieved_seconds);
+    MCAL_INFO("Ô­Ê¼ÃëÊý: %lu, ¶ÁÈ¡ÃëÊý: %lu\n", original_seconds, retrieved_seconds);
     
     // CP56Time2a -> RTC -> CP56Time2a
-    MCAL_INFO("2. CP56Time2aï¿½ï¿½ï¿½ï¿½RTCï¿½ï¿½ï¿½ï¿½:\n");
+    MCAL_INFO("2. CP56Time2aÉèÖÃRTC²âÊÔ:\n");
     uint8_t original_cp56[7] = {0x88, 0x13, 0x2A, 0x10, 0x1F, 0x0C, 0x18}; // 2024-12-31 16:42:05
     uint8_t retrieved_cp56[7] = {0};
     
@@ -1172,19 +1172,19 @@ void test_round_trip_conversion(void)
     
     MCAL_INFO("Ô­Ê¼CP56: ");
     print_cp56_data(original_cp56);
-    MCAL_INFO("ï¿½ï¿½È¡CP56: ");
+    MCAL_INFO("¶ÁÈ¡CP56: ");
     print_cp56_data(retrieved_cp56);
     
     if(memcmp(original_cp56, retrieved_cp56, 7) == 0)
-    MCAL_INFO("ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½!\n\n");
+    MCAL_INFO("Íù·µ×ª»»²âÊÔÍ¨¹ý!\n\n");
 }
 
-// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð²ï¿½ï¿½ï¿½
+// ÔËÐÐËùÓÐ²âÊÔ
 void run_all_tests(void)
 {
-    MCAL_INFO("ï¿½ï¿½Ê¼RTCÄ£ï¿½ï¿½ï¿½ï¿½ï¿½...\n\n");
+    MCAL_INFO("¿ªÊ¼RTCÄ£¿é²âÊÔ...\n\n");
     
-    // ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    // ³õÊ¼»¯²âÊÔÊý¾Ý
     RtcTimedate_Struct init_time = {
         .usYear = 2024,
         .usMonth = 1,
@@ -1195,18 +1195,18 @@ void run_all_tests(void)
     };
     RTCIF_SetDateTime(&init_time);
     
-    MCAL_INFO("ï¿½ï¿½Ê¼RTCÊ±ï¿½ï¿½: ");
+    MCAL_INFO("³õÊ¼RTCÊ±¼ä: ");
     print_rtc_time(&init_time);
     MCAL_INFO("\n");
     
-    // Ö´ï¿½Ð²ï¿½ï¿½ï¿½
+    // Ö´ÐÐ²âÊÔ
     test_RTC_GetRtcSeconds();
     test_RTC_GetCP56Time2a();
     test_RTC_SecondsSetRtcDateTime();
     test_RTC_CP56Time2aSetRtcDateTime();
     test_round_trip_conversion();
     
-    MCAL_INFO("ï¿½ï¿½ï¿½Ð²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½!\n");
+    MCAL_INFO("ËùÓÐ²âÊÔÍê³É!\n");
 }
 
 #include "Cloud_Cfg.h"
@@ -1214,7 +1214,7 @@ void Mcal_Cloud_TestTime(void)
 {
     time_t current_time;
     current_time = CLOUD_GET_TIME_MS();
-    MCAL_INFO("ï¿½ï¿½Ç°Ê±ï¿½ï¿½ï¿½: %lu\n", current_time);
+    MCAL_INFO("µ±Ç°Ê±¼ä´Á: %lu\n", current_time);
 }
 
 #include "FlashDB_AppM.h"
@@ -1222,19 +1222,17 @@ void Mcal_Cloud_TestTime(void)
 
 void stress_test_high_frequency_append(void)
 {
-    MCAL_DEBUG("\n=== ï¿½ï¿½Æµ×·ï¿½ï¿½Ñ¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ===\n");
+    MCAL_DEBUG("\n=== ¸ßÆµ×·¼ÓÑ¹Á¦²âÊÔ ===\n");
 
     const int TEST_COUNT = 100;
 
     for (int i = 0; i < TEST_COUNT; i++)
     {
         cloud_protocol_charging_cloud_protocol_order_manager_t order = {
-            .tsdb_id = FLASHDB_TSDB_OFFLINE_ORDER_GUN1,
             .status = (cloud_protocol_order_status_t)(i % 5),
             .order_type = (cloud_protocol_order_type_t)((i % 2) + 1),
             .last_meter_reading = 1000 + i * 10,
             .create_timestamp = i,
-            .update_timestamp = i
         };
         FlashDB_ReturnType_t ret = FlashDB_Append_Data(FLASHDB_TSDB_OFFLINE_ORDER_GUN1, &order, sizeof(order));
     }
@@ -1242,20 +1240,15 @@ void stress_test_high_frequency_append(void)
 
 void test_set_record_status(void)
 {
-    MCAL_DEBUG("\n=== ï¿½ï¿½ï¿½Ã¼ï¿½Â¼×´Ì¬ï¿½ï¿½ï¿½ï¿½ ===\n");
+    MCAL_DEBUG("\n=== ÉèÖÃ¼ÇÂ¼×´Ì¬²âÊÔ ===\n");
 
     uint32_t total_records = FlashDB_TS_GetTotalRecordsCounts(FLASHDB_TSDB_OFFLINE_ORDER_GUN1, FDB_TSL_WRITE);
-    MCAL_DEBUG("ï¿½Ü¼ï¿½Â¼ï¿½ï¿½: %lu\n", total_records);
-
-    for (uint32_t i = 0; i < total_records; i++)
-    {
-        FlashDB_ReturnType_t ret = FlashDB_TS_Set_Latest_Record_Status(FLASHDB_TSDB_OFFLINE_ORDER_GUN1, FLASHDB_ITERATOR_DIRECTION_FORWARD, FDB_TSL_DELETED);
-    }
+    MCAL_DEBUG("×Ü¼ÇÂ¼Êý: %lu\n", total_records);
 }
 
 int test_FlashDB_main()
 {
-    MCAL_DEBUG("ï¿½ï¿½Ê¼FlashDBï¿½Ó¿Ú²ï¿½ï¿½ï¿½...\n");
+    MCAL_DEBUG("¿ªÊ¼FlashDB½Ó¿Ú²âÊÔ...\n");
 
     // stress_test_high_frequency_append();
     // test_set_record_status();
@@ -1272,68 +1265,6 @@ int test_FlashDB_main()
     // fdb_tsl_clean(&tsdb_gun2);
     return 0;
 }
-
-#include "Cloud_Protocol_Sg_Login.h"
-
-/**
- * @brief ï¿½ï¿½Ó¡ï¿½è±¸Ôªï¿½ï¿½Ï¢
- * @param meta ï¿½è±¸Ôªï¿½ï¿½Ï¢ï¿½á¹¹ï¿½ï¿½
- */
-void print_device_meta_info(const iotx_dev_meta_info_t *meta)
-{
-    MCAL_INFO("Device Meta Information:\n");
-    MCAL_INFO("  Product Key: %s\n", meta->product_key);
-    MCAL_INFO("  Device Name: %s\n", meta->device_name);
-    MCAL_INFO("  Device Secret: %s\n", meta->device_secret);
-}
-
-/**
- * @brief ï¿½ï¿½Ó¡MQTTÇ©ï¿½ï¿½ï¿½ï¿½ï¿½
- * @param signout MQTTÇ©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½á¹¹ï¿½ï¿½
- */
-void print_mqtt_sign_result(const iotx_sign_mqtt_t *signout)
-{
-    MCAL_INFO("MQTT Signature Results:\n");
-    MCAL_INFO("  Client ID: %s\n", signout->clientid);
-    MCAL_INFO("  Username: %s\n", signout->username);
-    MCAL_INFO("  Password: %s\n", signout->password);
-    MCAL_INFO("  Hostname: %s\n", signout->hostname);
-    MCAL_INFO("  Port: %d\n", signout->port);
-}
-
-/**
- * @brief ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1ï¿½ï¿½Ê¹ï¿½ï¿½ï¿½á¹©ï¿½Ä¹Ì¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
- */
-void test_case_1_fixed_parameters(void)
-{
-    MCAL_INFO("=== Test Case 1: Fixed Parameters ===\n");
-
-    // ×¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-    iotx_dev_meta_info_t meta = {
-        .product_key = "a1D0siVHgRU",
-        .device_name = "971762846196581146388515",
-        .device_secret = "a7a202f77a28bcb47c264dacb3a66ff7"};
-
-    iotx_sign_mqtt_t signout = {0};
-    uint64_t timestamp = 1763432917443ULL; // ï¿½ï¿½ï¿½á¹©ï¿½Ä¹Ì¶ï¿½Ê±ï¿½ï¿½ï¿½
-
-    MCAL_INFO("Using fixed timestamp: %llu\n", timestamp);
-    print_device_meta_info(&meta);
-
-    // ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-    int32_t result = Cloud_Protocol_Mqtt_Sign(&meta, timestamp, &signout);
-
-    if (result == STATE_SUCCESS)
-    {
-        MCAL_INFO("Cloud_Protocol_Mqtt_Sign succeeded!\n");
-        print_mqtt_sign_result(&signout);
-    }
-    else
-    {
-        MCAL_ERROR("Cloud_Protocol_Mqtt_Sign failed with error code: %d\n", result);
-    }
-    MCAL_INFO("=== End Test Case 1 ===\n\n");
-}
 #endif
 
 /* Run MCAL tests */
@@ -1343,8 +1274,8 @@ void Mcal_Test_Run(void)
     if (!initialized)
     {
         initialized = 1;
+        // run_all_tests();
         // test_FlashDB_main();
-        // test_case_1_fixed_parameters();
     }
     /* TODO: Add test code here */
     // Mcal_Test_StateMachine();

@@ -29,8 +29,8 @@
 |    Macro Definition
 |******************************************************************************/
 /* polyspace<MISRA-C3:2.5:Not a defect:Justified> Normal. */
-#define RTC_SECONDS_1970_TO_NOW_YEAR	(uint32_t)(1640995200UL)     /*Time seconds since 1970*/
-#define RTC_YEAR_RANGE_START			(2020U)                    /*start year*/
+#define RTC_SECONDS_1970_TO_NOW_YEAR	(uint32_t)(1640966400UL)   /*Time seconds since 1970*/
+#define RTC_YEAR_RANGE_START			(2022U)                    /*start year*/
 #define RTC_YEAR_RANGE_END				(2099U)                    /*end year*/
 /*******************************************************************************
 |    Enum Definition
@@ -39,7 +39,6 @@
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
-
 
 /*******************************************************************************
 |    Table Definition
