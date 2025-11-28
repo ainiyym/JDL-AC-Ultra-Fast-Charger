@@ -182,7 +182,7 @@ typedef struct
 
 typedef struct
 {
-    time_t create_timestamp;                       // creation timestamp(For internal computing only)
+    uint64_t create_timestamp;                       // creation timestamp(For internal computing only)
     uint32_t last_meter_reading;                   // last meter reading(The total electricity of the electricity meter)
     cloud_protocol_order_type_t order_type;        // transaction type
     cloud_protocol_order_status_t status;          // transaction status

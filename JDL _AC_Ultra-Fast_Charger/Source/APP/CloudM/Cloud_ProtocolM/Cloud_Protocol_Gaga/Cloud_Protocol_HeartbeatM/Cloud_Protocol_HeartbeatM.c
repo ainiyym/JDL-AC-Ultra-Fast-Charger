@@ -22,8 +22,8 @@
 |    Typedef Definition
 |******************************************************************************/
 typedef struct {
-    uint32_t last_send_time;      // The time when the heartbeat was last sent
-    uint32_t last_response_time;  // The time when the last heartbeat response was received
+    uint64_t last_send_time;      // The time when the heartbeat was last sent
+    uint64_t last_response_time;  // The time when the last heartbeat response was received
     uint8_t timeout_count;        // Heartbeat timeout count
     bool is_heartbeat_active;     // Is the heartbeat activated?
 } cloud_protocol_heartbeat_manager_t;
@@ -99,7 +99,7 @@ static void Cloud_Protocol_Trigger_ReLogin(void)
 // Check the heart rate timeout function
 static void Cloud_Protocol_Check_Heartbeat_Timeout(void)
 {
-    uint32_t current_time = CLOUD_GET_TIME_MS();
+    uint64_t current_time = CLOUD_GET_TIME_MS();
 
     // If no heartbeat response is received within 30 seconds
     if ((current_time - cloud_protocol_heartbeat_manager.last_response_time) > CLOUD_PROTOCOL_HEARTBEAT_TIMEOUT_S)
@@ -130,7 +130,7 @@ static void Cloud_Protocol_Check_Heartbeat_Timeout(void)
 
 void Cloud_Protocol_Heartbeat_Handler(void)
 {
-    uint32_t current_time = CLOUD_GET_TIME_MS();
+    uint64_t current_time = CLOUD_GET_TIME_MS();
     uint8_t msg_buffer[CLOUD_PROTOCOL_GAGA_DATA_BUFFER_MAX_LENGTH] = {0};
 
     // Check if a heartbeat needs to be sent

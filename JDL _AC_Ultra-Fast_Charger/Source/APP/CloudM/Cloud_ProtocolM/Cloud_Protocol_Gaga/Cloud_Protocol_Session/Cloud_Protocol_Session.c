@@ -39,20 +39,11 @@ typedef struct
 {
     uint8_t frame_type;        // The type of the sent frame
     uint16_t sequence_number;  // Sequence number
-    time_t send_time;          // Send timestamp
+    uint64_t send_time;          // Send timestamp
     uint8_t retry_count;       // Retry count
     bool awaiting_response;    // Whether waiting for a response
     uint8_t expected_response; // Expected response frame type
 } Cloud_Protocol_Send_Record_T;
-
-// Receive the record structure
-typedef struct
-{
-    uint8_t frame_type;        // The type of the received frame
-    uint16_t sequence_number;  // Sequence number
-    time_t receive_time;       // Receive timestamp
-    uint8_t related_send_type; // Related send frame type
-} Cloud_Protocol_Receive_Record_T;
 
 // Communication state machine
 typedef struct
@@ -283,7 +274,7 @@ static void Cloud_Protocol_ProcessRcvFrame(const Cloud_Protocol_Frame_T *frame)
 // Check for timeout requests and retransmit them
 void Cloud_Protocol_CheckTimeoutRequests(void *arg)
 {
-    time_t current_time = CLOUD_GET_TIME_MS();
+    uint64_t current_time = CLOUD_GET_TIME_MS();
 
     for (uint8_t i = 0; i < cloud_protocol_comm_state.request_count; i++)
     {

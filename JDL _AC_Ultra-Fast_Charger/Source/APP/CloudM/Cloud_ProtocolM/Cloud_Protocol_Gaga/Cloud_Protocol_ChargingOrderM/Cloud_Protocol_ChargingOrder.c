@@ -35,10 +35,10 @@ typedef enum
 typedef struct
 {
     bool initialized;
-    uint32_t last_update_time;        // last update time
-    uint32_t last_upload_check_time;  // last upload check time
-    uint32_t last_state_process_time; // last state process time
-    uint32_t last_status_check_time;  // last status check time
+    uint64_t last_update_time;        // last update time
+    uint64_t last_upload_check_time;  // last upload check time
+    uint64_t last_state_process_time; // last state process time
+    uint64_t last_status_check_time;  // last status check time
     cloud_protocol_order_upload_cb_t upload_callback;
     cloud_protocol_network_status_cb_t network_status_callback;
     cloud_protocol_charging_status_cb_t charging_status_callback;
@@ -520,7 +520,7 @@ static bool cloud_protocol_create_order_internal(uint8_t gun_no, cloud_protocol_
     }
     else
     {
-        uint32_t lv_timestamp = CLOUD_GET_TIME_MS();
+        uint32_t lv_timestamp = CLOUD_GET_TIME_MS() / 1000;
         CLOUD_PROTOCOL_TIMESTAMP_CONVERT_TO_CP56TIME2A(&lv_timestamp, &order->active_orders.transaction_time);
     }
     order->active_orders.start_time = order->active_orders.transaction_time;
@@ -631,7 +631,7 @@ static bool cloud_protocol_charging_order_finish_internal(uint8_t gun_no, cloud_
     }
     else
     {
-        uint32_t lv_timestamp = CLOUD_GET_TIME_MS();
+        uint32_t lv_timestamp = CLOUD_GET_TIME_MS() / 1000;
         CLOUD_PROTOCOL_TIMESTAMP_CONVERT_TO_CP56TIME2A(&lv_timestamp, &order->active_orders.end_time);
     }
 
@@ -702,7 +702,7 @@ static bool cloud_protocol_handle_state_created(uint8_t gun_no)
         return true;
     }
 
-    uint32_t current_time = CLOUD_GET_TIME_MS();
+    uint64_t current_time = CLOUD_GET_TIME_MS();
     cloud_protocol_order_auth_status_t auth_status = cloud_protocol_order_manager.auth_status[gun_no - 1];
     cloud_protocol_order_charging_status_t charging_status = cloud_protocol_order_manager.charging_status[gun_no - 1];
     cloud_protocol_order_connector_status_t connector_status = cloud_protocol_order_manager.connector_status[gun_no - 1];
@@ -948,7 +948,7 @@ void cloud_protocol_order_manager_process(void)
         return;
     }
 
-    uint32_t current_time = CLOUD_GET_TIME_MS();
+    uint64_t current_time = CLOUD_GET_TIME_MS();
 
     // Process the state machine every 100ms
     if (current_time - order_mgr_internal.last_state_process_time >= CLOUD_PROTOCOL_ORDER_PROCESS_PERIOD_MS)
