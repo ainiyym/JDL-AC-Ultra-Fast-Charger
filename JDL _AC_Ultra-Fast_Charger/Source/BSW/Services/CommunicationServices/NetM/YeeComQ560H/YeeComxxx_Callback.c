@@ -167,8 +167,9 @@ void YeeCom_At_OOB_Data_Passthrough_Callback(void *arg, char *buf, int buflen)
         uint16_t hex_data_len = buflen - (data_start - buf);
         if (hex_data_len > 0)
         {
-            uint8_t msg[hex_data_len + 1];
+            uint8_t msg[hex_data_len + 2];
 
+            memset(msg, 0, sizeof(msg));
             memcpy(&msg[1], data_start, hex_data_len);
 
             switch (socket_id)
@@ -615,7 +616,10 @@ void YeeCom_At_Get_GSTATECallback(void *arg, char *buf, int buflen)
             CLOUD_INFO("GSTATE parsed: =%s\r\n", status);
             for(tcp_id_enum i = TCP_ID_PROTOCOL_SG; i < TCP_ID_MAXIMUM; i++)
             {
-                YeeCom_SetDeviceInfo_gstate(i, atoi((const char *)&status[i]));
+                if (status[i] >= '0' && status[i] <= '9')
+                {
+                    YeeCom_SetDeviceInfo_gstate(i, status[i] - '0');
+                }
             }
         }
         else
@@ -738,16 +742,14 @@ void YeeCom_At_Get_MQTOP_Callback(void *arg, char *buf, int buflen)
     if (reset_pos != NULL)
     {
         int socket_id = 0;
-        uint8_t sub_topic[128] = {0};
-        uint8_t pub_topic[64] = {0};
-        uint8_t msg[128 + 3] = {0};
+        uint8_t sub_topic[256] = {0};
+        uint8_t msg[256 + 3] = {0};
 
-        int result = sscanf(start, "+MQTOP%d:%128[^,],%64[^\r\n]",
-                            &socket_id, sub_topic, pub_topic);
+        int result = sscanf(start, "+MQTOP%d:%256[^,],", &socket_id, sub_topic);
 
-        if (result == 3)
+        if (result == 2)
         {
-            YeeCom_Log("<%s> socket_id: %d, sub_topic: %s, pub_topic: %s\r\n", __func__, socket_id, sub_topic, pub_topic);
+            YeeCom_Log("<%s> socket_id: %d, sub_topic: %s\r\n", __func__, socket_id, sub_topic);
 
             if (socket_id < TCP_ID_MAXIMUM)
             {
@@ -755,8 +757,8 @@ void YeeCom_At_Get_MQTOP_Callback(void *arg, char *buf, int buflen)
                 {
                     msg[0] = CLOUD_MESSAGE_CTRL_TYPE_CLOUD_MQTT_SG;
                     msg[1] = CLOUD_PROTOCOL_MQTT_CTRL_TYPE_SUBSCRIBE_PUBLISH;
-                    strcpy((char *)msg + 2, (const char *)sub_topic);
-                    CloudNet_Protocol_SendMsg((uint8_t *)msg, 3, CLOUD_MESSAGE_TYPE_CTRL);
+                    strncpy((char *)msg + 2, (const char *)sub_topic, 256);
+                    CloudNet_Protocol_SendMsg((uint8_t *)msg, strlen((const char *)sub_topic) + 2, CLOUD_MESSAGE_TYPE_CTRL);
                 }
                 else
                 {
@@ -778,7 +780,7 @@ void YeeCom_At_Get_MQTOP_Callback(void *arg, char *buf, int buflen)
 
 /*
 +PUBTOPn:<pub topic>
-OK 
+OK
 */
 void YeeCom_At_Get_PUBTOP_Callback(void *arg, char *buf, int buflen)
 {
@@ -786,12 +788,13 @@ void YeeCom_At_Get_PUBTOP_Callback(void *arg, char *buf, int buflen)
     const char *start = buf;
 
     const char *reset_pos = strstr(buf, "+PUBTOP");
+    // YeeCom_Log("<%s> buf: %s\r\n", __func__, buf);
     if (reset_pos != NULL)
     {
         int socket_id = 0;
-        char pub_topic[64 + 1] = {0};
+        char pub_topic[256 + 1] = {0};
 
-        int result = sscanf(start, "+PUBTOP%d:%64[^\r\n]", &socket_id, pub_topic);
+        int result = sscanf(start, "+PUBTOP%d:%256[^\r\n]", &socket_id, pub_topic);
 
         if (result == 2)
         {

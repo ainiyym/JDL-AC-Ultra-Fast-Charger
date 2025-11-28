@@ -16,7 +16,7 @@
 #define YEECOM_DTUID_LENGTH                     (96U)
 #define YEECOM_GSTATE_NUMBER                    (TCP_ID_MAXIMUM) // The online status of the connected server: 0-disconnected, 1-connected
 
-#define YEECOM_PERIODIC_TASK_PERIOD             (30 * 1000 / YEECOM_PERIOD_MS)   // 30s
+#define YEECOM_PERIODIC_TASK_PERIOD             (10 * 1000 / YEECOM_PERIOD_MS)   // 10s
 
 #define YEECOM_ATOMIC_SETH_BIT(REG, BIT)        ATOMIC_SETH_BIT(REG, BIT)
 #define YEECOM_ATOMIC_CLR_BIT(REG, BIT)         ATOMIC_CLEARH_BIT(REG, BIT)

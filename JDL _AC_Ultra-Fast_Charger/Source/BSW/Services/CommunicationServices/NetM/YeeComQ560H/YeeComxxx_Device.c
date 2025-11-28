@@ -160,8 +160,8 @@ uint8_t YeeCom_At_DataPassthrougth(uint8_t channel, const uint8_t *data, uint16_
         {
             memcpy((char *)&gv_YeeComxxx.AtCmdSendBuf[atcmd_len], (const char *)data, length);
             ret = at_send_no_reply((const char *)gv_YeeComxxx.AtCmdSendBuf, (int)(atcmd_len + length));
-            YeeCom_Log("<%s> result:%d data:", __func__, ret);
-            YeeCom_Print_Hex(data, length);
+            // YeeCom_Log("<%s> result:%d data:", __func__, ret);
+            // YeeCom_Print_Hex(data, length);
         }
         else
         {
@@ -600,12 +600,12 @@ static void YeeCom_PeriodicHandle(void)
     // Handle periodic tasks
     if(1 == YeeCom_GetDeviceState(YEECOM_NET_READY))
     {
-        while (gv_YeeComxxx.TimerCnt++ > YEECOM_PERIODIC_TASK_PERIOD) // 30s
+        while (gv_YeeComxxx.TimerCnt++ > YEECOM_PERIODIC_TASK_PERIOD) // 15s
         {
             YeeCom_ClearTimeout();
             // Get RSSI periodically
             YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_RSSI, NULL);
-            vTaskDelay(pdMS_TO_TICKS(50));
+            // Get GState periodically
             YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_GSTATE, NULL);
             break;
         }

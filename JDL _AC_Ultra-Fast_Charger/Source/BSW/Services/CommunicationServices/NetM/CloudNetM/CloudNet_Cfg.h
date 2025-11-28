@@ -42,8 +42,6 @@
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-extern uint16_t CloudNet_Protocol_Mqtt_UnpackString(uint8_t *msg, uint16_t offset, char *output);
-extern uint16_t CloudNet_Protocol_Mqtt_UnpackJsonPayload(uint8_t *msg, uint16_t offset, char *payload);
 extern char *CloudNet_Strdup(const char *s);
 #endif /* __CLOUDNET_CFG_H */
 /* EOL */

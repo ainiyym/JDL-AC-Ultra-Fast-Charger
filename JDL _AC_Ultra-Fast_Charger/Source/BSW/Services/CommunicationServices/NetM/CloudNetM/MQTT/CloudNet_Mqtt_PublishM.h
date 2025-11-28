@@ -49,9 +49,8 @@ typedef struct cloud_net_mqtt_publish_item
 {
     char *topic;                              /* Topic string */
     char *payload;                            /* Payload data */
-    bool retain;                              /* Retain flag */
     uint8_t qos;                              /* Quality of Service */
-    uint32_t timestamp;                       /* Timestamp */
+    uint64_t timestamp;                       /* Timestamp */
     struct cloud_net_mqtt_publish_item *next; /* Next message in queue */
 } cloud_net_mqtt_publish_item_t;
 
@@ -63,13 +62,12 @@ typedef struct
     cloud_net_mqtt_publish_item_t *current_msg; /* Currently processed message */
     uint16_t queue_size;                        /* Current queue size */
     uint16_t max_queue_size;                    /* Maximum queue size */
-    uint32_t last_process_time;                 /* Last processing timestamp */
     char *last_topic;                           /* Topic of last message */
-    bool topic_at_sent;                         /* Topic AT command sent */
-    bool waiting_topic_ok;                      /* Waiting for topic AT response */
-    bool waiting_payload_ok;                    /* Waiting for payload AT response */
-    uint32_t topic_sent_time;                   /* Topic send timestamp */ 
-    uint32_t payload_sent_time;                 /* Payload send timestamp */
+    volatile bool topic_at_sent;                /* Topic AT command sent */
+    volatile bool waiting_topic_ok;             /* Waiting for topic AT response */
+    volatile bool waiting_payload_ok;           /* Waiting for payload AT response */
+    uint64_t topic_sent_time;                   /* Topic send timestamp */
+    uint64_t payload_sent_time;                 /* Payload send timestamp */
     uint16_t retry_count;                       /* Retry counter */
     uint16_t max_retry_count;                   /* Maximum retry attempts */
 } cloud_net_mqtt_publish_manager_t;
@@ -81,7 +79,7 @@ typedef struct
 |    Global Function Prototypes
 |******************************************************************************/
 extern bool CloudNetM_MqttPublishManagerInit(cloud_net_mqtt_at_callback_t config);
-extern bool CloudNetM_MqttAddMessageToQueue(const char *topic, const char *payload, bool retain, uint8_t qos);
+extern bool CloudNetM_MqttAddMessageToQueue(const char *topic, const char *payload, uint8_t qos);
 extern void CloudNetM_MqttHandleAtTopicResponse(const char *pub_topic);
 extern void CloudNetM_MqttHandleATPayloadSendSuccess(void);
 extern void CloudNetM_MqttPublishManagerProcess(void);

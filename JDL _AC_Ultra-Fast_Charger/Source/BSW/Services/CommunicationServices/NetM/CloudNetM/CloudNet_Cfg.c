@@ -43,37 +43,21 @@
 |    Function Source Code
 |******************************************************************************/
 // Unpacking string (corresponding to the sender)
-uint16_t CloudNet_Protocol_Mqtt_UnpackString(uint8_t *msg, uint16_t offset, char *output)
+void CloudNet_Protocol_Mqtt_UnpackString(uint8_t *msg, char *output_str, uint16_t str_len)
 {
-    if (msg == NULL || output == NULL)
-        return offset;
-
-    // Read length (big-endian order)
-    uint16_t len = (msg[offset] << 8) | msg[offset + 1];
-    offset += 2;
-
-    if (len > 0)
+    if ((msg == NULL) || (output_str != NULL))
     {
-        output = (char *)CLOUDM_MALLOC(len + 1);
-        if (output != NULL)
+        return;
+    }
+
+    if (str_len)
+    {
+        output_str = (char *)CLOUDM_MALLOC(str_len);
+        if (output_str != NULL)
         {
-            memcpy(output, &msg[offset], len);
-            output[len] = '\0'; // Add the string terminator
+            strncpy(output_str, (char *)msg, str_len);
         }
-        offset += len;
     }
-    else
-    {
-        output = NULL;   
-    }
-
-    return offset;
-}
-
-// Unpack the JSON payload
-uint16_t CloudNet_Protocol_Mqtt_UnpackJsonPayload(uint8_t *msg, uint16_t offset, char *payload)
-{
-    return CloudNet_Protocol_Mqtt_UnpackString(msg, offset, payload);
 }
 
 char *CloudNet_Strdup(const char *s)

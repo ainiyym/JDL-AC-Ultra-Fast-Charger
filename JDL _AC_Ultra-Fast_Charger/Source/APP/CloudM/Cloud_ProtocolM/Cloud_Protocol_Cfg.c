@@ -51,7 +51,8 @@ char *Cloud_Protocol_Strdup(const char *s)
     char *new_str = (char *)CLOUDM_MALLOC(len);
     if (new_str != NULL)
     {
-        memcpy(new_str, s, len);
+        strncpy(new_str, s, len);
+        new_str[len - 1] = '\0';
     }
     return new_str;
 }

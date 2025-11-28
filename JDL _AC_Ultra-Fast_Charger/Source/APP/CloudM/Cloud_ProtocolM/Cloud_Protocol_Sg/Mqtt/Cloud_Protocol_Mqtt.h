@@ -45,7 +45,7 @@ typedef struct cloud_protocol_mqtt_message_item
     cloud_protocol_mqtt_publish_t publish;         // publish message
     cloud_protocol_mqtt_msg_ack_type_e ack_type;   // ack type
     char *ack_topic;                               // ack topic (only for messages that require acknowledgment)
-    uint32_t timestamp;                            // timestamp
+    uint64_t timestamp;                            // timestamp
     uint8_t retry_count;                           // retry count
     struct cloud_protocol_mqtt_message_item *next; // next cloud_protocol_mqtt_message_item
 } cloud_protocol_mqtt_message_item_t;
@@ -68,14 +68,15 @@ typedef struct
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-bool Cloud_Protocol_Mqtt_ClientManagerInit(cloud_protocol_mqtt_topic_config_t *cloud_protocol_mqtt_topic_configs, uint16_t topic_count,
-                            iotx_sign_mqtt_t *mqtt_client,
-                            void (*connect_cb)(bool connected),
-                            void (*msg_cb)(const char *payload));
+bool Cloud_Protocol_Mqtt_ClientManagerInit(const cloud_protocol_mqtt_topic_config_t *passive_topic_configs, uint16_t passive_topic_count,
+                                           iotx_sign_mqtt_t *mqtt_client,
+                                           void (*connect_cb)(bool connected),
+                                           void (*msg_cb)(const char *payload));
 void Cloud_Protocol_Mqtt_GetClientConfig(iotx_sign_mqtt_t *mqtt_client);
 void Cloud_Protocol_Mqtt_SetDeviceIPConnectionStatus(bool connected);
 void Cloud_Protocol_Mqtt_HandleConnected(void);
-bool Cloud_Protocol_Mqtt_AddPublishMessage(const char *topic, const char *payload, bool retain, cloud_protocol_mqtt_msg_ack_type_e ack_type, const char *ack_topic);
+void Cloud_Protocol_Mqtt_HandleDisconnected(void);
+bool Cloud_Protocol_Mqtt_AddPublishMessage(const char *topic, const char *payload, cloud_protocol_mqtt_msg_ack_type_e ack_type, const char *ack_topic);
 void Cloud_Protocol_Mqtt_HandleSubscribeAck(const char *subscribe_topic);
 void Cloud_Protocol_Mqtt_HandleReceivedMessage(const char *payload);
 void Cloud_Protocol_Mqtt_ClientManagerProcess(void);

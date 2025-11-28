@@ -47,10 +47,10 @@ typedef struct
     bool regpkg_param_is_set;
     bool dtu_is_wake_up;
     bool nettime_is_flash;
+    cloud_net_status cloud_net_is_connected[TCP_ID_MAXIMUM];
     uint16_t timer;
     uint16_t signal_strength;
     cloud_device_status_e device_status;
-    cloud_net_status_e  net_status[TCP_ID_MAXIMUM];
 } cloud_protocol_ctrl_t;
 
 /*******************************************************************************
@@ -93,11 +93,24 @@ void Cloud_Protocol_NotifyDeviceStatus(cloud_device_status_e status)
     cloud_protocol_ctrl.device_status = status;
 }
 
-void Cloud_Protocol_NotifyNetworkStatus(cloud_net_status_e status, uint8_t tcp_id)
+void Cloud_Protocol_NotifyNetworkStatus(cloud_net_status status, uint8_t tcp_id)
 {
-    if (tcp_id < TCP_ID_MAXIMUM)
+    if (status != cloud_protocol_ctrl.cloud_net_is_connected[tcp_id])
     {
-        cloud_protocol_ctrl.net_status[tcp_id] = status;
+        cloud_protocol_ctrl.cloud_net_is_connected[tcp_id] = status;
+#if (CLOUD_PROTOCOL_SG_PROTOCOL_ENABLE == 1)
+        if (tcp_id == TCP_ID_PROTOCOL_SG)
+        {
+            if (status == CLOUD_PROTOCOL_GSTATE_ONLINE)
+            {
+                Cloud_Protocol_Mqtt_HandleConnected();
+            }
+            else
+            {
+                Cloud_Protocol_Mqtt_HandleDisconnected();
+            }
+        }
+#endif
     }
 }
 

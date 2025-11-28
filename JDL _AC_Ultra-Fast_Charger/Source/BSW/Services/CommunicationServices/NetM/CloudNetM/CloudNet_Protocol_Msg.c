@@ -68,7 +68,7 @@ void CloudNet_Protocol_RcvMsg_Process(void)
 
     if (MsgRet)
     {
-        CLOUDNET_DEBUG("%s, Length: %d data[0]=%d\r\n", __func__, CloudNet_ProtocolMsg.MsgLen, CloudNet_ProtocolMsg.MsgData[0]);
+        CLOUDNET_DEBUG("%s, Length: %d type: %x data[0]=%d\r\n", __func__, CloudNet_ProtocolMsg.MsgLen, CloudNet_ProtocolMsg.MsgType, CloudNet_ProtocolMsg.MsgData[0]);
         switch (CloudNet_ProtocolMsg.MsgType)
         {
             case CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH:

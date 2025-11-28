@@ -28,7 +28,7 @@ const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Set_Param[YEECOM_AT_CMD_SET_PARAM
     { YEECOM_AT_CMD_DTUID,                         "AT*DTUID=%s#\r\n",                  { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_DTUID_Callback } },
     { YEECOM_AT_CMD_MQSET,                         "AT*MQSET%d=%s,%s,%s#\r\n",          { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_MQSET_Callback } },
     { YEECOM_AT_CMD_MQTOP,                         "AT*MQTOP%d=%s,%s#\r\n",             { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_MQTOP_Callback } },
-    { YEECOM_AT_CMD_PUBTOP,                        "AT*MQPUB%d=%s#\r\n",                { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_PUBTOP_Callback } }
+    { YEECOM_AT_CMD_PUBTOP,                        "AT*PUBTOP%d=%s#\r\n",               { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_PUBTOP_Callback } }
 };
 
 /* AT get parameter command table */
@@ -51,5 +51,5 @@ const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Get_Param[YEECOM_AT_CMD_GET_PARAM
     { YEECOM_AT_CMD_DTUID,                         "AT*DTUID?\r\n",                     { "+DTUID",        "OK",    NULL,       2000,             YeeCom_At_Get_DTUID_Callback } },
     { YEECOM_AT_CMD_MQSET,                         "AT*MQSET%d?\r\n",                   { "+MQSET",        "OK",    NULL,       2000,             YeeCom_At_Get_MQSET_Callback } },
     { YEECOM_AT_CMD_MQTOP,                         "AT*MQTOP%d?\r\n",                   { "+MQTOP",        "OK",    NULL,       2000,             YeeCom_At_Get_MQTOP_Callback } },
-    { YEECOM_AT_CMD_PUBTOP,                        "AT*MQPUB%d?\r\n",                   { "+MQPUB",        "OK",    NULL,       2000,             YeeCom_At_Get_PUBTOP_Callback } }
+    { YEECOM_AT_CMD_PUBTOP,                        "AT*PUBTOP%d?\r\n",                  { "+PUBTOP",       "OK",    NULL,       2000,             YeeCom_At_Get_PUBTOP_Callback } }
 };

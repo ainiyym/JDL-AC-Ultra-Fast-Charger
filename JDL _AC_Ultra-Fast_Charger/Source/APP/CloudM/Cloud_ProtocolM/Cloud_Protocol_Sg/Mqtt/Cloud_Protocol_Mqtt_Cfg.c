@@ -29,42 +29,108 @@
 /*******************************************************************************
 |    Static local variables Declaration
 |******************************************************************************/
+const static cloud_protocol_mqtt_topic_config_t cloud_protocol_mqtt_active_topic_configs[CLOUD_PROTOCOL_MQTT_ACTIVE_TOPIC_CONFIG_MAXIMUM] ;
 
 /*******************************************************************************
 |    Table Const Definition
 |******************************************************************************/
-// sg mqtt topic configuration table
-cloud_protocol_mqtt_topic_config_t cloud_protocol_mqtt_topic_configs[CLOUD_PROTOCOL_MQTT_TOPIC_CONFIG_COUNT] = {
+// sg mqtt active topic configuration table(Publish driver subscription)
+const static cloud_protocol_mqtt_topic_config_t cloud_protocol_mqtt_active_topic_configs[CLOUD_PROTOCOL_MQTT_ACTIVE_TOPIC_CONFIG_MAXIMUM] = {
     {
-        .publish_topic = "/sys/device/service/get",
-        .subscribe_topic = "/sys/device/service/get_reply",
-        .ack_type = CLOUD_PROTOCOL_MQTT_NEED_ACK,
-        .ack_timeout_ms = 5000,
-        .max_retry_count = 3
-    },
-    {
-        .publish_topic = "/sys/device/property/post", 
-        .subscribe_topic = "/sys/device/property/post_reply",
-        .ack_type = CLOUD_PROTOCOL_MQTT_NEED_ACK,
-        .ack_timeout_ms = 3000,
-        .max_retry_count = 2
-    },
-    {
-        .publish_topic = "/sys/device/event/post",
-        .subscribe_topic = "/sys/device/event/post_reply", 
+        .name = "Report FW Version",
+        .is_enabled = false,
+        .publish_topic = "/ota/device/inform/{productKey}/{deviceName}",
+        .subscribe_topic = NULL,
         .ack_type = CLOUD_PROTOCOL_MQTT_MSG_NO_ACK,
+        .priority = 0,
         .ack_timeout_ms = 0,
-        .max_retry_count = 0
+        .max_retry_count = CLOUD_PROTOCOL_MQTT_DEFAULT_RETRY_COUNT
     },
     {
-        .publish_topic = "",
+        .name = "Report FW Info",
+        .is_enabled = false,
+        .publish_topic = "/ota/device/upgrade/{productKey}/{deviceName}", 
+        .subscribe_topic = NULL,
+        .ack_type = CLOUD_PROTOCOL_MQTT_MSG_NO_ACK,
+        .priority = 0,
+        .ack_timeout_ms = 0,
+        .max_retry_count = CLOUD_PROTOCOL_MQTT_DEFAULT_RETRY_COUNT
+    },
+    {
+        .name = "Report OTA Progress",
+        .is_enabled = false,
+        .publish_topic = "/ota/device/progress/{productKey}/{deviceName}",
+        .subscribe_topic = NULL, 
+        .ack_type = CLOUD_PROTOCOL_MQTT_MSG_NO_ACK,
+        .priority = 0,
+        .ack_timeout_ms = 0,
+        .max_retry_count = CLOUD_PROTOCOL_MQTT_DEFAULT_RETRY_COUNT
+    },
+    {
+        .name = "Get FW Info",
+        .is_enabled = false,
+        .publish_topic = "/sys/{productKey}/{deviceName}/thing/ota/firmware/get",
         .subscribe_topic = "/sys/device/service/set",
-        .ack_type = CLOUD_PROTOCOL_MQTT_MSG_NO_ACK,
+        .ack_type = CLOUD_PROTOCOL_MQTT_NEED_ACK,
+        .priority = 0,
         .ack_timeout_ms = 0,
-        .max_retry_count = 0
+        .max_retry_count = CLOUD_PROTOCOL_MQTT_DEFAULT_RETRY_COUNT
+    },
+    {
+        .name = "NTP Request",
+        .is_enabled = true,
+        .publish_topic = "/ext/ntp/{productKey}/{deviceName}/request",
+        .subscribe_topic = "/ext/ntp/{productKey}/{deviceName}/response",
+        .ack_type = CLOUD_PROTOCOL_MQTT_NEED_ACK,
+        .priority = 0,
+        .ack_timeout_ms = 0,
+        .max_retry_count = CLOUD_PROTOCOL_MQTT_DEFAULT_RETRY_COUNT
+    },
+    {
+        .name = "Property Report",
+        .is_enabled = true,
+        .publish_topic = "/sys/{productKey}/{deviceName}/thing/event/property/post",
+        .subscribe_topic = "/sys/{productKey}/{deviceName}/thing/event/property/post_reply",
+        .ack_type = CLOUD_PROTOCOL_MQTT_NEED_ACK,
+        .priority = 0,
+        .ack_timeout_ms = 0,
+        .max_retry_count = CLOUD_PROTOCOL_MQTT_DEFAULT_RETRY_COUNT
+    },
+    {
+        .name = "Event Report",
+        .is_enabled = true,
+        .publish_topic = "/sys/{productKey}/{deviceName}/thing/model/up_raw",
+        .subscribe_topic = "/sys/{productKey}/{deviceName}/thing/model/up_raw_reply",
+        .ack_type = CLOUD_PROTOCOL_MQTT_NEED_ACK,
+        .priority = 0,
+        .ack_timeout_ms = 0,
+        .max_retry_count = CLOUD_PROTOCOL_MQTT_DEFAULT_RETRY_COUNT
     }
 };
 
+// sg mqtt passive topic configuration table(Subscribe platform publish)
+const cloud_protocol_mqtt_topic_config_t cloud_protocol_mqtt_passive_topic_configs[CLOUD_PROTOCOL_MQTT_PASSIVE_TOPIC_CONFIG_MAXIMUM] = {
+    {
+        .name = "Property Set",
+        .is_enabled = false,
+        .publish_topic = "/sys/{productKey}/{deviceName}/thing/service/property/set_reply",
+        .subscribe_topic = "/sys/{productKey}/{deviceName}/thing/service/property/set",
+        .ack_type = CLOUD_PROTOCOL_MQTT_NEED_ACK,
+        .priority = 0,
+        .ack_timeout_ms = 0,
+        .max_retry_count = CLOUD_PROTOCOL_MQTT_DEFAULT_RETRY_COUNT
+    },
+    {
+        .name = "Service Invoke",
+        .is_enabled = true,
+        .publish_topic = "/sys/{productKey}/{deviceName}/thing/service/{identifier}_reply",
+        .subscribe_topic = "/sys/{productKey}/{deviceName}/thing/service/{identifier}",
+        .ack_type = CLOUD_PROTOCOL_MQTT_NEED_ACK,
+        .priority = 0,
+        .ack_timeout_ms = 0,
+        .max_retry_count = CLOUD_PROTOCOL_MQTT_DEFAULT_RETRY_COUNT
+    }
+};
 /*******************************************************************************
 |    Static Local Functions Declaration
 |******************************************************************************/
@@ -72,5 +138,12 @@ cloud_protocol_mqtt_topic_config_t cloud_protocol_mqtt_topic_configs[CLOUD_PROTO
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
-
+const cloud_protocol_mqtt_topic_config_t* Cloud_Protocol_Mqtt_GetActiveTopicConfigByEnum(cloud_protocol_mqtt_active_topic_config_e Id)
+{
+    if (Id >= CLOUD_PROTOCOL_MQTT_ACTIVE_TOPIC_CONFIG_MAXIMUM)
+    {
+        return NULL;
+    }
+    return &cloud_protocol_mqtt_active_topic_configs[Id];
+}
 /* EOL */
