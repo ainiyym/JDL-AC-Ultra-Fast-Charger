@@ -231,6 +231,7 @@ BaseType_t MessageBuffer_ReceiveMessage(MessageBuffer_Comm_System_t *comm, Messa
 	}
 	if (header->length > 0 && data_buf != NULL)
 	{
+		memset(data_buf, 0, buf_size);
 		memcpy(data_buf, message_buf + sizeof(MessageBuffer_header_t), header->length);
 	}
 

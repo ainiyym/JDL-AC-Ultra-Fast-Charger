@@ -10,7 +10,7 @@
 #include "at_parser.h"
 
 #define OOB_MAX 5
-#define RECV_BUFFER_SIZE 255
+#define RECV_BUFFER_SIZE 512
 
 typedef struct oob_s
 {

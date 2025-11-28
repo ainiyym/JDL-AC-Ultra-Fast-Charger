@@ -26,7 +26,7 @@
 |    Macro Definition
 |******************************************************************************/
 #define CLOUDM_TASK_PERIOD								                    (20U)
-#define CLOUD_MESSAGE_BUFFER_MAX_LENGTH                                     (256U)
+#define CLOUD_MESSAGE_BUFFER_MAX_LENGTH                                     (300U)
 #define CLOUD_PROTOCOL_GAGA_DATA_BUFFER_MAX_LENGTH                          (256U)
 #define CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH                                 (MESSAGE_BUFFER_TYPE_DATA)
 #define CLOUD_MESSAGE_TYPE_CTRL                                             (MESSAGE_BUFFER_TYPE_CTRL)
@@ -44,6 +44,7 @@
 #define CloudNet_MessageBuffer_ReceiveMessage(pMsgBuffer, pType, pRcvLen)   MessageBuffer_ReceiveMessage(MessageBuffer_APP_And_NET, (MessageBuffer_type_t*)pType, pMsgBuffer, CLOUD_MESSAGE_BUFFER_MAX_LENGTH, pRcvLen, MESSAGE_BUFFER_ID_APP2, 0)
 #define CLOUDNET_INFO(fmt, ...) 	                                        LOG_INFO(LOG_MODULE_CLOUDNETM, fmt, ##__VA_ARGS__)
 #define CLOUDNET_DEBUG(fmt, ...) 	                                        LOG_DEBUG(LOG_MODULE_CLOUDNETM, fmt, ##__VA_ARGS__)
+#define CLOUDNET_WARN(fmt, ...) 	                                        LOG_WARN(LOG_MODULE_CLOUDNETM, fmt, ##__VA_ARGS__)
 #define CLOUDNET_ERROR(fmt, ...) 	                                        LOG_ERROR(LOG_MODULE_CLOUDNETM, fmt, ##__VA_ARGS__)
 #define CLOUDNET_PRINT_HEX(hexArray, len)                                   LogService_Print_Hex_Array(LOG_MODULE_CLOUDNETM, (const uint8_t*)hexArray, (uint32_t)len, 1)
 /* freeRTOS */
@@ -59,12 +60,12 @@
 
 /* Get current time during power on */
 #define CLOUD_GET_TIME_MS() ({                            \
-    static time_t base_time = 0;                          \
-    time_t current_ticks = xTaskGetTickCount();           \
-    time_t timestamp;                                     \
+    static uint64_t base_time = 0;                          \
+    uint64_t current_ticks = xTaskGetTickCount();           \
+    uint64_t timestamp;                                     \
     if (base_time == 0)                                   \
     {                                                     \
-        base_time = 1756699200; /* 2025-09-01 12:00:00 */ \
+        base_time = 1763822937000; /* 2025-09-01 12:00:00 */ \
     }                                                     \
     timestamp = base_time + current_ticks;                \
     timestamp; /* return the timestamp */                 \
@@ -154,9 +155,11 @@ typedef enum
 
 typedef enum
 {
-    CLOUD_NET_STATUS_OFFLINE = 0x00,
-    CLOUD_NET_STATUS_ONLINE = 0x01,
-}cloud_net_status_e;
+    CLOUD_PROTOCOL_GSTATE_OFFLINE = 0,
+    CLOUD_PROTOCOL_GSTATE_ONLINE,
+    CLOUD_PROTOCOL_GSTATE_UNREGISTERED,
+    CLOUD_PROTOCOL_GSTATE_X,
+}cloud_net_status;
 
 typedef enum
 {
