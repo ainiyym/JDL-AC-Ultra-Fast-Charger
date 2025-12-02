@@ -51,7 +51,7 @@ extern void CURR_Disable(void);
 extern void CURR_20msFunctionControl(void);
 extern void CURR_AdjRemoteCurr(SysConnector_Num_Enum ch, uint16_t lv_ucPercent, uint8_t lv_ucEn);
 extern uint8_t CURR_GetRemoteSuspendStatus(SysConnector_Num_Enum ch);
-extern void CURR_SetDfltCurrVal(SysConnector_Num_Enum ch, uint8_t lv_ucCurrentVal);
+extern void CURR_SetDfltCurrVal(SysConnector_Num_Enum ch, uint16_t lv_ucCurrentVal);
 extern uint8_t CURR_GetOutPutModeType(SysConnector_Num_Enum ch);
 extern uint16_t CURR_GetL1Value(SysConnector_Num_Enum ch);
 extern uint16_t CURR_GetL2Value(SysConnector_Num_Enum ch);

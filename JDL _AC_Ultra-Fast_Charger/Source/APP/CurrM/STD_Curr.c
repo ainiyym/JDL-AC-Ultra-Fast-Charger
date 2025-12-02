@@ -135,8 +135,9 @@ void CURR_InitMemory(void)
 		gv_stCurr[ch].usAdjCpCurrPrc = CURR_PERCENT_MAX;
 		gv_stCurr[ch].usReqCfgDfltCurrVal = CURR_ONE_PHASE_CP4V_DFLT_CURR_VAL;
 #elif CURR_MONITOR_MODE_TYPE == CURR_THR_PHASE_MODE_TYPE
-		gv_stCurr[ch].usDfltCurrVal = CURR_THR_PHASE_DFLT_CURR_VAL;
-		gv_stCurr[ch].usReqCfgDfltCurrVal = CURR_THR_PHASE_DFLT_CURR_VAL;
+		gv_stCurr[ch].usDfltCurrVal = CURR_THR_PHASE_CP4V_DFLT_CURR_VAL;
+		gv_stCurr[ch].usAdjCpCurrPrc = CURR_PERCENT_MAX;
+		gv_stCurr[ch].usReqCfgDfltCurrVal = CURR_THR_PHASE_CP4V_DFLT_CURR_VAL;
 #endif
 	}
 }
@@ -376,7 +377,7 @@ uint8_t CURR_GetRemoteSuspendStatus(SysConnector_Num_Enum ch)
 
 /*******************************************************************************
 Name            : CURR_SetDfltCurrVal
-Syntax          : void CURR_SetDfltCurrVal(SysConnector_Num_Enum ch, uint8_t lv_ucCurrentVal)
+Syntax          : void CURR_SetDfltCurrVal(SysConnector_Num_Enum ch, uint16_t lv_ucCurrentVal)
 Sync/Async      : Synchronous
 Reentrancy      :
 Parameters(in)  : None
@@ -386,7 +387,7 @@ Return value    : None
 Description     : -
 Call By         : -
 |******************************************************************************/
-void CURR_SetDfltCurrVal(SysConnector_Num_Enum ch, uint8_t lv_ucCurrentVal)
+void CURR_SetDfltCurrVal(SysConnector_Num_Enum ch, uint16_t lv_ucCurrentVal)
 {
 	gv_stCurr[ch].usReqCfgDfltCurrVal = (uint16_t)lv_ucCurrentVal;
 	CURR_DEBUG("connector: %d gv_stCurr[ch].usReqCfgDfltCurrVal = %d\n\r",ch, gv_stCurr[ch].usReqCfgDfltCurrVal);
@@ -476,7 +477,6 @@ static void CURR_ModeWaitHandle(SysConnector_Num_Enum ch)
 #elif CURR_MONITOR_MODE_TYPE == CURR_THR_PHASE_MODE_TYPE
 	gv_stCurr[ch].ucCurrOutputMode = CURR_THR_PHASE;
 	gv_stCurr[ch].enMode = CURR_MODE_NORMAL;
-    gv_stCurr[ch].usDfltCurrVal = CURR_THR_PHASE_DFLT_CURR_VAL;
 #endif
     CURR_RfrshCurrCaliVal(ch);
 }
@@ -554,9 +554,27 @@ static void CURR_RfrshDfltCurr(SysConnector_Num_Enum ch)
 			}
 		}
 #elif CURR_MONITOR_MODE_TYPE == CURR_THR_PHASE_MODE_TYPE
-		else if (gv_stCurr[ch].usReqCfgDfltCurrVal > CURR_THR_PHASE_DFLT_CURR_VAL)
+		else if (gv_stCurr[ch].usReqCfgDfltCurrVal > CURR_THR_PHASE_CP4V_DFLT_CURR_VAL)
 		{
-			gv_stCurr[ch].usDfltCurrVal = CURR_THR_PHASE_DFLT_CURR_VAL;
+			if (CURR_CP12V_MODE == CURR_GetCpVolMode(ch))
+			{
+				gv_stCurr[ch].usDfltCurrVal = CURR_THR_PHASE_CP12V_DFLT_CURR_VAL;
+			}
+			else
+			{
+				gv_stCurr[ch].usDfltCurrVal = CURR_THR_PHASE_CP4V_DFLT_CURR_VAL;
+			}
+		}
+		else if (gv_stCurr[ch].usReqCfgDfltCurrVal > CURR_THR_PHASE_CP12V_DFLT_CURR_VAL)
+		{
+			if (CURR_CP12V_MODE == CURR_GetCpVolMode(ch))
+			{
+				gv_stCurr[ch].usDfltCurrVal = CURR_THR_PHASE_CP12V_DFLT_CURR_VAL;
+			}
+			else
+			{
+				gv_stCurr[ch].usDfltCurrVal = gv_stCurr[ch].usReqCfgDfltCurrVal;
+			}
 		}
 #endif
 		else
