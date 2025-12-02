@@ -35,8 +35,8 @@
 #define CLOUD_PROTOCOL_CHARGING_ORDER_MAX_GUNS                                  (CLOUD_EV_MAX_CONNECTORS) // Maximum number of guns supported by the order module
 #define CLOUD_PROTOCOL_GET_BILLING_MODEL_TIME_SLOT_INFO()                       Cloud_Protocol_GetBillingModelTimeSlotInfo() // get billing model time slot info
 
-#define CLOUD_PROTOCOL_READ_ORDER_SEQUENCE(buff, bufflen)                       FlashDB_ReadValue(FLASHDB_KV_ORDER_SEQUENCE, buff, bufflen, NULL) // read order sequence from storage
-#define CLOUD_PROTOCOL_SAVE_ORDER_SEQUENCE(buff, bufflen)                       FlashDB_WriteValue(FLASHDB_KV_ORDER_SEQUENCE, buff, bufflen) // save order sequence to storage
+#define CLOUD_PROTOCOL_READ_ORDER_SEQUENCE(buff, bufflen)                       FlashDB_ReadValue(FLASHDB_KV_GAGA_ORDER_SEQUENCE, buff, bufflen, NULL) // read order sequence from storage
+#define CLOUD_PROTOCOL_SAVE_ORDER_SEQUENCE(buff, bufflen)                       FlashDB_WriteValue(FLASHDB_KV_GAGA_ORDER_SEQUENCE, buff, bufflen) // save order sequence to storage
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/

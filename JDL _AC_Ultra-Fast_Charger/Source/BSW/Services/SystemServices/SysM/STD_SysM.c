@@ -570,15 +570,15 @@ static void SYSM_OutPutDefaultCurrManage(void)
 			stCpModeLast[i] = SYSM_GetCpVolMode(i);
 			if (SYSM_CP_MODE_4V == stCpModeLast[i])
 			{
-				max_charging_current = CURR_ONE_PHASE_CP4V_DFLT_CURR_VAL;
-				SYSM_DEBUG("Connector:%d CP Mode 4V set default current to %d\r\n", i, CURR_ONE_PHASE_CP4V_DFLT_CURR_VAL);
-				CURR_SetDfltCurrVal(i, CURR_ONE_PHASE_CP4V_DFLT_CURR_VAL);
+				max_charging_current = CURR_THR_PHASE_CP4V_DFLT_CURR_VAL;
+				SYSM_DEBUG("Connector:%d CP Mode 4V set default current to %d\r\n", i, CURR_THR_PHASE_CP4V_DFLT_CURR_VAL);
+				CURR_SetDfltCurrVal(i, CURR_THR_PHASE_CP4V_DFLT_CURR_VAL);
 			}
 			else if (SYSM_CP_MODE_12V == stCpModeLast[i])
 			{
-				max_charging_current = CURR_ONE_PHASE_CP12V_DFLT_CURR_VAL;
-				SYSM_DEBUG("Connector:%d CP Mode 12V set default current to %d\r\n", i, CURR_ONE_PHASE_CP12V_DFLT_CURR_VAL);
-				CURR_SetDfltCurrVal(i, CURR_ONE_PHASE_CP12V_DFLT_CURR_VAL);
+				max_charging_current = CURR_THR_PHASE_CP12V_DFLT_CURR_VAL;
+				SYSM_DEBUG("Connector:%d CP Mode 12V set default current to %d\r\n", i, CURR_THR_PHASE_CP12V_DFLT_CURR_VAL);
+				CURR_SetDfltCurrVal(i, CURR_THR_PHASE_CP12V_DFLT_CURR_VAL);
 			}
 			else
 			{

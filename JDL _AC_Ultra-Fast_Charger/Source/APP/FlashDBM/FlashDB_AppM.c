@@ -16,6 +16,7 @@
 #include "STD_SysM.h"
 #include "Cloud_EV_Charger_Information.h"
 #include "Cloud_Protocol_ChargingOrder.h"
+#include "Cloud_Protocol_EventPost_FwInfo.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -58,11 +59,12 @@ typedef struct
 /*******************************************************************************
 |    Static local variables Declaration
 |******************************************************************************/
-uint8_t YeeComxxx_Device_Init_Flag = 0;
-char SN[CLOUD_EV_SN_LEN] = "33030300000001";
-uint16_t Order_Sequence[SYS_CONNECTOR_NUM_MAX] = {1,1};
-uint32_t FlashDb_TsCounts[FAL_PART_TABLE_TSDB_COUNT] = {0};
-
+static uint8_t flash_db_kv_4g_device_init_flag = 0;
+static char flash_db_kv_gaga_sn[CLOUD_EV_SN_LEN] = "33030300000001";
+static uint16_t flash_db_kv_gaga_order_sequence[SYS_CONNECTOR_NUM_MAX] = {1,1};
+static uint32_t flash_db_kv_synced_tsdb_timestamp[FAL_PART_TABLE_TSDB_COUNT] = {0};
+static char cloud_protocol_kv_sg_billing_mode_number[V2G_MAX_MODEL_ID_LEN] = ""; // Default billing mode number code
+static uint32_t cloud_protocol_kv_sg_sn = 1; // Default SN code
 /*******************************************************************************
 |    Global variables Declaration
 |******************************************************************************/
@@ -80,10 +82,12 @@ static bool FlashDB_Order_Gun2_Set_Status_Cb(fdb_tsl_t tsl, void *arg);
 |******************************************************************************/
 static FlashDB_AppKvDBDefaultCfg_t FlashDB_AppKvDBDefaultCfgTable[] = 
 {
-	{FLASHDB_KV_M4G_DEVICE_INIT_FLAG, 	&kvdb, 		"M4G_Device_Init_Flag",			FLASHDB_TYPE_INT, 					(uint8_t*)&YeeComxxx_Device_Init_Flag,					sizeof(YeeComxxx_Device_Init_Flag)},
-	{FLASHDB_KV_SN, 					&kvdb, 		"SN", 							FLASHDB_TYPE_STRING,				(char*)SN,												0},
-	{FLASHDB_KV_ORDER_SEQUENCE, 		&kvdb, 		"Order_Sequence", 				FLASHDB_TYPE_BLOB, 					(uint16_t*)&Order_Sequence,								sizeof(Order_Sequence)},
-	{FLASHDB_KV_TS_TOTAL_COUNT, 		&kvdb, 		"TS_Total_Count", 				FLASHDB_TYPE_BLOB, 					(uint32_t*)&FlashDb_TsCounts,							sizeof(FlashDb_TsCounts)},
+	{FLASHDB_KV_M4G_DEVICE_INIT_FLAG, 	&kvdb, 		"flash_db_kv_4g_device_init_flag",		FLASHDB_TYPE_INT, 					(uint8_t*)&flash_db_kv_4g_device_init_flag,				sizeof(flash_db_kv_4g_device_init_flag)},
+	{FLASHDB_KV_GAGA_SN, 				&kvdb, 		"flash_db_kv_gaga_sn", 					FLASHDB_TYPE_STRING,				(char*)flash_db_kv_gaga_sn,								0},
+	{FLASHDB_KV_GAGA_ORDER_SEQUENCE, 	&kvdb, 		"flash_db_kv_gaga_order_sequence", 		FLASHDB_TYPE_BLOB, 					(uint16_t*)&flash_db_kv_gaga_order_sequence,			sizeof(flash_db_kv_gaga_order_sequence)},
+	{FLASHDB_KV_SYNC_TSDB_TIMESTAMP, 	&kvdb, 		"flash_db_kv_synced_tsdb_timestamp", 	FLASHDB_TYPE_BLOB, 					(uint32_t*)&flash_db_kv_synced_tsdb_timestamp,			sizeof(flash_db_kv_synced_tsdb_timestamp)},
+	{FLASHDB_KV_SG_BILLING_MODE_NO, 	&kvdb, 		"flash_db_kv_sg_billing_mode_number",	FLASHDB_TYPE_STRING,				(char*)cloud_protocol_kv_sg_billing_mode_number,		0},
+	{FLASHDB_KV_SG_SN, 					&kvdb, 		"flash_db_kv_sg_sn", 					FLASHDB_TYPE_INT, 					(uint32_t*)&cloud_protocol_kv_sg_sn,					sizeof(cloud_protocol_kv_sg_sn)}
 };
 
 static FlashDB_AppTsdb_InstanceCfg_t FlashDB_AppTsdbInstanceCfgTable[] =
@@ -171,20 +175,21 @@ int FlashDB_AppM_Init(void)
 			}
 		}
 	}
-	Cloud_Ev_Set_Constant_Info(CLOUD_CONST_SERIAL_NUMBER, SN);
+	Cloud_Ev_Set_Constant_Info(CLOUD_CONST_SERIAL_NUMBER, flash_db_kv_gaga_sn);
 #if (1 == FLASHDB_TEST_ENABLE)
-	FlashDB_WriteValue(FLASHDB_KV_M4G_DEVICE_INIT_FLAG, (uint8_t*)&YeeComxxx_Device_Init_Flag, 1);
+	FlashDB_WriteValue(FLASHDB_KV_M4G_DEVICE_INIT_FLAG, (uint8_t*)&flash_db_kv_4g_device_init_flag, 1);
 #endif
-	tsdb_time_synced_init(&FlashDb_TsCounts[0]);
+	tsdb_time_synced_init(&flash_db_kv_synced_tsdb_timestamp[0]);
+	Cloud_Protocol_EventPost_FwInfo_Set(CLOUD_PROTOCOL_EVENT_FW_MODEL_NO, (void *)cloud_protocol_kv_sg_billing_mode_number);
 
 	return 0;
 }
 
 void FlashDB_Powerdown_Handler(void)
 {
-	memcpy(&FlashDb_TsCounts[0], powerdown_get_ts_timestamp(), sizeof(FlashDb_TsCounts));
-	FlashDB_WriteValue(FLASHDB_KV_TS_TOTAL_COUNT, &FlashDb_TsCounts, sizeof(FlashDb_TsCounts));
-	FLASHDB_TRACE("<%s>TS Counts saved to FlashDB. TsCount[0]%d TsCount[1]%d\r\n", __func__, FlashDb_TsCounts[0], FlashDb_TsCounts[1]);
+	memcpy(&flash_db_kv_synced_tsdb_timestamp[0], powerdown_get_ts_timestamp(), sizeof(flash_db_kv_synced_tsdb_timestamp));
+	FlashDB_WriteValue(FLASHDB_KV_SYNC_TSDB_TIMESTAMP, &flash_db_kv_synced_tsdb_timestamp, sizeof(flash_db_kv_synced_tsdb_timestamp));
+	FLASHDB_TRACE("<%s>TS Counts saved to FlashDB. TsCount[0]%d TsCount[1]%d\r\n", __func__, flash_db_kv_synced_tsdb_timestamp[0], flash_db_kv_synced_tsdb_timestamp[1]);
 }
 
 /**
@@ -375,7 +380,7 @@ FlashDB_ReturnType_t FlashDB_Append_Data(FlashDB_App_TSDB_Enum tsdb_id, const vo
 	uint32_t timestamp = 0;
 	timestamp = FlashDB_AppTsdbInstanceCfgTable[tsdb_id].get_ts_time_cb();
 	return FlashDB_Append_Data_With_Ts(tsdb_id, data, size, timestamp);
-	// return FlashDB_Append_Data_With_Ts(tsdb_id, data, size, ++FlashDb_TsCounts);
+	// return FlashDB_Append_Data_With_Ts(tsdb_id, data, size, ++flash_db_kv_synced_tsdb_timestamp);
 }
 
 FlashDB_ReturnType_t FlashDB_Append_Data_With_Ts(FlashDB_App_TSDB_Enum tsdb_id, const void *data, size_t size, uint32_t timestamp)

@@ -6,6 +6,7 @@
 #include "semphr.h"
 #include "queue.h"
 #include "Cloud_Cfg.h"
+#include "CloudNet_MqttM.h"
 
 #define YEECOM_AT_CMD_SEND_BUF_SIZE             (YEECOM_OOB_CMD_DATA_PASSTHROUGH_BUF_LEN)
 
@@ -39,6 +40,7 @@ typedef struct
     YeeCom_AT_Device_Struct Device;                 /* Device status and parameter state */
     YeeCom_AT_Cmd CurrentCmd;                       /* AT command */
     char AtCmdSendBuf[YEECOM_AT_CMD_SEND_BUF_SIZE]; /* AT command send buffer */
+    uint8_t InitSuccessFlag;                        /* Device init success flag */
     uint8_t ErrorCnt;                               /* Error cnt */
     uint8_t ErrorState;                             /* Error state */
     uint16_t TimerCnt;                              /* Timer cnt */
@@ -60,7 +62,6 @@ static void YeeCom_SetDeviceInitFlag(bool flag);
 
 static YeeComxxx_Struct gv_YeeComxxx;
 static YeeComxxx_DeviceInfo_struct gv_YeeComxxx_device_info;
-extern uint8_t YeeComxxx_Device_Init_Flag;
 
 uint8_t YeeCom_AtCmd_Send(YeeCom_AT_Cmd_Get_Param_Type cmd_type, YeeCom_AT_Cmd cmd, const char *format, ...)
 {
@@ -228,6 +229,8 @@ void YeeCom_SetDeviceInfo_rssi(uint16_t rssi)
     gv_YeeComxxx_device_info.Rssi = rssi;
     YeeCom_Log("<%s> RSSI: %d\r\n", __func__, gv_YeeComxxx_device_info.Rssi);
 
+    CloudNetM_MqttSetSignalStrength(rssi);
+
     uint8_t msg[2] = {0};
     msg[0] = CLOUD_MESSAGE_NOTIFY_TYPE_SIGNAL_STRENGTH;
     msg[1] = rssi;
@@ -241,6 +244,11 @@ void YeeCom_SetDeviceInfo_iccid(const char* iccid)
         memcpy(&gv_YeeComxxx_device_info.ICCID, iccid, YEECOM_ICCID_LENGTH);
         gv_YeeComxxx_device_info.ICCID[YEECOM_ICCID_LENGTH] = '\0';
         YeeCom_Log("<%s> ICCID: %s\r\n", __func__, gv_YeeComxxx_device_info.ICCID);
+
+        uint8_t msg[2 + YEECOM_ICCID_LENGTH] = {0};
+        msg[0] = CLOUD_MESSAGE_NOTIFY_TYPE_ICCID;
+        memcpy(&msg[1], gv_YeeComxxx_device_info.ICCID, YEECOM_ICCID_LENGTH);
+        CloudNet_Protocol_SendMsg((uint8_t *)msg, 1 + YEECOM_ICCID_LENGTH, CLOUD_MESSAGE_TYPE_NOTIFY);
     }
 }
 
@@ -276,6 +284,11 @@ void YeeCom_SetDeviceInfo_gstate(uint8_t id, const uint8_t gstate)
         msg[1] = gstate;
         msg[2] = id;
         CloudNet_Protocol_SendMsg((uint8_t *)msg, 3, CLOUD_MESSAGE_TYPE_NOTIFY);
+
+        if (id == TCP_ID_PROTOCOL_SG)
+        {
+            CloudNetM_MqttSetConnectionStatus(gstate);
+        }
     }
 }
 
@@ -365,10 +378,10 @@ static void YeeCom_OobRegister(void)
 
 static void YeeCom_SetDeviceInitFlag(bool flag)
 {
-    if (flag != YeeComxxx_Device_Init_Flag)
+    if (flag != gv_YeeComxxx.InitSuccessFlag)
     {
-        YeeComxxx_Device_Init_Flag = flag;
-        FlashDB_WriteValue(FLASHDB_KV_M4G_DEVICE_INIT_FLAG, (uint8_t *)&YeeComxxx_Device_Init_Flag, sizeof(YeeComxxx_Device_Init_Flag));
+        gv_YeeComxxx.InitSuccessFlag = flag;
+        FlashDB_WriteValue(FLASHDB_KV_M4G_DEVICE_INIT_FLAG, (uint8_t *)&gv_YeeComxxx.InitSuccessFlag, sizeof(gv_YeeComxxx.InitSuccessFlag));
     }
 }
 
@@ -540,7 +553,7 @@ static void YeeCom_ErrorHandle(void)
 static void YeeCom_ReadyHandle(void)
 {
     uint8_t msg[2] = {0};
-    if (YeeComxxx_Device_Init_Flag && gv_YeeComxxx_device_info.SimReadyStatus)
+    if (gv_YeeComxxx.InitSuccessFlag && gv_YeeComxxx_device_info.SimReadyStatus)
     {
         YeeCom_SetDeviceState(YEECOM_NET_READY, 1);
         msg[0] = (uint8_t)CLOUD_MESSAGE_NOTIFY_TYPE_DEVICE_STATUS;
@@ -664,11 +677,11 @@ void YeeCom_Init(void)
         return;
     }
     YeeCom_OobRegister();
-
-    YeeCom_Log("<%s> YeeComxxx_Device_Init_Flag: %d\r\n", __func__, YeeComxxx_Device_Init_Flag);
-    if (1 != YeeComxxx_Device_Init_Flag)
+    FlashDB_ReadValue(FLASHDB_KV_M4G_DEVICE_INIT_FLAG, (uint8_t *)&gv_YeeComxxx.InitSuccessFlag, sizeof(gv_YeeComxxx.InitSuccessFlag), NULL);
+    YeeCom_Log("<%s> gv_YeeComxxx.InitSuccessFlag: %d\r\n", __func__, gv_YeeComxxx.InitSuccessFlag);
+    if (1 != gv_YeeComxxx.InitSuccessFlag)
     {
-        if (0 != YeeComxxx_Device_Init_Flag)
+        if (0 != gv_YeeComxxx.InitSuccessFlag)
         {
             YeeCom_SetDeviceInitFlag(false);
         }
