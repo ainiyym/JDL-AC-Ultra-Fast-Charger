@@ -74,14 +74,28 @@ StreamBuffStatus_Enum_t StreamBuff_ReceiveMessage(StreamBuffM_t *message, uint32
 
 void StreamBuff_StackInit(void)
 {
-    // 创建消息缓冲区
-    for (uint8_t i = 0; i < STREAM_USART_MAX_NUMBER; i++)
+    // 创建消息缓存
+    Message_Handle[STREAM_USART1_CH].handle = xStreamBufferCreate(STREAM_BUFFER_USART1_SIZE, 1);
+    if (Message_Handle[STREAM_USART1_CH].handle == NULL)
     {
-        // 创建消息缓存
-        Message_Handle[i].handle = xStreamBufferCreate(STREAM_BUFFER_SIZE, 1);
-        if (Message_Handle[i].handle == NULL)
-        {
-           Core_printf("Failed to create StreamBuff[%d]. \r\n", i);
-        }
+        Core_printf("Failed to create StreamBuff[%d]. \r\n", STREAM_USART1_CH);
+    }
+
+    Message_Handle[STREAM_USART2_CH].handle = xStreamBufferCreate(STREAM_BUFFER_USART2_SIZE, 1);
+    if (Message_Handle[STREAM_USART2_CH].handle == NULL)
+    {
+        Core_printf("Failed to create StreamBuff[%d]. \r\n", STREAM_USART2_CH);
+    }
+
+    Message_Handle[STREAM_USART4_CH].handle = xStreamBufferCreate(STREAM_BUFFER_USART4_SIZE, 1);
+    if (Message_Handle[STREAM_USART4_CH].handle == NULL)
+    {
+        Core_printf("Failed to create StreamBuff[%d]. \r\n", STREAM_USART4_CH);
+    }
+
+    Message_Handle[STREAM_USART5_CH].handle = xStreamBufferCreate(STREAM_BUFFER_USART5_SIZE, 1);
+    if (Message_Handle[STREAM_USART5_CH].handle == NULL)
+    {
+        Core_printf("Failed to create StreamBuff[%d]. \r\n", STREAM_USART5_CH);
     }
 }

@@ -26,7 +26,7 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
-#define MESSAGE_BUFFER_APP1_2_NET_SIZE          (300)
+#define MESSAGE_BUFFER_APP1_2_NET_SIZE          (512U)
 #define MESSAGE_BUFFER_APP2_2_NET_MAX_SIZE      (MESSAGE_BUFFER_APP1_2_NET_SIZE * 4)
 #define MESSAGE_BUFFER_ID_APP1                  (1)
 #define MESSAGE_BUFFER_ID_APP2                  (2)

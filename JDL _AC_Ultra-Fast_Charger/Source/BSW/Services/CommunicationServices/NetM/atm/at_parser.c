@@ -8,9 +8,10 @@
 #include "infra_types.h"
 #include "wrappers.h"
 #include "at_parser.h"
+#include "YeeComxxx_At.h"
 
-#define OOB_MAX 5
-#define RECV_BUFFER_SIZE 512
+#define OOB_MAX (YEECOM_AT_CMD_OOBPARAM_COUNT + 1)
+#define RECV_BUFFER_SIZE (YEECOM_OOB_CMD_DATA_PASSTHROUGH_BUF_LEN + 48)
 
 typedef struct oob_s
 {

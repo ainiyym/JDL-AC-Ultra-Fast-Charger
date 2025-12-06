@@ -86,8 +86,8 @@ static LogServiceCtrl_Struct gv_stLogServiceCtrl = {  (  LOG_STATE_ON  << LOG_MO
                                                       | (LOG_STATE_ON  << LOG_MODULE_CLOUDM)
                                                       | (LOG_STATE_ON  << LOG_MODULE_CLOUDNETM)
                                                       | (LOG_STATE_ON  << LOG_MODULE_NVM)
-													  | (LOG_STATE_ON  << LOG_MODULE_SYSM)
-													  | (LOG_STATE_ON  << LOG_MODULE_MCAL),
+													  | (LOG_STATE_OFF  << LOG_MODULE_SYSM)
+													  | (LOG_STATE_OFF  << LOG_MODULE_MCAL),
 
 													    (LOG_STATE_ON << LOG_LEVEL_TRACE)
 													  | (LOG_STATE_ON << LOG_LEVEL_DEBUG)

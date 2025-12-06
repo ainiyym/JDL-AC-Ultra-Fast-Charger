@@ -13,7 +13,7 @@
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "Cloud_Protocol_Sg_Cfg.h"
+#include "Cloud_Protocol_EventPost_Config.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -30,6 +30,13 @@
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
+typedef enum
+{
+    CLOUD_PROTOCOL_SG_REPORT_EVENT_VER_INFO,                   // version info event
+    CLOUD_PROTOCOL_SG_REPORT_EVENT_FW_INFO,                    // firmware info event
+    CLOUD_PROTOCOL_SG_REPORT_EVENT_OTHER,                      // other event
+    CLOUD_PROTOCOL_SG_REPORT_EVENT_UNKNOWN                     // unknown event
+} cloud_protocol_sg_report_event_type_t;
 
 /*******************************************************************************
 |    Table Definition
@@ -38,6 +45,6 @@
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-extern void cloud_protocol_report_response(const char *payload, uint16_t payload_len);
+extern bool cloud_protocol_report_response(const char *payload, uint16_t payload_len);
 #endif /* __CLOUD_PROTOCOL_SG_REPORTRESPONSE_H */
 /* EOL */

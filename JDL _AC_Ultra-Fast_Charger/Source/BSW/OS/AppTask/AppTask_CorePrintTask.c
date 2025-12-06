@@ -73,8 +73,8 @@ void CorePrint_TaskInit(void)
     // 创建互斥锁用于内存池管理
     printMutex = xSemaphoreCreateMutex();
 
-    // 初始化内存池 (例如4KB)
-    memory_pool.pool_size = 4096;
+    // 初始化内存池 (例如2KB)
+    memory_pool.pool_size = 2048;
     memory_pool.memory_pool = pvPortMalloc(memory_pool.pool_size);
     memory_pool.used = 0;
 

@@ -182,7 +182,7 @@ void YeeCom_At_OOB_Data_Passthrough_Callback(void *arg, char *buf, int buflen)
                 break;
             case TCP_ID_PROTOCOL_SG:
                 msg[0] = CLOUD_MESSAGE_DATA_TYPE_CLOUD_MQTT_PAYLOAD;
-                YeeCom_Log("<%s> rcv len: %d send mqtt payload data passthrough:%s\r\n", __func__, hex_data_len, &msg[1]);
+                // YeeCom_Log("<%s> rcv len: %d send mqtt payload data passthrough:%s\r\n", __func__, hex_data_len, &msg[1]);
                 CloudNet_Protocol_SendMsg((uint8_t *)msg, sizeof(msg), CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
                 break;
             default:
@@ -749,7 +749,7 @@ void YeeCom_At_Get_MQTOP_Callback(void *arg, char *buf, int buflen)
 
         if (result == 2)
         {
-            YeeCom_Log("<%s> socket_id: %d, sub_topic: %s\r\n", __func__, socket_id, sub_topic);
+            // YeeCom_Log("<%s> socket_id: %d, sub_topic: %s\r\n", __func__, socket_id, sub_topic);
 
             if (socket_id < TCP_ID_MAXIMUM)
             {

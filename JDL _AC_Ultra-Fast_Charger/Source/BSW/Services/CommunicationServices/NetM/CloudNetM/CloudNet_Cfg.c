@@ -42,24 +42,6 @@
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
-// Unpacking string (corresponding to the sender)
-void CloudNet_Protocol_Mqtt_UnpackString(uint8_t *msg, char *output_str, uint16_t str_len)
-{
-    if ((msg == NULL) || (output_str != NULL))
-    {
-        return;
-    }
-
-    if (str_len)
-    {
-        output_str = (char *)CLOUDM_MALLOC(str_len);
-        if (output_str != NULL)
-        {
-            strncpy(output_str, (char *)msg, str_len);
-        }
-    }
-}
-
 char *CloudNet_Strdup(const char *s)
 {
     if (s == NULL)

@@ -31,8 +31,8 @@
 
 #define CLOUD_EV_MAX_CONNECTORS        (SYS_CONNECTOR_NUM_MAX) // Maximum number of connectors supported
 
-#define CLOUD_EV_MAX_CHARGING_VOLTAGE   (1000U) // V
-#define CLOUD_EV_MAX_CHARGING_CURRENT   (125U) // A
+#define CLOUD_EV_MAX_CHARGING_VOLTAGE   (380U) // V
+#define CLOUD_EV_MAX_CHARGING_CURRENT   (450U) // A
 #define CLOUD_EV_MAX_TEMPERATURE        (150U)  // °C
 
 #define CLOUD_EV_DEBUG(fmt, ...) 	                                    LOG_DEBUG(LOG_MODULE_CLOUDM, fmt, ##__VA_ARGS__)

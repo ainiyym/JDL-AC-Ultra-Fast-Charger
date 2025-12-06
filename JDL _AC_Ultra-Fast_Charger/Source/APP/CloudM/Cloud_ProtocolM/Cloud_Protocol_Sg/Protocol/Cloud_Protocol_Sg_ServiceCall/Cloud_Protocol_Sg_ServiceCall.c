@@ -51,8 +51,9 @@
  * @param payload_len Payload length
  * @return NULL
  */
-void cloud_protocol_service_call(const char *payload, uint16_t payload_len)
+bool cloud_protocol_service_call(const char *payload, uint16_t payload_len)
 {
-    // Implementation of handling report response message
+    // Implementation of handling service call message
+	return true;
 }
 /* EOL */

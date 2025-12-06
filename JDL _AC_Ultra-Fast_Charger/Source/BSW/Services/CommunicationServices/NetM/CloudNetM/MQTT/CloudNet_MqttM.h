@@ -39,6 +39,8 @@
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
+extern void CloudNetM_MqttSetSignalStrength(uint16_t signal_strength);
+extern void CloudNetM_MqttSetConnectionStatus(bool is_connected);
 extern bool CloudNetM_MqttConnect(uint8_t socket_id, uint8_t *payload, uint16_t length);
 extern bool CloudNetM_MqttDisconnect(uint8_t socket_id, uint8_t *payload, uint16_t length);
 extern bool CloudNetM_MqttPublish(uint8_t socket_id, uint8_t *payload, uint16_t length);

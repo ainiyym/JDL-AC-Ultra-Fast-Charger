@@ -28,7 +28,7 @@
 #define CLOUD_PROTOCOL_MQTT_PROCESS_INTERVAL_MS 		                    5000	    // processing interval 5 seconds
 #define CLOUD_PROTOCOL_MQTT_RECONNECT_INTERVAL_MS 			                30000	    // reconnect interval 30 seconds
 
-#define CLOUD_PROTOCOL_MQTT_DEFAULT_RETRY_COUNT                             3       // default retry attempts
+#define CLOUD_PROTOCOL_MQTT_DEFAULT_RETRY_COUNT                             3         // default retry attempts
 #define CLOUD_PROTOCOL_MQTT_DEFAULT_PUBLISH_TOPIC			                "SG_Charger_001/pub/topic"	// default publish topic
 #define CLOUD_PROTOCOL_MQTT_DEFAULT_SUBSCRIBE_TOPIC		                    "SG_Charger_001/sub/topic"	// default subscribe topic
 /*******************************************************************************
@@ -81,7 +81,7 @@ typedef enum
 |    Typedef Definition
 |******************************************************************************/
 typedef void (*cloud_protocol_mqtt_connect_cb)(bool connected);
-typedef void (*cloud_protocol_mqtt_msg_cb)(const char *payload);
+typedef bool (*cloud_protocol_mqtt_msg_cb)(const char *payload);
 
 // MQTT publishes parameters
 typedef struct

@@ -38,6 +38,6 @@
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-extern void cloud_protocol_service_call(const char *payload, uint16_t payload_len);
+extern bool cloud_protocol_service_call(const char *payload, uint16_t payload_len);
 #endif /* __CLOUD_PROTOCOL_SG_SERVICECALL_H */
 /* EOL */

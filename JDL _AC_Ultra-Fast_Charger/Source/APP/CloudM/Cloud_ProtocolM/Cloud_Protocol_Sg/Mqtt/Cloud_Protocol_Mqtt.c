@@ -180,15 +180,27 @@ void Cloud_Protocol_Mqtt_HandleReceivedMessage(const char *payload)
     {
         return;
     }
+    bool response_correct = true;
 
-    CLOUD_INFO("Received message: %s\r\n", payload);
+    // CLOUD_INFO("Received message: %s\r\n", payload);
 
     /* Call message callback */
     if (cloud_protocol_mqtt_client.message_callback != NULL)
     {
-        cloud_protocol_mqtt_client.message_callback(payload);
+        response_correct = cloud_protocol_mqtt_client.message_callback(payload);
+        cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_ACTIVE;
     }
-    cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_IDLE;
+
+    if (!response_correct && cloud_protocol_mqtt_client.last_processed_msg != NULL)
+    {
+        Cloud_Protocol_Mqtt_HandleMessageSendFail(cloud_protocol_mqtt_client.last_processed_msg);
+        return;
+    }
+
+    /* Remove message from queue */
+    Cloud_Protocol_Mqtt_RemoveMessageFromQueue(cloud_protocol_mqtt_client.last_processed_msg);
+    cloud_protocol_mqtt_client.last_processed_msg = NULL;
+    CLOUD_INFO("<%s>Message processed and removed from queue\r\n", __func__);
 }
 
 /**
@@ -204,9 +216,7 @@ void Cloud_Protocol_Mqtt_HandleConnected(void)
         cloud_protocol_mqtt_client.connect_callback(true);
     }
 
-    /* Initialize polling state */
-    cloud_protocol_mqtt_client.switch_default_topic_enabled = ENABLE;
-    cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_IDLE;
+    cloud_protocol_mqtt_client.ctrl.last_connect_time = CLOUD_GET_TIME_MS();
 
     CLOUD_DEBUG("<%s> MQTT connected successfully, starting in polling mode\r\n", __func__);
 }
@@ -231,7 +241,7 @@ void Cloud_Protocol_Mqtt_HandleSubscribeAck(const char *subscribe_topic)
     }
     else
     {
-        CLOUD_INFO("<%s> Subscribe ACK success.\r\n", __func__);
+        CLOUD_INFO("<%s> <%s>Subscribe ACK success.\r\n", __func__, subscribe_topic);
         cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_ACTIVE;
         cloud_protocol_mqtt_client.current_topic_is_polling = true;
         cloud_protocol_mqtt_client.last_subscribe_time = CLOUD_GET_TIME_MS();
@@ -268,8 +278,6 @@ static void Cloud_Protocol_Mqtt_StartConnection(void)
 void Cloud_Protocol_Mqtt_HandleDisconnected(void)
 {
     cloud_protocol_mqtt_client.ctrl.net_status = CLOUD_PROTOCOL_MQTT_STATE_DISCONNECTED;
-    // cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_IDLE;
-    // cloud_protocol_mqtt_client.switch_default_topic_enabled = DISABLE;
 
     if (0 == cloud_protocol_mqtt_client.ctrl.ip_connected)
     {
@@ -277,13 +285,6 @@ void Cloud_Protocol_Mqtt_HandleDisconnected(void)
     }
 
     CLOUD_INFO("<%s> MQTT disconnected\r\n", __func__);
-
-    /* Clean up current subscribe topic */
-    if (cloud_protocol_mqtt_client.current_subscribe_topic != NULL)
-    {
-        CLOUDM_FREE(cloud_protocol_mqtt_client.current_subscribe_topic);
-        cloud_protocol_mqtt_client.current_subscribe_topic = NULL;
-    }
 
     /* Call connect callback */
     if (cloud_protocol_mqtt_client.connect_callback != NULL)
@@ -513,8 +514,8 @@ static void Cloud_Protocol_Mqtt_SendSubscribePublishMsg(const cloud_protocol_mqt
 
     Cloud_Protocol_SendMsg(msg, offset, CLOUD_MESSAGE_TYPE_CTRL);
 
-    CLOUD_INFO("<%s> msg:\r\n", __func__);
-    CLOUD_PRINT_HEX(&msg[2], offset - 2);
+    // CLOUD_INFO("<%s> msg:\r\n", __func__);
+    // CLOUD_PRINT_HEX(&msg[2], offset - 2);
 }
 
 static uint16_t Cloud_Protocol_Mqtt_PackString(uint8_t *buffer, const char *str, uint16_t str_len)
@@ -550,22 +551,19 @@ static bool Cloud_Protocol_Mqtt_ProcessSingleMessage(cloud_protocol_mqtt_message
 
     if (sent)
     {
-        /* Remove message from queue */
-        Cloud_Protocol_Mqtt_RemoveMessageFromQueue(msg);
-
         /* Update subscription state for messages that require ACK */
         if (msg->ack_type == CLOUD_PROTOCOL_MQTT_NEED_ACK)
         {
             cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_WAITING_MSG_ACK;
             cloud_protocol_mqtt_client.last_subscribe_time = CLOUD_GET_TIME_MS();
         }
-
-        CLOUD_INFO("<%s> Message processed and removed.\r\n", __func__);
+        CLOUD_INFO("<%s> Message sent successfully.\r\n", __func__);
         return true;
     }
     else
     {
         /* Send failed, handle retry */
+        CLOUD_ERROR("<%s> Message send failed.\r\n", __func__);
         Cloud_Protocol_Mqtt_HandleMessageSendFail(msg);
         return false;
     }
@@ -577,8 +575,7 @@ static bool Cloud_Protocol_Mqtt_ProcessSingleMessage(cloud_protocol_mqtt_message
  */
 static void Cloud_Protocol_Mqtt_PollingCurrentSubscribe(void)
 {
-    if (cloud_protocol_mqtt_client.ctrl.net_status != CLOUD_PROTOCOL_MQTT_STATE_CONNECTED \
-        || cloud_protocol_mqtt_client.current_subscribe_topic == NULL \
+    if (cloud_protocol_mqtt_client.current_subscribe_topic == NULL \
         || cloud_protocol_mqtt_client.sub_state != CLOUD_PROTOCOL_SUB_STATE_ACTIVE)
     {
         cloud_protocol_mqtt_client.current_topic_is_polling = false;
@@ -648,19 +645,19 @@ static void Cloud_Protocol_Mqtt_PollingCurrentSubscribe(void)
  */
 static void Cloud_Protocol_Mqtt_ProcessMessageQueue(void)
 {
-    if (cloud_protocol_mqtt_client.ctrl.net_status != CLOUD_PROTOCOL_MQTT_STATE_CONNECTED)
+    if (CLOUD_PROTOCOL_SUB_STATE_WAITING_ACK == cloud_protocol_mqtt_client.sub_state || 
+        CLOUD_PROTOCOL_SUB_STATE_WAITING_MSG_ACK == cloud_protocol_mqtt_client.sub_state)
     {
         return;
     }
-
     /* Process current subscribe messages */
     Cloud_Protocol_Mqtt_PollingCurrentSubscribe();
 
     /* If current topic messages finished and not waiting for message ACK, resume polling */
-    if (cloud_protocol_mqtt_client.current_topic_is_polling == false && cloud_protocol_mqtt_client.sub_state != CLOUD_PROTOCOL_SUB_STATE_WAITING_MSG_ACK)
+    if (cloud_protocol_mqtt_client.current_topic_is_polling == false)
     {
         cloud_protocol_mqtt_client.switch_default_topic_enabled = ENABLE;
-        // cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_IDLE;
+        cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_IDLE;
         // CLOUD_DEBUG("<%s>Queue finished, enabling subscription polling\r\n", __func__);
     }
 }
@@ -674,10 +671,10 @@ static const cloud_protocol_mqtt_topic_config_t *Cloud_Protocol_Mqtt_GetPassiveT
 }
 
 /**
- * @brief Build combined topic with wildcard
+ * @brief Build combined topic with passive topics
  * @param combined_topic output buffer for combined topic
  */
-static void Cloud_Protocol_Mqtt_BuildCombinedtopicwildcard(char *combined_topic, size_t buffer_size)
+static void Cloud_Protocol_Mqtt_BuildPassiveTopic(char *combined_topic, size_t buffer_size)
 {
     // Get passive topics
     const cloud_protocol_mqtt_topic_config_t *property_topic = Cloud_Protocol_Mqtt_GetPassiveTopicByEnum(CLOUD_PROTOCOL_MQTT_PASSIVE_TOPIC_CONFIG_DEVICE_PROPERTY);
@@ -687,8 +684,8 @@ static void Cloud_Protocol_Mqtt_BuildCombinedtopicwildcard(char *combined_topic,
 
     if (property_topic)
     {
-        Cloud_Protocol_Sg_Build_Topic(property_topic->subscribe_topic, property_topic_buffer, sizeof(property_topic_buffer));
-        CLOUD_INFO("Property topic: %s\r\n", property_topic_buffer);
+        Cloud_Protocol_Sg_Build_Topic(property_topic->subscribe_topic, NULL, property_topic_buffer, sizeof(property_topic_buffer));
+        // CLOUD_INFO("Property topic: %s\r\n", property_topic_buffer);
     }
 
     if (!service_topic)
@@ -698,16 +695,8 @@ static void Cloud_Protocol_Mqtt_BuildCombinedtopicwildcard(char *combined_topic,
     }
     else
     {
-        Cloud_Protocol_Sg_Build_Topic(service_topic->subscribe_topic, service_topic_buffer, sizeof(service_topic_buffer));
-        CLOUD_INFO("Service topic: %s\r\n", service_topic_buffer);
-    }
-
-    // while having messages to send, subscribe to head message topics and service invoke topic
-    if (cloud_protocol_mqtt_client.msg_queue_head != NULL)
-    {
-        snprintf(combined_topic, buffer_size, "%s&%s", cloud_protocol_mqtt_client.msg_queue_head->ack_topic, service_topic_buffer);
-        CLOUD_DEBUG("Combined topic (active + service): %s\r\n", combined_topic);
-        return;
+        Cloud_Protocol_Sg_Build_Topic(service_topic->subscribe_topic, NULL, service_topic_buffer, sizeof(service_topic_buffer));
+        // CLOUD_INFO("Service topic: %s\r\n", service_topic_buffer);
     }
 
     // When there are no active messages: property set topic + service invoke topic (wildcard)
@@ -719,9 +708,35 @@ static void Cloud_Protocol_Mqtt_BuildCombinedtopicwildcard(char *combined_topic,
     {
         snprintf(combined_topic, buffer_size, "%s&%s", property_topic_buffer, service_topic_buffer);
     }
-    CLOUD_DEBUG("Combined topic (property + service): %s\r\n", combined_topic);
+    // CLOUD_DEBUG("Combined topic (property + service): %s\r\n", combined_topic);
     
     return;
+}
+
+/**
+ * @brief Build combined topic with active message topic
+ * @param combined_topic output buffer for combined topic
+ */
+static void Cloud_Protocol_Mqtt_BuildActiveTopic(char *combined_topic, size_t buffer_size)
+{
+    // Get passive topics
+    const cloud_protocol_mqtt_topic_config_t *service_topic = Cloud_Protocol_Mqtt_GetPassiveTopicByEnum(CLOUD_PROTOCOL_MQTT_PASSIVE_TOPIC_SERVICE_INVOCATION);
+    char service_topic_buffer[128] = {0};
+
+    if (!service_topic)
+    {
+        CLOUD_ERROR("Required passive topics not found\r\n");
+        return;
+    }
+    else
+    {
+        Cloud_Protocol_Sg_Build_Topic(service_topic->subscribe_topic, NULL, service_topic_buffer, sizeof(service_topic_buffer));
+        // CLOUD_INFO("Service topic: %s\r\n", service_topic_buffer);
+    }
+
+    // while having messages to send, subscribe to head message topics and service invoke topic
+    snprintf(combined_topic, buffer_size, "%s&%s", cloud_protocol_mqtt_client.msg_queue_head->ack_topic, service_topic_buffer);
+    // CLOUD_DEBUG("Combined topic (active + service): %s\r\n", combined_topic);
 }
 
 /**
@@ -730,7 +745,6 @@ static void Cloud_Protocol_Mqtt_BuildCombinedtopicwildcard(char *combined_topic,
 static void Cloud_Protocol_Mqtt_SwitchDefaultSubscribe(void)
 {
     if (cloud_protocol_mqtt_client.switch_default_topic_enabled == DISABLE ||
-        cloud_protocol_mqtt_client.ctrl.net_status != CLOUD_PROTOCOL_MQTT_STATE_CONNECTED ||
         cloud_protocol_mqtt_client.sub_state != CLOUD_PROTOCOL_SUB_STATE_IDLE)
     {
         return;
@@ -738,21 +752,31 @@ static void Cloud_Protocol_Mqtt_SwitchDefaultSubscribe(void)
 
     // Build combined topic with wildcard
     char combined_topic[256];
-    Cloud_Protocol_Mqtt_BuildCombinedtopicwildcard(combined_topic, sizeof(combined_topic));
-
-    // Send subscribe request
-    // CLOUD_INFO("Polling subscribe: %s\r\n", combined_topic);
+    uint8_t type = 0;
+    if (cloud_protocol_mqtt_client.msg_queue_head != NULL)
+    {
+        Cloud_Protocol_Mqtt_BuildActiveTopic(combined_topic, sizeof(combined_topic));
+        type = 1;
+    }
+    else
+    {
+        Cloud_Protocol_Mqtt_BuildPassiveTopic(combined_topic, sizeof(combined_topic));
+        type = 0;
+    }
 
     if (strcmp(combined_topic, cloud_protocol_mqtt_client.current_subscribe_topic) == 0)
     {
-        CLOUD_DEBUG("Already subscribed to topic: %s\r\n", combined_topic);
+        // CLOUD_DEBUG("<%s> Combined topic unchanged, no need to switch subscription.\r\n", __func__);
         return;
     }
+
+    CLOUD_DEBUG("<%s>%s Combined topic: %s\r\n", __func__, type == 1 ? "Active" : "Passive", combined_topic);
 
     cloud_protocol_mqtt_subscribe_topic_t subscribe_topic = {.topic = combined_topic,.topic_len = strlen(combined_topic)};
     cloud_protocol_mqtt_publish_topic_t publish_topic = {.topic = "", .topic_len = 0}; // No publish topic in polling subscribe
 
     Cloud_Protocol_Mqtt_SendSubscribePublishMsg(&subscribe_topic, &publish_topic);
+    cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_WAITING_ACK;
 
     // Update subscribe state
     if (cloud_protocol_mqtt_client.current_subscribe_topic != NULL)
@@ -760,7 +784,6 @@ static void Cloud_Protocol_Mqtt_SwitchDefaultSubscribe(void)
         CLOUDM_FREE(cloud_protocol_mqtt_client.current_subscribe_topic);
     }
     cloud_protocol_mqtt_client.current_subscribe_topic = Cloud_Protocol_Strdup(combined_topic);
-    cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_WAITING_ACK;
     cloud_protocol_mqtt_client.last_subscribe_time = CLOUD_GET_TIME_MS();
 }
 
@@ -814,8 +837,8 @@ static void Cloud_Protocol_Mqtt_HandleMessageSendFail(cloud_protocol_mqtt_messag
     else
     {
         /* Remove from queue */
-        Cloud_Protocol_Mqtt_RemoveMessageFromQueue(msg);
         CLOUD_ERROR("Message send failed after %d retries, discarding: %s\r\n", max_retry, msg->publish.topic);
+        Cloud_Protocol_Mqtt_RemoveMessageFromQueue(msg);
     }
 }
 

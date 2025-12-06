@@ -99,8 +99,8 @@ const static cloud_protocol_mqtt_topic_config_t cloud_protocol_mqtt_active_topic
     {
         .name = "Event Report",
         .is_enabled = true,
-        .publish_topic = "/sys/{productKey}/{deviceName}/thing/model/up_raw",
-        .subscribe_topic = "/sys/{productKey}/{deviceName}/thing/model/up_raw_reply",
+        .publish_topic = "/sys/{productKey}/{deviceName}/thing/event/{identifier}/post",
+        .subscribe_topic = "/sys/{productKey}/{deviceName}/thing/event/{identifier}/post_reply",
         .ack_type = CLOUD_PROTOCOL_MQTT_NEED_ACK,
         .priority = 0,
         .ack_timeout_ms = 0,

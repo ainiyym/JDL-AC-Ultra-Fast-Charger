@@ -26,7 +26,7 @@
 |    Macro Definition
 |******************************************************************************/
 #define CLOUDM_TASK_PERIOD								                    (20U)
-#define CLOUD_MESSAGE_BUFFER_MAX_LENGTH                                     (300U)
+#define CLOUD_MESSAGE_BUFFER_MAX_LENGTH                                     (1000U)
 #define CLOUD_PROTOCOL_GAGA_DATA_BUFFER_MAX_LENGTH                          (256U)
 #define CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH                                 (MESSAGE_BUFFER_TYPE_DATA)
 #define CLOUD_MESSAGE_TYPE_CTRL                                             (MESSAGE_BUFFER_TYPE_CTRL)
@@ -142,6 +142,7 @@ typedef enum
     CLOUD_MESSAGE_NOTIFY_TYPE_DEVICE_STATUS = 0x01,
     CLOUD_MESSAGE_NOTIFY_TYPE_NETWORK_STATUS = 0x02,
     CLOUD_MESSAGE_NOTIFY_TYPE_SIGNAL_STRENGTH = 0x03,
+    CLOUD_MESSAGE_NOTIFY_TYPE_ICCID = 0x04,
     CLOUD_MESSAGE_NOTIFY_TYPE_MAXIMUM
 }cloud_message_type_notify_e;
 

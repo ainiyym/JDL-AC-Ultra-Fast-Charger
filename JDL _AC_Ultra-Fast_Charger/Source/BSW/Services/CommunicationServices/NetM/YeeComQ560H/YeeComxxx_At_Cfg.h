@@ -43,7 +43,6 @@ typedef struct
     void *arg;
 } YeeCom_AT_OobCmd_ParameterCfg;
 
-#define YEECOM_AT_CMD_OOBPARAM_COUNT        (4)
 #define YEECOM_AT_CMD_SET_PARAM_COUNT       (17)
 #define YEECOM_AT_CMD_GET_PARAM_COUNT       (18)
 

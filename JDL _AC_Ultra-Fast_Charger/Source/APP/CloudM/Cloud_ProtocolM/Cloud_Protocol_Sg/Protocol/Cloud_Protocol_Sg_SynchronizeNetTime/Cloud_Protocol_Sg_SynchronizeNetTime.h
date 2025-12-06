@@ -44,7 +44,7 @@ typedef void (*cloud_protocol_sync_net_time_complete_callback_t)(bool success, i
 |    Global Function Prototypes
 |******************************************************************************/
 extern int cloud_protocol_sysnchronize_net_time_init(const char *product_key, const char *device_name, cloud_protocol_sync_net_time_complete_callback_t sync_callback);
-extern int cloud_protocol_sysnchronize_net_time_handle_response(const char *payload, uint16_t payload_len);
+extern bool cloud_protocol_sysnchronize_net_time_handle_response(const char *payload, uint16_t payload_len);
 extern void Cloud_Protocol_Sg_SynchronizeNetTime_SetNetworkConnectStatus(bool connect);
 extern void Cloud_Protocol_Sg_SynchronizeNetTime_Main(void);
 #endif /* __CLOUD_PROTOCOL_SG_SYNCHRONIZENETTIME_H */

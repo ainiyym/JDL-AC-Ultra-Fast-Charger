@@ -25,7 +25,11 @@
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
-
+typedef struct
+{
+    bool is_connected;
+    uint16_t signal_strength;
+} cloud_net_mqtt_signal_t;
 /*******************************************************************************
 |    Static local KAM variables Declaration
 |******************************************************************************/
@@ -37,8 +41,7 @@
 /*******************************************************************************
 |    Global variables Declaration
 |******************************************************************************/
-
-
+static cloud_net_mqtt_signal_t cloud_net_mqtt_sign = {0};
 /*******************************************************************************
 |    Table Const Definition
 |******************************************************************************/
@@ -75,6 +78,16 @@ static bool CloudNetM_MqttSendAtPayload(const char *at_parameter, uint8_t contex
         CloudNetM_MqttHandleATPayloadSendSuccess();
     }
     return ret == 0 ? true : false;
+}
+
+void CloudNetM_MqttSetSignalStrength(uint16_t signal_strength)
+{
+    cloud_net_mqtt_sign.signal_strength = signal_strength;
+}
+
+void CloudNetM_MqttSetConnectionStatus(bool is_connected)
+{
+    cloud_net_mqtt_sign.is_connected = is_connected;
 }
 
 bool CloudNetM_MqttConnect(uint8_t socket_id, uint8_t *payload, uint16_t length)
@@ -204,8 +217,8 @@ bool CloudNetM_MqttSubscribePublish(uint8_t socket_id, uint8_t *payload, uint16_
 		return false;
 	}
 
-    CLOUDNET_INFO("<%s>, msg:\r\n", __func__);
-    CLOUDNET_PRINT_HEX(payload, length);
+    // CLOUDNET_INFO("<%s>, msg:\r\n", __func__);
+    // CLOUDNET_PRINT_HEX(payload, length);
 
 	uint16_t offset = 0;
     subscribe_topic.topic_len = payload[offset] << 8 | payload[offset + 1];
@@ -259,7 +272,7 @@ bool CloudNetM_MqttSubscribePublish(uint8_t socket_id, uint8_t *payload, uint16_
 	{
 		// CLOUDNET_INFO("<%s>Subscribe-publish message processed successfully, socket: %d\r\n", __func__, socket_id);
         YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_MQTOP, NULL, socket_id);
-        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_GSTATE, NULL);
+        // YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_GSTATE, NULL);
 	}
 	else
 	{
@@ -287,6 +300,11 @@ void CloudNet_MqttM_Init(void)
 
 void CloudNet_MqttM_Main(void)
 {
+    if (cloud_net_mqtt_sign.is_connected != true)
+    {
+        return;
+    }
+    
     CloudNetM_MqttPublishManagerProcess();
 }
 /* EOL */

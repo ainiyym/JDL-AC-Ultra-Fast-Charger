@@ -27,7 +27,7 @@
 #define TASK_INFO_TASK_STACK_SIZE (1u * 1024u / 4u)
 #define TASK_4G_TASK_STACK_SIZE (4u * 1024u / 4u)
 #define TASK_AT_TASK_STACK_SIZE (2u * 1024u / 4u)
-#define TASK_CORE_PRINT_TASK_STACK_SIZE (4 * 1024u / 4u)
+#define TASK_CORE_PRINT_TASK_STACK_SIZE (3 * 1024u / 4u)
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
@@ -39,10 +39,7 @@
 /*******************************************************************************
 |    Static local variables Declaration  
 |******************************************************************************/
-#if (configSUPPORT_STATIC_ALLOCATION == 1)
-static StackType_t  Main_Stack[MAIN_TASK_STACK_SIZE];
-static StaticTask_t Main_StaticTask;
-#endif
+TaskHandle_t main_task_handle = NULL;
 
 TaskHandle_t init_task_handle = NULL;
 
@@ -151,8 +148,8 @@ static void init_task(void *argument)
     vTaskDelay(pdMS_TO_TICKS(100));
 
     // 初始化步骤4: 创建应用任务
-    xTaskCreateStatic(
-        AppTask_MainTask, "MainTask", MAIN_TASK_STACK_SIZE, NULL, TASK_START_PRIO_8, Main_Stack, &Main_StaticTask);
+    xTaskCreate(
+        AppTask_MainTask, "MainTask", MAIN_TASK_STACK_SIZE, NULL, TASK_START_PRIO_8,&main_task_handle);
     vTaskDelay(pdMS_TO_TICKS(10));
 
     xTaskCreate(

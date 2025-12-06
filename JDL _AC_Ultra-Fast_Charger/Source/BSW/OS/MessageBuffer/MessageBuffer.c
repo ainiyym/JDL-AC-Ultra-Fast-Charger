@@ -263,7 +263,7 @@ void MessageBuffer_Deinit(MessageBuffer_Comm_System_t *comm)
 // create communication system instance
 void MessageBuffer_CreateInstance(void)
 {
-	MessageBuffer_APP_And_NET = MessageBuffer_Comm_Init(MESSAGE_BUFFER_APP2_2_NET_MAX_SIZE, MESSAGE_BUFFER_APP1_2_NET_SIZE);
+	MessageBuffer_APP_And_NET = MessageBuffer_Comm_Init(MESSAGE_BUFFER_APP2_2_NET_MAX_SIZE, MESSAGE_BUFFER_APP1_2_NET_SIZE * 2);
 	if (NULL != MessageBuffer_APP_And_NET)
 	{
 		// Initialization successful

@@ -30,7 +30,7 @@ extern "C" {
 
 /* the KV max name length must less then it */
 #ifndef FDB_KV_NAME_MAX
-#define FDB_KV_NAME_MAX                24
+#define FDB_KV_NAME_MAX                56
 #endif
 
 /* the KV cache table size, it will improve KV search speed when using cache */

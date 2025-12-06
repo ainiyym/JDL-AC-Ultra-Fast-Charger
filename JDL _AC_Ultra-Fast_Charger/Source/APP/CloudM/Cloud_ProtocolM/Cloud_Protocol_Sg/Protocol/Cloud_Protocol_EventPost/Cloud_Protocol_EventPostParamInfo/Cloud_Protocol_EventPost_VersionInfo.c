@@ -1,0 +1,145 @@
+//******************************************************************************
+//* File Name: Cloud_Protocol_EventPost_VersionInfo.c
+//* Project Name: JDL _AC_Ultra-Fast_Charger
+//* Version: v1.0
+//* Date: 2025-08-18 10:00:00
+//* Author: JDLzhou
+//* Description: State Grid Charging Pile Cloud Platform Protocol module version info post source file
+/*******************************************************************************
+|    Other Header File Inclusion
+|******************************************************************************/
+#include "Cloud_Protocol_EventPost_VersionInfo.h"
+
+/*******************************************************************************
+|    Macro Definition
+|******************************************************************************/
+
+/*******************************************************************************
+|    Enum Definition
+|******************************************************************************/
+
+/*******************************************************************************
+|    Typedef Definition
+|******************************************************************************/
+typedef struct
+{
+    bool net_is_connected;	 // network whether is connected
+    bool version_is_refresh; // Indicates whether the parameter has been updated
+	uint32_t send_message_id; // Sent message ID
+} cloud_protocol_event_post_version_info_ctrl_t;
+
+/*******************************************************************************
+|    Static local KAM variables Declaration
+|******************************************************************************/
+
+/*******************************************************************************
+|    Static local variables Declaration
+|******************************************************************************/
+
+/*******************************************************************************
+|    Global variables Declaration
+|******************************************************************************/
+v2g_event_ver_info cloud_protocol_event_version_info;
+cloud_protocol_event_post_version_info_ctrl_t cloud_protocol_event_post_version_info_ctrl;
+
+/*******************************************************************************
+|    Table Const Definition
+|******************************************************************************/
+
+/*******************************************************************************
+|    Static Local Functions Declaration
+|******************************************************************************/
+
+/*******************************************************************************
+|    Function Source Code
+|******************************************************************************/
+void Cloud_Protocol_EventPost_VersionInfo_Init(void)
+{
+	memset(&cloud_protocol_event_version_info, 0, sizeof(cloud_protocol_event_version_info));
+	memset(&cloud_protocol_event_post_version_info_ctrl, 0, sizeof(cloud_protocol_event_post_version_info_ctrl));
+	cloud_protocol_event_version_info.devRegMethod = CLOUDM_SG_DEVICE_REG_METHOD; // Default device registration method
+	strncpy(cloud_protocol_event_version_info.pileSoftwareVer, CLOUDM_SG_PILE_FW_SOFT_VERSION, V2G_MAX_SOFTWAREVER_LEN - 1);
+	strncpy(cloud_protocol_event_version_info.pileHardwareVer, CLOUDM_SG_PILE_HW_VERSION, V2G_MAX_HARDWAREVER_LEN - 1);
+	strncpy(cloud_protocol_event_version_info.sdkVer, CLOUDM_SG_SDK_VERSION, V2G_MAX_SDKVER_LEN - 1);
+}
+
+void Cloud_Protocol_EventPost_SetVersionInfoRefreshFlag(bool is_refresh)
+{
+    cloud_protocol_event_post_version_info_ctrl.version_is_refresh = is_refresh;
+}
+
+void Cloud_Protocol_EventPost_SetVersionInfoNetConnectedFlag(bool is_connected)
+{
+    cloud_protocol_event_post_version_info_ctrl.net_is_connected = is_connected;
+}
+
+void Cloud_Protocol_EventPost_SetVersionInfoMsgId(uint32_t msg_id)
+{
+	cloud_protocol_event_post_version_info_ctrl.send_message_id = msg_id;
+}
+
+static void Cloud_Protocol_EventPost_VersionInfo_Post(void)
+{
+	cloud_protocol_event_post_req_t *cloud_protocol_event_post_req = NULL;
+	cJSON *root = NULL;
+	cloud_protocol_event_post_param_t param;
+	uint64_t timestamp = 0;
+
+	// create request
+	cloud_protocol_event_post_req = Cloud_Protocol_EventPost_CreateRequest("verInfoEvt", Cloud_Protocol_EventPost_SetVersionInfoMsgId);
+
+	// build json header
+	root = Cloud_Protocol_EventPost_BuildRequestJsonHeader(cloud_protocol_event_post_req);
+
+	// add devRegMethod
+	param.param_name = "devRegMethod";
+	param.param_value.int32_value = cloud_protocol_event_version_info.devRegMethod;
+	param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
+	Cloud_Protocol_EventPost_AddParam(root, &param);
+	// add pileSoftwareVer
+	param.param_name = "pileSoftwareVer";
+	param.param_value.string_value = cloud_protocol_event_version_info.pileSoftwareVer;
+	param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_STRING;
+	Cloud_Protocol_EventPost_AddParam(root, &param);
+	//add pileHardwareVer
+	param.param_name = "pileHardwareVer";
+	param.param_value.string_value = cloud_protocol_event_version_info.pileHardwareVer;
+	param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_STRING;
+	Cloud_Protocol_EventPost_AddParam(root, &param);
+	// add sdkVer
+	param.param_name = "sdkVer";
+	param.param_value.string_value = cloud_protocol_event_version_info.sdkVer;
+	param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_STRING;
+	Cloud_Protocol_EventPost_AddParam(root, &param);
+
+    // print unformatted json string
+    timestamp = (uint64_t)CLOUD_PROTOCOL_GET_CURRENT_TIMESTAMP() * 1000; // convert to milliseconds
+    Cloud_Protocol_EventPost_PrintUnformatted(root, timestamp, "verInfoEvt");
+}
+
+bool Cloud_Protocol_EventPost_VersionInfo_HandleResponse(uint32_t msg_id)
+{
+	if (msg_id != cloud_protocol_event_post_version_info_ctrl.send_message_id)
+	{
+		CLOUD_WARN("<%s>Version info response msg_id mismatch: received=%u, expected=%u\r\n", __func__, msg_id, cloud_protocol_event_post_version_info_ctrl.send_message_id);
+		return false;
+	}
+	return true;
+}
+
+void Cloud_Protocol_EventPost_VersionInfoMainCtrl_Func(void)
+{
+	if (!cloud_protocol_event_post_version_info_ctrl.net_is_connected)
+	{
+		return;
+	}
+	// Check if firmware info needs to be reported
+	if (cloud_protocol_event_post_version_info_ctrl.version_is_refresh)
+	{
+		// Post firmware info event
+		Cloud_Protocol_EventPost_VersionInfo_Post();
+		// Clear the refresh flag
+		cloud_protocol_event_post_version_info_ctrl.version_is_refresh = false;
+	}
+}
+/* EOL */

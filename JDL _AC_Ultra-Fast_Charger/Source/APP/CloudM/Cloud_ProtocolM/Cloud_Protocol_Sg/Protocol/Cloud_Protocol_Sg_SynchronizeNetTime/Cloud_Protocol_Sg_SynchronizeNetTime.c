@@ -196,7 +196,7 @@ static int cloud_protocol_sysnchronize_ntp_build_request_topic(char *topic_buffe
 
 	const cloud_protocol_mqtt_topic_config_t* ntp_topic = Cloud_Protocol_Mqtt_GetActiveTopicConfigByEnum(CLOUD_PROTOCOL_MQTT_ACTIVE_TOPIC_SYNC_CLOUD_TIME);
 
-	Cloud_Protocol_Sg_Build_Topic(ntp_topic->publish_topic, topic_buffer, buffer_size);
+	Cloud_Protocol_Sg_Build_Topic(ntp_topic->publish_topic, NULL, topic_buffer, buffer_size);
 
 	return 0;
 }
@@ -215,7 +215,7 @@ static int cloud_protocol_sysnchronize_ntp_build_response_topic(char *topic_buff
 	}
 
 	const cloud_protocol_mqtt_topic_config_t* ntp_topic = Cloud_Protocol_Mqtt_GetActiveTopicConfigByEnum(CLOUD_PROTOCOL_MQTT_ACTIVE_TOPIC_SYNC_CLOUD_TIME);
-	Cloud_Protocol_Sg_Build_Topic(ntp_topic->subscribe_topic, topic_buffer, buffer_size);
+	Cloud_Protocol_Sg_Build_Topic(ntp_topic->subscribe_topic, NULL, topic_buffer, buffer_size);
 
 	return 0;
 }
@@ -390,20 +390,20 @@ static int cloud_protocol_sysnchronize_net_time_start(cloud_protocol_sysnchroniz
  * @brief Handle NTP time synchronization response
  * @param payload Response payload
  * @param payload_len Payload length
- * @return 0 on success, -1 on error
+ * @return 1 on success, 0 on error
  */
-int cloud_protocol_sysnchronize_net_time_handle_response(const char *payload, uint16_t payload_len)
+bool cloud_protocol_sysnchronize_net_time_handle_response(const char *payload, uint16_t payload_len)
 {
 	if (!payload)
 	{
-		return -1;
+		return false;
 	}
 
 	cloud_protocol_sysnchronize_net_time_ctx_t *ctx = &cloud_protocol_sysnchronize_net_time_ctx;
 	// Check if we're expecting a response
 	if (ctx->ctrl.state != CLOUD_PROTOCOL_SYSN_TIME_STATE_REQUEST_SENT)
 	{
-		return -1; // Not expecting response
+		return false; // Not expecting response
 	}
 
 	// Record T4: Device receive time
@@ -415,7 +415,7 @@ int cloud_protocol_sysnchronize_net_time_handle_response(const char *payload, ui
 	{
 		CLOUD_INFO("Failed to parse NTP response\n");
 		cloud_protocol_sysnchronize_net_time_set_state(ctx, CLOUD_PROTOCOL_SYSN_TIME_STATE_SYNC_FAILED);
-		return -1;
+		return false;
 	}
 
 	// Verify T1 matches our request
@@ -423,7 +423,7 @@ int cloud_protocol_sysnchronize_net_time_handle_response(const char *payload, ui
 	{
 		CLOUD_INFO("NTP response T1 mismatch: expected %llu, got %llu\n", ctx->ctrl.current_ntp_t1, ntp_response.device_send_time);
 		cloud_protocol_sysnchronize_net_time_set_state(ctx, CLOUD_PROTOCOL_SYSN_TIME_STATE_SYNC_FAILED);
-		return -1;
+		return false;
 	}
 
 	// Perform NTP calculation
@@ -437,7 +437,7 @@ int cloud_protocol_sysnchronize_net_time_handle_response(const char *payload, ui
 	{
 		CLOUD_INFO("NTP calculation failed\n");
 		cloud_protocol_sysnchronize_net_time_set_state(ctx, CLOUD_PROTOCOL_SYSN_TIME_STATE_SYNC_FAILED);
-		return -1;
+		return false;
 	}
 
 	// Validate round trip delay (too high indicates network issues)
@@ -445,7 +445,7 @@ int cloud_protocol_sysnchronize_net_time_handle_response(const char *payload, ui
 	{ // More than 10 seconds
 		CLOUD_INFO("NTP round trip delay too high: %llu ms\n", ntp_calc.round_trip_delay);
 		cloud_protocol_sysnchronize_net_time_set_state(ctx, CLOUD_PROTOCOL_SYSN_TIME_STATE_SYNC_FAILED);
-		return -1;
+		return false;
 	}
 
 	// Check if clock adjustment is within acceptable limits
@@ -491,7 +491,7 @@ int cloud_protocol_sysnchronize_net_time_handle_response(const char *payload, ui
 	// CLOUD_INFO("Round Trip Delay: %llu ms\n", ntp_calc.round_trip_delay);
 	// CLOUD_INFO("Calculated Server Time: %llu\n", ntp_calc.calculated_server_time);
 
-	return 0;
+	return true;
 }
 
 /**

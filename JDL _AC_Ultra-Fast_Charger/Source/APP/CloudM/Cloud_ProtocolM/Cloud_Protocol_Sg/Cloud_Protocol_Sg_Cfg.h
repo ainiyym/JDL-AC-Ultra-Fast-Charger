@@ -13,11 +13,15 @@
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "infra_state.h"
 #include "infra_md5.h"
 #include "infra_sha1.h"
 #include "Cloud_Protocol_Cfg.h"
 #include "cJSON.h"
+#include "STD_SysM.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -33,10 +37,29 @@
 #define CLOUDM_SG_DEVICE_NAME               "971762846196581146388515"              /* Device Name */ 
 #define CLOUDM_SG_PRODUCT_KEY               "a1D0siVHgRU"                           /* Product Key */ 
 #define CLOUDM_SG_DEVICE_SECRET             "a7a202f77a28bcb47c264dacb3a66ff7"      /* Device Secret */
+#define CLOUDM_SG_STAKE_MODEL			 	"JDL-AC600"                             /* Charger Model */
+#define CLOUDM_SG_MANUFACTURER_CODE        	1420                                  	/* Manufacturer Code */
+#define CLOUDM_SG_DEVICE_TYPE               "02"                                    /* Pile Type: 1-DC charger, 2-AC charger, 3-AC&DC integrated charger, 4-gateway */
+#define CLOUDM_SG_PRODUCTION_DATE           "251223"                                /* Production Date: YYMMDD */
+#define CLOUDM_SG_PILE_TYPE					11										/* 10: Single-phase AC, 11: Three-phase AC, 12: DC, 13: AC/DC integrated machine, 99: Others */
+#define CLOUDM_SG_CONNECTOR_NUM				SYS_NUMBER_OF_CONNECTORS				/* connector num */
+#define CLOUDM_SG_GRIDE_TYPE				10										/* not avaliable of longitude and latitude coordinates */
+#define CLOUDM_SG_METERING_METHOD			11										/* 11: AC electric energy meter */
+#define CLOUDM_SG_RATED_POWER				2962									/* kW, Precision:0.1 */
+#define CLOUDM_SG_OT_MIN_VOL				1000									/* V, Precision:0.1 */
+#define CLOUDM_SG_OT_MAX_VOL				4577									/* V, Precision:0.1 */
+#define CLOUDM_SG_OT_MAX_CUR				4950									/* A, Precision:0.1 */
+#define CLOUDM_SG_OT_MIN_CUR				60										/* A, Precision:0.1 */
+#define CLOUDM_SG_OT_MIN_POWER				6000									/* W, Precision:1 */
 
-#define CLOUDM_SG_DM_READ_ONLY              "{\"id\":\"%d\",\"version\":\"%s\",\"params\":%.*s,\"method\":\"%s\"}"
-#define MAX_TOPIC_COUNT 6
-#define MAX_TOTAL_TOPIC_LENGTH 256
+#define CLOUDM_SG_DEVICE_REG_METHOD		    12										/* 12: Device registration by usart */
+#define CLOUDM_SG_PILE_HW_VERSION           "V1.0.0"                               /* Hardware version */
+#define CLOUDM_SG_PILE_FW_SOFT_VERSION      "V1.0.0"                               /* Software version */
+#define CLOUDM_SG_SDK_VERSION               "V1.0.1"                               /* SDK version */
+
+#define CLOUD_PROTOCOL_EVENT_POST_METHOD_PREFIX "thing.event."
+#define CLOUD_PROTOCOL_EVENT_POST_METHOD_SUFFIX ".post"
+#define CLOUD_PROTOCOL_VERSION_DEFAULT 		"1.0"
 
 #define CLOUD_PROTOCOL_SG_SYSN_NET_TIME_TOPIC_MAX_LENGTH            128
 #define CLOUD_PROTOCOL_SG_SYSN_NET_TIME_DEFAULT_RETRY_COUNT         3                           // Default retry attempts
@@ -66,23 +89,84 @@ typedef enum
 
 typedef enum
 {
-	V2G_CMD_EVENT_FIREWARE_INFO = 0,
-	V2G_CMD_EVENT_VEHICLEINFO,
-	V2G_CMD_EVENT_PILEABNORMAL,
-	V2G_CMD_EVENT_VEHICLEABNORMAL,
-	V2G_CMD_EVENT_EXECUTIONSTATUS_CHANGE,
-	V2G_CMD_EVENT_VER_INFO,
-	V2G_CMD_EVENT_LOGQUERY_RESULT,
-	V2G_CMD_EVENT_PILE_WORKSTATUS,
-	V2G_CMD_EVENT_ASK_CONFIG,
-	V2G_CMD_EVENT_DCPILE_CHANGE,
-} v2g_cmd_event_enum;
+	CLOUD_PROTOCOL_VALUE_TYPE_STRING = 0,	// string
+	CLOUD_PROTOCOL_VALUE_TYPE_INT32,		// int32
+	CLOUD_PROTOCOL_VALUE_TYPE_FLOAT,		// float
+	CLOUD_PROTOCOL_VALUE_TYPE_BOOL,			// bool
+	CLOUD_PROTOCOL_VALUE_TYPE_STRING_ARRAY, // string array
+	CLOUD_PROTOCOL_VALUE_TYPE_INT32_ARRAY,	// int array
+	CLOUD_PROTOCOL_VALUE_TYPE_DOUBLE,		// double
+	CLOUD_PROTOCOL_VALUE_TYPE_NULL			// NULL
+} cloud_protocol_value_type_e;
+
+// Error code definition
+typedef enum
+{
+	CLOUD_PROTOCOL_RESPONSE_SUCCESS = 200,
+	CLOUD_PROTOCOL_RESPONSE_REQUEST_ERROR = 400,
+	CLOUD_PROTOCOL_RESPONSE_PARAMETER_ERROR = 460,
+	CLOUD_PROTOCOL_RESPONSE_TOO_MANY_REQUESTS = 429,
+	CLOUD_PROTOCOL_RESPONSE_CUSTOM_ERROR_BASE = 100000
+} cloud_protocol_response_code_t;
 
 typedef enum
 {
-	V2G_CMD_PROPERTY_BATTERY_STATUS= 0,
-	V2G_CMD_PROPERTY_VEHICLE_STATUS,
-} v2g_cmd_property_enum;
+	CLOUD_PROTOCOL_EVENT_FIREWARE_INFO = 0,
+	CLOUD_PROTOCOL_EVENT_VEHICLEINFO,
+	CLOUD_PROTOCOL_EVENT_PILEABNORMAL,
+	CLOUD_PROTOCOL_EVENT_VEHICLEABNORMAL,
+	CLOUD_PROTOCOL_EVENT_EXECUTIONSTATUS_CHANGE,
+	CLOUD_PROTOCOL_EVENT_VER_INFO,
+	CLOUD_PROTOCOL_EVENT_LOGQUERY_RESULT,
+	CLOUD_PROTOCOL_EVENT_PILE_WORKSTATUS,
+	CLOUD_PROTOCOL_EVENT_ASK_CONFIG,
+	CLOUD_PROTOCOL_EVENT_DCPILE_CHANGE,
+} cloud_protocol_event_enum;
+
+// Firmware information field enumeration
+typedef enum
+{
+    // String type fields
+    CLOUD_PROTOCOL_EVENT_FW_SIM_NO = 0,  // SIM card number
+    CLOUD_PROTOCOL_EVENT_FW_MODEL_NO,    // Metering/billing model number
+    CLOUD_PROTOCOL_EVENT_FW_STAKE_MODEL, // Charger model
+    CLOUD_PROTOCOL_EVENT_FW_DE_SN,       // Factory serial number
+    CLOUD_PROTOCOL_EVENT_FW_SIM_MAC,     // Network MAC address
+    CLOUD_PROTOCOL_EVENT_FW_BT_MAC,      // Bluetooth MAC address
+    // Unsigned integer type fields
+    CLOUD_PROTOCOL_EVENT_FW_VENDOR_CODE,           // Manufacturer code
+    CLOUD_PROTOCOL_EVENT_FW_LONGITUDE,             // Longitude
+    CLOUD_PROTOCOL_EVENT_FW_LATITUDE,              // Latitude
+    CLOUD_PROTOCOL_EVENT_FW_HEIGHT,                // Altitude
+    CLOUD_PROTOCOL_EVENT_FW_GRID_TYPE,             // Coordinate type
+    CLOUD_PROTOCOL_EVENT_FW_OT_RATE,               // Rated power
+    CLOUD_PROTOCOL_EVENT_FW_OT_MIN_VOL,            // Minimum output voltage
+    CLOUD_PROTOCOL_EVENT_FW_OT_MAX_VOL,            // Maximum output voltage
+    CLOUD_PROTOCOL_EVENT_FW_OT_CUR,                // Maximum output current
+    CLOUD_PROTOCOL_EVENT_FW_CT,                    // Current transformer coefficient
+    CLOUD_PROTOCOL_EVENT_FW_MIN_CHARGING_CURRENT,  // Minimum charging current
+    CLOUD_PROTOCOL_EVENT_FW_MIN_CHARGING_POWER,    // Minimum charging power
+    CLOUD_PROTOCOL_EVENT_FW_MAX_DISCHARGE_VOLTAGE, // Maximum discharge voltage
+    CLOUD_PROTOCOL_EVENT_FW_MIN_DISCHARGE_VOLTAGE, // Minimum discharge voltage
+    CLOUD_PROTOCOL_EVENT_FW_MAX_DISCHARGE_CURRENT, // Maximum discharge current
+    CLOUD_PROTOCOL_EVENT_FW_MIN_DISCHARGE_CURRENT, // Minimum discharge current
+    // Unsigned char type fields
+    CLOUD_PROTOCOL_EVENT_FW_DE_TYPE,        // Pile type
+    CLOUD_PROTOCOL_EVENT_FW_CONNET_NUM,     // Number of charging interfaces
+    CLOUD_PROTOCOL_EVENT_FW_MEA_TYPE,       // Metering method
+    CLOUD_PROTOCOL_EVENT_FW_IS_GATE_LOCK,   // Has smart gate lock
+    CLOUD_PROTOCOL_EVENT_FW_IS_GROUND_LOCK, // Has ground lock
+    // Array type fields (meter addresses)
+    CLOUD_PROTOCOL_EVENT_FW_IN_METER_ARRAY,  // Array of AC input meter addresses
+    CLOUD_PROTOCOL_EVENT_FW_OUT_METER_ARRAY, // Array of billing meter addresses
+    CLOUD_PROTOCOL_EVENT_FW_TYPE_COUNT       // Number of enum values, used for bounds checking
+} cloud_protocol_event_fireware_enum;
+
+typedef enum
+{
+	CLOUD_PROTOCOL_PROPERTY_BATTERY_STATUS= 0,
+	CLOUD_PROTOCOL_PROPERTY_VEHICLE_STATUS,
+} cloud_protocol_property_enum;
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
@@ -94,6 +178,8 @@ typedef enum
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-extern int Cloud_Protocol_Sg_Build_Topic(const char *topic_template, char *topic_buffer, size_t buffer_size);
+extern int Cloud_Protocol_Sg_Build_Topic(const char *topic_template,  const char* identifier, char *topic_buffer, size_t buffer_size);
+extern char* Cloud_Protocol_GenerateMessageId(void);
+extern uint32_t Cloud_Protocol_GetMessageId(void);
 #endif /* __CLOUD_PROTOCOL_SG_CFG_H */
 /* EOL */

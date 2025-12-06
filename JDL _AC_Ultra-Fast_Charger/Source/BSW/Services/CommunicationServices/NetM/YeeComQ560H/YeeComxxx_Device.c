@@ -161,8 +161,30 @@ uint8_t YeeCom_At_DataPassthrougth(uint8_t channel, const uint8_t *data, uint16_
         {
             memcpy((char *)&gv_YeeComxxx.AtCmdSendBuf[atcmd_len], (const char *)data, length);
             ret = at_send_no_reply((const char *)gv_YeeComxxx.AtCmdSendBuf, (int)(atcmd_len + length));
-            // YeeCom_Log("<%s> result:%d data:", __func__, ret);
-            // YeeCom_Print_Hex(data, length);
+#if 1
+            YeeCom_Log("<%s> result:%d data:\r\n", __func__, ret);
+#define CHUNK_SIZE 225
+
+            uint16_t chunk_count = (length + CHUNK_SIZE - 1) / CHUNK_SIZE;  // 向上取整
+
+            for (uint16_t chunk = 0; chunk < chunk_count; chunk++)
+            {
+                char data_printf[CHUNK_SIZE + 1] = {0};
+                
+                uint16_t start_idx = chunk * CHUNK_SIZE;
+                uint16_t end_idx = start_idx + CHUNK_SIZE - 1;
+                if (end_idx >= length) end_idx = length - 1;
+                
+                uint16_t chunk_len = end_idx - start_idx + 1;
+                
+                // 复制整个块
+                memcpy(data_printf, &data[start_idx], chunk_len);
+                data_printf[chunk_len] = '\0';
+                
+                YeeCom_Log("[%u-%u] %s\r\n", start_idx, end_idx, data_printf);
+                // vTaskDelay(pdMS_TO_TICKS(10)); // 避免日志打印过快
+            }
+#endif
         }
         else
         {

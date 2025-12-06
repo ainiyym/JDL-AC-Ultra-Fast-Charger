@@ -20,9 +20,9 @@
 |    Macro Definition
 |******************************************************************************/
 #define MCAL_USART1_CH_RCV_CYCBUF_LEN (512U)
-#define MCAL_USART2_CH_RCV_CYCBUF_LEN (512U)
-#define MCAL_USART4_CH_RCV_CYCBUF_LEN (256U)
-#define MCAL_USART5_CH_RCV_CYCBUF_LEN (256U)
+#define MCAL_USART2_CH_RCV_CYCBUF_LEN (128U)
+#define MCAL_USART4_CH_RCV_CYCBUF_LEN (128U)
+#define MCAL_USART5_CH_RCV_CYCBUF_LEN (128U)
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/

@@ -39,6 +39,8 @@ typedef enum
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
+typedef void (*cloud_protocol_mqtt_set_msg_id_cb)(uint32_t message_id);
+
 // message of publish item
 typedef struct cloud_protocol_mqtt_message_item
 {
@@ -71,7 +73,7 @@ typedef struct
 bool Cloud_Protocol_Mqtt_ClientManagerInit(const cloud_protocol_mqtt_topic_config_t *passive_topic_configs, uint16_t passive_topic_count,
                                            iotx_sign_mqtt_t *mqtt_client,
                                            void (*connect_cb)(bool connected),
-                                           void (*msg_cb)(const char *payload));
+                                           bool (*msg_cb)(const char *payload));
 void Cloud_Protocol_Mqtt_GetClientConfig(iotx_sign_mqtt_t *mqtt_client);
 void Cloud_Protocol_Mqtt_SetDeviceIPConnectionStatus(bool connected);
 void Cloud_Protocol_Mqtt_HandleConnected(void);

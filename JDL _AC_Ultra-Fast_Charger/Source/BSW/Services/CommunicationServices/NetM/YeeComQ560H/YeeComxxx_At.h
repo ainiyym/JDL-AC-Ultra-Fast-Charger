@@ -1,10 +1,11 @@
 #ifndef _YEECOM_XXX_AT_H_
 #define _YEECOM_XXX_AT_H_
 
+#define YEECOM_AT_CMD_OOBPARAM_COUNT                    (4)
 #define YEECOM_OOB_CMD_POWER_ON_BUF_LEN                 (15u)
 #define YEECOM_OOB_CMD_NET_READY_BUF_LEN                (30u)
 #define YEECOM_OOB_CMD_RESET_BUF_LEN                    (20u)
-#define YEECOM_OOB_CMD_DATA_PASSTHROUGH_BUF_LEN         (300u)
+#define YEECOM_OOB_CMD_DATA_PASSTHROUGH_BUF_LEN         (800u)
 
 typedef enum
 {

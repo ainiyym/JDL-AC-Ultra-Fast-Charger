@@ -232,7 +232,7 @@ static bool CloudNetM_MqttSendPayloadAT(const char *payload)
         return false;
     }
 
-    CLOUDNET_DEBUG("Sending payload AT: %s\n", payload);
+    // CLOUDNET_DEBUG("Sending payload AT: %s\n", payload);
 
 taskENTER_CRITICAL();
         cloud_net_mqtt_publish_manager.waiting_payload_ok = true;

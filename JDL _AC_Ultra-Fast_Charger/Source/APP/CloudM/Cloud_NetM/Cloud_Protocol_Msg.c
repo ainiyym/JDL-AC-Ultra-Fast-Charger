@@ -13,6 +13,7 @@
 #include "FreeRTOS.h"
 #include "semphr.h"
 #include "Cloud_Protocol_Mqtt.h"
+#include "Cloud_Protocol_EventPost_Config.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -163,6 +164,10 @@ void Cloud_Protocol_RcvMsg_Process(void)
                         break;
                     case CLOUD_MESSAGE_NOTIFY_TYPE_SIGNAL_STRENGTH:
                         Cloud_Protocol_NotifySignalStrength((int8_t)Cloud_ProtocolMsg.MsgData[1]);
+                        break;
+
+                    case CLOUD_MESSAGE_NOTIFY_TYPE_ICCID:
+                        Cloud_Protocol_EventPost_FwInfo_Set(CLOUD_PROTOCOL_EVENT_FW_SIM_NO, (void *)&Cloud_ProtocolMsg.MsgData[1]);
                         break;
                     default:
                         CLOUD_ERROR("Cloud Protocol Unknown Notify Command: %d\r\n", Cloud_ProtocolMsg.MsgData[0]);

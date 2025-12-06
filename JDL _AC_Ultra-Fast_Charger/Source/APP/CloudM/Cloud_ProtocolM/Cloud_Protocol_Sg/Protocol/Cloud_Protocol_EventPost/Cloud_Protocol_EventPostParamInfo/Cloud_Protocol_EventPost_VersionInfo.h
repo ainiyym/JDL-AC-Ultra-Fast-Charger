@@ -1,14 +1,23 @@
 //******************************************************************************
-//* File Name: Cloud_Protocol_Sg_PropertySetting.c
+//* File Name: Cloud_Protocol_EventPost_VersionInfo.h
 //* Project Name: JDL _AC_Ultra-Fast_Charger
 //* Version: v1.0
 //* Date: 2025-08-18 10:00:00
 //* Author: JDLzhou
-//* Description: State Grid Charging Pile Cloud Platform Protocol set property module source file
+//* Description: State Grid Charging Pile Cloud Platform Protocol module version info post header file
+/*******************************************************************************/
+#if !defined (__CLOUD_PROTOCOL_EVENTPOST_VERSIONINFO_H__)
+/* polyspace:begin<MISRA-C3:2.5:Not a defect:Justified> Normal. */
+/* polyspace<MISRA-C3:21.1:Not a defect:Justified> Normal. */
+#define __CLOUD_PROTOCOL_EVENTPOST_VERSIONINFO_H__
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "Cloud_Protocol_Sg_PropertySetting.h"
+#include "Cloud_Protocol_EventPost.h"
+
+/*******************************************************************************
+|    Compile Option or configuration Section (for test/debug)
+|******************************************************************************/
 
 /*******************************************************************************
 |    Macro Definition
@@ -23,37 +32,16 @@
 |******************************************************************************/
 
 /*******************************************************************************
-|    Static local KAM variables Declaration
+|    Table Definition
 |******************************************************************************/
 
 /*******************************************************************************
-|    Static local variables Declaration
+|    Global Function Prototypes
 |******************************************************************************/
-
-/*******************************************************************************
-|    Global variables Declaration
-|******************************************************************************/
-
-/*******************************************************************************
-|    Table Const Definition
-|******************************************************************************/
-
-/*******************************************************************************
-|    Static Local Functions Declaration
-|******************************************************************************/
-
-/*******************************************************************************
-|    Function Source Code
-|******************************************************************************/
-/**
- * @brief Handle property setting response
- * @param payload  property setting response payload
- * @param payload_len Payload length
- * @return NULL
- */
-bool cloud_protocol_property_setting_response(const char *payload, uint16_t payload_len)
-{
-    // Implementation of handling property setting message
-	return true;
-}
+extern void Cloud_Protocol_EventPost_VersionInfo_Init(void);
+extern void Cloud_Protocol_EventPost_SetVersionInfoRefreshFlag(bool is_refresh);
+extern void Cloud_Protocol_EventPost_SetVersionInfoNetConnectedFlag(bool is_connected);
+extern void Cloud_Protocol_EventPost_VersionInfoMainCtrl_Func(void);
+extern bool Cloud_Protocol_EventPost_VersionInfo_HandleResponse(uint32_t msg_id);
+#endif /* __CLOUD_PROTOCOL_EVENTPOST_VERSIONINFO_H__ */
 /* EOL */

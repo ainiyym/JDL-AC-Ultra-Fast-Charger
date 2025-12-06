@@ -83,7 +83,7 @@ void Cloud_Protocol_Init(void)
 #if (CLOUD_PROTOCOL_SG_PROTOCOL_ENABLE == 1)
     Cloud_Protocol_Mqtt_init(); 
 #endif
-#if (CLOUD_PROTOCOL_DEFAULT_TCP_ID == TCP_ID_PROTOCOL_GAGA)
+#if (CLOUD_PROTOCOL_GAGA_PROTOCOL_ENABLE == 1)
     Cloud_GagaProtocol_Init();
 #endif
 }
@@ -97,7 +97,7 @@ void Cloud_Protocol_NotifyNetworkStatus(cloud_net_status status, uint8_t tcp_id)
 {
     if (status != cloud_protocol_ctrl.cloud_net_is_connected[tcp_id])
     {
-        cloud_protocol_ctrl.cloud_net_is_connected[tcp_id] = status;
+        cloud_protocol_ctrl.cloud_net_is_connected[tcp_id] = status; 
 #if (CLOUD_PROTOCOL_SG_PROTOCOL_ENABLE == 1)
         if (tcp_id == TCP_ID_PROTOCOL_SG)
         {

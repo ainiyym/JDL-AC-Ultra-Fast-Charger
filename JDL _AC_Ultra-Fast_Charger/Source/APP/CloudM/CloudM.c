@@ -59,6 +59,8 @@ void CloudM_MainFunction(void)
 {
     Cloud_Protocol_Main();
     Cloud_Protocol_RcvMsg_Process();
+#if (CLOUD_PROTOCOL_GAGA_PROTOCOL_ENABLE == 1)
     Cloud_Protocol_CheckTimeoutRequests(NULL);
+#endif
 }
 /* EOL */

@@ -15,6 +15,7 @@
 |******************************************************************************/
 #include "flashdb_wrapper.h"
 #include "stdint.h"
+#include "stddef.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)

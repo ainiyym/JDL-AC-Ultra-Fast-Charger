@@ -16,7 +16,7 @@
 #include "STD_SysM.h"
 #include "Cloud_EV_Charger_Information.h"
 #include "Cloud_Protocol_ChargingOrder.h"
-#include "Cloud_Protocol_EventPost_FwInfo.h"
+#include "Cloud_Protocol_EventPost_Config.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -64,7 +64,7 @@ static char flash_db_kv_gaga_sn[CLOUD_EV_SN_LEN] = "33030300000001";
 static uint16_t flash_db_kv_gaga_order_sequence[SYS_CONNECTOR_NUM_MAX] = {1,1};
 static uint32_t flash_db_kv_synced_tsdb_timestamp[FAL_PART_TABLE_TSDB_COUNT] = {0};
 static char flash_db_kv_sg_billing_mode_number[V2G_MAX_MODEL_ID_LEN] = ""; // Default billing mode number code
-static uint32_t flash_db_kv_sg_sn = 1; // Default SN code
+static uint16_t flash_db_kv_sg_sn = 1; // Default SN code
 /*******************************************************************************
 |    Global variables Declaration
 |******************************************************************************/
@@ -87,7 +87,7 @@ static FlashDB_AppKvDBDefaultCfg_t FlashDB_AppKvDBDefaultCfgTable[] =
 	{FLASHDB_KV_GAGA_ORDER_SEQUENCE, 	&kvdb, 		"flash_db_kv_gaga_order_sequence", 		FLASHDB_TYPE_BLOB, 					(uint16_t*)&flash_db_kv_gaga_order_sequence,			sizeof(flash_db_kv_gaga_order_sequence)},
 	{FLASHDB_KV_SYNC_TSDB_TIMESTAMP, 	&kvdb, 		"flash_db_kv_synced_tsdb_timestamp", 	FLASHDB_TYPE_BLOB, 					(uint32_t*)&flash_db_kv_synced_tsdb_timestamp,			sizeof(flash_db_kv_synced_tsdb_timestamp)},
 	{FLASHDB_KV_SG_BILLING_MODE_NO, 	&kvdb, 		"flash_db_kv_sg_billing_mode_number",	FLASHDB_TYPE_STRING,				(char*)flash_db_kv_sg_billing_mode_number,				0},
-	{FLASHDB_KV_SG_SN, 					&kvdb, 		"flash_db_kv_sg_sn", 					FLASHDB_TYPE_INT, 					(uint32_t*)&flash_db_kv_sg_sn,							sizeof(flash_db_kv_sg_sn)}
+	{FLASHDB_KV_SG_SN, 					&kvdb, 		"flash_db_kv_sg_sn", 					FLASHDB_TYPE_INT, 					(uint16_t*)&flash_db_kv_sg_sn,							sizeof(flash_db_kv_sg_sn)}
 };
 
 static FlashDB_AppTsdb_InstanceCfg_t FlashDB_AppTsdbInstanceCfgTable[] =

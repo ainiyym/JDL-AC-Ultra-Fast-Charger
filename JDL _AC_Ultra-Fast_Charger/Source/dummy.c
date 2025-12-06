@@ -63,3 +63,27 @@ uint8_t Dummy_GetTemp(uint8_t tempSensorId)
     return 25; // Dummy implementation, returning a constant temperature value
 }
 
+char* Dummy_GetInMeterAddr(SysConnector_Num_Enum ch)
+{
+    if (SYS_CONNECTOR1 == ch)
+    {
+        return "1"; // Dummy implementation, returning 0 for internal meter address
+    }
+    else
+    {
+        return "2"; // Dummy implementation, returning 0 for internal meter address
+    }
+
+}
+
+char* Dummy_GetOutMeterAddr(SysConnector_Num_Enum ch)
+{
+    if (SYS_CONNECTOR1 == ch)
+    {
+        return "3"; // Dummy implementation, returning 0 for external meter address
+    }
+    else
+    {
+        return "4"; // Dummy implementation, returning 0 for external meter address
+    }
+}

@@ -27,7 +27,7 @@
 |    Macro Definition
 |******************************************************************************/
 // 配置参数
-#define PRINT_QUEUE_LENGTH         64
+#define PRINT_QUEUE_LENGTH         32
 #define PRINT_MAX_MESSAGE_SIZE     256
 #define PRINT_BATCH_SIZE           4
 #define PRINT_BUFFER_TIMEOUT_MS    20

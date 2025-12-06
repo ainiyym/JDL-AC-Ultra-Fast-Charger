@@ -50,7 +50,7 @@ static iotx_sign_mqtt_t Cloud_Protocol_Sign;
 |    Static Local Functions Declaration
 |******************************************************************************/
 static cloud_protocol_sg_message_type_e cloud_protocol_sg_detect_message_type(const char *payload);
-static void Cloud_Protocol_Mqtt_PayloadCallback(const char *payload);
+static bool Cloud_Protocol_Mqtt_PayloadCallback(const char *payload);
 static void Cloud_Protocol_Mqtt_ConnectCallback(bool connected);
 
 /*******************************************************************************
@@ -107,6 +107,10 @@ static cloud_protocol_sg_message_type_e cloud_protocol_sg_detect_message_type(co
     {
         type = MESSAGE_TYPE_OTA_INFO_RESP;
     }
+    else
+    {
+        type = MESSAGE_TYPE_UNKNOWN;
+    }
 
     cJSON_Delete(root);
     return type;
@@ -115,15 +119,16 @@ static cloud_protocol_sg_message_type_e cloud_protocol_sg_detect_message_type(co
 /**
  * @brief MQTT payloadCallback function - main entry
  */
-static void Cloud_Protocol_Mqtt_PayloadCallback(const char *payload)
+static bool Cloud_Protocol_Mqtt_PayloadCallback(const char *payload)
 {
     if (!payload)
     {
         CLOUD_ERROR("Received NULL payload\n");
-        return;
+        return false;
     }
 
-    CLOUD_DEBUG("Raw payload received: %s\n", payload);
+    bool response = false;
+    // CLOUD_DEBUG("Raw payload received: %s\n", payload);
 
     // Detection message type
     cloud_protocol_sg_message_type_e msg_type = cloud_protocol_sg_detect_message_type(payload);
@@ -131,29 +136,28 @@ static void Cloud_Protocol_Mqtt_PayloadCallback(const char *payload)
     switch (msg_type)
     {
         case MESSAGE_TYPE_TIME_SYNC:
-            cloud_protocol_sysnchronize_net_time_handle_response(payload, strlen(payload));
-            break;
+            return cloud_protocol_sysnchronize_net_time_handle_response(payload, strlen(payload));
 
         case MESSAGE_TYPE_SERVICE_CALL:
-            cloud_protocol_service_call(payload, strlen(payload));
-            break;
+            return cloud_protocol_service_call(payload, strlen(payload));
 
         case MESSAGE_TYPE_REPORT_RESP:
-            cloud_protocol_report_response(payload, strlen(payload));
-            break;
+            return cloud_protocol_report_response(payload, strlen(payload));
 
         case MESSAGE_TYPE_PROPERTY_SETTING:
-            cloud_protocol_property_setting_response(payload, strlen(payload));
-            break;
+            return cloud_protocol_property_setting_response(payload, strlen(payload));
 
         case MESSAGE_TYPE_OTA_INFO_RESP:
             // Handle OTA info response
             break;
-
+        case MESSAGE_TYPE_UNKNOWN:
+            CLOUD_WARN("<%s> Received unknown message type, payload: %.*s\n", __func__, (int)strlen(payload), payload);
+            break;
         default:
             CLOUD_WARN("Unknown message type, payload: %s\n", payload);
             break;
     }
+    return response;
 }
 
 /**
@@ -162,6 +166,8 @@ static void Cloud_Protocol_Mqtt_PayloadCallback(const char *payload)
 static void Cloud_Protocol_Mqtt_ConnectCallback(bool connected)
 {
 	Cloud_Protocol_Sg_SynchronizeNetTime_SetNetworkConnectStatus(connected);
+    Cloud_Protocol_EventPost_SetFwInfoNetConnectedFlag(connected);
+    Cloud_Protocol_EventPost_SetVersionInfoNetConnectedFlag(connected);
 }
 
 /**
@@ -181,6 +187,14 @@ static void Cloud_Protocol_Mqtt_NetTimeCallback(bool success, int64_t time_offse
     CLOUD_INFO("Time Offset: %lld ms\n", time_offset);
     CLOUD_INFO("Round Trip Delay: %llu ms\n", round_trip_delay);
     CLOUD_INFO("Calculated Server Time(s): %u\n", time_in_seconds);
+
+    static bool first_sync_done = false;
+    if (!first_sync_done)
+    {
+        first_sync_done = true;
+        Cloud_Protocol_EventPost_SetFwInfoRefreshFlag(true);
+        Cloud_Protocol_EventPost_SetVersionInfoRefreshFlag(true);
+    }
 }
 
 /**
@@ -201,6 +215,8 @@ void Cloud_Protocol_Mqtt_init(void)
     Cloud_Protocol_Mqtt_ClientManagerInit(cloud_protocol_mqtt_passive_topic_configs, CLOUD_PROTOCOL_MQTT_PASSIVE_TOPIC_CONFIG_MAXIMUM\
                                            , &Cloud_Protocol_Sign, Cloud_Protocol_Mqtt_ConnectCallback, Cloud_Protocol_Mqtt_PayloadCallback);
     cloud_protocol_sysnchronize_net_time_init(CLOUDM_SG_PRODUCT_KEY, CLOUDM_SG_DEVICE_NAME, Cloud_Protocol_Mqtt_NetTimeCallback);
+    Cloud_Protocol_EventPost_FwInfo_Init();
+    Cloud_Protocol_EventPost_VersionInfo_Init();
 }
 
 /**
@@ -212,5 +228,8 @@ void Cloud_Protocol_Mqtt_MainProcess(void)
     Cloud_Protocol_Sg_SynchronizeNetTime_Main();
     // MQTT client manager process
     Cloud_Protocol_Mqtt_ClientManagerProcess();
+    /* event post */
+    Cloud_Protocol_EventPost_FwInfoMainCtrl_Func();
+    Cloud_Protocol_EventPost_VersionInfoMainCtrl_Func();
 }
 /* EOL */

@@ -23,7 +23,7 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
-#define CLOUD_PROTOCOL_DEFAULT_TCP_ID               (TCP_ID_PROTOCOL_GAGA)                         // Active TCP connection ID
+#define CLOUD_PROTOCOL_DEFAULT_TCP_ID               (TCP_ID_PROTOCOL_SG)                          // Active TCP connection ID
 #define CLOUD_PROTOCOL_SG_PROTOCOL_ENABLE           (1)                                           // Enable SG protocol
 #define CLOUD_PROTOCOL_GAGA_PROTOCOL_ENABLE         (0)                                           // Enable GAGA protocol
 

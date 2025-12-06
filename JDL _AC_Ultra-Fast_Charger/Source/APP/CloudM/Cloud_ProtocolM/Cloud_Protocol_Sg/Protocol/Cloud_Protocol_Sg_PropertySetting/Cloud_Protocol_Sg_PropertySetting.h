@@ -38,7 +38,7 @@
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-extern void cloud_protocol_property_setting_response(const char *payload, uint16_t payload_len);
+extern bool cloud_protocol_property_setting_response(const char *payload, uint16_t payload_len);
 
 #endif /* __CLOUD_PROTOCOL_SG_PROTERTYSETTING_H */
 /* EOL */
