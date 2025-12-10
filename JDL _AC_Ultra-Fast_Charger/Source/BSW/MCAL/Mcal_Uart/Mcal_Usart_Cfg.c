@@ -16,6 +16,7 @@
 #include "Mcal_Usart_Cfg.h"
 #include "STD_SysM.h"
 #include "AppTask_CorePrintTask.h"
+#include "Mcal_Gpio_Cfg.h"
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
 |******************************************************************************/
@@ -195,7 +196,7 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef *huart, uint16_t Size)
       message_sent_len = StreamBuff_SendMessage(&Message_Handle[STREAM_USART1_CH], 1);
       if (message_sent_len != ActiveCtrl->RcvIntSwapBufDataCnt)
       {
-        Core_printf("StreamBuff_SendMessage failed for USART1, sent %d bytes, expected %d bytes\r\n", message_sent_len, ActiveCtrl->RcvIntSwapBufDataCnt);
+        // Core_printf("StreamBuff_SendMessage failed for USART1, sent %d bytes, expected %d bytes\r\n", message_sent_len, ActiveCtrl->RcvIntSwapBufDataCnt);
       }
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart1, ActiveCtrl->RcvIntSwapBuf, ActiveCtrl->RcvIntSwapBufSize); // Restart DMA reception
@@ -212,7 +213,7 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef *huart, uint16_t Size)
       message_sent_len = StreamBuff_SendMessage(&Message_Handle[STREAM_USART2_CH], 1);
       if (message_sent_len != ActiveCtrl->RcvIntSwapBufDataCnt)
       {
-        Core_printf("StreamBuff_SendMessage failed for USART2, sent %d bytes, expected %d bytes\r\n", message_sent_len, ActiveCtrl->RcvIntSwapBufDataCnt);
+        // Core_printf("StreamBuff_SendMessage failed for USART2, sent %d bytes, expected %d bytes\r\n", message_sent_len, ActiveCtrl->RcvIntSwapBufDataCnt);
       }
     }
     HAL_UARTEx_ReceiveToIdle_DMA(&huart2, ActiveCtrl->RcvIntSwapBuf, ActiveCtrl->RcvIntSwapBufSize); // Restart DMA reception
@@ -225,7 +226,7 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef *huart, uint16_t Size)
     message_sent_len = StreamBuff_SendMessage(&Message_Handle[STREAM_USART4_CH], 1);
     if (message_sent_len != ActiveCtrl->RcvIntSwapBufDataCnt)
     {
-      Core_printf("StreamBuff_SendMessage failed for USART4, sent %d bytes, expected %d bytes\r\n", message_sent_len, ActiveCtrl->RcvIntSwapBufDataCnt);
+      // Core_printf("StreamBuff_SendMessage failed for USART4, sent %d bytes, expected %d bytes\r\n", message_sent_len, ActiveCtrl->RcvIntSwapBufDataCnt);
     }
     HAL_UARTEx_ReceiveToIdle_IT(McalUsart_NumMapUsart[MCAL_USART4_CH].UsartBase, ActiveCtrl->RcvIntSwapBuf, ActiveCtrl->RcvIntSwapBufSize);
   }
@@ -237,7 +238,7 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef *huart, uint16_t Size)
     message_sent_len = StreamBuff_SendMessage(&Message_Handle[STREAM_USART5_CH], 1);
     if (message_sent_len != ActiveCtrl->RcvIntSwapBufDataCnt)
     {
-      Core_printf("StreamBuff_SendMessage failed for USART5, sent %d bytes, expected %d bytes\r\n", message_sent_len, ActiveCtrl->RcvIntSwapBufDataCnt);
+      // Core_printf("StreamBuff_SendMessage failed for USART5, sent %d bytes, expected %d bytes\r\n", message_sent_len, ActiveCtrl->RcvIntSwapBufDataCnt);
     }
     HAL_UARTEx_ReceiveToIdle_IT(McalUsart_NumMapUsart[MCAL_USART5_CH].UsartBase, ActiveCtrl->RcvIntSwapBuf, ActiveCtrl->RcvIntSwapBufSize);
   }
@@ -314,5 +315,62 @@ McalRetVal_t Mcal_Usart_AppSendData(uint32_t USART, uint8_t *data, uint32_t size
   }
 
   return ret;
+}
+
+void assert_failed(const char *file, int line)
+{
+  // 禁用中断，防止进一步破坏系统状态
+  __disable_irq();
+
+  // 固定错误信息
+  HAL_UART_Transmit(&huart2, (uint8_t *)"\r\n!!! ASSERT FAILED !!!\r\n", 25, HAL_MAX_DELAY);
+
+  // 打印文件名
+  HAL_UART_Transmit(&huart2, (uint8_t *)"File: ", 6, HAL_MAX_DELAY);
+  HAL_UART_Transmit(&huart2, (uint8_t *)file, strlen(file), HAL_MAX_DELAY);
+
+  // 打印行号
+  HAL_UART_Transmit(&huart2, (uint8_t *)"\r\nLine: ", 8, HAL_MAX_DELAY);
+
+  // 转换行号为字符串并发送
+  char line_str[10];
+  int idx = 0;
+  int n = line;
+
+  // 处理行号为0的情况
+  if (n == 0)
+  {
+    line_str[idx++] = '0';
+  }
+  else
+  {
+    // 提取每一位数字
+    while (n > 0)
+    {
+      line_str[idx++] = '0' + (n % 10);
+      n /= 10;
+    }
+  }
+  line_str[idx] = '\0';
+
+  // 反转字符串（因为上面是反向存储的）
+  for (int i = 0; i < idx / 2; i++)
+  {
+    char temp = line_str[i];
+    line_str[i] = line_str[idx - 1 - i];
+    line_str[idx - 1 - i] = temp;
+  }
+
+  // 发送行号
+  HAL_UART_Transmit(&huart2, (uint8_t *)line_str, idx, HAL_MAX_DELAY);
+  HAL_UART_Transmit(&huart2, (uint8_t *)"\r\nSystem Halted!\r\n", 18, HAL_MAX_DELAY);
+
+  // 进入死循环
+  while (1)
+  {
+    Mcal_Gpio_SetPin(LED3_GPIO_Port, LED3_Pin);
+    for (volatile int i = 0; i < 1000000; i++)
+      ;
+  }
 }
   /*EOF*/

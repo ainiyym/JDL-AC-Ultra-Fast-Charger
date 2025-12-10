@@ -420,8 +420,8 @@ extern volatile uint32_t CPU_RunTime;
  * number of the failing assert (for example, "vAssertCalled( __FILE__, __LINE__ )"
  * or it can simple disable interrupts and sit in a loop to halt all execution
  * on the failing line for viewing in a debugger. */
-extern int Core_printf(const char *format, ...);
-#define vAssertCalled(char, int) Core_printf("Error:%s,%d\r\n", char, int);
+extern void assert_failed(const char *file, int line);
+#define vAssertCalled(char, int) assert_failed(char, int);
 #define configASSERT(x)                       \
     do                                        \
     {                                         \

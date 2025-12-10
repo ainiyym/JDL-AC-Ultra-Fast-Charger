@@ -182,6 +182,8 @@ uint16_t Core_Printf_AddItem(const char *message)
 // 高性能打印函数
 int Core_printf(const char *format, ...)
 {
+    configASSERT(!xPortIsInsideInterrupt());
+    
     va_list arg;
     print_item_t *item;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;

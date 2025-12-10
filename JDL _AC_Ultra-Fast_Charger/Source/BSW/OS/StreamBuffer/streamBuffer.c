@@ -5,6 +5,7 @@
  * @date    
  */
 #include "streamBuffer.h"
+#include "AppTask_CorePrintTask.h"
 // 创建消息句柄
 StreamBuffM_t Message_Handle[STREAM_USART_MAX_NUMBER];
 
