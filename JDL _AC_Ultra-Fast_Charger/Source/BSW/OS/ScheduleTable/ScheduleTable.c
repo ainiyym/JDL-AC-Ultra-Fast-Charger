@@ -21,6 +21,7 @@
 #include "STD_ErrorHandler.h"
 #include "STD_RlyM.h"
 #include "STD_AuthM.h"
+#include "STD_NetAuth.h"
 #include "STD_Curr.h"
 #include "STD_Volt.h"
 #include "BtrM.h"
@@ -183,6 +184,7 @@ static void Task100ms(void)
     /* 100ms task code */
     // Mcal_Can_Send_Test(); // Call the CAN send test function
     NOAUTHEN_100msFunction();
+    NETAUTH_MainFunction();
     CanM_Rte_Msg_Main_Task(); // Call canM task
 }
 

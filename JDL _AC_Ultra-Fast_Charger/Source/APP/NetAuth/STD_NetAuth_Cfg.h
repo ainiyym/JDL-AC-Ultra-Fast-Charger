@@ -1,20 +1,21 @@
-//******************************************************************************
-//* File Name: Cloud_Protocol_Sg_ReportResponse.h
-//* Project Name: JDL _AC_Ultra-Fast_Charger
+//****************************************************************************************
+//*
+//* File Name: STD_NetAuth_Cfg.h 
+//* Project Name: ChargingSys
 //* Version: v1.0
-//* Date: 2025-08-18 10:00:00
+//* Date: 2025-05-16 11:27:24
 //* Author: JDLzhou
-//* Description: State Grid Charging Pile Cloud Platform Protocol report response module header file
-/*******************************************************************************/
-#if !defined (__CLOUD_PROTOCOL_SG_REPORTRESPONSE_H)
-/* polyspace:begin<MISRA-C3:2.5:Not a defect:Justified> Normal. */
-/* polyspace<MISRA-C3:21.1:Not a defect:Justified> Normal. */
-#define __CLOUD_PROTOCOL_SG_REPORTRESPONSE_H
+//* 
+//****************************************************************************************/
+#ifndef _STD_NETAUTH_CFG_H
+#define _STD_NETAUTH_CFG_H
+
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "Cloud_Protocol_EventPost_Config.h"
-
+#include "Std_Types.h"
+#include "STD_AuthM.h"
+#include "STD_SysM.h"
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
 |******************************************************************************/
@@ -22,6 +23,24 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
+/*
+ * Get the system readiness status , TRUE-Means System is ready
+ */
+#define NETAUTH_GetSysPrepareStatus()		 SYSM_GetResetPrepareStatus()
+
+
+/*
+ * Get Auth Status, TRUE-Means Auth successfuly
+ */
+#define NETAUTH_GetCurrAuthStatus(ch)			 AUTHM_GetCurrAuthStatus(ch)
+
+/*
+ * Get whether the authorization module is currently allowed to respond to authorization requests
+ * TRUE-Means allow
+ */
+#define NETAUTH_GetAuthAllowStatus(ch)         AUTHM_GetAllowResAuthReqStatus(ch)
+
+
 
 /*******************************************************************************
 |    Enum Definition
@@ -30,13 +49,6 @@
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
-typedef enum
-{
-    CLOUD_PROTOCOL_SG_REPORT_EVENT_VER_INFO,                   // version info event
-    CLOUD_PROTOCOL_SG_REPORT_EVENT_FW_INFO,                    // firmware info event
-    CLOUD_PROTOCOL_SG_REPORT_EVENT_OTHER,                      // other event
-    CLOUD_PROTOCOL_SG_REPORT_EVENT_UNKNOWN                     // unknown event
-} cloud_protocol_sg_report_event_type_t;
 
 /*******************************************************************************
 |    Table Definition
@@ -46,5 +58,23 @@ typedef enum
 |    Global Function Prototypes
 |******************************************************************************/
 
-#endif /* __CLOUD_PROTOCOL_SG_REPORTRESPONSE_H */
-/* EOL */
+#endif /*_STD_NETAUTH_CFG_H */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

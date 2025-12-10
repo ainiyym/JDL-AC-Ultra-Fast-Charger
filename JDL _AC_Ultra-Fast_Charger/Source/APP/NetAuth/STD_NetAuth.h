@@ -1,20 +1,19 @@
-//******************************************************************************
-//* File Name: Cloud_Protocol_Sg_ReportResponse.h
-//* Project Name: JDL _AC_Ultra-Fast_Charger
+//****************************************************************************************
+//*
+//* File Name: STD_NetAuth.h
+//* Project Name: ChargingSys
 //* Version: v1.0
-//* Date: 2025-08-18 10:00:00
+//* Date: 2025-05-16 11:27:24
 //* Author: JDLzhou
-//* Description: State Grid Charging Pile Cloud Platform Protocol report response module header file
-/*******************************************************************************/
-#if !defined (__CLOUD_PROTOCOL_SG_REPORTRESPONSE_H)
-/* polyspace:begin<MISRA-C3:2.5:Not a defect:Justified> Normal. */
-/* polyspace<MISRA-C3:21.1:Not a defect:Justified> Normal. */
-#define __CLOUD_PROTOCOL_SG_REPORTRESPONSE_H
+//* 
+//****************************************************************************************/
+#ifndef _STD_NETAUTH_H
+#define _STD_NETAUTH_H
+
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "Cloud_Protocol_EventPost_Config.h"
-
+#include "STD_NetAuth_Cfg.h"
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
 |******************************************************************************/
@@ -30,13 +29,6 @@
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
-typedef enum
-{
-    CLOUD_PROTOCOL_SG_REPORT_EVENT_VER_INFO,                   // version info event
-    CLOUD_PROTOCOL_SG_REPORT_EVENT_FW_INFO,                    // firmware info event
-    CLOUD_PROTOCOL_SG_REPORT_EVENT_OTHER,                      // other event
-    CLOUD_PROTOCOL_SG_REPORT_EVENT_UNKNOWN                     // unknown event
-} cloud_protocol_sg_report_event_type_t;
 
 /*******************************************************************************
 |    Table Definition
@@ -45,6 +37,32 @@ typedef enum
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
+extern void NETAUTH_Enable(SysConnector_Num_Enum ch);
+extern void  NETAUTH_Disable(SysConnector_Num_Enum ch);
+extern void  NETAUTH_InitMemory(void);
+extern void  NETAUTH_MainFunction(void);
+extern uint8_t NETAUTH_GetCancelAuthStatus(SysConnector_Num_Enum ch);
+extern uint8_t NETAUTH_GetAuthStatus(SysConnector_Num_Enum ch);
+extern void NETAUTH_SetReqAuthStatus(SysConnector_Num_Enum ch);
+extern void NETAUTH_ResetAuthStatus(SysConnector_Num_Enum ch);
+extern void NETAUTH_SetReqCancelAuthStatus(SysConnector_Num_Enum ch);
+#endif /*_STD_NETAUTH_H */
 
-#endif /* __CLOUD_PROTOCOL_SG_REPORTRESPONSE_H */
-/* EOL */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

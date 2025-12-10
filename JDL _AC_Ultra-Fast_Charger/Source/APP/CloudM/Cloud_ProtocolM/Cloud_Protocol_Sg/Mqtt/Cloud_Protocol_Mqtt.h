@@ -73,7 +73,7 @@ typedef struct
 bool Cloud_Protocol_Mqtt_ClientManagerInit(const cloud_protocol_mqtt_topic_config_t *passive_topic_configs, uint16_t passive_topic_count,
                                            iotx_sign_mqtt_t *mqtt_client,
                                            void (*connect_cb)(bool connected),
-                                           bool (*msg_cb)(const char *payload));
+                                           bool (*msg_cb)(const char *payload, cloud_protocol_sg_message_type_e *type));
 void Cloud_Protocol_Mqtt_GetClientConfig(iotx_sign_mqtt_t *mqtt_client);
 void Cloud_Protocol_Mqtt_SetDeviceIPConnectionStatus(bool connected);
 void Cloud_Protocol_Mqtt_HandleConnected(void);

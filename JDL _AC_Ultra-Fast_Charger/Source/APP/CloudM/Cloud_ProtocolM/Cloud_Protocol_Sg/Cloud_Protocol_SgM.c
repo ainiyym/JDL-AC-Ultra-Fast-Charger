@@ -50,7 +50,7 @@ static iotx_sign_mqtt_t Cloud_Protocol_Sign;
 |    Static Local Functions Declaration
 |******************************************************************************/
 static cloud_protocol_sg_message_type_e cloud_protocol_sg_detect_message_type(const char *payload);
-static bool Cloud_Protocol_Mqtt_PayloadCallback(const char *payload);
+static bool Cloud_Protocol_Mqtt_PayloadCallback(const char *payload, cloud_protocol_sg_message_type_e *type);
 static void Cloud_Protocol_Mqtt_ConnectCallback(bool connected);
 
 /*******************************************************************************
@@ -63,23 +63,23 @@ static cloud_protocol_sg_message_type_e cloud_protocol_sg_detect_message_type(co
 {
     if (!payload)
     {
-        return MESSAGE_TYPE_UNKNOWN;
+        return CLOUD_PROTOCOL_SG_MESSAGE_TYPE_UNKNOWN;
     }
 
     cJSON *root = cJSON_Parse(payload);
     if (!root)
     {
-        return MESSAGE_TYPE_UNKNOWN;
+        return CLOUD_PROTOCOL_SG_MESSAGE_TYPE_UNKNOWN;
     }
 
-    cloud_protocol_sg_message_type_e type = MESSAGE_TYPE_UNKNOWN;
+    cloud_protocol_sg_message_type_e type = CLOUD_PROTOCOL_SG_MESSAGE_TYPE_UNKNOWN;
 
     // check time sync fields
     if (cJSON_GetObjectItem(root, "deviceSendTime") &&
         cJSON_GetObjectItem(root, "serverSendTime") &&
         cJSON_GetObjectItem(root, "serverRecvTime"))
     {
-        type = MESSAGE_TYPE_TIME_SYNC;
+        type = CLOUD_PROTOCOL_SG_MESSAGE_TYPE_TIME_SYNC;
     }
     // check service call fields
     else if (cJSON_GetObjectItem(root, "method") &&
@@ -87,14 +87,14 @@ static cloud_protocol_sg_message_type_e cloud_protocol_sg_detect_message_type(co
              cJSON_GetObjectItem(root, "params") &&
              cJSON_GetObjectItem(root, "version"))
     {
-        type = MESSAGE_TYPE_SERVICE_CALL;
+        type = CLOUD_PROTOCOL_SG_MESSAGE_TYPE_SERVICE_CALL;
     }
     // check report response fields
     else if (cJSON_GetObjectItem(root, "id") &&
              cJSON_GetObjectItem(root, "code") &&
              cJSON_GetObjectItem(root, "data"))
     {
-        type = MESSAGE_TYPE_REPORT_RESP;
+        type = CLOUD_PROTOCOL_SG_MESSAGE_TYPE_REPORT_RESP;
     }
     // check property setting fields
     // nothing to do yet
@@ -105,11 +105,11 @@ static cloud_protocol_sg_message_type_e cloud_protocol_sg_detect_message_type(co
              cJSON_GetObjectItem(root, "url") &&
              cJSON_GetObjectItem(root, "sign"))
     {
-        type = MESSAGE_TYPE_OTA_INFO_RESP;
+        type = CLOUD_PROTOCOL_SG_MESSAGE_TYPE_OTA_INFO_RESP;
     }
     else
     {
-        type = MESSAGE_TYPE_UNKNOWN;
+        type = CLOUD_PROTOCOL_SG_MESSAGE_TYPE_UNKNOWN;
     }
 
     cJSON_Delete(root);
@@ -119,7 +119,7 @@ static cloud_protocol_sg_message_type_e cloud_protocol_sg_detect_message_type(co
 /**
  * @brief MQTT payloadCallback function - main entry
  */
-static bool Cloud_Protocol_Mqtt_PayloadCallback(const char *payload)
+static bool Cloud_Protocol_Mqtt_PayloadCallback(const char *payload, cloud_protocol_sg_message_type_e *type)
 {
     if (!payload)
     {
@@ -132,25 +132,28 @@ static bool Cloud_Protocol_Mqtt_PayloadCallback(const char *payload)
 
     // Detection message type
     cloud_protocol_sg_message_type_e msg_type = cloud_protocol_sg_detect_message_type(payload);
-
+    if (type)
+    {
+        *type = msg_type;
+    }
     switch (msg_type)
     {
-        case MESSAGE_TYPE_TIME_SYNC:
+        case CLOUD_PROTOCOL_SG_MESSAGE_TYPE_TIME_SYNC:
             return cloud_protocol_sysnchronize_net_time_handle_response(payload, strlen(payload));
 
-        case MESSAGE_TYPE_SERVICE_CALL:
+        case CLOUD_PROTOCOL_SG_MESSAGE_TYPE_SERVICE_CALL:
             return cloud_protocol_service_call(payload, strlen(payload));
 
-        case MESSAGE_TYPE_REPORT_RESP:
+        case CLOUD_PROTOCOL_SG_MESSAGE_TYPE_REPORT_RESP:
             return cloud_protocol_report_response(payload, strlen(payload));
 
-        case MESSAGE_TYPE_PROPERTY_SETTING:
+        case CLOUD_PROTOCOL_SG_MESSAGE_TYPE_PROPERTY_SETTING:
             return cloud_protocol_property_setting_response(payload, strlen(payload));
 
-        case MESSAGE_TYPE_OTA_INFO_RESP:
+        case CLOUD_PROTOCOL_SG_MESSAGE_TYPE_OTA_INFO_RESP:
             // Handle OTA info response
             break;
-        case MESSAGE_TYPE_UNKNOWN:
+        case CLOUD_PROTOCOL_SG_MESSAGE_TYPE_UNKNOWN:
             CLOUD_WARN("<%s> Received unknown message type, payload: %.*s\n", __func__, (int)strlen(payload), payload);
             break;
         default:
@@ -217,6 +220,7 @@ void Cloud_Protocol_Mqtt_init(void)
     cloud_protocol_sysnchronize_net_time_init(CLOUDM_SG_PRODUCT_KEY, CLOUDM_SG_DEVICE_NAME, Cloud_Protocol_Mqtt_NetTimeCallback);
     Cloud_Protocol_EventPost_FwInfo_Init();
     Cloud_Protocol_EventPost_VersionInfo_Init();
+    Cloud_Protocol_Sg_RemoteCharge_Init();
 }
 
 /**
@@ -231,5 +235,7 @@ void Cloud_Protocol_Mqtt_MainProcess(void)
     /* event post */
     Cloud_Protocol_EventPost_FwInfoMainCtrl_Func();
     Cloud_Protocol_EventPost_VersionInfoMainCtrl_Func();
+    /* remote charge service call process */
+    Cloud_Protocol_Sg_RemoteCharge_PeriodicTask();
 }
 /* EOL */

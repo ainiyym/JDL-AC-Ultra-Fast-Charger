@@ -19,6 +19,7 @@
 #include "STD_Lib.h"
 #include "Std_Types.h"
 #include "STD_NoAuthen.h"
+#include "STD_NetAuth.h"
 #include "STD_ErrorHandler.h"
 #include "STD_EvseM.h"
 #include "CpM_Cfg.h"
@@ -35,7 +36,7 @@
 /* polyspace<MISRA-C3:2.5:Not a defect:Justified> Normal. */
 #define AUTHM_OPEN_RFID_EN          				STD_OFF											/*rfid Auth open enable state*/
 #define AUTHM_OPEN_BTAPP_EN          				STD_OFF											/*BTapp Auth open enable state*/
-#define AUTHM_OPEN_NETAPP_EN          				STD_OFF											/*Netapp Auth open enable state*/
+#define AUTHM_OPEN_NETAPP_EN          				STD_ON											/*Netapp Auth open enable state*/
 #define AUTHM_OPEN_SINGLE_TIMING_EN					STD_OFF											/*singletiming Auth open enable state*/
 #define AUTHM_OPEN_PERIOD_TIMING_EN					STD_OFF											/*periodtiming Auth open enable state*/
 #define AUTHM_OPEN_NOAUTH_EN						STD_ON											/*Rfid Auth open enable state*/
@@ -44,7 +45,7 @@
 #define AUTHM_CLOSE_EMER_EN 						STD_OFF											/*emergencystop close enable state*/
 #define AUTHM_CLOSE_RFID_EN							STD_OFF											/*rfid Auth close enable state*/
 #define AUTHM_CLOSE_BTAPP_EN						STD_OFF											/*BTapp Auth close enable state*/
-#define AUTHM_CLOSE_NETAPP_EN						STD_OFF											/*Netapp Auth close enable state*/
+#define AUTHM_CLOSE_NETAPP_EN						STD_ON											/*Netapp Auth close enable state*/
 #define AUTHM_CLOSE_SINGLE_TIMING_EN				STD_OFF											/*singletiming close enable state*/
 #define AUTHM_CLOSE_PERIOD_TIMING_EN				STD_OFF											/*periodtiming close enable state*/
 #define AUTHM_CLOSE_BUTTON_EN						STD_OFF											/*Button close enable state*/
@@ -83,8 +84,8 @@
 #define AUTHM_GetBtFastAuthStatus()  				                            					/*get BtFast Auth status*/
 #define AUTHM_GetBtAppCancelAuthStatus()                                                            /*get BtApp Cancel Auth status*/
 #define AUTHM_GetBtAppAuthStatus()                                                                  /*get BtApp Auth status*/
-#define AUTHM_GetNetAppAuthStatus()                                                                 /*get Net  Auth status*/
-#define AUTHM_GetNetAppCancelAuthStatus()                                                           /*get Net Cancel Auth status*/
+#define AUTHM_GetNetAppAuthStatus(ch)               NETAUTH_GetAuthStatus(ch)                       /*get Net  Auth status*/
+#define AUTHM_GetNetAppCancelAuthStatus(ch)         NETAUTH_GetCancelAuthStatus(ch)                 /*get Net Cancel Auth status*/
 #define AUTHM_GetOrderContAuthStatus()                                                              /*get order continue Auth status*/
 #define AUTHM_GetSingleTimeAuthStatus()                                                             /*get single time Auth status*/
 #define AUTHM_GetSingleTimeCancelAuthStatus()                                                       /*get single time Cancel Auth status*/
@@ -95,7 +96,7 @@
 #define AUTHM_ResetBtAppAuthStatus()                                                                /*reset BtApp Auth status*/
 #define AUTHM_ResetNoAuthStatus(ch)                 NOAUTHEN_ResetAuthStatus(ch)                    /*reset NoAuthen Auth status*/
 #define AUTHM_ResetRfidAuthStatus()                                                                 /*reset rfid Auth status*/
-#define AUTHM_ResetNetAuthStatus()                                                                  /*reset net Auth status*/
+#define AUTHM_ResetNetAuthStatus(ch)                NETAUTH_ResetAuthStatus(ch)                  /*reset net Auth status*/
 
 #define AUTHM_STOP_CHARGE_ERROR_SUSPEND				EVSEM_STOP_CHARGE_ERROR_SUSPEND					/*stop charge reason is error suspend*/
 #define AUTHM_STOP_CHARGE_REMOTE_SUSPEND			EVSEM_STOP_CHARGE_REMOTE_SUSPEND				/*stop charge reason is remote suspend*/

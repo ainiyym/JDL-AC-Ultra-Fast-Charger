@@ -9,7 +9,7 @@
 #if !defined (__CLOUD_PROTOCOL_SG_PROTERTYSETTING_H)
 /* polyspace:begin<MISRA-C3:2.5:Not a defect:Justified> Normal. */
 /* polyspace<MISRA-C3:21.1:Not a defect:Justified> Normal. */
-#define __FILETEMPLATE___CLOUD_PROTOCOL_SG_PROTERTYSETTING_HH
+#define __CLOUD_PROTOCOL_SG_PROTERTYSETTING_H
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/

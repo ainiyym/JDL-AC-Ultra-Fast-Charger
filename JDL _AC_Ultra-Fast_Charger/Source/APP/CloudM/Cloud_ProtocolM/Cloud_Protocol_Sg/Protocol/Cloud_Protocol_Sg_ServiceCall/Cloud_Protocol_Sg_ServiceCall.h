@@ -14,6 +14,8 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "Cloud_Protocol_Sg_Cfg.h"
+#include "Cloud_Protocol_Mqtt.h"
+#include "Cloud_Protocol_Sg_RemoteCharge.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -26,6 +28,12 @@
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
+typedef enum
+{
+    CLOUD_PROTOCOL_SG_SERVICE_CALL_START_CHARGE,                   // Charge Or Discharge Plan Service
+    CLOUD_PROTOCOL_SG_SERVICE_CALL_STOP_CHARGE,                    // Remote Stop Charge Service
+    CLOUD_PROTOCOL_SG_SERVICE_CALL_UNKNOWN                         // unknown event
+} cloud_protocol_sg_service_call_type_t;
 
 /*******************************************************************************
 |    Typedef Definition
@@ -39,5 +47,6 @@
 |    Global Function Prototypes
 |******************************************************************************/
 extern bool cloud_protocol_service_call(const char *payload, uint16_t payload_len);
+
 #endif /* __CLOUD_PROTOCOL_SG_SERVICECALL_H */
 /* EOL */

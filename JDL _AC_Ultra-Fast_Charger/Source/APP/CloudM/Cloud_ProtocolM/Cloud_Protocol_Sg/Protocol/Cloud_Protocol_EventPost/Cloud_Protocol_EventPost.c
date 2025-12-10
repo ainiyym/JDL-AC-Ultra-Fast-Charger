@@ -59,7 +59,7 @@ cloud_protocol_event_post_req_t *Cloud_Protocol_EventPost_CreateRequest(char* id
 	memset(req, 0, sizeof(cloud_protocol_event_post_req_t));
 
 	// initialize version
-	req->version = Cloud_Protocol_Strdup(CLOUD_PROTOCOL_VERSION_DEFAULT);
+	req->version = Cloud_Protocol_Strdup(CLOUD_PROTOCOL_SG_VERSION_DEFAULT);
 	if (req->version == NULL)
 	{
 		CLOUDM_FREE(req);
@@ -95,17 +95,17 @@ static char *cloud_protocol_event_post_build_method(const char *identifier)
 		return NULL;
 	}
 
-	size_t len = strlen(CLOUD_PROTOCOL_EVENT_POST_METHOD_PREFIX) +
+	size_t len = strlen(CLOUD_PROTOCOL_SG_EVENT_POST_METHOD_PREFIX) +
 				 strlen(identifier) +
-				 strlen(CLOUD_PROTOCOL_EVENT_POST_METHOD_SUFFIX) + 1;
+				 strlen(CLOUD_PROTOCOL_SG_EVENT_POST_METHOD_SUFFIX) + 1;
 
 	char *method = (char *)CLOUDM_MALLOC(len);
 	if (method != NULL)
 	{
 		snprintf(method, len, "%s%s%s",
-				 CLOUD_PROTOCOL_EVENT_POST_METHOD_PREFIX,
+				 CLOUD_PROTOCOL_SG_EVENT_POST_METHOD_PREFIX,
 				 identifier,
-				 CLOUD_PROTOCOL_EVENT_POST_METHOD_SUFFIX);
+				 CLOUD_PROTOCOL_SG_EVENT_POST_METHOD_SUFFIX);
 	}
 
 	return method;
@@ -289,12 +289,12 @@ static void Cloud_Protocol_EventPost_PostMessage(const char *json_str, const cha
 		CLOUD_ERROR("Cloud_Protocol_EventPost_PostMessage: json_str is NULL\r\n");
 		return;
 	}
-	char event_post_subscribe_topic[CLOUD_PROTOCOL_SG_SYSN_NET_TIME_TOPIC_MAX_LENGTH];  // subscribe topic
-	char event_post_publish_topic[CLOUD_PROTOCOL_SG_SYSN_NET_TIME_TOPIC_MAX_LENGTH]; // publish topic
+	char event_post_subscribe_topic[CLOUD_PROTOCOL_SUB_TOPIC_MAX_LENGTH];  // subscribe topic
+	char event_post_publish_topic[CLOUD_PROTOCOL_PUB_TOPIC_MAX_LENGTH]; // publish topic
 
 	const cloud_protocol_mqtt_topic_config_t *topic = Cloud_Protocol_Mqtt_GetActiveTopicConfigByEnum(CLOUD_PROTOCOL_MQTT_ACTIVE_TOPIC_EVENT_POST);
-	Cloud_Protocol_Sg_Build_Topic(topic->subscribe_topic, NULL, event_post_subscribe_topic, CLOUD_PROTOCOL_SG_SYSN_NET_TIME_TOPIC_MAX_LENGTH);
-	Cloud_Protocol_Sg_Build_Topic(topic->publish_topic, identifier, event_post_publish_topic, CLOUD_PROTOCOL_SG_SYSN_NET_TIME_TOPIC_MAX_LENGTH);
+	Cloud_Protocol_Sg_Build_Topic(topic->subscribe_topic, NULL, event_post_subscribe_topic, CLOUD_PROTOCOL_SUB_TOPIC_MAX_LENGTH);
+	Cloud_Protocol_Sg_Build_Topic(topic->publish_topic, identifier, event_post_publish_topic, CLOUD_PROTOCOL_PUB_TOPIC_MAX_LENGTH);
 
 	// send message to cloud protocol module
 	Cloud_Protocol_Mqtt_AddPublishMessage(event_post_publish_topic, json_str, CLOUD_PROTOCOL_MQTT_NEED_ACK, event_post_subscribe_topic);
@@ -379,7 +379,7 @@ void Cloud_Protocol_EventPost_DestroyResponse(cloud_protocol_event_post_resp_t *
 // check if response indicates success
 bool Cloud_Protocol_EventPost_IsSuccess(const cloud_protocol_event_post_resp_t *resp)
 {
-	return (resp != NULL && resp->code == CLOUD_PROTOCOL_RESPONSE_SUCCESS);
+	return (resp != NULL && resp->code == CLOUD_PROTOCOL_SG_RESPONSE_SUCCESS);
 }
 
 // get error code message
@@ -387,17 +387,17 @@ const char *Cloud_Protocol_EventPost_GetCodeMessage(int code)
 {
 	switch (code)
 	{
-	case CLOUD_PROTOCOL_RESPONSE_SUCCESS:
+	case CLOUD_PROTOCOL_SG_RESPONSE_SUCCESS:
 		return "success";
-	case CLOUD_PROTOCOL_RESPONSE_REQUEST_ERROR:
+	case CLOUD_PROTOCOL_SG_RESPONSE_REQUEST_ERROR:
 		return "request error";
-	case CLOUD_PROTOCOL_RESPONSE_PARAMETER_ERROR:
+	case CLOUD_PROTOCOL_SG_RESPONSE_PARAMETER_ERROR:
 		return "request parameter error";
-	case CLOUD_PROTOCOL_RESPONSE_TOO_MANY_REQUESTS:
+	case CLOUD_PROTOCOL_SG_RESPONSE_TOO_MANY_REQUESTS:
 		return "too many requests";
 	default:
-		if (code >= CLOUD_PROTOCOL_RESPONSE_CUSTOM_ERROR_BASE &&
-			code <= CLOUD_PROTOCOL_RESPONSE_CUSTOM_ERROR_BASE + 10000)
+		if (code >= CLOUD_PROTOCOL_SG_RESPONSE_CUSTOM_ERROR_BASE &&
+			code <= CLOUD_PROTOCOL_SG_RESPONSE_CUSTOM_ERROR_BASE + 10000)
 		{
 			return "custom error";
 		}

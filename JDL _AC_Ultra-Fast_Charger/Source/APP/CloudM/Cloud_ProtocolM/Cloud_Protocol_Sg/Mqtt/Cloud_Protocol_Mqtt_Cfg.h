@@ -81,7 +81,7 @@ typedef enum
 |    Typedef Definition
 |******************************************************************************/
 typedef void (*cloud_protocol_mqtt_connect_cb)(bool connected);
-typedef bool (*cloud_protocol_mqtt_msg_cb)(const char *payload);
+typedef bool (*cloud_protocol_mqtt_msg_cb)(const char *payload, cloud_protocol_sg_message_type_e *type);
 
 // MQTT publishes parameters
 typedef struct
@@ -126,6 +126,7 @@ extern const cloud_protocol_mqtt_topic_config_t cloud_protocol_mqtt_passive_topi
 |    Global Function Prototypes
 |******************************************************************************/
 extern const cloud_protocol_mqtt_topic_config_t* Cloud_Protocol_Mqtt_GetActiveTopicConfigByEnum(cloud_protocol_mqtt_active_topic_config_e Id);
+extern const cloud_protocol_mqtt_topic_config_t* Cloud_Protocol_Mqtt_GetPassiveTopicConfigByEnum(cloud_protocol_mqtt_passive_topic_config_e Id);
 
 #endif /* __CLOUD_PROTOCOL_SGM_CFG_H */
 /* EOL */

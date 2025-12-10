@@ -73,8 +73,8 @@ typedef struct
 	uint32_t sync_interval_ms;												   // Sync interval in milliseconds
 	uint32_t retry_backoff_ms;												   // Retry backoff time in milliseconds
 	bool auto_sync_enabled;													   // Auto sync enabled flag
-	char ntp_request_topic[CLOUD_PROTOCOL_SG_SYSN_NET_TIME_TOPIC_MAX_LENGTH];  // NTP request topic
-	char ntp_response_topic[CLOUD_PROTOCOL_SG_SYSN_NET_TIME_TOPIC_MAX_LENGTH]; // NTP response topic
+	char ntp_request_topic[CLOUD_PROTOCOL_PUB_TOPIC_MAX_LENGTH];  // NTP request topic
+	char ntp_response_topic[CLOUD_PROTOCOL_SUB_TOPIC_MAX_LENGTH]; // NTP response topic
 	uint16_t max_clock_adjustment;											   // Maximum clock adjustment (ms)
 	bool enable_clock_adjustment;											   // Enable automatic clock adjustment
 } cloud_protocol_sysnchronize_net_time_config_t;

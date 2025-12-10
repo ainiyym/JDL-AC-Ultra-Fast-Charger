@@ -146,4 +146,13 @@ const cloud_protocol_mqtt_topic_config_t* Cloud_Protocol_Mqtt_GetActiveTopicConf
     }
     return &cloud_protocol_mqtt_active_topic_configs[Id];
 }
+
+const cloud_protocol_mqtt_topic_config_t* Cloud_Protocol_Mqtt_GetPassiveTopicConfigByEnum(cloud_protocol_mqtt_passive_topic_config_e Id)
+{
+    if (Id >= CLOUD_PROTOCOL_MQTT_PASSIVE_TOPIC_CONFIG_MAXIMUM)
+    {
+        return NULL;
+    }
+    return &cloud_protocol_mqtt_passive_topic_configs[Id];
+}
 /* EOL */

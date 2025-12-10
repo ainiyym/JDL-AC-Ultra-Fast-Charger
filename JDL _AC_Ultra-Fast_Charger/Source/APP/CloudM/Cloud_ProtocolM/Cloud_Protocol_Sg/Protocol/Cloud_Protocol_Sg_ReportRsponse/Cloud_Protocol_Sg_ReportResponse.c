@@ -239,7 +239,7 @@ bool cloud_protocol_report_response(const char *payload, uint16_t payload_len)
         return false;
     }
 
-    if (response.code != CLOUD_PROTOCOL_RESPONSE_SUCCESS)
+    if (response.code != CLOUD_PROTOCOL_SG_RESPONSE_SUCCESS)
     {
         CLOUD_WARN("<%s> Report response failed with code: %u, message: %s\r\n", __func__, response.code, response.message);
         return false;

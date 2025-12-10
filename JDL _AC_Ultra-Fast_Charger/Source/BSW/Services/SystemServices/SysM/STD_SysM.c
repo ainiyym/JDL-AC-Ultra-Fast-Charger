@@ -23,6 +23,7 @@
 #include "STD_ErrorHandler.h"
 #include "STD_RlyM.h"
 #include "STD_AuthM.h"
+#include "STD_NetAuth.h"
 #include "STD_Curr.h"
 #include "STD_Volt.h"
 #include "BtrM.h"
@@ -182,6 +183,7 @@ void SYSM_InitTwo( void )
 	BTRM_InitMemory();
 	AUTHM_InitMemory();
 	NOAUTHEN_InitMemory();
+	NETAUTH_InitMemory();
 	CURR_InitMemory();
 	VOLT_InitMemory();
 	SENSOR_InitMemory();

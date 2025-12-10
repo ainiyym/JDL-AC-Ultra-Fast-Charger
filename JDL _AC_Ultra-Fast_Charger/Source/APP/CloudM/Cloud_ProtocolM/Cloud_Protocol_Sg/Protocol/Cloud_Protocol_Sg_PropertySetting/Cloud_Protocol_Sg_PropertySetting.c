@@ -54,6 +54,6 @@
 bool cloud_protocol_property_setting_response(const char *payload, uint16_t payload_len)
 {
     // Implementation of handling property setting message
-	return true;
+    return true;
 }
 /* EOL */

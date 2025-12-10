@@ -435,7 +435,7 @@ static void YeeCom_DevicePowerON(void)
     if (YeeCom_GetDeviceState(YEECOM_POWER_ON))
     {
         // Power ON the device
-        vTaskDelay(pdMS_TO_TICKS(8000));
+        vTaskDelay(pdMS_TO_TICKS(500));
         YeeCom_SetLoadStep(YEECOM_LOAD_STEP2);
     }
 }

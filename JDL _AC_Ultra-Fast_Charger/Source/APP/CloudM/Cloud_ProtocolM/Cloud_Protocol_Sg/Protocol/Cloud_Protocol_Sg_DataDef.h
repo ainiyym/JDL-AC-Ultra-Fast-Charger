@@ -211,7 +211,7 @@ typedef struct
 	char endTime[V2G_MAX_TIMESTAMP_LEN];	// 2	结束时间
 	unsigned char direction;				// 3	充放电方向
 	unsigned int power;						// 4	功率
-} startcharge_times;
+} __attribute__((__packed__)) startcharge_times;
 
 //远程启动充放电服务下发参数
 
@@ -224,8 +224,7 @@ typedef struct
 	unsigned char decisionType;					// 5	决策类型
 	char decisionTime[V2G_MAX_TIMESTAMP_LEN]; 	// 6	决策时间
 	startcharge_times times;					// 7	充放电时段数据单元
-
-} v2g_service_remoteStart;
+} __attribute__((__packed__)) v2g_service_remoteStart;
 
 //启动充电服务设备回复参数
 
@@ -236,8 +235,7 @@ typedef struct
 	char VIN[V2G_MAX_CAR_VIN_LEN];		// 3	vin码
 	unsigned char result;				// 4	执行结果
 	char resultDes[V2G_MAX_RESULT_LEN];	// 5	执行结果描述
-
-} v2g_service_feedback_remoteStart;
+} __attribute__((__packed__)) v2g_service_feedback_remoteStart;
 
 //平台下发充电模式服务
 
@@ -245,7 +243,7 @@ typedef struct
 {
 	unsigned char gunNo; 		// 1 充电枪编号
 	unsigned char chargeMode;	// 2 充电模式
-} v2g_service_charge_mode;
+} __attribute__((__packed__)) v2g_service_charge_mode;
 
 //平台下发充电模式服务
 
@@ -254,7 +252,7 @@ typedef struct
 	unsigned char gunNo; 					// 1 充电枪编号
 	unsigned char result;					// 2 执行结果
 	char resultDes[V2G_MAX_RESULT_LEN];		// 3 执行结果描述
-} v2g_service_feedback_charge_mode;
+} __attribute__((__packed__)) v2g_service_feedback_charge_mode;
 
 //车辆信息上报事件参数
 
@@ -320,7 +318,7 @@ typedef struct
 	unsigned char gunNo;					// 1	充电枪编号
 	char VIN[V2G_MAX_CAR_VIN_LEN]; 			// 2	vin码
 	char applySheetNo[V2G_MAX_TRADE_LEN];	// 3	订单编号
-} v2g_service_remoteStop;
+} __attribute__((__packed__)) v2g_service_remoteStop;
 
 //远程停止充电服务设备回复参数
 
@@ -329,7 +327,7 @@ typedef struct
 	unsigned char result;					// 1	结果
 	char resultDes[V2G_MAX_RESULT_LEN]; 	// 2	结果描述
 	char applySheetNo[V2G_MAX_TRADE_LEN];	// 3	订单编号
-} v2g_service_feedback_remoteStop;
+} __attribute__((__packed__)) v2g_service_feedback_remoteStop;
 
 //设备故障告警事件上传参数
 

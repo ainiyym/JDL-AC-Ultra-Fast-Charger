@@ -184,23 +184,29 @@ void Cloud_Protocol_Mqtt_HandleReceivedMessage(const char *payload)
 
     // CLOUD_INFO("Received message: %s\r\n", payload);
 
-    /* Call message callback */
-    if (cloud_protocol_mqtt_client.message_callback != NULL)
+    if (cloud_protocol_mqtt_client.message_callback == NULL)
     {
-        response_correct = cloud_protocol_mqtt_client.message_callback(payload);
-        cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_ACTIVE;
+        return ;
     }
+    cloud_protocol_sg_message_type_e type = CLOUD_PROTOCOL_SG_MESSAGE_TYPE_UNKNOWN;
+    /* Call message callback */
+    response_correct = cloud_protocol_mqtt_client.message_callback(payload, &type);
+    cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_ACTIVE;
 
-    if (!response_correct && cloud_protocol_mqtt_client.last_processed_msg != NULL)
+    // Handle active message receive failure
+    if (!response_correct && cloud_protocol_mqtt_client.last_processed_msg != NULL && type != CLOUD_PROTOCOL_SG_MESSAGE_TYPE_SERVICE_CALL)
     {
         Cloud_Protocol_Mqtt_HandleMessageSendFail(cloud_protocol_mqtt_client.last_processed_msg);
         return;
     }
 
     /* Remove message from queue */
-    Cloud_Protocol_Mqtt_RemoveMessageFromQueue(cloud_protocol_mqtt_client.last_processed_msg);
-    cloud_protocol_mqtt_client.last_processed_msg = NULL;
-    CLOUD_INFO("<%s>Message processed and removed from queue\r\n", __func__);
+    if (type != CLOUD_PROTOCOL_SG_MESSAGE_TYPE_SERVICE_CALL && cloud_protocol_mqtt_client.last_processed_msg != NULL)
+    {
+        Cloud_Protocol_Mqtt_RemoveMessageFromQueue(cloud_protocol_mqtt_client.last_processed_msg);
+        cloud_protocol_mqtt_client.last_processed_msg = NULL;
+        CLOUD_INFO("<%s>Message processed and removed from queue\r\n", __func__);
+    }
 }
 
 /**
@@ -679,8 +685,8 @@ static void Cloud_Protocol_Mqtt_BuildPassiveTopic(char *combined_topic, size_t b
     // Get passive topics
     const cloud_protocol_mqtt_topic_config_t *property_topic = Cloud_Protocol_Mqtt_GetPassiveTopicByEnum(CLOUD_PROTOCOL_MQTT_PASSIVE_TOPIC_CONFIG_DEVICE_PROPERTY);
     const cloud_protocol_mqtt_topic_config_t *service_topic = Cloud_Protocol_Mqtt_GetPassiveTopicByEnum(CLOUD_PROTOCOL_MQTT_PASSIVE_TOPIC_SERVICE_INVOCATION);
-    char property_topic_buffer[128] = {0};
-    char service_topic_buffer[128] = {0};
+    char property_topic_buffer[CLOUD_PROTOCOL_SUB_TOPIC_MAX_LENGTH] = {0};
+    char service_topic_buffer[CLOUD_PROTOCOL_SUB_TOPIC_MAX_LENGTH] = {0};
 
     if (property_topic)
     {
@@ -721,7 +727,7 @@ static void Cloud_Protocol_Mqtt_BuildActiveTopic(char *combined_topic, size_t bu
 {
     // Get passive topics
     const cloud_protocol_mqtt_topic_config_t *service_topic = Cloud_Protocol_Mqtt_GetPassiveTopicByEnum(CLOUD_PROTOCOL_MQTT_PASSIVE_TOPIC_SERVICE_INVOCATION);
-    char service_topic_buffer[128] = {0};
+    char service_topic_buffer[CLOUD_PROTOCOL_SUB_TOPIC_MAX_LENGTH] = {0};
 
     if (!service_topic)
     {
@@ -751,7 +757,7 @@ static void Cloud_Protocol_Mqtt_SwitchDefaultSubscribe(void)
     }
 
     // Build combined topic with wildcard
-    char combined_topic[256];
+    char combined_topic[CLOUD_PROTOCOL_SUB_TOPIC_MAX_LENGTH];
     uint8_t type = 0;
     if (cloud_protocol_mqtt_client.msg_queue_head != NULL)
     {

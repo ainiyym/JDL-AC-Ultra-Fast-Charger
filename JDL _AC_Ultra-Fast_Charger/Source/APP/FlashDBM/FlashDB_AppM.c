@@ -180,7 +180,7 @@ int FlashDB_AppM_Init(void)
 	FlashDB_WriteValue(FLASHDB_KV_M4G_DEVICE_INIT_FLAG, (uint8_t*)&flash_db_kv_4g_device_init_flag, 1);
 #endif
 	tsdb_time_synced_init(&flash_db_kv_synced_tsdb_timestamp[0]);
-	Cloud_Protocol_EventPost_FwInfo_Set(CLOUD_PROTOCOL_EVENT_FW_MODEL_NO, (void *)flash_db_kv_sg_billing_mode_number);
+	Cloud_Protocol_EventPost_FwInfo_Set(CLOUD_PROTOCOL_SG_EVENT_FW_MODEL_NO, (void *)flash_db_kv_sg_billing_mode_number);
 
 	return 0;
 }

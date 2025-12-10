@@ -375,7 +375,7 @@ static void AUTHM_UnauthorizedModeHandle(SysConnector_Num_Enum ch)
 			gv_stAuthM[ch].ucMode = AUTHM_MODE_AUTHORIZED;
 			gv_stAuthM[ch].ucReqChargeStatus = STD_TRUE;
 			AUTHM_ResetNetAuthStatus(ch);
-			AUTHM_DEBUG("ch:%d 5G Auth\r\n", ch);
+			AUTHM_DEBUG("ch:%d 4G Auth\r\n", ch);
 		}
 		else
 #endif	
