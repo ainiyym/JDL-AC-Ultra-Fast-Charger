@@ -66,6 +66,15 @@
 #define CLOUD_PROTOCOL_SG_CHARGING_GUN_NUM_MAX         CLOUDM_SG_CONNECTOR_NUM       /* connector num */
 #define CLOUD_PROTOCOL_SG_INVALID_GUN_INDEX            0xFF                          /* invalid gun index */
 
+#define CLOUD_PROTOCOL_SG_DEFAULT_GUN_INFO_FREQ               60                     /* s */
+#define CLOUD_PROTOCOL_SG_DEFAULT_VEHICLE_INFO_FREQ           60                     /* s */
+#define CLOUD_PROTOCOL_SG_DEFAULT_BATTERY_INFO_FREQ           60                     /* s */
+#define CLOUD_PROTOCOL_SG_DEFAULT_PILE_WARNINGS_FREQ          360                    /* s */
+#define CLOUD_PROTOCOL_SG_DEFAULT_VEHICLE_WARNINGS_FREQ       360                    /* s */
+#define CLOUD_PROTOCOL_SG_DEFAULT_OFFLINE_CHARGE_LEN          5                      /* min */
+#define CLOUD_PROTOCOL_SG_DEFAULT_GRND_LOCK_FREQ              60                     /* min */
+#define CLOUD_PROTOCOL_SG_DEFAULT_DOOR_LOCK_FREQ              60                     /* min */
+
 #define CLOUD_PROTOCOL_SG_SYSN_NET_TIME_DEFAULT_RETRY_COUNT         3                           // Default retry attempts
 #define CLOUD_PROTOCOL_SG_SYSN_NET_TIME_PERIOD_MS                   24 * 60 * 60 * 1000         // Default sync interval (24 hour)
 #define CLOUD_PROTOCOL_SG_SYSN_NET_TIME_RETRY_BACKOFF_TIME_MS       30 * 1000                   // Default retry backoff time (30 seconds)
@@ -90,6 +99,14 @@ typedef enum
     CLOUD_PROTOCOL_SG_MESSAGE_TYPE_OTA_INFO_RESP,    // Firmware info response,
     CLOUD_PROTOCOL_SG_MESSAGE_TYPE_MAX
 } cloud_protocol_sg_message_type_e;
+
+// SG protocol:rcv mqtt message type enumeration
+typedef enum
+{
+    CLOUD_PROTOCOL_SG_MESSAGE_RCV_TYPE_UNKNOWN = 0,    // Unknown receive
+    CLOUD_PROTOCOL_SG_MESSAGE_RCV_TYPE_PASSSTIVE,      // Passive receive
+    CLOUD_PROTOCOL_SG_MESSAGE_RCV_TYPE_ACTIVE          // Active receive
+}cloud_protocol_sg_message_rcv_type_e;
 
 typedef enum
 {

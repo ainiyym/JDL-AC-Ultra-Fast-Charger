@@ -52,15 +52,16 @@ void Cloud_Protocol_Msg_Init(void)
     memset(&Cloud_ProtocolMsg, 0u, sizeof(Cloud_ProtocolMsg));
 }
 
-void Cloud_Protocol_SendMsg(uint8_t *pMsg, uint16_t MsgLen, uint8_t MsgType)
+bool Cloud_Protocol_SendMsg(uint8_t *pMsg, uint16_t MsgLen, uint8_t MsgType)
 {
     if ((pMsg != NULL) && (MsgLen <= CLOUD_MESSAGE_BUFFER_MAX_LENGTH))
     {
-        Cloud_MessageBuffer_SendMessage(pMsg, MsgLen, MsgType);
+        return Cloud_MessageBuffer_SendMessage(pMsg, MsgLen, MsgType);
     }
     else
     {
         CLOUD_ERROR("Cloud Protocol Send Message Error: Invalid parameters\r\n");
+        return false;
     }
 }
 

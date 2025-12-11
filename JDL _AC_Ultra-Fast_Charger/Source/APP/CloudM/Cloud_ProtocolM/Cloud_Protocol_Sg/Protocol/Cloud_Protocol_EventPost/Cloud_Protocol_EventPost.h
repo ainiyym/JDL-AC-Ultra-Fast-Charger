@@ -28,6 +28,18 @@
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
+// event parameter value type
+typedef enum
+{
+   CLOUD_PROTOCOL_EVENT_POST_TYPE_GUN_INFO = 0,     // charging gun status
+   CLOUD_PROTOCOL_EVENT_POST_TYPE_VEHICLE_INFO,     // vehicle status
+   CLOUD_PROTOCOL_EVENT_POST_TYPE_BATTERY_INFO,     // battery status
+   CLOUD_PROTOCOL_EVENT_POST_TYPE_PILE_WARNINGS,    // device warning information
+   CLOUD_PROTOCOL_EVENT_POST_TYPE_VEHICLE_WARNINGS, // vehicle warning information
+   CLOUD_PROTOCOL_EVENT_POST_TYPE_GRND_LOCK,        // ground lock status
+   CLOUD_PROTOCOL_EVENT_POST_TYPE_DOOR_LOCK,        // door lock status
+   CLOUD_PROTOCOL_EVENT_POST_TYPE_MAX
+} cloud_protocol_event_post_type_t;
 
 /*******************************************************************************
 |    Typedef Definition
@@ -76,6 +88,15 @@ typedef struct
     char *data; // response data
 } cloud_protocol_event_post_resp_t;
 
+// Event post task structure
+typedef struct
+{
+    cloud_protocol_event_post_type_t type; // event type
+    uint32_t last_post_time;               // last post timestamp
+    uint32_t interval;                     // post interval
+    bool enabled;                          // enabled flag
+    bool force_post;                       // force post flag
+} cloud_protocol_event_post_task_t;
 /*******************************************************************************
 |    Table Definition
 |******************************************************************************/
@@ -90,8 +111,21 @@ extern bool Cloud_Protocol_EventPost_AddParam(cJSON *object, const cloud_protoco
 extern void Cloud_Protocol_EventPost_PrintUnformatted(cJSON *object, uint64_t timestamp, char* identifier);
 // parse response object
 extern cloud_protocol_event_post_resp_t *Cloud_Protocol_EventPost_ParseResponse(const char *json_str);
-extern void Cloud_Protocol_EventPost_DestroyResponse(cloud_protocol_event_post_resp_t *resp);
-extern bool Cloud_Protocol_EventPost_IsSuccess(const cloud_protocol_event_post_resp_t *resp);
-extern const char *Cloud_Protocol_EventPost_GetCodeMessage(int code);    
+// event post management functions
+extern void Cloud_Protocol_EventPost_Init(void);
+extern void Cloud_Protocol_EventPost_PeriodicTask(void);
+extern void Cloud_Protocol_EventPost_UpdateConfig(const v2g_data_dev_config *config);
+extern bool Cloud_Protocol_EventPost_TriggerEvent(cloud_protocol_event_post_type_t type);
+extern void Cloud_Protocol_EventPost_ForceAllEvents(void);
+// event post functions
+// void Cloud_Protocol_EventPost_GunInfo(void);
+// void Cloud_Protocol_EventPost_VehicleInfo(void);
+// void Cloud_Protocol_EventPost_BatteryInfo(void);
+// void Cloud_Protocol_EventPost_PileWarnings(void);
+// void Cloud_Protocol_EventPost_VehicleWarnings(void);
+// void Cloud_Protocol_EventPost_GrndLock(void);
+// void Cloud_Protocol_EventPost_DoorLock(void);
+// void Cloud_Protocol_EventPost_ChargeStatus(void);
+// void Cloud_Protocol_EventPost_SystemStatus(void);
 #endif /* __CLOUD_PROTOCOL_EVENTPOST_H */
 /* EOL */

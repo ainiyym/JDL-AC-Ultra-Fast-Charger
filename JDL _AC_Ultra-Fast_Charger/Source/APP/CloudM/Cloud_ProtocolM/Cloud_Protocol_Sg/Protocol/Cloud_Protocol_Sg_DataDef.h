@@ -16,16 +16,16 @@
 #define V2G_MAX_CAR_VIN_LEN (17 + 1)	  //最大车辆唯一识别码长度
 #define V2G_MAX_MAC_ADDR_LEN (32 + 1)	  //设备mac地址长度
 #define V2G_MAX_MODEL_ID_LEN (16 + 1)	  //最大计费模型id长度
-#define V2G_MAX_QRCODE_LEN (256)		  //二维码长度
+#define V2G_MAX_QRCODE_LEN (24)		      //二维码长度
 #define V2G_MAX_ICCID_LEN (24)			  //sim卡iccid长度
 #define V2G_MAX_PILE_TYPE_LEN (20)		  //桩类型长度
 #define V2G_MAX_DEV_SN_LEN (16 + 1)		  //厂商出厂编码
 #define V2G_MAX_MODEL_DEVSEG (14)		  //最大计费模型时段数
 #define V2G_MAX_METER_ADDR_LEN (6)		  //电表地址长度
 #define V2G_MAX_TIMESTAMP_LEN (15 + 1)	  //时间戳长度
-#define V2G_MAX_SOFTWAREVER_LEN (256 + 1) //充电桩软件版本号长度
-#define V2G_MAX_HARDWAREVER_LEN (256 + 1) //充电桩硬件版本号长度
-#define V2G_MAX_SDKVER_LEN (256 + 1)	  //SDK版本号长度
+#define V2G_MAX_SOFTWAREVER_LEN (24 + 1) //充电桩软件版本号长度
+#define V2G_MAX_HARDWAREVER_LEN (24 + 1) //充电桩硬件版本号长度
+#define V2G_MAX_SDKVER_LEN (24 + 1)	  	  //SDK版本号长度
 #define V2G_MAX_LOGQUERY_LEN (38 + 1)	  //查询日志流水号长度
 #define V2G_MAX_LOGAREA_LEN (255 + 1)	  //日志响应数据最大长度
 #define V2G_MAX_USERID_LEN (255 + 1)	  //用户ID最大长度

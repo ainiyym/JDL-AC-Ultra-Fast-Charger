@@ -81,7 +81,7 @@ typedef enum
 |    Typedef Definition
 |******************************************************************************/
 typedef void (*cloud_protocol_mqtt_connect_cb)(bool connected);
-typedef bool (*cloud_protocol_mqtt_msg_cb)(const char *payload, cloud_protocol_sg_message_type_e *type);
+typedef bool (*cloud_protocol_mqtt_msg_cb)(const char *payload, cloud_protocol_sg_message_rcv_type_e *type);
 
 // MQTT publishes parameters
 typedef struct

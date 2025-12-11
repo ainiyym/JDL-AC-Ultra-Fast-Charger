@@ -33,6 +33,7 @@
 /*******************************************************************************
 |    Global variables Declaration
 |******************************************************************************/
+static cloud_protocol_event_post_task_t cloud_protocol_sg_event_tasks[CLOUD_PROTOCOL_EVENT_POST_TYPE_MAX];
 
 /*******************************************************************************
 |    Table Const Definition
@@ -44,9 +45,18 @@
 static char *cloud_protocol_event_post_build_method(const char *identifier);
 static void Cloud_Protocol_EventPost_DestroyRequest(cloud_protocol_event_post_req_t *req);
 static void Cloud_Protocol_EventPost_PostMessage(const char *json_str, const char* identifier);
+static void Cloud_Protocol_EventPost_DestroyResponse(cloud_protocol_event_post_resp_t *resp);
+static bool Cloud_Protocol_EventPost_ShouldPostEvent(cloud_protocol_event_post_task_t *task, uint32_t current_time);
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
+// initialize event post module
+void Cloud_Protocol_EventPost_Init(void)
+{
+	memset(cloud_protocol_sg_event_tasks, 0, sizeof(cloud_protocol_sg_event_tasks));
+}
+
+// create event post request object
 cloud_protocol_event_post_req_t *Cloud_Protocol_EventPost_CreateRequest(char* identifier, cloud_protocol_mqtt_set_msg_id_cb set_msg_id_cb)
 {
 	cloud_protocol_event_post_req_t *req = (cloud_protocol_event_post_req_t *)CLOUDM_MALLOC(sizeof(cloud_protocol_event_post_req_t));
@@ -174,6 +184,7 @@ cJSON *Cloud_Protocol_EventPost_BuildRequestJsonHeader(const cloud_protocol_even
 	return root;
 }
 
+// add event parameter to JSON object
 bool Cloud_Protocol_EventPost_AddParam(cJSON *object, const cloud_protocol_event_post_param_t *param)
 {
 	if (object == NULL || param == NULL || param->param_name == NULL)
@@ -251,6 +262,7 @@ bool Cloud_Protocol_EventPost_AddParam(cJSON *object, const cloud_protocol_event
 	return true;
 }
 
+// print JSON string and post message
 void Cloud_Protocol_EventPost_PrintUnformatted(cJSON *object, uint64_t timestamp, char* identifier)
 {
 	if (object == NULL)
@@ -282,6 +294,7 @@ void Cloud_Protocol_EventPost_PrintUnformatted(cJSON *object, uint64_t timestamp
 	// post function will free json_str
 }
 
+// post message to cloud
 static void Cloud_Protocol_EventPost_PostMessage(const char *json_str, const char *identifier)
 {
 	if (json_str == NULL)
@@ -356,7 +369,7 @@ cloud_protocol_event_post_resp_t *Cloud_Protocol_EventPost_ParseResponse(const c
 }
 
 // destroy response object
-void Cloud_Protocol_EventPost_DestroyResponse(cloud_protocol_event_post_resp_t *resp)
+static void Cloud_Protocol_EventPost_DestroyResponse(cloud_protocol_event_post_resp_t *resp)
 {
 	if (resp == NULL)
 	{
@@ -376,32 +389,167 @@ void Cloud_Protocol_EventPost_DestroyResponse(cloud_protocol_event_post_resp_t *
 	CLOUDM_FREE(resp);
 }
 
-// check if response indicates success
-bool Cloud_Protocol_EventPost_IsSuccess(const cloud_protocol_event_post_resp_t *resp)
+/**
+ * @brief update event post configuration
+ * @param config device configuration structure
+ */
+void Cloud_Protocol_EventPost_UpdateConfig(const v2g_data_dev_config *config)
 {
-	return (resp != NULL && resp->code == CLOUD_PROTOCOL_SG_RESPONSE_SUCCESS);
+	// update charging gun monitoring event report frequency (seconds)
+	cloud_protocol_sg_event_tasks[CLOUD_PROTOCOL_EVENT_POST_TYPE_GUN_INFO].interval = config->gunInfoFreq;
+	CLOUD_DEBUG("Gun info report interval: %u seconds\r\n", config->gunInfoFreq);
+
+	// update vehicle working status real-time monitoring attribute (seconds)
+	cloud_protocol_sg_event_tasks[CLOUD_PROTOCOL_EVENT_POST_TYPE_VEHICLE_INFO].interval = config->vehicleInfoFreq;
+	CLOUD_DEBUG("Vehicle info report interval: %u seconds\r\n", config->vehicleInfoFreq);
+
+	// update vehicle battery working status real-time monitoring attribute (seconds)
+	cloud_protocol_sg_event_tasks[CLOUD_PROTOCOL_EVENT_POST_TYPE_BATTERY_INFO].interval = config->batteryInfoFreq;
+	CLOUD_DEBUG("Battery info report interval: %u seconds\r\n", config->batteryInfoFreq);
+
+	// update device warning information upload frequency (seconds)
+	cloud_protocol_sg_event_tasks[CLOUD_PROTOCOL_EVENT_POST_TYPE_PILE_WARNINGS].interval = config->pileWarnings;
+	CLOUD_DEBUG("Pile warnings report interval: %u seconds\r\n", config->pileWarnings);
+
+	// update vehicle warning information upload frequency (seconds)
+	cloud_protocol_sg_event_tasks[CLOUD_PROTOCOL_EVENT_POST_TYPE_VEHICLE_WARNINGS].interval = config->vehicleWarnings;
+	CLOUD_DEBUG("Vehicle warnings report interval: %u seconds\r\n", config->vehicleWarnings);
+
+	// update ground lock monitoring upload frequency (minutes to seconds)
+	if (config->grndLock > 0)
+	{
+		cloud_protocol_sg_event_tasks[CLOUD_PROTOCOL_EVENT_POST_TYPE_GRND_LOCK].interval = config->grndLock * 60;
+		cloud_protocol_sg_event_tasks[CLOUD_PROTOCOL_EVENT_POST_TYPE_GRND_LOCK].enabled = true;
+		CLOUD_DEBUG("Ground lock report interval: %u minutes (%u seconds)\r\n", config->grndLock, config->grndLock * 60);
+	}
+	else
+	{
+		cloud_protocol_sg_event_tasks[CLOUD_PROTOCOL_EVENT_POST_TYPE_GRND_LOCK].enabled = false;
+		CLOUD_DEBUG("Ground lock reporting disabled (no ground lock)\r\n");
+	}
+
+	// update door lock monitoring upload frequency (minutes to seconds)
+	if (config->doorLock > 0)
+	{
+		cloud_protocol_sg_event_tasks[CLOUD_PROTOCOL_EVENT_POST_TYPE_DOOR_LOCK].interval = config->doorLock * 60;
+		cloud_protocol_sg_event_tasks[CLOUD_PROTOCOL_EVENT_POST_TYPE_DOOR_LOCK].enabled = true;
+		CLOUD_DEBUG("Door lock report interval: %u minutes (%u seconds)\r\n",config->doorLock, config->doorLock * 60);
+	}
+	else
+	{
+		cloud_protocol_sg_event_tasks[CLOUD_PROTOCOL_EVENT_POST_TYPE_DOOR_LOCK].enabled = false;
+		CLOUD_DEBUG("Door lock reporting disabled (no door lock)\r\n");
+	}
 }
 
-// get error code message
-const char *Cloud_Protocol_EventPost_GetCodeMessage(int code)
+// check if event should be posted
+static bool Cloud_Protocol_EventPost_ShouldPostEvent(cloud_protocol_event_post_task_t *task, uint32_t current_time)
 {
-	switch (code)
+	if (!task || !task->enabled)
 	{
-	case CLOUD_PROTOCOL_SG_RESPONSE_SUCCESS:
-		return "success";
-	case CLOUD_PROTOCOL_SG_RESPONSE_REQUEST_ERROR:
-		return "request error";
-	case CLOUD_PROTOCOL_SG_RESPONSE_PARAMETER_ERROR:
-		return "request parameter error";
-	case CLOUD_PROTOCOL_SG_RESPONSE_TOO_MANY_REQUESTS:
-		return "too many requests";
-	default:
-		if (code >= CLOUD_PROTOCOL_SG_RESPONSE_CUSTOM_ERROR_BASE &&
-			code <= CLOUD_PROTOCOL_SG_RESPONSE_CUSTOM_ERROR_BASE + 10000)
+		return false;
+	}
+
+	// check if force post is set
+	if (task->force_post)
+	{
+		task->force_post = false;
+		return true;
+	}
+
+	// check if interval has elapsed
+	if (current_time >= task->last_post_time + task->interval)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+// event post periodic task
+void Cloud_Protocol_EventPost_PeriodicTask(void)
+{
+	if (Cloud_Protocol_Mqtt_GetNetworkStatus() != CLOUD_PROTOCOL_MQTT_STATE_CONNECTED)
+	{
+		return;
+	}
+
+	uint32_t current_time = (uint32_t)CLOUD_PROTOCOL_GET_CURRENT_TIMESTAMP();
+
+	for (int i = 0; i < CLOUD_PROTOCOL_EVENT_POST_TYPE_MAX; i++)
+	{
+		cloud_protocol_event_post_task_t *task = &cloud_protocol_sg_event_tasks[i];
+
+		if (Cloud_Protocol_EventPost_ShouldPostEvent(task, current_time))
 		{
-			return "custom error";
+			// update last post time
+			task->last_post_time = current_time;
+
+			// call corresponding event post function
+			switch (task->type)
+			{
+				case CLOUD_PROTOCOL_EVENT_POST_TYPE_GUN_INFO:
+					// Cloud_Protocol_EventPost_GunInfo();
+					break;
+
+				case CLOUD_PROTOCOL_EVENT_POST_TYPE_VEHICLE_INFO:
+					// Cloud_Protocol_EventPost_VehicleInfo();
+					break;
+
+				case CLOUD_PROTOCOL_EVENT_POST_TYPE_BATTERY_INFO:
+					// Cloud_Protocol_EventPost_BatteryInfo();
+					break;
+
+				case CLOUD_PROTOCOL_EVENT_POST_TYPE_PILE_WARNINGS:
+					// Cloud_Protocol_EventPost_PileWarnings();
+					break;
+
+				case CLOUD_PROTOCOL_EVENT_POST_TYPE_VEHICLE_WARNINGS:
+					// Cloud_Protocol_EventPost_VehicleWarnings();
+					break;
+
+				case CLOUD_PROTOCOL_EVENT_POST_TYPE_GRND_LOCK:
+					if (task->enabled)
+					{
+						// Cloud_Protocol_EventPost_GrndLock();
+					}
+					break;
+
+				case CLOUD_PROTOCOL_EVENT_POST_TYPE_DOOR_LOCK:
+					if (task->enabled)
+					{
+						// Cloud_Protocol_EventPost_DoorLock();
+					}
+					break;
+
+				default:
+					break;
+			}
 		}
-		return "unknown error";
+	}
+}
+
+// trigger immediate event post
+bool Cloud_Protocol_EventPost_TriggerEvent(cloud_protocol_event_post_type_t type)
+{
+	if (type >= CLOUD_PROTOCOL_EVENT_POST_TYPE_MAX)
+	{
+		return false;
+	}
+
+	cloud_protocol_sg_event_tasks[type].force_post = true;
+	return true;
+}
+
+// force immediate post of all events
+void Cloud_Protocol_EventPost_ForceAllEvents(void)
+{
+	for (int i = 0; i < CLOUD_PROTOCOL_EVENT_POST_TYPE_MAX; i++)
+	{
+		if (cloud_protocol_sg_event_tasks[i].enabled)
+		{
+			cloud_protocol_sg_event_tasks[i].force_post = true;
+		}
 	}
 }
 /* EOL */

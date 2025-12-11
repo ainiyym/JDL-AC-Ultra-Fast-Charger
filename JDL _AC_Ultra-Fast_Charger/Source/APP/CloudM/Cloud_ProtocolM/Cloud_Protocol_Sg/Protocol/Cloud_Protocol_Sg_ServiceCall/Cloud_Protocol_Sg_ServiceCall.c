@@ -44,7 +44,7 @@
 static const char *cloud_protocol_extract_service_identifier(const char *method);
 static bool cloud_protocol_dispatch_service_call(cloud_protocol_sg_service_call_type_t service_type, cJSON *params, const char *msg_id);
 static cloud_protocol_sg_service_call_type_t cloud_protocol_detect_service_call_type(const char *method);
-static char *cloud_protocol_build_service_response_topic(const char *identifier);
+static void cloud_protocol_build_service_response_topic(const char *identifier, char * topic_buffer, size_t buffer_size);
 static cJSON *cloud_protocol_service_call_create_response_json(const char *msg_id, int code, cJSON *data);
 
 /*******************************************************************************
@@ -94,6 +94,14 @@ static bool cloud_protocol_dispatch_service_call(cloud_protocol_sg_service_call_
         case CLOUD_PROTOCOL_SG_SERVICE_CALL_STOP_CHARGE:
             result = Cloud_Protocol_Sg_ParseRemoteStopParam(params, msg_id);
             break;
+        
+        case CLOUD_PROTOCOL_SG_SERVICE_CALL_CONFIG_UPDATE:
+            result = Cloud_Protocol_Sg_ParseConfigUpdateParam(params, msg_id);
+            break;
+        
+        case CLOUD_PROTOCOL_SG_SERVICE_CALL_QUERY_CONFIG:
+            result = Cloud_Protocol_Sg_ParseQueryConfigParam(params, msg_id);
+            break;
 
         case CLOUD_PROTOCOL_SG_SERVICE_CALL_UNKNOWN:
         default:
@@ -129,6 +137,18 @@ static cloud_protocol_sg_service_call_type_t cloud_protocol_detect_service_call_
     if (strstr(method, "stopChargeOrDischargeSrv") != NULL)
     {
         return CLOUD_PROTOCOL_SG_SERVICE_CALL_STOP_CHARGE;
+    }
+
+    /* Detect config update service */
+    if (strstr(method, "confUpdateSrv") != NULL)
+    {
+        return CLOUD_PROTOCOL_SG_SERVICE_CALL_CONFIG_UPDATE;
+    }
+
+    /* query device config service */
+    if (strstr(method, "getConfSrv") != NULL)
+    {
+        return CLOUD_PROTOCOL_SG_SERVICE_CALL_QUERY_CONFIG;
     }
 
     /* Check if it is a service call mode */
@@ -230,17 +250,17 @@ bool cloud_protocol_service_call(const char *payload, uint16_t payload_len)
 /**
  * @brief build service response topic
  * @param identifier service identifier
+ * @param topic_buffer topic buffer
+ * @param buffer_size topic buffer size
  * @return topic string
  */
-static char *cloud_protocol_build_service_response_topic(const char *identifier)
+static void cloud_protocol_build_service_response_topic(const char *identifier, char * topic_buffer, size_t buffer_size)
 {
-    if (!identifier)
+    if (!identifier || !topic_buffer || buffer_size == 0)
     {
-        CLOUD_ERROR("<%s>: identifier is NULL\r\n", __func__);
-        return NULL;
+        CLOUD_ERROR("<%s>: identifier or topic_buffer is NULL, or buffer_size is 0\r\n", __func__);
+        return;
     }
-
-    char service_call_publish_topic[CLOUD_PROTOCOL_PUB_TOPIC_MAX_LENGTH] = {0};
 
     // get topic config
     const cloud_protocol_mqtt_topic_config_t *topic = Cloud_Protocol_Mqtt_GetPassiveTopicConfigByEnum(CLOUD_PROTOCOL_MQTT_PASSIVE_TOPIC_SERVICE_INVOCATION);
@@ -248,20 +268,11 @@ static char *cloud_protocol_build_service_response_topic(const char *identifier)
     if (!topic || !topic->publish_topic)
     {
         CLOUD_ERROR("<%s>: Failed to get service invocation topic\r\n", __func__);
-        return NULL;
+        return;
     }
 
     // build topic
-    Cloud_Protocol_Sg_Build_Topic(topic->publish_topic, identifier, service_call_publish_topic, CLOUD_PROTOCOL_PUB_TOPIC_MAX_LENGTH);
-
-    // duplicate string for return
-    char *result = Cloud_Protocol_Strdup(service_call_publish_topic);
-    if (!result)
-    {
-        CLOUD_ERROR("<%s>: Failed to allocate memory for topic\n", __func__);
-    }
-
-    return result;
+    Cloud_Protocol_Sg_Build_Topic(topic->publish_topic, identifier, topic_buffer, buffer_size);
 }
 
 /**
@@ -317,6 +328,7 @@ static cJSON *cloud_protocol_service_call_create_response_json(const char *msg_i
 bool cloud_protocol_service_call_response(const char *msg_id, const char *identifier, int response_code, const cJSON *data)
 {
     bool result = false;
+    char response_topic[CLOUD_PROTOCOL_PUB_TOPIC_MAX_LENGTH] = {0};
 
     if (!msg_id || !identifier)
     {
@@ -325,8 +337,8 @@ bool cloud_protocol_service_call_response(const char *msg_id, const char *identi
     }
 
     // build response topic
-    char *response_topic = cloud_protocol_build_service_response_topic(identifier);
-    if (!response_topic)
+    cloud_protocol_build_service_response_topic(identifier, response_topic, sizeof(response_topic));
+    if (response_topic[0] == '\0')
     {
         CLOUD_ERROR("<%s>: Failed to build response topic\r\n", __func__);
         return false;
@@ -337,7 +349,6 @@ bool cloud_protocol_service_call_response(const char *msg_id, const char *identi
     if (!response_json)
     {
         CLOUD_ERROR("<%s>: Failed to create response JSON object\r\n", __func__);
-        CLOUDM_FREE(response_topic);
         return false;
     }
 
@@ -347,7 +358,6 @@ bool cloud_protocol_service_call_response(const char *msg_id, const char *identi
     {
         CLOUD_ERROR("<%s>: Failed to print JSON string\r\n", __func__);
         cJSON_Delete(response_json);
-        CLOUDM_FREE(response_topic);
         return false;
     }
 
@@ -357,7 +367,6 @@ bool cloud_protocol_service_call_response(const char *msg_id, const char *identi
     // free resources
     cJSON_Delete(response_json);
     CLOUDM_FREE(json_str);
-    CLOUDM_FREE(response_topic);
 
     return result;
 }

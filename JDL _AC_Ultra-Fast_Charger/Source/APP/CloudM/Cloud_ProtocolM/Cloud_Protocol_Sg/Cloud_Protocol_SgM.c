@@ -50,7 +50,8 @@ static iotx_sign_mqtt_t Cloud_Protocol_Sign;
 |    Static Local Functions Declaration
 |******************************************************************************/
 static cloud_protocol_sg_message_type_e cloud_protocol_sg_detect_message_type(const char *payload);
-static bool Cloud_Protocol_Mqtt_PayloadCallback(const char *payload, cloud_protocol_sg_message_type_e *type);
+static cloud_protocol_sg_message_rcv_type_e cloud_protocol_sg_detect_message_rcv_type(cloud_protocol_sg_message_type_e msg_type);
+static bool Cloud_Protocol_Mqtt_PayloadCallback(const char *payload, cloud_protocol_sg_message_rcv_type_e *type);
 static void Cloud_Protocol_Mqtt_ConnectCallback(bool connected);
 
 /*******************************************************************************
@@ -117,9 +118,30 @@ static cloud_protocol_sg_message_type_e cloud_protocol_sg_detect_message_type(co
 }
 
 /**
+ * @brief Detect message receive type from message type
+ */
+static cloud_protocol_sg_message_rcv_type_e cloud_protocol_sg_detect_message_rcv_type(cloud_protocol_sg_message_type_e msg_type)
+{
+    switch (msg_type)
+    {
+        case CLOUD_PROTOCOL_SG_MESSAGE_TYPE_TIME_SYNC:
+        case CLOUD_PROTOCOL_SG_MESSAGE_TYPE_REPORT_RESP:
+        case CLOUD_PROTOCOL_SG_MESSAGE_TYPE_PROPERTY_SETTING:
+        case CLOUD_PROTOCOL_SG_MESSAGE_TYPE_OTA_INFO_RESP:
+            return CLOUD_PROTOCOL_SG_MESSAGE_RCV_TYPE_ACTIVE;
+        case CLOUD_PROTOCOL_SG_MESSAGE_TYPE_SERVICE_CALL:
+            return CLOUD_PROTOCOL_SG_MESSAGE_RCV_TYPE_PASSSTIVE;
+
+        case CLOUD_PROTOCOL_SG_MESSAGE_TYPE_UNKNOWN:
+        default:
+            return CLOUD_PROTOCOL_SG_MESSAGE_RCV_TYPE_UNKNOWN;
+    }
+}
+
+/**
  * @brief MQTT payloadCallback function - main entry
  */
-static bool Cloud_Protocol_Mqtt_PayloadCallback(const char *payload, cloud_protocol_sg_message_type_e *type)
+static bool Cloud_Protocol_Mqtt_PayloadCallback(const char *payload, cloud_protocol_sg_message_rcv_type_e *type)
 {
     if (!payload)
     {
@@ -134,7 +156,7 @@ static bool Cloud_Protocol_Mqtt_PayloadCallback(const char *payload, cloud_proto
     cloud_protocol_sg_message_type_e msg_type = cloud_protocol_sg_detect_message_type(payload);
     if (type)
     {
-        *type = msg_type;
+        *type = cloud_protocol_sg_detect_message_rcv_type(msg_type);
     }
     switch (msg_type)
     {
@@ -221,6 +243,7 @@ void Cloud_Protocol_Mqtt_init(void)
     Cloud_Protocol_EventPost_FwInfo_Init();
     Cloud_Protocol_EventPost_VersionInfo_Init();
     Cloud_Protocol_Sg_RemoteCharge_Init();
+    Cloud_Protocol_Sg_Config_Init();
 }
 
 /**
@@ -235,6 +258,7 @@ void Cloud_Protocol_Mqtt_MainProcess(void)
     /* event post */
     Cloud_Protocol_EventPost_FwInfoMainCtrl_Func();
     Cloud_Protocol_EventPost_VersionInfoMainCtrl_Func();
+    Cloud_Protocol_EventPost_PeriodicTask();
     /* remote charge service call process */
     Cloud_Protocol_Sg_RemoteCharge_PeriodicTask();
 }

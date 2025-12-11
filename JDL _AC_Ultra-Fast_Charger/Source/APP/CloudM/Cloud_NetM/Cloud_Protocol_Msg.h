@@ -41,7 +41,7 @@
 |    Global Function Prototypes
 |******************************************************************************/
 extern void Cloud_Protocol_Msg_Init(void);
-extern void Cloud_Protocol_SendMsg(uint8_t *pMsg, uint16_t MsgLen, uint8_t MsgType);
+extern bool Cloud_Protocol_SendMsg(uint8_t *pMsg, uint16_t MsgLen, uint8_t MsgType);
 extern void Cloud_Protocol_RcvMsg_Process(void);
 #endif /* __CLOUD_PROTOCOL_MSG_H */
 /* EOL */

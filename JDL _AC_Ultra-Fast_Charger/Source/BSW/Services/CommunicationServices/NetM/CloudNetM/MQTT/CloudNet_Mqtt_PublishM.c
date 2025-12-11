@@ -179,6 +179,8 @@ static void CloudNetM_MqttRemoveQueueHead(void)
 
     CloudNetM_MqttFreePublishItem(old_head);
     cloud_net_mqtt_publish_manager.queue_size--;
+    cloud_net_mqtt_publish_manager.waiting_topic_ok = false;
+    cloud_net_mqtt_publish_manager.waiting_payload_ok = false;
 }
 
 /* Check whether topic AT command needs to be sent */
@@ -210,7 +212,6 @@ static bool CloudNetM_MqttSendTopicAT(const char *topic)
     CLOUDNET_DEBUG("<%s> current_time:%lld\r\n", __func__, CLOUD_GET_TIME_MS());
 
 taskENTER_CRITICAL();
-    cloud_net_mqtt_publish_manager.topic_at_sent = true;
     cloud_net_mqtt_publish_manager.waiting_topic_ok = true;
 taskEXIT_CRITICAL();
     cloud_net_mqtt_publish_manager.topic_sent_time = CLOUD_GET_TIME_MS();
@@ -341,6 +342,7 @@ void CloudNetM_MqttHandleAtTopicResponse(const char *pub_topic)
     {
 taskENTER_CRITICAL();
         cloud_net_mqtt_publish_manager.waiting_topic_ok = false;
+        cloud_net_mqtt_publish_manager.topic_at_sent = true;
 taskEXIT_CRITICAL();
         CLOUDNET_DEBUG("<%s>ack succeeded, waiting_topic_ok = %d current_time:%lld\r\n", __func__, cloud_net_mqtt_publish_manager.waiting_topic_ok, CLOUD_GET_TIME_MS());
     }
