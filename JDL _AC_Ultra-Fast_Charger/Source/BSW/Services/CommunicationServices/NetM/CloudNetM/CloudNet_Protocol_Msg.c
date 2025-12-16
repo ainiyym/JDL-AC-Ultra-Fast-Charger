@@ -30,7 +30,7 @@
 /*******************************************************************************
 |    Static local variables Declaration
 |******************************************************************************/
-static Cloud_Protocol_Msg_t CloudNet_ProtocolMsg;
+static Cloud_Protocol_Rcv_MsgBuffer_t CloudNet_ProtocolMsg;
 
 /*******************************************************************************
 |    Table Const Definition
@@ -64,32 +64,34 @@ void CloudNet_Protocol_RcvMsg_Process(void)
 {
     uint8_t MsgRet;
 
-    MsgRet = (uint8_t)CloudNet_MessageBuffer_ReceiveMessage(&CloudNet_ProtocolMsg.MsgData[0], &CloudNet_ProtocolMsg.MsgType, &CloudNet_ProtocolMsg.MsgLen);
+    MsgRet = (uint8_t)CloudNet_MessageBuffer_ReceiveMessage(&CloudNet_ProtocolMsg.MsgData, &CloudNet_ProtocolMsg.MsgType, &CloudNet_ProtocolMsg.MsgLen);
 
     if (MsgRet)
     {
-        CLOUDNET_DEBUG("%s, Length: %d type: %x data[0]=%d\r\n", __func__, CloudNet_ProtocolMsg.MsgLen, CloudNet_ProtocolMsg.MsgType, CloudNet_ProtocolMsg.MsgData[0]);
+        uint8_t local_copy[CLOUD_MESSAGE_BUFFER_MAX_LENGTH] = {0};
+        memcpy(local_copy, CloudNet_ProtocolMsg.MsgData, CloudNet_ProtocolMsg.MsgLen);
+        // CLOUDNET_DEBUG("%s, Length: %d type: %x data[0]=%d\r\n", __func__, CloudNet_ProtocolMsg.MsgLen, CloudNet_ProtocolMsg.MsgType, CloudNet_ProtocolMsg.MsgData[0]);
         switch (CloudNet_ProtocolMsg.MsgType)
         {
             case CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH:
                 // Process data message
-                switch (CloudNet_ProtocolMsg.MsgData[0])
+                switch (local_copy[0])
                 {
                     case CLOUD_MESSAGE_DATA_TYPE_CLOUD_PROTOCOL:
-                        YeeCom_At_DataPassthrougth(TCP_ID_PROTOCOL_GAGA, &CloudNet_ProtocolMsg.MsgData[1], CloudNet_ProtocolMsg.MsgLen - 1);
+                        YeeCom_At_DataPassthrougth(TCP_ID_PROTOCOL_GAGA, &local_copy[1], CloudNet_ProtocolMsg.MsgLen - 1);
                         break;
                     default:
-                        CLOUDNET_ERROR("Cloud Protocol Unknown Data Command: %d\r\n", CloudNet_ProtocolMsg.MsgData[0]);
+                        CLOUDNET_ERROR("Cloud Protocol Unknown Data Command: %d\r\n", local_copy[0]);
                         break;
                 }
                 break;
 
             case CLOUD_MESSAGE_TYPE_CTRL:
                 // Process control message
-                switch (CloudNet_ProtocolMsg.MsgData[0])
+                switch (local_copy[0])
                 {
                     case CLOUD_MESSAGE_CTRL_TYPE_SET_NETWORK_PARAM:
-                        switch (CloudNet_ProtocolMsg.MsgData[1])
+                        switch (local_copy[1])
                         {
                             case TCP_ID_PROTOCOL_GAGA:
                                 // Set protocol TCP parameters
@@ -100,18 +102,18 @@ void CloudNet_Protocol_RcvMsg_Process(void)
                                 tcp_connect(TCP_ID_PROTOCOL_SG, YEECOM_WORKING_MQTTS);
                                 break;
                             default:
-                                CLOUDNET_ERROR("Cloud Protocol Unknown Network Parameter Command: %d\r\n", CloudNet_ProtocolMsg.MsgData[1]);
+                                CLOUDNET_ERROR("Cloud Protocol Unknown Network Parameter Command: %d\r\n", local_copy[1]);
                                 break;
                         }
 
                         break;
                     case CLOUD_MESSAGE_CTRL_TYPE_SET_HEARTBEAT_PARAM:
-                        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_HBTIME, NULL, CloudNet_ProtocolMsg.MsgData[1]);
+                        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_HBTIME, NULL, local_copy[1]);
                         vTaskDelay(pdMS_TO_TICKS(50));
                         YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_HBTIME, NULL);
                         break;
                     case CLOUD_MESSAGE_CTRL_TYPE_SET_REGPKG_MODE:
-                        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_REGPKG, NULL, CloudNet_ProtocolMsg.MsgData[1]);
+                        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_REGPKG, NULL, local_copy[1]);
                         vTaskDelay(pdMS_TO_TICKS(50));
                         YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_REGPKG, NULL);
                         break;
@@ -119,43 +121,43 @@ void CloudNet_Protocol_RcvMsg_Process(void)
                         YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_WAKEUP, NULL);
                         break;
                     case CLOUD_MESSAGE_CTRL_TYPE_CLOUD_MQTT_SG:
-                        switch (CloudNet_ProtocolMsg.MsgData[1])
+                        switch (local_copy[1])
                         {
                             case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_CONNECT:
-                                CloudNetM_MqttConnect((uint8_t)TCP_ID_PROTOCOL_SG, &CloudNet_ProtocolMsg.MsgData[2], CloudNet_ProtocolMsg.MsgLen - 2);
+                                CloudNetM_MqttConnect((uint8_t)TCP_ID_PROTOCOL_SG, &local_copy[2], CloudNet_ProtocolMsg.MsgLen - 2);
                                 break;
                             case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_DISCONNECT:
-                                CloudNetM_MqttDisconnect((uint8_t)TCP_ID_PROTOCOL_SG, &CloudNet_ProtocolMsg.MsgData[2], CloudNet_ProtocolMsg.MsgLen - 2);
+                                CloudNetM_MqttDisconnect((uint8_t)TCP_ID_PROTOCOL_SG, &local_copy[2], CloudNet_ProtocolMsg.MsgLen - 2);
                                 break;
                             case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_PUBLISH:
-                                CloudNetM_MqttPublish((uint8_t)TCP_ID_PROTOCOL_SG, &CloudNet_ProtocolMsg.MsgData[2], CloudNet_ProtocolMsg.MsgLen - 2);
+                                CloudNetM_MqttPublish((uint8_t)TCP_ID_PROTOCOL_SG, &local_copy[2], CloudNet_ProtocolMsg.MsgLen - 2);
                                 break;
                             case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_SUBSCRIBE:
-                                CloudNetM_MqttSubscribe((uint8_t)TCP_ID_PROTOCOL_SG, &CloudNet_ProtocolMsg.MsgData[2], CloudNet_ProtocolMsg.MsgLen - 2);
+                                CloudNetM_MqttSubscribe((uint8_t)TCP_ID_PROTOCOL_SG, &local_copy[2], CloudNet_ProtocolMsg.MsgLen - 2);
                                 break;
                             case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_UNSUBSCRIBE:
-                                CloudNetM_MqttUnsubscribe((uint8_t)TCP_ID_PROTOCOL_SG, &CloudNet_ProtocolMsg.MsgData[2], CloudNet_ProtocolMsg.MsgLen - 2);
+                                CloudNetM_MqttUnsubscribe((uint8_t)TCP_ID_PROTOCOL_SG, &local_copy[2], CloudNet_ProtocolMsg.MsgLen - 2);
                                 break;
                             case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_SUBSCRIBE_PUBLISH:
-                                CloudNetM_MqttSubscribePublish((uint8_t)TCP_ID_PROTOCOL_SG, &CloudNet_ProtocolMsg.MsgData[2], CloudNet_ProtocolMsg.MsgLen - 2);
+                                CloudNetM_MqttSubscribePublish((uint8_t)TCP_ID_PROTOCOL_SG, &local_copy[2], CloudNet_ProtocolMsg.MsgLen - 2);
                                 break;
                             case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_SET_WILL:
-                                CloudNetM_MqttSetWill((uint8_t)TCP_ID_PROTOCOL_SG, &CloudNet_ProtocolMsg.MsgData[2], CloudNet_ProtocolMsg.MsgLen - 2);
+                                CloudNetM_MqttSetWill((uint8_t)TCP_ID_PROTOCOL_SG, &local_copy[2], CloudNet_ProtocolMsg.MsgLen - 2);
                                 break;
                             default:
-                                CLOUDNET_ERROR("Cloud Protocol Unknown SG MQTT Command: %d\r\n", CloudNet_ProtocolMsg.MsgData[1]);
+                                CLOUDNET_ERROR("Cloud Protocol Unknown SG MQTT Command: %d\r\n", local_copy[1]);
                                 break;
                         }
                         break;
                     default:
-                        CLOUDNET_ERROR("Cloud Protocol Unknown Control Command: %d\r\n", CloudNet_ProtocolMsg.MsgData[0]);
+                        CLOUDNET_ERROR("Cloud Protocol Unknown Control Command: %d\r\n", local_copy[0]);
                         break;
                 }
                 break;
 
             case CLOUD_MESSAGE_TYPE_NOTIFY:
                 // Process notify message
-                switch (CloudNet_ProtocolMsg.MsgData[0])
+                switch (local_copy[0])
                 {
                     case CLOUD_MESSAGE_NOTIFY_TYPE_DEVICE_STATUS:
 
@@ -167,8 +169,8 @@ void CloudNet_Protocol_RcvMsg_Process(void)
 
                         break;
                     default:
-                        CLOUDNET_ERROR("Cloud Protocol Unknown Notify Command: %d\r\n", CloudNet_ProtocolMsg.MsgData[0]);
-                        break;  
+                        CLOUDNET_ERROR("Cloud Protocol Unknown Notify Command: %d\r\n", local_copy[0]);
+                        break;
                 }
                 break;
 
