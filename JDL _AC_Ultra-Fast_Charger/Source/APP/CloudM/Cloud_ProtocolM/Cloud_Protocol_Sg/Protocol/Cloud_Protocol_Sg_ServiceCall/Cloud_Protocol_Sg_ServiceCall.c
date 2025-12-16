@@ -102,6 +102,10 @@ static bool cloud_protocol_dispatch_service_call(cloud_protocol_sg_service_call_
         case CLOUD_PROTOCOL_SG_SERVICE_CALL_QUERY_CONFIG:
             result = Cloud_Protocol_Sg_ParseQueryConfigParam(params, msg_id);
             break;
+        
+        case CLOUD_PROTOCOL_SG_SERVICE_CALL_UPDATE_BILLING_MODE:
+            result = Cloud_Protocol_Sg_ParseUpdateBillingModeParam(params, msg_id);
+            break;
 
         case CLOUD_PROTOCOL_SG_SERVICE_CALL_UNKNOWN:
         default:
@@ -149,6 +153,12 @@ static cloud_protocol_sg_service_call_type_t cloud_protocol_detect_service_call_
     if (strstr(method, "getConfSrv") != NULL)
     {
         return CLOUD_PROTOCOL_SG_SERVICE_CALL_QUERY_CONFIG;
+    }
+
+    /* Check update billing mode service */
+    if (strstr(method, "issueElectricPriceModelSrv") != NULL)
+    {
+        return CLOUD_PROTOCOL_SG_SERVICE_CALL_UPDATE_BILLING_MODE;
     }
 
     /* Check if it is a service call mode */
@@ -231,9 +241,11 @@ bool cloud_protocol_service_call(const char *payload, uint16_t payload_len)
     CLOUD_DEBUG("<%s>Detected service type: %d\r\n", __FUNCTION__, service_type);
 
     // call dispatch function
+    // bool result = false;
     bool result = cloud_protocol_dispatch_service_call(service_type, params_item, msg_id);
 
     // Based on the processing result, send a response
+#if 0
     if (result)
     {
         CLOUD_DEBUG("<%s>Service type %d handled successfully\r\n", __FUNCTION__, service_type);
@@ -242,7 +254,7 @@ bool cloud_protocol_service_call(const char *payload, uint16_t payload_len)
     {
         CLOUD_ERROR("<%s>Service type %d handling failed\r\n", __FUNCTION__, service_type);
     }
-
+#endif
     cJSON_Delete(root);
     return result;
 }

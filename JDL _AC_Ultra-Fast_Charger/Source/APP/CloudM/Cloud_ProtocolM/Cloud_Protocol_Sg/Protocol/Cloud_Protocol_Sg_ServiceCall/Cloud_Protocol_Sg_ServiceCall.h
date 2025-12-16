@@ -17,6 +17,7 @@
 #include "Cloud_Protocol_Mqtt.h"
 #include "Cloud_Protocol_Sg_RemoteCharge.h"
 #include "Cloud_Protocol_Sg_ConfigUpdate.h"
+#include "Cloud_Protocol_Sg_BillingMode.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -35,6 +36,7 @@ typedef enum
     CLOUD_PROTOCOL_SG_SERVICE_CALL_STOP_CHARGE,                    // Remote Stop Charge Service
     CLOUD_PROTOCOL_SG_SERVICE_CALL_CONFIG_UPDATE,                  // Config Update Service
     CLOUD_PROTOCOL_SG_SERVICE_CALL_QUERY_CONFIG,                   // Query Config Service
+    CLOUD_PROTOCOL_SG_SERVICE_CALL_UPDATE_BILLING_MODE,            // Update Billing Mode Service
     CLOUD_PROTOCOL_SG_SERVICE_CALL_UNKNOWN                         // unknown event
 } cloud_protocol_sg_service_call_type_t;
 

@@ -194,7 +194,7 @@ typedef struct
 	unsigned int  segFlag[V2G_MAX_MODEL_DEVSEG];// 3		电费模型时段标志
 	unsigned int chargeFee[4];			   		// 4		电费模型
 	unsigned int serviceFee[4];			   		// 5		服务费费模型
-} v2g_service_issue_feeModel;
+} __attribute__((__packed__)) v2g_service_issue_feeModel;
 
 //计费模型更新结果设备回复参数
 

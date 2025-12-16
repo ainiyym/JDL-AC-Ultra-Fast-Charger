@@ -377,28 +377,33 @@ static int at_worker_task_del(at_task_t *tsk)
 }
 
 int at_send_wait_reply(const char *cmd, int cmdlen, int _timeout,
-                       at_recv_cb cb,const atcmd_config_t *atcmdconfig)
-{ 
+                       at_recv_cb cb, const atcmd_config_t *atcmdconfig)
+{  
     int ret = 0;
-    at_task_t *tsk;
+    at_task_t *tsk = NULL;
+    bool task_added = false;
 
-    if (inited == 0) {
+    if (inited == 0)
+    {
         atpsr_err("at have not init yet\r\n");
         return -1;
     }
 
-    if (NULL == cmd || cmdlen <= 0) {
+    if (NULL == cmd || cmdlen <= 0)
+    {
         atpsr_err("%s invalid input \r\n", __FUNCTION__);
         return -1;
     }
 
     HAL_MutexLock(at.at_uart_send_mutex);
+
 #ifdef PLATFORM_HAS_DYNMEM
     tsk = (at_task_t *)HAL_Malloc(sizeof(at_task_t));
 #else
     tsk = &g_at_task;
 #endif
-    if (NULL == tsk) {
+    if (NULL == tsk)
+    {
         atpsr_err("tsk buffer allocating failed");
         HAL_MutexUnlock(at.at_uart_send_mutex);
         return -1;
@@ -406,49 +411,82 @@ int at_send_wait_reply(const char *cmd, int cmdlen, int _timeout,
     memset(tsk, 0, sizeof(at_task_t));
 
     tsk->smpr = HAL_SemaphoreCreate();
-    if (NULL == tsk->smpr) {
+    if (NULL == tsk->smpr)
+    {
         atpsr_err("failed to allocate semaphore");
-        goto end;
+        goto cleanup_without_task_del; // The semaphore creation failed. It was redirected to the cleanup, but the task was not added at this time
     }
 
-    if (atcmdconfig) {
-        if (NULL != atcmdconfig->reply_prefix) {
-            tsk->rsp_prefix     = atcmdconfig->reply_prefix;
+    if (atcmdconfig)
+    {
+        if (NULL != atcmdconfig->reply_prefix)
+        {
+            tsk->rsp_prefix = atcmdconfig->reply_prefix;
             tsk->rsp_prefix_len = strlen(atcmdconfig->reply_prefix);
         }
 
-        if (NULL != atcmdconfig->reply_success_postfix) {
-            tsk->rsp_success_postfix     = atcmdconfig->reply_success_postfix;
+        if (NULL != atcmdconfig->reply_success_postfix)
+        {
+            tsk->rsp_success_postfix = atcmdconfig->reply_success_postfix;
             tsk->rsp_success_postfix_len = strlen(atcmdconfig->reply_success_postfix);
         }
 
-        if (NULL != atcmdconfig->reply_fail_postfix) {
-            tsk->rsp_fail_postfix     = atcmdconfig->reply_fail_postfix;
+        if (NULL != atcmdconfig->reply_fail_postfix)
+        {
+            tsk->rsp_fail_postfix = atcmdconfig->reply_fail_postfix;
             tsk->rsp_fail_postfix_len = strlen(atcmdconfig->reply_fail_postfix);
         }
     }
 
     tsk->command = (char *)cmd;
-    tsk->rsp_cb     = cb;
+    tsk->rsp_cb = cb;
 
-    at_worker_task_add(tsk);
+    // Add to the work queue
+    if (at_worker_task_add(tsk) != 0)
+    {
+        atpsr_err("failed to add task to worker");
+        goto cleanup_without_task_del; // Failed to add the task. Redirected to Cleanup, but the task was not added (failed to add).
+    }
+    task_added = true;
 
+    // send cmd
     if ((ret = at_sendto_lower(at._pstuart, (void *)cmd, cmdlen,
-                               at._timeout, true)) != 0) {
+                               at._timeout, true)) != 0)
+    {
         atpsr_err("uart send command failed");
-        goto end;
+        goto cleanup; // The command sending failed. It was redirected to cleanup. At this point, the task has been added
     }
 
-    if ((ret = HAL_SemaphoreWait(tsk->smpr, _timeout)) != 0) 
+    // Waiting for a reply
+    if ((ret = HAL_SemaphoreWait(tsk->smpr, _timeout)) != 0)
     {
         atpsr_err("tsk->command:%s sem_wait failed\r\n", tsk->command);
-        goto end;
+        goto cleanup; // Waiting for semaphore failed, redirected to cleanup. At this point, the task has been added
     }
 
-end:
-    at_worker_task_del(tsk);
+cleanup:
+    if (task_added)
+    {
+        // Remove the task from the task list, destroy the semaphore, and free memory (if dynamically allocated)
+        at_worker_task_del(tsk);
+    }
     HAL_MutexUnlock(at.at_uart_send_mutex);
     return ret;
+
+cleanup_without_task_del:
+    // The task has not been added to the task list, so there is no need to call at_worker_task_del
+    if (tsk)
+    {
+        if (tsk->smpr)
+        {
+            HAL_SemaphoreDestroy(tsk->smpr);
+        }
+#ifdef PLATFORM_HAS_DYNMEM
+        HAL_Free(tsk);
+#endif
+    }
+    HAL_MutexUnlock(at.at_uart_send_mutex);
+    return -1;
 }
 #endif
 
@@ -880,6 +918,12 @@ static void at_work_cmd_data_processing(char c, uint16_t* index, char *prefix, c
     uint16_t offset = *index;
 
     buf = at_rx_buf;
+    
+    if (1 == at._oob_processing)
+    {
+        return;
+    }
+    
     HAL_MutexLock(at.task_mutex);
     at_task_empty = slist_empty(&at.task_l);
 

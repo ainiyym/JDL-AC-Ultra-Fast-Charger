@@ -153,73 +153,39 @@
           <Name>(105=-1,-1,-1,-1,0)</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-        <Bp>
-          <Number>0</Number>
-          <Type>0</Type>
-          <LineNumber>88</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134357312</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Sg\Protocol\Cloud_Protocol_Sg_ServiceCall\Cloud_Protocol_Sg_ServiceCall.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CloudM/Cloud_ProtocolM/Cloud_Protocol_Sg/Protocol/Cloud_Protocol_Sg_ServiceCall/Cloud_Protocol_Sg_ServiceCall.c\88</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>365</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134361312</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Sg\Protocol\Cloud_Protocol_Sg_ServiceCall\Cloud_Protocol_Sg_ServiceCall.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CloudM/Cloud_ProtocolM/Cloud_Protocol_Sg/Protocol/Cloud_Protocol_Sg_ServiceCall/Cloud_Protocol_Sg_ServiceCall.c\365</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>922</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134270174</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Sg\Mqtt\Cloud_Protocol_Mqtt.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CloudM/Cloud_ProtocolM/Cloud_Protocol_Sg/Mqtt/Cloud_Protocol_Mqtt.c\922</Expression>
-        </Bp>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow1>
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>cloud_protocol_mqtt_client</ItemText>
+          <ItemText>cloud_protocol_event_post_req</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>combined_topic</ItemText>
+          <ItemText>root</ItemText>
+        </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>object</ItemText>
+        </Ww>
+        <Ww>
+          <count>3</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>local_root</ItemText>
+        </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>json_str</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>0x2000A3B8</ItemText>
+          <ItemText>0x2000C89C</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
@@ -354,7 +320,7 @@
 
   <Group>
     <GroupName>AuthM</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -946,7 +912,7 @@
 
   <Group>
     <GroupName>Source/BSW/MCAL/Test</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -978,7 +944,7 @@
 
   <Group>
     <GroupName>Source/BSW/MCAL/Uart</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2058,7 +2024,7 @@
 
   <Group>
     <GroupName>FreeRTOS/user</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2210,7 +2176,7 @@
 
   <Group>
     <GroupName>at/yeecom</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2462,7 +2428,7 @@
 
   <Group>
     <GroupName>CloudNet</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2494,7 +2460,7 @@
 
   <Group>
     <GroupName>CloudM</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2979,6 +2945,18 @@
       <bDave2>0</bDave2>
       <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Sg\Protocol\Cloud_Protocol_Sg_ServiceCall\Cloud_Protocol_Sg_ConfigUpdate\Cloud_Protocol_Sg_ConfigUpdate.c</PathWithFileName>
       <FilenameWithoutPath>Cloud_Protocol_Sg_ConfigUpdate.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>51</GroupNumber>
+      <FileNumber>192</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Sg\Protocol\Cloud_Protocol_Sg_ServiceCall\Cloud_Protocol_Sg_BillingMode\Cloud_Protocol_Sg_BillingMode.c</PathWithFileName>
+      <FilenameWithoutPath>Cloud_Protocol_Sg_BillingMode.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

@@ -94,6 +94,7 @@ static mqtt_client_manager_t cloud_protocol_mqtt_client;
 static void Cloud_Protocol_Mqtt_StartConnection(void);
 static void Cloud_Protocol_Mqtt_StartReconnect(void);
 static void Cloud_Protocol_Mqtt_RemoveMessageFromQueue(cloud_protocol_mqtt_message_item_t *msg);
+static void Cloud_Protocol_Mqtt_DropOldestMessage(void);
 static void Cloud_Protocol_Mqtt_FreePublishItem(cloud_protocol_mqtt_message_item_t *item);
 static void Cloud_Protocol_Mqtt_SendConnectMsg(void);
 static bool Cloud_Protocol_Mqtt_SendPublishMessage(cloud_protocol_mqtt_message_item_t *msg);
@@ -349,7 +350,7 @@ bool Cloud_Protocol_Mqtt_AddPublishMessage(const char *topic, const char *payloa
     {
         return false;
     }
-    
+
     if (ack_type == CLOUD_PROTOCOL_MQTT_NEED_ACK && ack_topic == NULL)
     {
         CLOUD_ERROR("<%s> ACK topic required for messages that need ACK\r\n", __func__);
@@ -363,13 +364,71 @@ bool Cloud_Protocol_Mqtt_AddPublishMessage(const char *topic, const char *payloa
         return false;
     }
 
+    /* Calculate required memory size */
+    size_t required_memory = 0;
+
+    /* Structure size */
+    required_memory += sizeof(cloud_protocol_mqtt_message_item_t);
+
+    /* Topic string (including null terminator) */
+    required_memory += strlen(topic) + 1;
+
+    /* Payload string (including null terminator) */
+    required_memory += strlen(payload) + 1;
+
+    /* ACK topic string if needed */
+    if (ack_topic != NULL)
+    {
+        required_memory += strlen(ack_topic) + 1;
+    }
+
+    // CLOUD_DEBUG("<%s> Required memory: %u bytes\r\n", __func__, required_memory);
+
+    /* Check available heap memory - reject if less than 1KB available */
+    size_t free_heap = CLOUDM_GET_FREE_HEAP_SIZE();
+    // size_t min_heap = CLOUDM_GET_MINIMUM_HEAP_SIZE();
+
+    // CLOUD_DEBUG("<%s> FreeHeap: %u, MinHeap: %u\r\n", __func__, free_heap, min_heap);
+
+    /* Safety check: if free heap is less than 1KB or less than required memory */
+    if (free_heap < required_memory + CLOUDM_MIN_HEAP_SIZE_THRESHOLD)
+    {
+        CLOUD_WARN("<%s> Insufficient heap memory. Free: %u, Required: %u\r\n",__func__, free_heap, required_memory);
+
+        /* Try to free some memory by dropping oldest messages if queue not empty */
+        if (cloud_protocol_mqtt_client.queue_size > 0  &&
+            (cloud_protocol_mqtt_client.sub_state == CLOUD_PROTOCOL_SUB_STATE_IDLE ||
+             cloud_protocol_mqtt_client.sub_state == CLOUD_PROTOCOL_SUB_STATE_ACTIVE)) 
+        {
+            CLOUD_WARN("<%s> Attempting to free memory by dropping oldest message\r\n", __func__);
+            Cloud_Protocol_Mqtt_DropOldestMessage();
+
+            /* Check again after freeing */
+            free_heap = CLOUDM_GET_FREE_HEAP_SIZE();
+            if (free_heap < CLOUDM_MIN_HEAP_SIZE_THRESHOLD || free_heap < required_memory)
+            {
+                CLOUD_ERROR("<%s> Still insufficient memory after cleanup. Rejecting message.\r\n", __func__);
+            }
+        }
+        else
+        {
+            CLOUD_ERROR("<%s> Insufficient memory and sub_state is not idle or active. Rejecting message.\r\n", __func__);
+        }
+        return false;
+    }
+
     /* Create new message item */
     cloud_protocol_mqtt_message_item_t *new_msg = (cloud_protocol_mqtt_message_item_t *)CLOUDM_MALLOC(sizeof(cloud_protocol_mqtt_message_item_t));
     if (new_msg == NULL)
     {
+        CLOUD_ERROR("<%s> Failed to allocate memory for message structure\r\n", __func__);
         return false;
     }
 
+    /* Initialize structure */
+    memset(new_msg, 0, sizeof(cloud_protocol_mqtt_message_item_t));
+
+    /* Allocate and copy strings */
     new_msg->publish.topic = Cloud_Protocol_Strdup(topic);
     new_msg->publish.payload = Cloud_Protocol_Strdup(payload);
     new_msg->ack_type = ack_type;
@@ -399,10 +458,40 @@ bool Cloud_Protocol_Mqtt_AddPublishMessage(const char *topic, const char *payloa
     }
 
     cloud_protocol_mqtt_client.queue_size++;
+    free_heap = CLOUDM_GET_FREE_HEAP_SIZE();
 
-    CLOUD_INFO("Message added to queue: %s, ACK type: %d, queue size: %d\r\n", topic, ack_type, cloud_protocol_mqtt_client.queue_size);
+    CLOUD_INFO("Message added to queue: %s, ACK type: %d, queue size: %d, free_heap: %u\r\n", topic, ack_type, cloud_protocol_mqtt_client.queue_size, free_heap);
 
     return true;
+}
+
+/**
+ * @brief Drop oldest message from queue to free memory
+ */
+static void Cloud_Protocol_Mqtt_DropOldestMessage(void)
+{
+    if (cloud_protocol_mqtt_client.msg_queue_head == NULL)
+    {
+        return;
+    }
+
+    cloud_protocol_mqtt_message_item_t *oldest = cloud_protocol_mqtt_client.msg_queue_head;
+
+    /* Update queue head */
+    cloud_protocol_mqtt_client.msg_queue_head = oldest->next;
+
+    /* If queue becomes empty, update tail */
+    if (cloud_protocol_mqtt_client.msg_queue_head == NULL)
+    {
+        cloud_protocol_mqtt_client.msg_queue_tail = NULL;
+    }
+
+    /* Free the memory */
+    Cloud_Protocol_Mqtt_FreePublishItem(oldest);
+
+    cloud_protocol_mqtt_client.queue_size--;
+
+    CLOUD_WARN("<%s> Dropped oldest message from queue. Queue size: %d\r\n", __func__, cloud_protocol_mqtt_client.queue_size);
 }
 
 /**
@@ -592,9 +681,8 @@ static bool Cloud_Protocol_Mqtt_ProcessSingleMessage(cloud_protocol_mqtt_message
     }
     else
     {
-        /* Send failed, handle retry */
-        CLOUD_ERROR("<%s> Message send failed.\r\n", __func__);
-        Cloud_Protocol_Mqtt_HandleMessageSendFail(msg);
+        /* Send failed, wait for retry */
+        CLOUD_ERROR("<%s> Failed to send message.\r\n", __func__);
         return false;
     }
 }
@@ -675,7 +763,7 @@ static void Cloud_Protocol_Mqtt_PollingCurrentSubscribe(void)
     cloud_protocol_mqtt_client.current_topic_is_polling = false;
     cloud_protocol_mqtt_client.last_processed_msg = NULL;
 
-    CLOUD_DEBUG("<%s>No more messages for current topic, stop current polling\r\n", __func__);
+    // CLOUD_DEBUG("<%s>No more messages for current topic, stop current polling\r\n", __func__);
 }
 
 /**
@@ -855,7 +943,19 @@ static void Cloud_Protocol_Mqtt_CheckTimeouts(void)
         if (current_time - cloud_protocol_mqtt_client.last_subscribe_time > CLOUD_PROTOCOL_MQTT_MSG_RESPONSE_TIMEOUT_MS)
         {
             // CLOUD_DEBUG("<%s> Message ACK wait timeout\r\n", __func__);
-            Cloud_Protocol_Mqtt_HandleMessageSendFail(cloud_protocol_mqtt_client.last_processed_msg);
+            if (cloud_protocol_mqtt_client.last_processed_msg != NULL)
+            {
+                CLOUD_WARN("<%s> Message ACK timeout for topic: %s\r\n", __func__, cloud_protocol_mqtt_client.last_processed_msg->publish.topic);
+                if (NULL != cloud_protocol_mqtt_client.last_processed_msg)
+                {
+                    Cloud_Protocol_Mqtt_HandleMessageSendFail(cloud_protocol_mqtt_client.last_processed_msg);
+                    cloud_protocol_mqtt_client.last_processed_msg = NULL;
+                }
+                else
+                {
+                    cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_IDLE;
+                }
+            }
         }
     }
 }

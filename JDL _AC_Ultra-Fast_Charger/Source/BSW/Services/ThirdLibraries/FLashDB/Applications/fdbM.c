@@ -117,6 +117,7 @@ int fdb_init(void)
          * &default_kv: The default KV nodes. It will auto add to KVDB when first initialize successfully.
          *        NULL: The user data if you need, now is empty.
          */
+        // fdb_kvdb_deinit(&kvdb);
         result = fdb_kvdb_init(&kvdb, "env", "fdb_kvdb1", &default_kv, NULL);
 
         if (result != FDB_NO_ERR) {

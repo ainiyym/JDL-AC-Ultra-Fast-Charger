@@ -16,7 +16,8 @@
 #include "STD_SysM.h"
 #include "Cloud_EV_Charger_Information.h"
 #include "Cloud_Protocol_ChargingOrder.h"
-#include "Cloud_Protocol_EventPost_Config.h"
+#include "Cloud_Protocol_EventPost_Task.h"
+#include "Cloud_Protocol_Sg_BillingMode.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -63,8 +64,9 @@ static uint8_t flash_db_kv_4g_device_init_flag = 0;
 static char flash_db_kv_gaga_sn[CLOUD_EV_SN_LEN] = "33030300000001";
 static uint16_t flash_db_kv_gaga_order_sequence[SYS_CONNECTOR_NUM_MAX] = {1,1};
 static uint32_t flash_db_kv_synced_tsdb_timestamp[FAL_PART_TABLE_TSDB_COUNT] = {0};
-static char flash_db_kv_sg_billing_mode_number[V2G_MAX_MODEL_ID_LEN] = ""; // Default billing mode number code
 static uint16_t flash_db_kv_sg_sn = 1; // Default SN code
+static char flash_db_kv_sg_billing_mode_number[V2G_MAX_MODEL_ID_LEN] = ""; // Default billing mode number code
+static v2g_service_issue_feeModel flash_db_kv_sg_billing_mode_model = {0};
 /*******************************************************************************
 |    Global variables Declaration
 |******************************************************************************/
@@ -82,12 +84,13 @@ static bool FlashDB_Order_Gun2_Set_Status_Cb(fdb_tsl_t tsl, void *arg);
 |******************************************************************************/
 static FlashDB_AppKvDBDefaultCfg_t FlashDB_AppKvDBDefaultCfgTable[] = 
 {
-	{FLASHDB_KV_M4G_DEVICE_INIT_FLAG, 	&kvdb, 		"flash_db_kv_4g_device_init_flag",		FLASHDB_TYPE_INT, 					(uint8_t*)&flash_db_kv_4g_device_init_flag,				sizeof(flash_db_kv_4g_device_init_flag)},
-	{FLASHDB_KV_GAGA_SN, 				&kvdb, 		"flash_db_kv_gaga_sn", 					FLASHDB_TYPE_STRING,				(char*)flash_db_kv_gaga_sn,								0},
-	{FLASHDB_KV_GAGA_ORDER_SEQUENCE, 	&kvdb, 		"flash_db_kv_gaga_order_sequence", 		FLASHDB_TYPE_BLOB, 					(uint16_t*)&flash_db_kv_gaga_order_sequence,			sizeof(flash_db_kv_gaga_order_sequence)},
-	{FLASHDB_KV_SYNC_TSDB_TIMESTAMP, 	&kvdb, 		"flash_db_kv_synced_tsdb_timestamp", 	FLASHDB_TYPE_BLOB, 					(uint32_t*)&flash_db_kv_synced_tsdb_timestamp,			sizeof(flash_db_kv_synced_tsdb_timestamp)},
-	{FLASHDB_KV_SG_BILLING_MODE_NO, 	&kvdb, 		"flash_db_kv_sg_billing_mode_number",	FLASHDB_TYPE_STRING,				(char*)flash_db_kv_sg_billing_mode_number,				0},
-	{FLASHDB_KV_SG_SN, 					&kvdb, 		"flash_db_kv_sg_sn", 					FLASHDB_TYPE_INT, 					(uint16_t*)&flash_db_kv_sg_sn,							sizeof(flash_db_kv_sg_sn)}
+	{FLASHDB_KV_M4G_DEVICE_INIT_FLAG, 	&kvdb, 		"flash_db_kv_4g_device_init_flag",		FLASHDB_TYPE_INT, 					(uint8_t*)&flash_db_kv_4g_device_init_flag,							sizeof(flash_db_kv_4g_device_init_flag)},
+	{FLASHDB_KV_GAGA_SN, 				&kvdb, 		"flash_db_kv_gaga_sn", 					FLASHDB_TYPE_STRING,				(char*)flash_db_kv_gaga_sn,											CLOUD_EV_SN_LEN},
+	{FLASHDB_KV_GAGA_ORDER_SEQUENCE, 	&kvdb, 		"flash_db_kv_gaga_order_sequence", 		FLASHDB_TYPE_BLOB, 					(uint16_t*)&flash_db_kv_gaga_order_sequence,						sizeof(flash_db_kv_gaga_order_sequence)},
+	{FLASHDB_KV_SYNC_TSDB_TIMESTAMP, 	&kvdb, 		"flash_db_kv_synced_tsdb_timestamp", 	FLASHDB_TYPE_BLOB, 					(uint32_t*)&flash_db_kv_synced_tsdb_timestamp,						sizeof(flash_db_kv_synced_tsdb_timestamp)},
+	{FLASHDB_KV_SG_SN, 					&kvdb, 		"flash_db_kv_sg_sn", 					FLASHDB_TYPE_INT, 					(uint16_t*)&flash_db_kv_sg_sn,										sizeof(flash_db_kv_sg_sn)},
+	{FLASHDB_KV_SG_BILLING_MODE_NO, 	&kvdb, 		"flash_db_kv_sg_billing_mode_number",	FLASHDB_TYPE_STRING,				(char*)flash_db_kv_sg_billing_mode_number,							V2G_MAX_MODEL_ID_LEN},
+	{FLASHDB_KV_SG_BILLING_MODE_MODEL, 	&kvdb, 		"flash_db_kv_sg_billing_mode_model",	FLASHDB_TYPE_BLOB, 					(v2g_service_issue_feeModel*)&flash_db_kv_sg_billing_mode_model,	sizeof(flash_db_kv_sg_billing_mode_model)}
 };
 
 static FlashDB_AppTsdb_InstanceCfg_t FlashDB_AppTsdbInstanceCfgTable[] =
@@ -133,15 +136,14 @@ int FlashDB_AppM_Init(void)
 		FLASHDB_TRACE("FlashDB init fail! ret=%d\r\n", ret);
 		return -1;
 	}
-  
-	vTaskDelay(pdMS_TO_TICKS(100));
 
 	for (uint16_t i = 0; i < sizeof(FlashDB_AppKvDBDefaultCfgTable)/sizeof(FlashDB_AppKvDBDefaultCfgTable[0]); i++)
 	{
+		vTaskDelay(pdMS_TO_TICKS(20)); // Delay to avoid blocking other tasks
 		if (fdb_wrapper_kv_exist(FlashDB_AppKvDBDefaultCfgTable[i].kvdb, FlashDB_AppKvDBDefaultCfgTable[i].key))
 		{
 #if (0 == FLASHDB_TEST_ENABLE)
-			if (FlashDB_AppKvDBDefaultCfgTable[i].blob_size)
+			if (FLASHDB_TYPE_STRING != FlashDB_AppKvDBDefaultCfgTable[i].type)
 			{
 				ret = fdb_wrapper_kv_get_blob(FlashDB_AppKvDBDefaultCfgTable[i].kvdb, FlashDB_AppKvDBDefaultCfgTable[i].key, FlashDB_AppKvDBDefaultCfgTable[i].def_value, FlashDB_AppKvDBDefaultCfgTable[i].blob_size, &actual_len);
 				FLASHDB_TRACE("FlashDB KVDB is exist key=%s, VALUE=", FlashDB_AppKvDBDefaultCfgTable[i].key);
@@ -149,7 +151,7 @@ int FlashDB_AppM_Init(void)
 			}
 			else
 			{
-				ret = fdb_wrapper_kv_get(FlashDB_AppKvDBDefaultCfgTable[i].kvdb, FlashDB_AppKvDBDefaultCfgTable[i].key, FlashDB_AppKvDBDefaultCfgTable[i].def_value, strlen(FlashDB_AppKvDBDefaultCfgTable[i].def_value), &actual_len);
+				ret = fdb_wrapper_kv_get(FlashDB_AppKvDBDefaultCfgTable[i].kvdb, FlashDB_AppKvDBDefaultCfgTable[i].key, FlashDB_AppKvDBDefaultCfgTable[i].def_value, FlashDB_AppKvDBDefaultCfgTable[i].blob_size, &actual_len);
 				FLASHDB_TRACE("FlashDB KVDB is exist key=%s\r\n, value=%s\r\n", FlashDB_AppKvDBDefaultCfgTable[i].key, (char*)FlashDB_AppKvDBDefaultCfgTable[i].def_value);
 			}
 #endif
@@ -181,6 +183,7 @@ int FlashDB_AppM_Init(void)
 #endif
 	tsdb_time_synced_init(&flash_db_kv_synced_tsdb_timestamp[0]);
 	Cloud_Protocol_EventPost_FwInfo_Set(CLOUD_PROTOCOL_SG_EVENT_FW_MODEL_NO, (void *)flash_db_kv_sg_billing_mode_number);
+	Cloud_Protocol_Sg_SetBillingModePtr(&flash_db_kv_sg_billing_mode_model);
 
 	return 0;
 }

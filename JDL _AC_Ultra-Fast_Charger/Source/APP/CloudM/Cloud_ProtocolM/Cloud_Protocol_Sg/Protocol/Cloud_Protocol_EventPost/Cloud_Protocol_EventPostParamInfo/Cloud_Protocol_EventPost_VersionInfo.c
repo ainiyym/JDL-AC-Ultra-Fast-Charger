@@ -23,8 +23,6 @@
 |******************************************************************************/
 typedef struct
 {
-    bool net_is_connected;	 // network whether is connected
-    bool version_is_refresh; // Indicates whether the parameter has been updated
 	uint32_t send_message_id; // Sent message ID
 } cloud_protocol_event_post_version_info_ctrl_t;
 
@@ -63,22 +61,12 @@ void Cloud_Protocol_EventPost_VersionInfo_Init(void)
 	strncpy(cloud_protocol_event_version_info.sdkVer, CLOUDM_SG_SDK_VERSION, V2G_MAX_SDKVER_LEN - 1);
 }
 
-void Cloud_Protocol_EventPost_SetVersionInfoRefreshFlag(bool is_refresh)
-{
-    cloud_protocol_event_post_version_info_ctrl.version_is_refresh = is_refresh;
-}
-
-void Cloud_Protocol_EventPost_SetVersionInfoNetConnectedFlag(bool is_connected)
-{
-    cloud_protocol_event_post_version_info_ctrl.net_is_connected = is_connected;
-}
-
 void Cloud_Protocol_EventPost_SetVersionInfoMsgId(uint32_t msg_id)
 {
 	cloud_protocol_event_post_version_info_ctrl.send_message_id = msg_id;
 }
 
-static void Cloud_Protocol_EventPost_VersionInfo_Post(void)
+void Cloud_Protocol_EventPost_VersionInfo_Post(void)
 {
 	cloud_protocol_event_post_req_t *cloud_protocol_event_post_req = NULL;
 	cJSON *root = NULL;
@@ -90,6 +78,7 @@ static void Cloud_Protocol_EventPost_VersionInfo_Post(void)
 
 	// build json header
 	root = Cloud_Protocol_EventPost_BuildRequestJsonHeader(cloud_protocol_event_post_req);
+	Cloud_Protocol_EventPost_DestroyRequest((cloud_protocol_event_post_req_t *)cloud_protocol_event_post_req);
 
 	// add devRegMethod
 	param.param_name = "devRegMethod";
@@ -115,6 +104,9 @@ static void Cloud_Protocol_EventPost_VersionInfo_Post(void)
     // print unformatted json string
     timestamp = (uint64_t)CLOUD_PROTOCOL_GET_CURRENT_TIMESTAMP() * 1000; // convert to milliseconds
     Cloud_Protocol_EventPost_PrintUnformatted(root, timestamp, "verInfoEvt");
+
+    cJSON_Delete(root);
+    root = NULL;
 }
 
 bool Cloud_Protocol_EventPost_VersionInfo_HandleResponse(uint32_t msg_id)
@@ -127,19 +119,4 @@ bool Cloud_Protocol_EventPost_VersionInfo_HandleResponse(uint32_t msg_id)
 	return true;
 }
 
-void Cloud_Protocol_EventPost_VersionInfoMainCtrl_Func(void)
-{
-	if (!cloud_protocol_event_post_version_info_ctrl.net_is_connected)
-	{
-		return;
-	}
-	// Check if firmware info needs to be reported
-	if (cloud_protocol_event_post_version_info_ctrl.version_is_refresh)
-	{
-		// Post firmware info event
-		Cloud_Protocol_EventPost_VersionInfo_Post();
-		// Clear the refresh flag
-		cloud_protocol_event_post_version_info_ctrl.version_is_refresh = false;
-	}
-}
 /* EOL */

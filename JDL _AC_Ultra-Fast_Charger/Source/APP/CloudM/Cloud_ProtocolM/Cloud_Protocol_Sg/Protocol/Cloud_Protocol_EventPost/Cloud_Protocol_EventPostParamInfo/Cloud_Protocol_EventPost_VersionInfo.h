@@ -13,7 +13,7 @@
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "Cloud_Protocol_EventPost.h"
+#include "Cloud_Protocol_EventPost_Cfg.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -39,9 +39,7 @@
 |    Global Function Prototypes
 |******************************************************************************/
 extern void Cloud_Protocol_EventPost_VersionInfo_Init(void);
-extern void Cloud_Protocol_EventPost_SetVersionInfoRefreshFlag(bool is_refresh);
-extern void Cloud_Protocol_EventPost_SetVersionInfoNetConnectedFlag(bool is_connected);
-extern void Cloud_Protocol_EventPost_VersionInfoMainCtrl_Func(void);
 extern bool Cloud_Protocol_EventPost_VersionInfo_HandleResponse(uint32_t msg_id);
+extern void Cloud_Protocol_EventPost_VersionInfo_Post(void);
 #endif /* __CLOUD_PROTOCOL_EVENTPOST_VERSIONINFO_H__ */
 /* EOL */

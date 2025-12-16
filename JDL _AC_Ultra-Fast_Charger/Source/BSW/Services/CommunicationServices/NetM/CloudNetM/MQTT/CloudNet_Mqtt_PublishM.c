@@ -348,6 +348,23 @@ taskEXIT_CRITICAL();
     }
 }
 
+void CloudNetM_GetCurrentPublishMessageTopic(char *topic_buffer, size_t buffer_size)
+{
+    if (cloud_net_mqtt_publish_manager.current_msg != NULL && topic_buffer != NULL && buffer_size > 0)
+    {
+        strncpy(topic_buffer, cloud_net_mqtt_publish_manager.current_msg->topic, buffer_size - 1);
+        topic_buffer[buffer_size - 1] = '\0'; // Ensure null-termination
+    }
+    else if (topic_buffer != NULL && buffer_size > 0)
+    {
+        topic_buffer[0] = '\0'; // Empty string if no current message
+    }
+    else
+    {
+        CLOUDNET_ERROR("<%s> Invalid parameters\r\n", __func__);
+    }
+}
+
 void CloudNetM_MqttHandleATPayloadSendSuccess(void)
 {
 taskENTER_CRITICAL();

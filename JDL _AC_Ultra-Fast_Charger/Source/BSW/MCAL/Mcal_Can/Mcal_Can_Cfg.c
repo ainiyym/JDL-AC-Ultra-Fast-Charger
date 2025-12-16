@@ -327,7 +327,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *CanNum)
           MCAL_CYCBUF_WRITE(Mcal_CanCtrl.Buf[MCAL_CAN_RX_TEST].RcvCycBufID, Mcal_CanCtrl.rcvData, Mcal_CanCtrl.RxHeader.DLC);
         }else
         {
-          Core_printf("%s ID:%x RcvErr!\n\r", __FUNCTION__, MCAL_CAN_RX_TEST_ID);
+          // Core_printf("%s ID:%x RcvErr!\n\r", __FUNCTION__, MCAL_CAN_RX_TEST_ID);
         }
       }
       /* Check if the received message is from CNA1_MCU_STATUS3 */
@@ -339,7 +339,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *CanNum)
         }
         else
         {
-          Core_printf("%s ID:0x%x DLC Fault! Rcv dlc len:%d\n\r", __FUNCTION__, MCAL_RX_MCU_STATUS3_ID, Mcal_CanCtrl.RxHeader.DLC);
+          // Core_printf("%s ID:0x%x DLC Fault! Rcv dlc len:%d\n\r", __FUNCTION__, MCAL_RX_MCU_STATUS3_ID, Mcal_CanCtrl.RxHeader.DLC);
         }
         break;
       }
@@ -375,7 +375,7 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *CanNum)
         }
         else
         {
-          Core_printf("%s ID:0x%x DLC Fault! Rcv dlc len:%d\n\r", __FUNCTION__, MCAL_RX_MCU_STATUS3_ID, Mcal_CanCtrl.RxHeader.DLC);
+          // Core_printf("%s ID:0x%x DLC Fault! Rcv dlc len:%d\n\r", __FUNCTION__, MCAL_RX_MCU_STATUS3_ID, Mcal_CanCtrl.RxHeader.DLC);
         }
       }
       else

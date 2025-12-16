@@ -786,7 +786,6 @@ static void EVSEM_StateThreeDotHandle(SysConnector_Num_Enum ch)
 	{
 		EVSEM_DEBUG("ch:%d 3' Turn off Relay! 3\n", ch);
 		EVSEM_SetRelayOff(ch);
-		EVSEM_SetChargingStatus(ch, STD_FALSE);
 		gv_stEvseM[ch].ucStopChargeReason = EVSEM_STOP_CHARGE_CP_OFF;
 		gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_ONE_dot;
 	}
@@ -794,7 +793,6 @@ static void EVSEM_StateThreeDotHandle(SysConnector_Num_Enum ch)
 	{
 		EVSEM_DEBUG("ch:%d 3' Stop CP Output! 1\n", ch);
 		EVSEM_StopCpOutput(ch);
-		EVSEM_SetChargingStatus(ch, STD_FALSE);
 		gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_THREE;
 		gv_stEvseM[ch].usWaitCnt = 0;
 	}
@@ -802,14 +800,12 @@ static void EVSEM_StateThreeDotHandle(SysConnector_Num_Enum ch)
 	{
 		EVSEM_DEBUG("ch:%d 3' Turn off Relay! 2\n", ch);
 		EVSEM_SetRelayOff(ch);
-		EVSEM_SetChargingStatus(ch, STD_FALSE);
 		gv_stEvseM[ch].ucState = (uint8_t)EVSEM_STATE_TWO_dot;
 		gv_stEvseM[ch].usWaitCnt = 0;
 		gv_stEvseM[ch].ucStopChargeReason = EVSEM_STOP_CHARGE_S2_OFF;
 	}
 	else
 	{
-		EVSEM_SetChargingStatus(ch, STD_TRUE);
 	}
 }
 

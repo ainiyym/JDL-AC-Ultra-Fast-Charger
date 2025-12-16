@@ -13,9 +13,8 @@
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "Cloud_Protocol_Sg_Cfg.h"
-#include "Cloud_Protocol_Sg_DataDef.h"
-#include "Cloud_Protocol_Mqtt.h"
+#include "Cloud_Protocol_EventPost_Cfg.h"
+#include "Cloud_Protocol_EventPost_Task.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -28,66 +27,10 @@
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
-// event parameter value type
-typedef enum
-{
-   CLOUD_PROTOCOL_EVENT_POST_TYPE_GUN_INFO = 0,     // charging gun status
-   CLOUD_PROTOCOL_EVENT_POST_TYPE_VEHICLE_INFO,     // vehicle status
-   CLOUD_PROTOCOL_EVENT_POST_TYPE_BATTERY_INFO,     // battery status
-   CLOUD_PROTOCOL_EVENT_POST_TYPE_PILE_WARNINGS,    // device warning information
-   CLOUD_PROTOCOL_EVENT_POST_TYPE_VEHICLE_WARNINGS, // vehicle warning information
-   CLOUD_PROTOCOL_EVENT_POST_TYPE_GRND_LOCK,        // ground lock status
-   CLOUD_PROTOCOL_EVENT_POST_TYPE_DOOR_LOCK,        // door lock status
-   CLOUD_PROTOCOL_EVENT_POST_TYPE_MAX
-} cloud_protocol_event_post_type_t;
 
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
-// string array type
-typedef struct
-{
-    char **strings; // string array
-    uint16_t count; // string count
-} cloud_protocol_string_array_t;
-
-// common parameter value union
-typedef union
-{
-    char *string_value;
-    int32_t int32_value;
-    float float_value;
-    bool bool_value;
-    cloud_protocol_string_array_t *string_array_value;
-    int32_t *int32_array_value;
-    uint16_t array_count; // array element count
-    double double_value;
-} cloud_protocol_value_u;
-
-// Event parameter structure
-typedef struct
-{
-    char *param_name;                       // parameter name
-    cloud_protocol_value_type_e param_type; // parameter type
-    cloud_protocol_value_u param_value;     // parameter value
-} cloud_protocol_event_post_param_t;
-
-// Event post request structure
-typedef struct
-{
-    char *id;         // message ID
-    char *version;    // protocol version
-    char *method;     // request method
-} cloud_protocol_event_post_req_t;
-
-// Event post response structure
-typedef struct
-{
-    char *id;   // message ID
-    int code;   // states code
-    char *data; // response data
-} cloud_protocol_event_post_resp_t;
-
 // Event post task structure
 typedef struct
 {
@@ -104,13 +47,6 @@ typedef struct
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-// create event post request object
-extern cloud_protocol_event_post_req_t *Cloud_Protocol_EventPost_CreateRequest(char* identifier, cloud_protocol_mqtt_set_msg_id_cb set_msg_id_cb);
-extern cJSON *Cloud_Protocol_EventPost_BuildRequestJsonHeader(const cloud_protocol_event_post_req_t *req);
-extern bool Cloud_Protocol_EventPost_AddParam(cJSON *object, const cloud_protocol_event_post_param_t *param);
-extern void Cloud_Protocol_EventPost_PrintUnformatted(cJSON *object, uint64_t timestamp, char* identifier);
-// parse response object
-extern cloud_protocol_event_post_resp_t *Cloud_Protocol_EventPost_ParseResponse(const char *json_str);
 // event post management functions
 extern void Cloud_Protocol_EventPost_Init(void);
 extern void Cloud_Protocol_EventPost_PeriodicTask(void);

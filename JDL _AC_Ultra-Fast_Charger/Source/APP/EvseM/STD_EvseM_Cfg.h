@@ -77,7 +77,6 @@
 #define EVSEM_GetSysReadyState()				                SYSM_GetResetPrepareStatus()            /*get sys status*/
 #define EVSEM_GetChargeConditions()				                ERRHDL_GetChargeConditions()			/*get Charge Conditions*/
 
-#define EVSEM_SetChargingStatus(ch, mode)                       SYSM_SetSysStatusBit(ch, (uint32_t)STD_SYSM_SYSSTATUS_CHARGING, mode)      /*set charging status*/
 #define EVSEM_SetCanModeStatus(ch, mode)                        SYSM_SetSysStatusBit(ch, (uint32_t)STD_SYSM_SYSSTATUS_CAN, mode)      /*set CAN mode status*/
 
 #if (EVSEM_DIODE_CHECKSELF_ENABLE == STD_ON)

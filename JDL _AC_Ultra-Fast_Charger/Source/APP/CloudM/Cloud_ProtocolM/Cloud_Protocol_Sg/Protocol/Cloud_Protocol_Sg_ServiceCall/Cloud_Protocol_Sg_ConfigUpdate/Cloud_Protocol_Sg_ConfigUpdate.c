@@ -9,7 +9,6 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "Cloud_Protocol_Sg_ConfigUpdate.h"
-#include "Cloud_Protocol_EventPost.h"
 
 /*******************************************************************************
 |    Macro Definition

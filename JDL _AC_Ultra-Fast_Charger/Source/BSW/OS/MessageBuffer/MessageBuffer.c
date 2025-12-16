@@ -22,6 +22,10 @@
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
+typedef struct
+{
+	uint8_t buffer[MESSAGE_BUFFER_SIZE];
+} MessageBufferSlot_t;
 
 /*******************************************************************************
 |    Static local KAM variables Declaration
@@ -34,7 +38,8 @@
 /*******************************************************************************
 |    Global variables Declaration
 |******************************************************************************/
-MessageBuffer_Comm_System_t* MessageBuffer_APP_And_NET = NULL; // APP ↔ NET, app1_to_app2_buf: APP → NET, app2_to_app1_buf: NET → APP
+MessageBuffer_Comm_System_t* message_buffer_app_2_net = NULL; // APP ↔ NET, app1_to_app2_buf: APP → NET, app2_to_app1_buf: NET → APP
+static MessageBufferSlot_t message_buffer_pool[MESSAGE_BUFFER_MESSAGE_BUFFER_POOL_SIZE] = {0};
 
 /*******************************************************************************
 |    Table Const Definition
@@ -45,6 +50,7 @@ MessageBuffer_Comm_System_t* MessageBuffer_APP_And_NET = NULL; // APP ↔ NET, a
 |******************************************************************************/
 static uint16_t MessageBuffer_Checksum(const uint8_t *data, size_t len);
 static MessageBuffer_Comm_System_t *MessageBuffer_Comm_Init(size_t buffer_size, size_t max_msg_size);
+static void MessageBuffer_Comm_Destroy(MessageBuffer_Comm_System_t *comm);
 
 /*******************************************************************************
 |    Function Source Code
@@ -70,7 +76,7 @@ static MessageBuffer_Comm_System_t *MessageBuffer_Comm_Init(size_t buffer_size, 
 		return NULL;
 	}
 
-	comm->max_message_size = max_msg_size;
+	memset(comm, 0, sizeof(MessageBuffer_Comm_System_t));
 
 	// Create MessageBuffer
 	comm->app1_to_app2_buf = xMessageBufferCreate(buffer_size);
@@ -78,15 +84,49 @@ static MessageBuffer_Comm_System_t *MessageBuffer_Comm_Init(size_t buffer_size, 
 
 	if (comm->app1_to_app2_buf == NULL || comm->app2_to_app1_buf == NULL)
 	{
-		if (comm->app1_to_app2_buf)
-			vMessageBufferDelete(comm->app1_to_app2_buf);
-		if (comm->app2_to_app1_buf)
-			vMessageBufferDelete(comm->app2_to_app1_buf);
-		vPortFree(comm);
+		MessageBuffer_Comm_Destroy(comm);
+		return NULL;
+	}
+
+	comm->max_message_size = max_msg_size;
+	comm->send_mutex = xSemaphoreCreateMutex();
+
+	if (!comm->send_mutex)
+	{
+		MessageBuffer_Comm_Destroy(comm);
 		return NULL;
 	}
 
 	return comm;
+}
+
+// destroy communication system
+static void MessageBuffer_Comm_Destroy(MessageBuffer_Comm_System_t *comm)
+{
+	if (!comm)
+	{
+		return;
+	}
+
+	// delete MessageBuffers
+	if (comm->app1_to_app2_buf)
+	{
+		vMessageBufferDelete(comm->app1_to_app2_buf);
+	}
+
+	if (comm->app2_to_app1_buf)
+	{
+		vMessageBufferDelete(comm->app2_to_app1_buf);
+	}
+
+	// delete mutex
+	if (comm->send_mutex)
+	{
+		vSemaphoreDelete(comm->send_mutex);
+	}
+
+	// free comm structure
+	vPortFree(comm);
 }
 
 //send message
@@ -101,8 +141,19 @@ BaseType_t MessageBuffer_SendMessage(MessageBuffer_Comm_System_t *comm, MessageB
 		return pdFAIL; // refuse large messages
 	}
 
+	if (xSemaphoreTake(comm->send_mutex, timeout) != pdPASS)
+	{
+		MESSAGE_BUFFER_ERROR("<%s %d> Failed to acquire send mutex\r\n", __func__, __LINE__);
+		return pdFAIL;
+	}
+
 	MessageBufferHandle_t target_buf;
 	uint8_t source;
+	size_t bytes_sent = pdFAIL;
+	uint8_t *message_buf = NULL;
+	size_t total_size = 0;
+	size_t free_heap = 0;
+	MessageBuffer_header_t *header = NULL;
 
 	// ensure target and source are set correctly
 	if (dest == MESSAGE_BUFFER_ID_APP2)
@@ -120,22 +171,28 @@ BaseType_t MessageBuffer_SendMessage(MessageBuffer_Comm_System_t *comm, MessageB
 	else
 	{
 		MESSAGE_BUFFER_ERROR("<%s %d> Invalid destination ID\r\n", __func__, __LINE__);
-		return pdFAIL;
+		goto free_buffer;
 	}
 
 	// Calculate the total message size (header + data)
-	size_t total_size = sizeof(MessageBuffer_header_t) + data_len;
+	total_size = sizeof(MessageBuffer_header_t) + data_len;
+	free_heap = xPortGetFreeHeapSize();
 
+	if (total_size > free_heap + 1024)
+	{
+		MESSAGE_BUFFER_ERROR("<%s %d> Insufficient heap memory for message\r\n", __func__, __LINE__);
+		goto free_buffer;
+	}
 	// Allocate temporary buffer
-	uint8_t *message_buf = pvPortMalloc(total_size);
+	message_buf = pvPortMalloc(total_size);
 	if (message_buf == NULL)
 	{
 		MESSAGE_BUFFER_ERROR("<%s %d> Memory allocation failed\r\n", __func__, __LINE__);
-		return pdFAIL;
+		goto free_buffer;
 	}
 
 	// Fill in the message header
-	MessageBuffer_header_t *header = (MessageBuffer_header_t *)message_buf;
+	header = (MessageBuffer_header_t *)message_buf;
 	header->type = type;
 	header->source = source;
 	header->dest = dest;
@@ -150,53 +207,51 @@ BaseType_t MessageBuffer_SendMessage(MessageBuffer_Comm_System_t *comm, MessageB
 	}
 
 	// send to MessageBuffer
-	size_t bytes_sent = xMessageBufferSend(target_buf, message_buf, total_size, timeout);
+	bytes_sent = xMessageBufferSend(target_buf, message_buf, total_size, timeout);
 
+free_buffer:
 	// free temporary buffer
-	vPortFree(message_buf);
+	if (message_buf != NULL)
+	{
+		vPortFree(message_buf);
+	}
+	xSemaphoreGive(comm->send_mutex);
 
 	return (bytes_sent == total_size) ? pdPASS : pdFAIL;
 }
 
 // receive message
 BaseType_t MessageBuffer_ReceiveMessage(MessageBuffer_Comm_System_t *comm, MessageBuffer_type_t *type,
-										uint8_t *data_buf, size_t buf_size,
-										uint16_t *received_len, uint8_t dest, TickType_t timeout)
+										uint8_t **data_ptr , uint16_t *received_len, uint8_t dest, TickType_t timeout)
 {
 	MessageBufferHandle_t source_buf;
+	uint8_t *message_buf;
 
 	// 1. Verify the target ID and obtain the source buffer
 	switch (dest)
 	{
 		case MESSAGE_BUFFER_ID_APP2:
 			source_buf = comm->app1_to_app2_buf;
+			message_buf = message_buffer_pool[0].buffer;
 			break;
 		case MESSAGE_BUFFER_ID_APP1:
 			source_buf = comm->app2_to_app1_buf;
+			message_buf = message_buffer_pool[1].buffer;
 			break;
 		default:
 			MESSAGE_BUFFER_ERROR("<%s %d> Invalid destination ID\r\n", __func__, __LINE__);
 		return pdFAIL;
 	}
 
-	// 1. Allocate temporary buffer
-	size_t total_size = comm->max_message_size + sizeof(MessageBuffer_header_t);
-	uint8_t *message_buf = pvPortMalloc(total_size);
-	if (message_buf == NULL)
-	{
-		MESSAGE_BUFFER_ERROR("<%s %d> Memory allocation failed\r\n", __func__, __LINE__);
-		return pdFAIL;
-	}
-
-	// 2. Read message body
-	size_t bytes_read = xMessageBufferReceive(source_buf, message_buf, total_size, timeout);
+	//2. Read message body
+	memset(message_buf, 0, MESSAGE_BUFFER_SIZE);
+	size_t bytes_read = xMessageBufferReceive(source_buf, message_buf, MESSAGE_BUFFER_SIZE, timeout);
 	if (bytes_read == 0)
 	{
-		vPortFree(message_buf);
 		return pdFAIL;
 	}
 
-	// 3. check Read message header
+	//3. check Read message header
 	MessageBuffer_header_t* header = NULL;
 	header = (MessageBuffer_header_t *)message_buf;
 
@@ -224,25 +279,16 @@ BaseType_t MessageBuffer_ReceiveMessage(MessageBuffer_Comm_System_t *comm, Messa
 	}
 
 	// 7. Copy message body to user buffer
-	if (buf_size < header->length)
-	{
-		MESSAGE_BUFFER_ERROR("<%s %d> User buffer too small\r\n", __func__, __LINE__);
-		return pdFAIL;
-	}
-	if (header->length > 0 && data_buf != NULL)
-	{
-		memset(data_buf, 0, buf_size);
-		memcpy(data_buf, message_buf + sizeof(MessageBuffer_header_t), header->length);
-	}
+    if (data_ptr != NULL)
+    {
+        *data_ptr = message_buf + sizeof(MessageBuffer_header_t);
+    }
 
 	// 8. Return message information
 	if (type)
 		*type = header->type;
 	if (received_len)
 		*received_len = header->length;
-
-	// 9. free temporary buffer
-	vPortFree(message_buf);
 
 	return pdPASS;
 }
@@ -252,22 +298,18 @@ void MessageBuffer_Deinit(MessageBuffer_Comm_System_t *comm)
 {
 	if (comm != NULL)
 	{
-		if (comm->app1_to_app2_buf)
-			vMessageBufferDelete(comm->app1_to_app2_buf);
-		if (comm->app2_to_app1_buf)
-			vMessageBufferDelete(comm->app2_to_app1_buf);
-		vPortFree(comm);
+		MessageBuffer_Comm_Destroy(comm);
 	}
 }
 
 // create communication system instance
 void MessageBuffer_CreateInstance(void)
 {
-	MessageBuffer_APP_And_NET = MessageBuffer_Comm_Init(MESSAGE_BUFFER_APP2_2_NET_MAX_SIZE, MESSAGE_BUFFER_APP1_2_NET_SIZE * 2);
-	if (NULL != MessageBuffer_APP_And_NET)
+	message_buffer_app_2_net = MessageBuffer_Comm_Init(MESSAGE_BUFFER_APP2_2_NET_MAX_SIZE, MESSAGE_BUFFER_SIZE);
+	if (NULL != message_buffer_app_2_net)
 	{
 		// Initialization successful
-		MESSAGE_BUFFER_INFO("<%s %d> MessageBuffer_APP_And_NET created successfully\r\n", __func__, __LINE__);
+		MESSAGE_BUFFER_INFO("<%s %d> message_buffer_app_2_net created successfully\r\n", __func__, __LINE__);
 	}
 }
 /* EOL */

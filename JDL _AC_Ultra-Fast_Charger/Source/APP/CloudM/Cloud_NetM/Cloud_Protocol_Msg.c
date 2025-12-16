@@ -13,7 +13,7 @@
 #include "FreeRTOS.h"
 #include "semphr.h"
 #include "Cloud_Protocol_Mqtt.h"
-#include "Cloud_Protocol_EventPost_Config.h"
+#include "Cloud_Protocol_EventPost_Task.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -34,7 +34,7 @@
 /*******************************************************************************
 |    Static local variables Declaration
 |******************************************************************************/
-static Cloud_Protocol_Msg_t Cloud_ProtocolMsg;
+static Cloud_Protocol_Rcv_MsgBuffer_t Cloud_ProtocolMsg;
 
 /*******************************************************************************
 |    Table Const Definition
@@ -69,33 +69,35 @@ void Cloud_Protocol_RcvMsg_Process(void)
 {
     uint8_t MsgRet;
 
-    MsgRet = (uint8_t)Cloud_MessageBuffer_ReceiveMessage(&Cloud_ProtocolMsg.MsgData[0], &Cloud_ProtocolMsg.MsgType, &Cloud_ProtocolMsg.MsgLen);
+    MsgRet = (uint8_t)Cloud_MessageBuffer_ReceiveMessage(&Cloud_ProtocolMsg.MsgData, &Cloud_ProtocolMsg.MsgType, &Cloud_ProtocolMsg.MsgLen);
 
     if (MsgRet)
     {
+        uint8_t local_copy[CLOUD_MESSAGE_BUFFER_MAX_LENGTH] = {0};
+        memcpy(local_copy, Cloud_ProtocolMsg.MsgData, Cloud_ProtocolMsg.MsgLen);
         // CLOUD_DEBUG("%s, Length: %d Msgtype:%02x data[0]=%02x\r\n", __func__, Cloud_ProtocolMsg.MsgLen, Cloud_ProtocolMsg.MsgType, Cloud_ProtocolMsg.MsgData[0]);
         switch (Cloud_ProtocolMsg.MsgType)
         {
             case CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH:
-                switch (Cloud_ProtocolMsg.MsgData[0])
+                switch (local_copy[0])
                 {
                     case CLOUD_MESSAGE_DATA_TYPE_CLOUD_PROTOCOL:
                         // Process data message
-                        Cloud_Protocol_ParseProtocolFrame((const uint8_t *)&Cloud_ProtocolMsg.MsgData[1], Cloud_ProtocolMsg.MsgLen - 1);
+                        Cloud_Protocol_ParseProtocolFrame((const uint8_t *)&local_copy[1], Cloud_ProtocolMsg.MsgLen - 1);
                         break;
                     case CLOUD_MESSAGE_DATA_TYPE_CLOUD_MQTT_PAYLOAD:
                         // Process MQTT payload message
-                        Cloud_Protocol_Mqtt_HandleReceivedMessage((const char *)&Cloud_ProtocolMsg.MsgData[1]);
+                        Cloud_Protocol_Mqtt_HandleReceivedMessage((const char *)&local_copy[1]);
                         break;
                     default:
-                        CLOUD_ERROR("Cloud Protocol Unknown Data Command: %d\r\n", Cloud_ProtocolMsg.MsgData[0]);
+                        CLOUD_ERROR("Cloud Protocol Unknown Data Command: %d\r\n", local_copy[0]);
                         break;
                 }
                 break;
 
             case CLOUD_MESSAGE_TYPE_CTRL:
                 // Process control message
-                switch (Cloud_ProtocolMsg.MsgData[0])
+                switch (local_copy[0])
                 {
                     case CLOUD_MESSAGE_CTRL_TYPE_SET_NETWORK_PARAM:
 
@@ -110,7 +112,7 @@ void Cloud_Protocol_RcvMsg_Process(void)
                         Cloud_Protocol_AckWakeUpDTU(true);
                         break;
                     case CLOUD_MESSAGE_CTRL_TYPE_CLOUD_MQTT_SG:
-                        switch (Cloud_ProtocolMsg.MsgData[1])
+                        switch (local_copy[1])
                         {
                             case CLOUD_PROTOCOL_MQTT_CTRL_TYPE_CONNECT:
                                 // Handle MQTT connect acknowledgment
@@ -154,24 +156,24 @@ void Cloud_Protocol_RcvMsg_Process(void)
 
             case CLOUD_MESSAGE_TYPE_NOTIFY:
                 // Process notify message
-                switch (Cloud_ProtocolMsg.MsgData[0])
+                switch (local_copy[0])
                 {
                     case CLOUD_MESSAGE_NOTIFY_TYPE_DEVICE_STATUS:
-                        Cloud_Protocol_NotifyDeviceStatus((cloud_device_status_e)Cloud_ProtocolMsg.MsgData[1]);
-                        CLOUD_INFO("Device Status Notified: %d\r\n", Cloud_ProtocolMsg.MsgData[1]);
+                        Cloud_Protocol_NotifyDeviceStatus((cloud_device_status_e)local_copy[1]);
+                        CLOUD_INFO("Device Status Notified: %d\r\n", local_copy[1]);
                         break;
                     case CLOUD_MESSAGE_NOTIFY_TYPE_NETWORK_STATUS:
-                        Cloud_Protocol_NotifyNetworkStatus((cloud_net_status)Cloud_ProtocolMsg.MsgData[1], (uint8_t)Cloud_ProtocolMsg.MsgData[2]);
+                        Cloud_Protocol_NotifyNetworkStatus((cloud_net_status)local_copy[1], (uint8_t)local_copy[2]);
                         break;
                     case CLOUD_MESSAGE_NOTIFY_TYPE_SIGNAL_STRENGTH:
-                        Cloud_Protocol_NotifySignalStrength((int8_t)Cloud_ProtocolMsg.MsgData[1]);
+                        Cloud_Protocol_NotifySignalStrength((int8_t)local_copy[1]);
                         break;
 
                     case CLOUD_MESSAGE_NOTIFY_TYPE_ICCID:
-                        Cloud_Protocol_EventPost_FwInfo_Set(CLOUD_PROTOCOL_SG_EVENT_FW_SIM_NO, (void *)&Cloud_ProtocolMsg.MsgData[1]);
+                        Cloud_Protocol_EventPost_FwInfo_Set(CLOUD_PROTOCOL_SG_EVENT_FW_SIM_NO, (void *)&local_copy[1]);
                         break;
                     default:
-                        CLOUD_ERROR("Cloud Protocol Unknown Notify Command: %d\r\n", Cloud_ProtocolMsg.MsgData[0]);
+                        CLOUD_ERROR("Cloud Protocol Unknown Notify Command: %d\r\n", local_copy[0]);
                         break;
                 }
                 break;

@@ -80,6 +80,7 @@ typedef struct
 |******************************************************************************/
 extern bool CloudNetM_MqttPublishManagerInit(cloud_net_mqtt_at_callback_t config);
 extern bool CloudNetM_MqttAddMessageToQueue(const char *topic, const char *payload, uint8_t qos);
+extern void CloudNetM_GetCurrentPublishMessageTopic(char *topic_buffer, size_t buffer_size);
 extern void CloudNetM_MqttHandleAtTopicResponse(const char *pub_topic);
 extern void CloudNetM_MqttHandleATPayloadSendSuccess(void);
 extern void CloudNetM_MqttPublishManagerProcess(void);

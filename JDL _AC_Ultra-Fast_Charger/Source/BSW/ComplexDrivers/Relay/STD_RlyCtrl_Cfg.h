@@ -47,6 +47,7 @@
 #define RLYCTRL_AUXL_ERR_FILTER_NUM					(uint16_t)(200u / RLYCTRL_TASK_PERIOD)
 
 #define RLYCTRL_FAULT_CALLBACK(Id, Status)			ERRHDL_FaultStatusUpdata_CallBack(Id, Status)
+#define RLYCTRL_SET_SYS_CHARGING_STATUS(ch, mode)   SYSM_SetSysStatusBit(ch, (uint32_t)STD_SYSM_SYSSTATUS_CHARGING, mode)      /*set charging status*/
 /*******************************************************************************
 |    LOWER LAYER CONFIGURATION PARAMETERS
 |******************************************************************************/

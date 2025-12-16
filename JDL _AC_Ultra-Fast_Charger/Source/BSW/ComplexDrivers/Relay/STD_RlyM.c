@@ -113,6 +113,7 @@ Call By         : EVSEM_StateTwoDotHandle
 |******************************************************************************/
 uint8_t RELAYM_ReqRelaySwitchOn(SysConnector_Num_Enum ch)
 {
+	RLYCTRL_SET_SYS_CHARGING_STATUS(ch, STD_ON);      /*set charging status*/
 	return RLYCTRL_ReqRelaySwitchOn(ch);
 }
 /*******************************************************************************
@@ -128,6 +129,7 @@ Call By         : EVSEM_StateTwoDotHandle
 |******************************************************************************/
 uint8_t RELAYM_ReqRelaySwitchOff(SysConnector_Num_Enum ch)
 {
+	RLYCTRL_SET_SYS_CHARGING_STATUS(ch, STD_OFF);     /*reset charging status*/
 	return RLYCTRL_ReqRelaySwitchOff(ch);
 }
 /*******************************************************************************

@@ -13,7 +13,7 @@
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "Cloud_Protocol_EventPost.h"
+#include "Cloud_Protocol_EventPost_Cfg.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -39,10 +39,9 @@
 |    Global Function Prototypes
 |******************************************************************************/
 extern void Cloud_Protocol_EventPost_FwInfo_Init(void);
-extern void Cloud_Protocol_EventPost_SetFwInfoRefreshFlag(bool is_refresh);
-extern void Cloud_Protocol_EventPost_SetFwInfoNetConnectedFlag(bool is_connected);
 extern void Cloud_Protocol_EventPost_FwInfo_Set(cloud_protocol_sg_event_fireware_enum type, void *value);
 extern void Cloud_Protocol_EventPost_FwInfoMainCtrl_Func(void);\
 extern bool Cloud_Protocol_EventPost_FwInfo_HandleResponse(uint32_t msg_id);
+extern void Cloud_Protocol_EventPost_FwInfo_Post(void);
 #endif /* __CLOUD_PROTOCOL_EVENTPOST_FWINFO_H__ */
 /* EOL */

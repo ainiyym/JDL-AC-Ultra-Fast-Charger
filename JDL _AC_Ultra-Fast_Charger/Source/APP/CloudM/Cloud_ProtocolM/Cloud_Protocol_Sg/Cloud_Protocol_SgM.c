@@ -12,6 +12,7 @@
 #include "Cloud_Protocol_Mqtt_Cfg.h"
 #include "Cloud_Protocol_Sg_Login.h"
 #include "Cloud_Protocol_Sg_SynchronizeNetTime.h"
+#include "Cloud_Protocol_EventPost.h"
 #include "Cloud_Protocol_Sg_ServiceCall.h"
 #include "Cloud_Protocol_Sg_ReportResponse.h"
 #include "Cloud_Protocol_Sg_PropertySetting.h"
@@ -161,16 +162,20 @@ static bool Cloud_Protocol_Mqtt_PayloadCallback(const char *payload, cloud_proto
     switch (msg_type)
     {
         case CLOUD_PROTOCOL_SG_MESSAGE_TYPE_TIME_SYNC:
-            return cloud_protocol_sysnchronize_net_time_handle_response(payload, strlen(payload));
+            response = cloud_protocol_sysnchronize_net_time_handle_response(payload, strlen(payload));
+            break;
 
         case CLOUD_PROTOCOL_SG_MESSAGE_TYPE_SERVICE_CALL:
-            return cloud_protocol_service_call(payload, strlen(payload));
+            response = cloud_protocol_service_call(payload, strlen(payload));
+            break;
 
         case CLOUD_PROTOCOL_SG_MESSAGE_TYPE_REPORT_RESP:
-            return cloud_protocol_report_response(payload, strlen(payload));
+            response = cloud_protocol_report_response(payload, strlen(payload));
+            break;
 
         case CLOUD_PROTOCOL_SG_MESSAGE_TYPE_PROPERTY_SETTING:
-            return cloud_protocol_property_setting_response(payload, strlen(payload));
+            response = cloud_protocol_property_setting_response(payload, strlen(payload));
+            break;
 
         case CLOUD_PROTOCOL_SG_MESSAGE_TYPE_OTA_INFO_RESP:
             // Handle OTA info response
@@ -191,8 +196,6 @@ static bool Cloud_Protocol_Mqtt_PayloadCallback(const char *payload, cloud_proto
 static void Cloud_Protocol_Mqtt_ConnectCallback(bool connected)
 {
 	Cloud_Protocol_Sg_SynchronizeNetTime_SetNetworkConnectStatus(connected);
-    Cloud_Protocol_EventPost_SetFwInfoNetConnectedFlag(connected);
-    Cloud_Protocol_EventPost_SetVersionInfoNetConnectedFlag(connected);
 }
 
 /**
@@ -217,8 +220,8 @@ static void Cloud_Protocol_Mqtt_NetTimeCallback(bool success, int64_t time_offse
     if (!first_sync_done)
     {
         first_sync_done = true;
-        Cloud_Protocol_EventPost_SetFwInfoRefreshFlag(true);
-        Cloud_Protocol_EventPost_SetVersionInfoRefreshFlag(true);
+        Cloud_Protocol_EventPost_TriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_FW_INFO);
+        Cloud_Protocol_EventPost_TriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_VERSION_INFO);
     }
 }
 
@@ -256,8 +259,6 @@ void Cloud_Protocol_Mqtt_MainProcess(void)
     // MQTT client manager process
     Cloud_Protocol_Mqtt_ClientManagerProcess();
     /* event post */
-    Cloud_Protocol_EventPost_FwInfoMainCtrl_Func();
-    Cloud_Protocol_EventPost_VersionInfoMainCtrl_Func();
     Cloud_Protocol_EventPost_PeriodicTask();
     /* remote charge service call process */
     Cloud_Protocol_Sg_RemoteCharge_PeriodicTask();

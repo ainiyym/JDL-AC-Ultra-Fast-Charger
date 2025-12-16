@@ -73,7 +73,7 @@ static sfud_err spi_write_read(const sfud_spi *spi, const uint8_t *write_buf, si
     HAL_GPIO_WritePin(spi_dev->cs_gpiox, spi_dev->cs_gpio_pin, GPIO_PIN_RESET);
 
     if (write_size) {
-        state = HAL_SPI_Transmit(spi_dev->spi_handle, (uint8_t *)write_buf, write_size, 1000);
+        state = HAL_SPI_Transmit_DMA(spi_dev->spi_handle, (uint8_t *)write_buf, write_size);
         while (HAL_SPI_GetState(spi_dev->spi_handle) != HAL_SPI_STATE_READY);
     }
 
@@ -83,7 +83,7 @@ static sfud_err spi_write_read(const sfud_spi *spi, const uint8_t *write_buf, si
 
     if (read_size) {
         memset((uint8_t *)read_buf, 0xFF, read_size);
-        state = HAL_SPI_Receive(spi_dev->spi_handle, read_buf, read_size, 1000);
+        state = HAL_SPI_Receive_DMA(spi_dev->spi_handle, read_buf, read_size);
         while (HAL_SPI_GetState(spi_dev->spi_handle) != HAL_SPI_STATE_READY);
     }
 

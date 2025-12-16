@@ -14,7 +14,7 @@
 #include "infra_defs.h"
 #include "wrappers_defs.h" 
 
-#define HAL_SEM_MAX_COUNT           (10)
+#define HAL_SEM_MAX_COUNT           (20)
 #define HAL_SEM_INIT_COUNT          (0)
 
 #define DEFAULT_THREAD_NAME         "linkkit_task"

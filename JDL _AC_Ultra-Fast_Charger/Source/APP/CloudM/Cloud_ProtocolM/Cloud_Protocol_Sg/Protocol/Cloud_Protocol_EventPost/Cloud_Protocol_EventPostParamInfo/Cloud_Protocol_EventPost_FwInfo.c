@@ -26,8 +26,6 @@
 |******************************************************************************/
 typedef struct
 {
-    bool net_is_connected;	// network whether is connected
-    bool fwinfo_is_refresh; // Indicates whether the parameter has been updated
     uint32_t send_message_id; // Sent message ID
 } cloud_protocol_event_post_fireware_info_ctrl_t;
 
@@ -55,7 +53,7 @@ cloud_protocol_event_post_fireware_info_ctrl_t cloud_protocol_event_post_firewar
 static void Cloud_Protocol_EventPost_SetFwInfoMsgId(uint32_t msg_id);
 static int Cloud_Protocol_EventPost_GenerateFactoryCode(uint16_t serial_num, char *output);
 static bool Cloud_Protocol_EventPost_FwInfo_Validate(void);
-static void Cloud_Protocol_EventPost_FwInfo_Post(void);
+
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
@@ -63,6 +61,7 @@ void Cloud_Protocol_EventPost_FwInfo_Init(void)
 {
     char factory_code[17] = {0};
     uint16_t serial_num = 0;
+    char model_no[V2G_MAX_MODEL_ID_LEN] = {0};
 
     // all reset
     memset(&cloud_protocol_event_fireware_info, 0, sizeof(v2g_event_fireware_info));
@@ -70,7 +69,8 @@ void Cloud_Protocol_EventPost_FwInfo_Init(void)
 
     // set fwinfo
     strncpy(cloud_protocol_event_fireware_info.stakeModel, CLOUDM_SG_STAKE_MODEL, V2G_MAX_ICCID_LEN - 1);
-    snprintf(cloud_protocol_event_fireware_info.modelNo, V2G_MAX_MODEL_ID_LEN, "%s", "");
+    FlashDB_ReadValue(FLASHDB_KV_SG_BILLING_MODE_NO, model_no, V2G_MAX_MODEL_ID_LEN, NULL);
+    snprintf(cloud_protocol_event_fireware_info.modelNo, V2G_MAX_MODEL_ID_LEN, "%s", model_no);
     cloud_protocol_event_fireware_info.vendorCode = CLOUDM_SG_MANUFACTURER_CODE;
     FlashDB_ReadValue(FLASHDB_KV_SG_SN, (uint16_t *)&serial_num, sizeof(serial_num), NULL);
     Cloud_Protocol_EventPost_GenerateFactoryCode(serial_num, factory_code);
@@ -104,16 +104,6 @@ void Cloud_Protocol_EventPost_FwInfo_Init(void)
     cloud_protocol_event_fireware_info.minDischargeVoltage = CLOUDM_SG_OT_MIN_VOL;
     cloud_protocol_event_fireware_info.maxDischargeCurrent = CLOUDM_SG_OT_MAX_CUR;
     cloud_protocol_event_fireware_info.minDischargeCurrent = CLOUDM_SG_OT_MIN_CUR;
-}
-
-void Cloud_Protocol_EventPost_SetFwInfoRefreshFlag(bool is_refresh)
-{
-    cloud_protocol_event_post_fireware_info_ctrl.fwinfo_is_refresh = is_refresh;
-}
-
-void Cloud_Protocol_EventPost_SetFwInfoNetConnectedFlag(bool is_connected)
-{
-    cloud_protocol_event_post_fireware_info_ctrl.net_is_connected = is_connected;
 }
 
 static void Cloud_Protocol_EventPost_SetFwInfoMsgId(uint32_t msg_id)
@@ -165,7 +155,6 @@ void Cloud_Protocol_EventPost_FwInfo_Set(cloud_protocol_sg_event_fireware_enum t
     {
         return;
     }
-
     switch (type)
     {
         // String type fields
@@ -362,7 +351,7 @@ static bool Cloud_Protocol_EventPost_FwInfo_Validate(void)
     return true;
 }
 
-static void Cloud_Protocol_EventPost_FwInfo_Post(void)
+void Cloud_Protocol_EventPost_FwInfo_Post(void)
 {
     cloud_protocol_event_post_req_t *cloud_protocol_event_post_req = NULL;
     cJSON *root = NULL;
@@ -409,6 +398,7 @@ static void Cloud_Protocol_EventPost_FwInfo_Post(void)
 
     // build json header
     root = Cloud_Protocol_EventPost_BuildRequestJsonHeader(cloud_protocol_event_post_req);
+    Cloud_Protocol_EventPost_DestroyRequest((cloud_protocol_event_post_req_t *)cloud_protocol_event_post_req);
 
     // add CLOUD_PROTOCOL_SG_EVENT_FW_SIM_NO
     param.param_name = "simNo";
@@ -607,7 +597,13 @@ static void Cloud_Protocol_EventPost_FwInfo_Post(void)
 
     // print unformatted json string
     timestamp = (uint64_t)CLOUD_PROTOCOL_GET_CURRENT_TIMESTAMP() * 1000; // convert to milliseconds
-    Cloud_Protocol_EventPost_PrintUnformatted(root, timestamp, "firmwareEvt");
+    if (Cloud_Protocol_EventPost_FwInfo_Validate())
+    {
+        Cloud_Protocol_EventPost_PrintUnformatted(root, timestamp, "firmwareEvt");
+    }
+
+    cJSON_Delete(root);
+    root = NULL;
 }
 
 bool Cloud_Protocol_EventPost_FwInfo_HandleResponse(uint32_t msg_id)
@@ -619,25 +615,5 @@ bool Cloud_Protocol_EventPost_FwInfo_HandleResponse(uint32_t msg_id)
     }
 
     return true;
-}
-
-void Cloud_Protocol_EventPost_FwInfoMainCtrl_Func(void)
-{
-    if (!cloud_protocol_event_post_fireware_info_ctrl.net_is_connected)
-    {
-        return;
-    }
-    // Check if firmware info needs to be reported
-    if (cloud_protocol_event_post_fireware_info_ctrl.fwinfo_is_refresh)
-    {
-        // Validate firmware info
-        if (Cloud_Protocol_EventPost_FwInfo_Validate())
-        {
-            // Post firmware info event
-            Cloud_Protocol_EventPost_FwInfo_Post();
-            // Clear the refresh flag
-            cloud_protocol_event_post_fireware_info_ctrl.fwinfo_is_refresh = false;
-        }
-    }
 }
 /* EOL */

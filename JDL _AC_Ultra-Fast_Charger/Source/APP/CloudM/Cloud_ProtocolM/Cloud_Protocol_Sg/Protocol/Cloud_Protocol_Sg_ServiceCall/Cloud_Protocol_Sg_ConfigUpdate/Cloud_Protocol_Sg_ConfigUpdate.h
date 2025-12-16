@@ -13,8 +13,7 @@
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "Cloud_Protocol_Sg_DataDef.h"
-#include "Cloud_Protocol_Sg_Cfg.h"
+#include "Cloud_Protocol_EventPost.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -42,5 +41,5 @@
 extern void Cloud_Protocol_Sg_Config_Init(void);
 extern bool Cloud_Protocol_Sg_ParseConfigUpdateParam(cJSON *params, const char *msg_id);
 extern bool Cloud_Protocol_Sg_ParseQueryConfigParam(cJSON *params, const char *msg_id);
-#endif /* __FILETEMPLATE_H */
+#endif /* __CLOUD_PROTOCOL_SG_CONFIGUPDATE_H */
 /* EOL */

@@ -43,17 +43,25 @@ static cloud_protocol_event_post_task_t cloud_protocol_sg_event_tasks[CLOUD_PROT
 |    Static Local Functions Declaration
 |******************************************************************************/
 static char *cloud_protocol_event_post_build_method(const char *identifier);
-static void Cloud_Protocol_EventPost_DestroyRequest(cloud_protocol_event_post_req_t *req);
 static void Cloud_Protocol_EventPost_PostMessage(const char *json_str, const char* identifier);
 static void Cloud_Protocol_EventPost_DestroyResponse(cloud_protocol_event_post_resp_t *resp);
 static bool Cloud_Protocol_EventPost_ShouldPostEvent(cloud_protocol_event_post_task_t *task, uint32_t current_time);
+
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
 // initialize event post module
 void Cloud_Protocol_EventPost_Init(void)
 {
-	memset(cloud_protocol_sg_event_tasks, 0, sizeof(cloud_protocol_sg_event_tasks));
+	cloud_protocol_event_post_type_t type;
+	for (type = CLOUD_PROTOCOL_EVENT_POST_TYPE_GUN_INFO; type < CLOUD_PROTOCOL_EVENT_POST_TYPE_MAX; type++)
+	{
+		cloud_protocol_sg_event_tasks[type].type = type;
+		cloud_protocol_sg_event_tasks[type].last_post_time = 0;
+		cloud_protocol_sg_event_tasks[type].interval = 0;
+		cloud_protocol_sg_event_tasks[type].enabled = true;
+		cloud_protocol_sg_event_tasks[type].force_post = false;
+	}
 }
 
 // create event post request object
@@ -122,7 +130,7 @@ static char *cloud_protocol_event_post_build_method(const char *identifier)
 }
 
 // destroy request object
-static void Cloud_Protocol_EventPost_DestroyRequest(cloud_protocol_event_post_req_t *req)
+void Cloud_Protocol_EventPost_DestroyRequest(cloud_protocol_event_post_req_t *req)
 {
 	if (req == NULL)
 	{
@@ -166,6 +174,7 @@ cJSON *Cloud_Protocol_EventPost_BuildRequestJsonHeader(const cloud_protocol_even
 	cJSON *params = cJSON_CreateObject();
 	if (params == NULL)
 	{
+		CLOUD_WARN("<%s %d> Failed to create params object\r\n", __func__, __LINE__);
 		cJSON_Delete(root);
 		return NULL;
 	}
@@ -175,12 +184,12 @@ cJSON *Cloud_Protocol_EventPost_BuildRequestJsonHeader(const cloud_protocol_even
 	cJSON *value = cJSON_CreateObject();
 	if (value == NULL)
 	{
+		CLOUD_WARN("<%s %d> Failed to create value object\r\n", __func__, __LINE__);
 		cJSON_Delete(root);
 		return NULL;
 	}
 	cJSON_AddItemToObject(params, "value", value);
 
-	Cloud_Protocol_EventPost_DestroyRequest((cloud_protocol_event_post_req_t *)req);
 	return root;
 }
 
@@ -196,12 +205,14 @@ bool Cloud_Protocol_EventPost_AddParam(cJSON *object, const cloud_protocol_event
 	cJSON *params_obj = cJSON_GetObjectItem(object, "params");
 	if (params_obj == NULL)
 	{
+		CLOUD_WARN("<%s %d> params object not found\r\n", __func__, __LINE__);
 		return false;
 	}
 
 	cJSON *value_obj = cJSON_GetObjectItem(params_obj, "value");
 	if (value_obj == NULL)
 	{
+		CLOUD_WARN("<%s %d> value object not found\r\n", __func__, __LINE__);
 		return false;
 	}
 
@@ -229,6 +240,7 @@ bool Cloud_Protocol_EventPost_AddParam(cJSON *object, const cloud_protocol_event
 			cJSON *array = cJSON_CreateArray();
 			if (array == NULL)
 			{
+				CLOUD_WARN("<%s %d> Failed to create string array\r\n", __func__, __LINE__);
 				return false;
 			}
 
@@ -286,12 +298,10 @@ void Cloud_Protocol_EventPost_PrintUnformatted(cJSON *object, uint64_t timestamp
 	// print JSON string
 	char *json_str = cJSON_PrintUnformatted(object);	
 
-	// free static variable
-	cJSON_Delete(object);
-	object = NULL;
-
 	Cloud_Protocol_EventPost_PostMessage(json_str, identifier);
-	// post function will free json_str
+	// free json_str
+	if (json_str != NULL)
+	CLOUDM_FREE(json_str);
 }
 
 // post message to cloud
@@ -458,7 +468,7 @@ static bool Cloud_Protocol_EventPost_ShouldPostEvent(cloud_protocol_event_post_t
 	}
 
 	// check if interval has elapsed
-	if (current_time >= task->last_post_time + task->interval)
+	if ((current_time >= task->last_post_time + task->interval) && (0 != task->interval))
 	{
 		return true;
 	}
@@ -481,7 +491,7 @@ void Cloud_Protocol_EventPost_PeriodicTask(void)
 		cloud_protocol_event_post_task_t *task = &cloud_protocol_sg_event_tasks[i];
 
 		if (Cloud_Protocol_EventPost_ShouldPostEvent(task, current_time))
-		{
+		{ 
 			// update last post time
 			task->last_post_time = current_time;
 
@@ -490,40 +500,46 @@ void Cloud_Protocol_EventPost_PeriodicTask(void)
 			{
 				case CLOUD_PROTOCOL_EVENT_POST_TYPE_GUN_INFO:
 					// Cloud_Protocol_EventPost_GunInfo();
-					break;
+					return;
 
 				case CLOUD_PROTOCOL_EVENT_POST_TYPE_VEHICLE_INFO:
 					// Cloud_Protocol_EventPost_VehicleInfo();
-					break;
+					return;
 
 				case CLOUD_PROTOCOL_EVENT_POST_TYPE_BATTERY_INFO:
 					// Cloud_Protocol_EventPost_BatteryInfo();
-					break;
+					return;
 
 				case CLOUD_PROTOCOL_EVENT_POST_TYPE_PILE_WARNINGS:
 					// Cloud_Protocol_EventPost_PileWarnings();
-					break;
+					return;
 
 				case CLOUD_PROTOCOL_EVENT_POST_TYPE_VEHICLE_WARNINGS:
 					// Cloud_Protocol_EventPost_VehicleWarnings();
-					break;
+					return;
 
 				case CLOUD_PROTOCOL_EVENT_POST_TYPE_GRND_LOCK:
 					if (task->enabled)
 					{
 						// Cloud_Protocol_EventPost_GrndLock();
 					}
-					break;
+					return;
 
 				case CLOUD_PROTOCOL_EVENT_POST_TYPE_DOOR_LOCK:
 					if (task->enabled)
 					{
 						// Cloud_Protocol_EventPost_DoorLock();
 					}
-					break;
-
+					return;
+				case CLOUD_PROTOCOL_EVENT_POST_TYPE_FW_INFO:
+					Cloud_Protocol_EventPost_FwInfo_Post();
+					return;
+				case CLOUD_PROTOCOL_EVENT_POST_TYPE_VERSION_INFO:
+					Cloud_Protocol_EventPost_VersionInfo_Post();
+					return;
+					
 				default:
-					break;
+					return;
 			}
 		}
 	}
@@ -536,7 +552,7 @@ bool Cloud_Protocol_EventPost_TriggerEvent(cloud_protocol_event_post_type_t type
 	{
 		return false;
 	}
-
+	cloud_protocol_sg_event_tasks[type].enabled = true;
 	cloud_protocol_sg_event_tasks[type].force_post = true;
 	return true;
 }

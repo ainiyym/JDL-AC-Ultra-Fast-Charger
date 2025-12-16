@@ -241,27 +241,46 @@ bool CloudNetM_MqttSubscribePublish(uint8_t socket_id, uint8_t *payload, uint16_
  
 	// CLOUDNET_DEBUG("<%s>Subscribe topic parsed: %s\r\n", __func__, subscribe_topic);
 
-    publish_topic.topic_len = payload[offset] << 8 | payload[offset + 1];
-    offset += 2;
-    publish_topic.topic = (char *)CLOUDM_MALLOC(publish_topic.topic_len + 1);
-    if (publish_topic.topic == NULL)
+    char topic_buffer[CLOUD_PROTOCOL_PUB_TOPIC_MAX_LENGTH] = {0};
+    CloudNetM_GetCurrentPublishMessageTopic(topic_buffer, sizeof(topic_buffer));
+
+    if (strcmp(topic_buffer, "\0") != 0)
     {
-        CLOUDNET_ERROR("<%s>Memory allocation failed for publish topic\r\n");
-        CLOUDM_FREE(subscribe_topic.topic);
-        return false;
+        CLOUDNET_WARN("<%s>There is an ongoing publish message with topic: %s\r\n", __func__, topic_buffer);
+        publish_topic.topic = CLOUDM_MALLOC(strlen(topic_buffer) + 1);
+        if (publish_topic.topic == NULL)
+        {
+            CLOUDNET_ERROR("<%s>Memory allocation failed for publish topic\r\n");
+            CLOUDM_FREE(subscribe_topic.topic);
+            return false;
+        }
+        strcpy(publish_topic.topic, topic_buffer);
     }
-    memcpy(publish_topic.topic, &payload[offset], publish_topic.topic_len);
-    publish_topic.topic[publish_topic.topic_len] = '\0';
-    offset += publish_topic.topic_len;
+    else
+    {
+        publish_topic.topic_len = payload[offset] << 8 | payload[offset + 1];
+        offset += 2;
+        publish_topic.topic = (char *)CLOUDM_MALLOC(publish_topic.topic_len + 1);
+        if (publish_topic.topic == NULL)
+        {
+            CLOUDNET_ERROR("<%s>Memory allocation failed for publish topic\r\n");
+            CLOUDM_FREE(subscribe_topic.topic);
+            return false;
+        }
+        memcpy(publish_topic.topic, &payload[offset], publish_topic.topic_len);
+        publish_topic.topic[publish_topic.topic_len] = '\0';
+        offset += publish_topic.topic_len;
 
-	// CLOUDNET_DEBUG("<%s>Publish topic parsed: %s\r\n", __func__, publish_topic);
+        // CLOUDNET_DEBUG("<%s>Publish topic parsed: %s\r\n", __func__, publish_topic);
 
-	if (offset != length)
-	{
-		CLOUDNET_WARN("<%s>Payload length mismatch: parsed %d, expected %d\r\n", __func__, offset, length);
-	}
+        if (offset != length)
+        {
+            CLOUDNET_WARN("<%s>Payload length mismatch: parsed %d, expected %d\r\n", __func__, offset, length);
+        }
+    }
 
-	CLOUDNET_INFO("<%s>Subscribe topic: %s, Publish topic: %s\r\n", __func__, subscribe_topic.topic, publish_topic.topic);
+    CLOUDNET_INFO("<%s>Subscribe topic: %s, ", __func__, subscribe_topic.topic);
+    CLOUDNET_INFO("Publish topic: %s\r\n",publish_topic.topic);
 
 	bool queue_result = YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_MQTOP, NULL,	socket_id, subscribe_topic.topic, publish_topic.topic);
 
