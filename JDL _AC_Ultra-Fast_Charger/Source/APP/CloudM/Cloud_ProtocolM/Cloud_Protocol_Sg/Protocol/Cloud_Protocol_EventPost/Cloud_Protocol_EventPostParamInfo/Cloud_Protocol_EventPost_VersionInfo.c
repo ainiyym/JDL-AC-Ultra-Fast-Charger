@@ -70,7 +70,6 @@ void Cloud_Protocol_EventPost_VersionInfo_Post(void)
 {
 	cloud_protocol_event_post_req_t *cloud_protocol_event_post_req = NULL;
 	cJSON *root = NULL;
-	cloud_protocol_event_post_param_t param;
 	uint64_t timestamp = 0;
 
 	// create request
@@ -80,33 +79,32 @@ void Cloud_Protocol_EventPost_VersionInfo_Post(void)
 	root = Cloud_Protocol_EventPost_BuildRequestJsonHeader(cloud_protocol_event_post_req);
 	Cloud_Protocol_EventPost_DestroyRequest((cloud_protocol_event_post_req_t *)cloud_protocol_event_post_req);
 
-	// add devRegMethod
-	param.param_name = "devRegMethod";
-	param.param_value.int32_value = cloud_protocol_event_version_info.devRegMethod;
-	param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-	Cloud_Protocol_EventPost_AddParam(root, &param);
-	// add pileSoftwareVer
-	param.param_name = "pileSoftwareVer";
-	param.param_value.string_value = cloud_protocol_event_version_info.pileSoftwareVer;
-	param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_STRING;
-	Cloud_Protocol_EventPost_AddParam(root, &param);
-	//add pileHardwareVer
-	param.param_name = "pileHardwareVer";
-	param.param_value.string_value = cloud_protocol_event_version_info.pileHardwareVer;
-	param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_STRING;
-	Cloud_Protocol_EventPost_AddParam(root, &param);
-	// add sdkVer
-	param.param_name = "sdkVer";
-	param.param_value.string_value = cloud_protocol_event_version_info.sdkVer;
-	param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_STRING;
-	Cloud_Protocol_EventPost_AddParam(root, &param);
+	// get params->value object
+	cJSON *params_obj = cJSON_GetObjectItem(root, "params");
+	if (params_obj == NULL)
+	{
+		CLOUD_WARN("<%s %d> params object not found\r\n", __func__, __LINE__);
+		return;
+	}
 
-    // print unformatted json string
-    timestamp = (uint64_t)CLOUD_PROTOCOL_GET_CURRENT_TIMESTAMP() * 1000; // convert to milliseconds
-    Cloud_Protocol_EventPost_PrintUnformatted(root, timestamp, "verInfoEvt");
+	cJSON *value_obj = cJSON_GetObjectItem(params_obj, "value");
+	if (value_obj == NULL)
+	{
+		CLOUD_WARN("<%s %d> value object not found\r\n", __func__, __LINE__);
+		return;
+	}
 
-    cJSON_Delete(root);
-    root = NULL;
+	cJSON_AddNumberToObject(value_obj, "devRegMethod", cloud_protocol_event_version_info.devRegMethod);
+	cJSON_AddStringToObject(value_obj, "pileSoftwareVer", cloud_protocol_event_version_info.pileSoftwareVer);
+	cJSON_AddStringToObject(value_obj, "pileHardwareVer", cloud_protocol_event_version_info.pileHardwareVer);
+	cJSON_AddStringToObject(value_obj, "sdkVer", cloud_protocol_event_version_info.sdkVer);
+
+	// print unformatted json string
+	timestamp = (uint64_t)CLOUD_PROTOCOL_GET_CURRENT_TIMESTAMP() * 1000; // convert to milliseconds
+	Cloud_Protocol_EventPost_PrintUnformatted(root, timestamp, "verInfoEvt");
+
+	cJSON_Delete(root);
+	root = NULL;
 }
 
 bool Cloud_Protocol_EventPost_VersionInfo_HandleResponse(uint32_t msg_id)

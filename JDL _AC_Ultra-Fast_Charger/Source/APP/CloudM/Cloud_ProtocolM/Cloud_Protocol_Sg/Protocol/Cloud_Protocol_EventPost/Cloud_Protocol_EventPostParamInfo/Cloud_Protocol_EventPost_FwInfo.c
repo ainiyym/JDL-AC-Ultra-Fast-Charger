@@ -354,44 +354,33 @@ static bool Cloud_Protocol_EventPost_FwInfo_Validate(void)
 void Cloud_Protocol_EventPost_FwInfo_Post(void)
 {
     cloud_protocol_event_post_req_t *cloud_protocol_event_post_req = NULL;
-    cJSON *root = NULL;
-    cloud_protocol_event_post_param_t param;
     uint64_t timestamp = 0;
 
     // create string arrays for inMeter and outMeter
-    cloud_protocol_string_array_t in_meter_array = {0};
-    cloud_protocol_string_array_t out_meter_array = {0};
-
-    // initialize meter arrays
-    char *in_meter_strings[V2G_MAX_INPUT_METER_NUM] = {0};
-    char *out_meter_strings[V2G_MAX_PORT_NUM] = {0};
+    cJSON *root = NULL;
+    cJSON *inMeterArray = NULL;
+    cJSON *outMeterArray = NULL;
+    unsigned char i = 0;
 
     // count valid meter addresses
     uint8_t in_meter_count = 0;
     uint8_t out_meter_count = 0;
 
-    for (int i = 0; i < V2G_MAX_INPUT_METER_NUM; i++)
+    for (i = 0; i < V2G_MAX_INPUT_METER_NUM; i++)
     {
         if (strlen(cloud_protocol_event_fireware_info.inMeter[i]) > 0)
         {
-            in_meter_strings[i] = cloud_protocol_event_fireware_info.inMeter[i];
             in_meter_count++;
         }
     }
 
-    for (int i = 0; i < V2G_MAX_PORT_NUM; i++)
+    for (i = 0; i < V2G_MAX_PORT_NUM; i++)
     {
         if (strlen(cloud_protocol_event_fireware_info.outMeter[i]) > 0)
         {
-            out_meter_strings[i] = cloud_protocol_event_fireware_info.outMeter[i];
             out_meter_count++;
         }
     }
-
-    in_meter_array.strings = in_meter_strings;
-    in_meter_array.count = in_meter_count;
-    out_meter_array.strings = out_meter_strings;
-    out_meter_array.count = out_meter_count;
 
     // create request
     cloud_protocol_event_post_req = Cloud_Protocol_EventPost_CreateRequest("firmwareEvt", Cloud_Protocol_EventPost_SetFwInfoMsgId);
@@ -400,200 +389,76 @@ void Cloud_Protocol_EventPost_FwInfo_Post(void)
     root = Cloud_Protocol_EventPost_BuildRequestJsonHeader(cloud_protocol_event_post_req);
     Cloud_Protocol_EventPost_DestroyRequest((cloud_protocol_event_post_req_t *)cloud_protocol_event_post_req);
 
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_SIM_NO
-    param.param_name = "simNo";
-    param.param_value.string_value = cloud_protocol_event_fireware_info.simNo; // copy simNo string
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_STRING;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_MODEL_NO
-    param.param_name = "modelNo";
-    param.param_value.string_value = cloud_protocol_event_fireware_info.modelNo; // copy modelNo string
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_STRING;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_STAKE_MODEL
-    param.param_name = "stakeModel";
-    param.param_value.string_value = cloud_protocol_event_fireware_info.stakeModel;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_STRING;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_VENDOR_CODE
-    param.param_name = "vendorCode";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.vendorCode;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_DE_SN
-    param.param_name = "deSn";
-    param.param_value.string_value = cloud_protocol_event_fireware_info.deSn;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_STRING;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_DE_TYPE
-    param.param_name = "deType";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.deType; // 转换为int32
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_CONNET_NUM
-    param.param_name = "connetNum";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.connetNum; // 转换为int32
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_SIM_MAC
-    param.param_name = "simMac";
-    param.param_value.string_value = cloud_protocol_event_fireware_info.simMac;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_STRING;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_LONGITUDE
-    param.param_name = "longitude";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.longitude;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_LATITUDE
-    param.param_name = "latitude";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.latitude;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_HEIGHT
-    param.param_name = "height";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.height;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_GRID_TYPE
-    param.param_name = "gridType";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.gridType;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_BT_MAC
-    param.param_name = "btMac";
-    param.param_value.string_value = cloud_protocol_event_fireware_info.btMac;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_STRING;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_MEA_TYPE
-    param.param_name = "meaType";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.meaType;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_OT_RATE
-    param.param_name = "otRate";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.otRate;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_OT_MIN_VOL
-    param.param_name = "otMinVol";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.otMinVol;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_OT_MAX_VOL
-    param.param_name = "otMaxVol";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.otMaxVol;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_OT_CUR
-    param.param_name = "otCur";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.otCur;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-#if 0
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_IN_METER_ARRAY
-    if (in_meter_array.count > 0)
+    // get params->value object
+    cJSON *params_obj = cJSON_GetObjectItem(root, "params");
+    if (params_obj == NULL)
     {
-        param.param_name = "inMeter";
-        param.param_value.string_array_value = &in_meter_array;
-        param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_STRING_ARRAY;
-        Cloud_Protocol_EventPost_AddParam(root, &param);
-    }
-    else
-    {
-        param.param_name = "inMeter";
-        param.param_value.string_value = "[]"; // empty array
-        param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_STRING;
-        Cloud_Protocol_EventPost_AddParam(root, &param);
+        CLOUD_WARN("<%s %d> params object not found\r\n", __func__, __LINE__);
+        return;
     }
 
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_OUT_METER_ARRAY
-    if (out_meter_array.count > 0)
+    cJSON *value_obj = cJSON_GetObjectItem(params_obj, "value");
+    if (value_obj == NULL)
     {
-        param.param_name = "outMeter";
-        param.param_value.string_array_value = &out_meter_array;
-        param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_STRING_ARRAY;
-        Cloud_Protocol_EventPost_AddParam(root, &param);
+        CLOUD_WARN("<%s %d> value object not found\r\n", __func__, __LINE__);
+        return;
     }
-    else
+    // add fw info fields to value object
+    cJSON_AddStringToObject(value_obj, "simNo", cloud_protocol_event_fireware_info.simNo);
+    cJSON_AddStringToObject(value_obj, "modelNo", cloud_protocol_event_fireware_info.modelNo);
+    cJSON_AddStringToObject(value_obj, "stakeModel", cloud_protocol_event_fireware_info.stakeModel);
+    cJSON_AddStringToObject(value_obj, "deSn", cloud_protocol_event_fireware_info.deSn);
+
+    cJSON_AddStringToObject(value_obj, "simMac", cloud_protocol_event_fireware_info.simMac);
+    cJSON_AddStringToObject(value_obj, "btMac", cloud_protocol_event_fireware_info.btMac);
+
+    cJSON_AddNumberToObject(value_obj, "vendorCode", cloud_protocol_event_fireware_info.vendorCode);
+    cJSON_AddNumberToObject(value_obj, "deType", cloud_protocol_event_fireware_info.deType);
+    cJSON_AddNumberToObject(value_obj, "connetNum", cloud_protocol_event_fireware_info.connetNum);
+
+    cJSON_AddNumberToObject(value_obj, "longitude", cloud_protocol_event_fireware_info.longitude);
+    cJSON_AddNumberToObject(value_obj, "latitude", cloud_protocol_event_fireware_info.latitude);
+    cJSON_AddNumberToObject(value_obj, "height", cloud_protocol_event_fireware_info.height);
+
+    cJSON_AddNumberToObject(value_obj, "gridType", cloud_protocol_event_fireware_info.gridType);
+    cJSON_AddNumberToObject(value_obj, "meaType", cloud_protocol_event_fireware_info.meaType);
+    cJSON_AddNumberToObject(value_obj, "otRate", cloud_protocol_event_fireware_info.otRate);
+
+    cJSON_AddNumberToObject(value_obj, "otMaxVol", cloud_protocol_event_fireware_info.otMaxVol);
+    cJSON_AddNumberToObject(value_obj, "otMinVol", cloud_protocol_event_fireware_info.otMinVol);
+    cJSON_AddNumberToObject(value_obj, "otCur", cloud_protocol_event_fireware_info.otCur);
+
+    cJSON_AddNumberToObject(value_obj, "CT", cloud_protocol_event_fireware_info.CT);
+    cJSON_AddNumberToObject(value_obj, "isGateLock", cloud_protocol_event_fireware_info.isGateLock);
+    cJSON_AddNumberToObject(value_obj, "isGroundLock", cloud_protocol_event_fireware_info.isGroundLock);
+
+    cJSON_AddNumberToObject(value_obj, "minChargingCurrent", cloud_protocol_event_fireware_info.minChargingCurrent);
+    cJSON_AddNumberToObject(value_obj, "minChargingPower", cloud_protocol_event_fireware_info.minChargingPower);
+    cJSON_AddNumberToObject(value_obj, "maxDischargeVoltage", cloud_protocol_event_fireware_info.maxDischargeVoltage);
+
+    cJSON_AddNumberToObject(value_obj, "minDischargeVoltage", cloud_protocol_event_fireware_info.minDischargeVoltage);
+    cJSON_AddNumberToObject(value_obj, "maxDischargeCurrent", cloud_protocol_event_fireware_info.maxDischargeCurrent);
+    cJSON_AddNumberToObject(value_obj, "minDischargeCurrent", cloud_protocol_event_fireware_info.minDischargeCurrent);
+
+    cJSON_AddItemToObject(value_obj, "inMeter", inMeterArray = cJSON_CreateArray());
+    for (i = 0; i < in_meter_count; i++)
     {
-        param.param_name = "outMeter";
-        param.param_value.string_value = "[]"; // empty array
-        param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_STRING;
-        Cloud_Protocol_EventPost_AddParam(root, &param);
+        cJSON *item = cJSON_CreateString(cloud_protocol_event_fireware_info.inMeter[i]);
+        if (item != NULL)
+        {
+            cJSON_AddItemToArray(inMeterArray, item);
+        }
     }
-#endif
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_CT
-    param.param_name = "CT";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.CT;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
 
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_IS_GATE_LOCK
-    param.param_name = "isGateLock";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.isGateLock;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_IS_GROUND_LOCK
-    param.param_name = "isGroundLock";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.isGroundLock;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_MIN_CHARGING_CURRENT
-    param.param_name = "minChargingCurrent";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.minChargingCurrent;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_MIN_CHARGING_POWER
-    param.param_name = "minChargingPower";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.minChargingPower;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_MAX_DISCHARGE_VOLTAGE
-    param.param_name = "maxDischargeVoltage";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.maxDischargeVoltage;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_MIN_DISCHARGE_VOLTAGE
-    param.param_name = "minDischargeVoltage";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.minDischargeVoltage;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_MAX_DISCHARGE_CURRENT
-    param.param_name = "maxDischargeCurrent";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.maxDischargeCurrent;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
-
-    // add CLOUD_PROTOCOL_SG_EVENT_FW_MIN_DISCHARGE_CURRENT
-    param.param_name = "minDischargeCurrent";
-    param.param_value.int32_value = (int32_t)cloud_protocol_event_fireware_info.minDischargeCurrent;
-    param.param_type = CLOUD_PROTOCOL_VALUE_TYPE_INT32;
-    Cloud_Protocol_EventPost_AddParam(root, &param);
+    cJSON_AddItemToObject(value_obj, "outMeter", outMeterArray = cJSON_CreateArray());
+    for (i = 0; i < out_meter_count; i++)
+    {
+        cJSON *item = cJSON_CreateString(cloud_protocol_event_fireware_info.outMeter[i]);
+        if (item != NULL)
+        {
+            cJSON_AddItemToArray(outMeterArray, item);
+        }
+    }
 
     // print unformatted json string
     timestamp = (uint64_t)CLOUD_PROTOCOL_GET_CURRENT_TIMESTAMP() * 1000; // convert to milliseconds

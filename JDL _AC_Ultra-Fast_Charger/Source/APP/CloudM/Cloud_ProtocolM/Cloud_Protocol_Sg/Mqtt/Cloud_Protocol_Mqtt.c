@@ -984,6 +984,8 @@ static void Cloud_Protocol_Mqtt_HandleMessageSendFail(cloud_protocol_mqtt_messag
         /* Remove from queue */
         CLOUD_ERROR("Message send failed after %d retries, discarding: %s\r\n", max_retry, msg->publish.topic);
         Cloud_Protocol_Mqtt_RemoveMessageFromQueue(msg);
+        cloud_protocol_mqtt_client.last_processed_msg = NULL;
+        cloud_protocol_mqtt_client.sub_state = CLOUD_PROTOCOL_SUB_STATE_ACTIVE;
     }
 }
 

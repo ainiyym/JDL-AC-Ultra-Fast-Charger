@@ -35,6 +35,7 @@
 #include "CloudM.h"
 #include "FlashDB_AppM.h"
 #include "Cloud_Protocol_ChargingOrder.h"
+#include "Cloud_Protocol_Sg_ChargingOrder.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -353,11 +354,15 @@ uint8_t SYSM_CheckSysStatus(SysConnector_Num_Enum ch, uint32_t SysStatusMask, ui
  *****************************************************************************************/
 void SYSM_ShutDownMCtrl(void)
 {
-    if (STD_TRUE == SYSM_PowerDownStatus())
-    {
-        SYSM_PowerDownInfor();
-    }
-    else
+	if (STD_TRUE == SYSM_PowerDownStatus())
+	{
+		Core_printf("\r\nStart Power Down!\r\n");
+		Cloud_Protocol_Sg_Order_HandlePowerFailure();
+		cloud_protocol_order_handle_power_loss();
+		FlashDB_Powerdown_Handler();
+		SYSM_PowerDownInfor();
+	}
+	else
     {
         stSysM.stPowerDown.ucStatus = STD_FALSE;
         stSysM.ucPowerDownStatusCnt = 0;
@@ -605,12 +610,6 @@ History
 static void SYSM_PowerDownInfor(void)
 {
     uint32_t ulAdVolValue = 0u;
-    /* 下电流程 */
-
-    Core_printf("\r\nStart Power Down!\r\n");
-
-	cloud_protocol_order_handle_power_loss();
-	FlashDB_Powerdown_Handler();
 
     /*关相关外设*/
     SYSM_DisableAllMode();

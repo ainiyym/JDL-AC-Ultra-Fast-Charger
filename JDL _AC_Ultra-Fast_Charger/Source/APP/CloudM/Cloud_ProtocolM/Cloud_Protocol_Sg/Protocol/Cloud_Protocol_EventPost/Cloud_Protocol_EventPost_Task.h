@@ -15,6 +15,7 @@
 |******************************************************************************/
 #include "Cloud_Protocol_EventPost_FwInfo.h"
 #include "Cloud_Protocol_EventPost_VersionInfo.h"
+#include "Cloud_Protocol_Sg_ChargingOrder.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)

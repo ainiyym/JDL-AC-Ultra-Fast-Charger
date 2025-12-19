@@ -196,6 +196,7 @@ static bool Cloud_Protocol_Mqtt_PayloadCallback(const char *payload, cloud_proto
 static void Cloud_Protocol_Mqtt_ConnectCallback(bool connected)
 {
 	Cloud_Protocol_Sg_SynchronizeNetTime_SetNetworkConnectStatus(connected);
+    Cloud_Protocol_Sg_Order_SetNetworkStatus(connected);
 }
 
 /**
@@ -220,8 +221,8 @@ static void Cloud_Protocol_Mqtt_NetTimeCallback(bool success, int64_t time_offse
     if (!first_sync_done)
     {
         first_sync_done = true;
-        Cloud_Protocol_EventPost_TriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_FW_INFO);
-        Cloud_Protocol_EventPost_TriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_VERSION_INFO);
+        Cloud_Protocol_EventPost_ForceTriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_FW_INFO);
+        Cloud_Protocol_EventPost_ForceTriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_VERSION_INFO);
     }
 }
 
@@ -247,6 +248,7 @@ void Cloud_Protocol_Mqtt_init(void)
     Cloud_Protocol_EventPost_VersionInfo_Init();
     Cloud_Protocol_Sg_RemoteCharge_Init();
     Cloud_Protocol_Sg_Config_Init();
+    Cloud_Protocol_Sg_Order_Init();
 }
 
 /**
@@ -262,5 +264,7 @@ void Cloud_Protocol_Mqtt_MainProcess(void)
     Cloud_Protocol_EventPost_PeriodicTask();
     /* remote charge service call process */
     Cloud_Protocol_Sg_RemoteCharge_PeriodicTask();
+    /* order timer task */
+    Cloud_Protocol_Sg_Order_TimerTask();
 }
 /* EOL */

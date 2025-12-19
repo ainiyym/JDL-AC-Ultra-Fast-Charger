@@ -25,6 +25,11 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
+/* Time segment flag definitions */
+#define CLOUD_PROTOCOL_SG_SEG_FLAG_PEAK         1       // Peak segment
+#define CLOUD_PROTOCOL_SG_SEG_FLAG_HIGH         2       // High segment
+#define CLOUD_PROTOCOL_SG_SEG_FLAG_NORMAL       3       // Normal segment
+#define CLOUD_PROTOCOL_SG_SEG_FLAG_VALLEY       4       // Valley segment
 
 /*******************************************************************************
 |    Enum Definition

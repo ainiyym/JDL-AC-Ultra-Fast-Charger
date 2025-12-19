@@ -59,7 +59,7 @@ void Cloud_Protocol_EventPost_Init(void)
 		cloud_protocol_sg_event_tasks[type].type = type;
 		cloud_protocol_sg_event_tasks[type].last_post_time = 0;
 		cloud_protocol_sg_event_tasks[type].interval = 0;
-		cloud_protocol_sg_event_tasks[type].enabled = true;
+		cloud_protocol_sg_event_tasks[type].enabled = false;
 		cloud_protocol_sg_event_tasks[type].force_post = false;
 	}
 }
@@ -193,87 +193,6 @@ cJSON *Cloud_Protocol_EventPost_BuildRequestJsonHeader(const cloud_protocol_even
 	return root;
 }
 
-// add event parameter to JSON object
-bool Cloud_Protocol_EventPost_AddParam(cJSON *object, const cloud_protocol_event_post_param_t *param)
-{
-	if (object == NULL || param == NULL || param->param_name == NULL)
-	{
-		return false;
-	}
-
-	// get params->value object
-	cJSON *params_obj = cJSON_GetObjectItem(object, "params");
-	if (params_obj == NULL)
-	{
-		CLOUD_WARN("<%s %d> params object not found\r\n", __func__, __LINE__);
-		return false;
-	}
-
-	cJSON *value_obj = cJSON_GetObjectItem(params_obj, "value");
-	if (value_obj == NULL)
-	{
-		CLOUD_WARN("<%s %d> value object not found\r\n", __func__, __LINE__);
-		return false;
-	}
-
-	// add parameter based on type
-	switch (param->param_type)
-	{
-		case CLOUD_PROTOCOL_VALUE_TYPE_STRING:
-			cJSON_AddStringToObject(value_obj, param->param_name, param->param_value.string_value);
-			break;
-
-		case CLOUD_PROTOCOL_VALUE_TYPE_INT32:
-			cJSON_AddNumberToObject(value_obj, param->param_name, param->param_value.int32_value);
-			break;
-
-		case CLOUD_PROTOCOL_VALUE_TYPE_FLOAT:
-			cJSON_AddNumberToObject(value_obj, param->param_name, (double)param->param_value.float_value);
-			break;
-
-		case CLOUD_PROTOCOL_VALUE_TYPE_BOOL:
-			cJSON_AddBoolToObject(value_obj, param->param_name, param->param_value.bool_value);
-			break;
-
-		case CLOUD_PROTOCOL_VALUE_TYPE_STRING_ARRAY:
-		{
-			cJSON *array = cJSON_CreateArray();
-			if (array == NULL)
-			{
-				CLOUD_WARN("<%s %d> Failed to create string array\r\n", __func__, __LINE__);
-				return false;
-			}
-
-			cloud_protocol_string_array_t *string_array = param->param_value.string_array_value;
-			for (uint16_t i = 0; i < string_array->count; i++)
-			{
-				cJSON *item = cJSON_CreateString(string_array->strings[i]);
-				if (item != NULL)
-				{
-					cJSON_AddItemToArray(array, item);
-				}
-			}
-
-			cJSON_AddItemToObject(value_obj, param->param_name, array);
-			break;
-		}
-
-		case CLOUD_PROTOCOL_VALUE_TYPE_DOUBLE:
-			cJSON_AddNumberToObject(value_obj, param->param_name, param->param_value.double_value);
-			break;
-
-		case CLOUD_PROTOCOL_VALUE_TYPE_NULL:
-			cJSON_AddNullToObject(value_obj, param->param_name);
-			break;
-
-		default:
-			// not support
-			return false;
-	}
-
-	return true;
-}
-
 // print JSON string and post message
 void Cloud_Protocol_EventPost_PrintUnformatted(cJSON *object, uint64_t timestamp, char* identifier)
 {
@@ -283,7 +202,7 @@ void Cloud_Protocol_EventPost_PrintUnformatted(cJSON *object, uint64_t timestamp
 		return;
 	}
 
-	// get params object
+	// get params object 
 	cJSON *params = cJSON_GetObjectItem(object, "params");
 	if (params == NULL)
 	{
@@ -455,7 +374,7 @@ void Cloud_Protocol_EventPost_UpdateConfig(const v2g_data_dev_config *config)
 // check if event should be posted
 static bool Cloud_Protocol_EventPost_ShouldPostEvent(cloud_protocol_event_post_task_t *task, uint32_t current_time)
 {
-	if (!task || !task->enabled)
+	if (!task)
 	{
 		return false;
 	}
@@ -468,7 +387,7 @@ static bool Cloud_Protocol_EventPost_ShouldPostEvent(cloud_protocol_event_post_t
 	}
 
 	// check if interval has elapsed
-	if ((current_time >= task->last_post_time + task->interval) && (0 != task->interval))
+	if ((current_time >= task->last_post_time + task->interval) && (0 != task->interval) && task->enabled)
 	{
 		return true;
 	}
@@ -485,6 +404,8 @@ void Cloud_Protocol_EventPost_PeriodicTask(void)
 	}
 
 	uint32_t current_time = (uint32_t)CLOUD_PROTOCOL_GET_CURRENT_TIMESTAMP();
+	uint8_t gun1 = 0;
+	uint8_t gun2 = 0;
 
 	for (int i = 0; i < CLOUD_PROTOCOL_EVENT_POST_TYPE_MAX; i++)
 	{
@@ -537,6 +458,17 @@ void Cloud_Protocol_EventPost_PeriodicTask(void)
 				case CLOUD_PROTOCOL_EVENT_POST_TYPE_VERSION_INFO:
 					Cloud_Protocol_EventPost_VersionInfo_Post();
 					return;
+				case CLOUD_PROTOCOL_EVENT_POST_TYPE_PILE_WORKSTATUS:
+					Cloud_Protocol_Sg_Order_GetOrderOnRunningStatus(&gun1, &gun2);
+					if (gun1)
+					{
+						Cloud_Protocol_EventPost_PileWorkstatus_Post(gun1);
+					}
+					if (gun2)
+					{
+						Cloud_Protocol_EventPost_PileWorkstatus_Post(gun2);
+					}
+					return;
 					
 				default:
 					return;
@@ -545,14 +477,36 @@ void Cloud_Protocol_EventPost_PeriodicTask(void)
 	}
 }
 
-// trigger immediate event post
-bool Cloud_Protocol_EventPost_TriggerEvent(cloud_protocol_event_post_type_t type)
+//  enable period trigger event post
+bool Cloud_Protocol_EventPost_EnableTriggerEvent(cloud_protocol_event_post_type_t type, uint16_t interval)
 {
 	if (type >= CLOUD_PROTOCOL_EVENT_POST_TYPE_MAX)
 	{
 		return false;
 	}
 	cloud_protocol_sg_event_tasks[type].enabled = true;
+	cloud_protocol_sg_event_tasks[type].interval = interval;
+	return true;
+}
+
+// disable period trigger event post
+bool Cloud_Protocol_EventPost_DisableTriggerEvent(cloud_protocol_event_post_type_t type)
+{
+	if (type >= CLOUD_PROTOCOL_EVENT_POST_TYPE_MAX)
+	{
+		return false;
+	}
+	cloud_protocol_sg_event_tasks[type].enabled = false;
+	return true;
+}
+
+// immediate trigger event post
+bool Cloud_Protocol_EventPost_ForceTriggerEvent(cloud_protocol_event_post_type_t type)
+{
+	if (type >= CLOUD_PROTOCOL_EVENT_POST_TYPE_MAX)
+	{
+		return false;
+	}
 	cloud_protocol_sg_event_tasks[type].force_post = true;
 	return true;
 }
@@ -562,10 +516,8 @@ void Cloud_Protocol_EventPost_ForceAllEvents(void)
 {
 	for (int i = 0; i < CLOUD_PROTOCOL_EVENT_POST_TYPE_MAX; i++)
 	{
-		if (cloud_protocol_sg_event_tasks[i].enabled)
-		{
-			cloud_protocol_sg_event_tasks[i].force_post = true;
-		}
+
+		cloud_protocol_sg_event_tasks[i].force_post = true;
 	}
 }
 /* EOL */

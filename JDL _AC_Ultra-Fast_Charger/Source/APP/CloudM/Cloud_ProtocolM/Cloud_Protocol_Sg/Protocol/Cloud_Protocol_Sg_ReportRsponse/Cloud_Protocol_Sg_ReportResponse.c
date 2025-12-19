@@ -167,6 +167,11 @@ static cloud_protocol_sg_report_event_type_t cloud_protocol_report_detect_report
         return CLOUD_PROTOCOL_SG_REPORT_EVENT_FW_INFO;
     }
 
+    if (strstr(method, "pileWorkStatusEvt") != NULL)
+    {
+        return CLOUD_PROTOCOL_SG_REPORT_EVENT_PILE_WORKSTATUS;
+    }
+
     /* Check for other known event patterns (extendable) */
     if (strstr(method, "thing.event.") != NULL)
     {
@@ -202,6 +207,12 @@ static bool cloud_protocol_report_dispatch_report_event(const cloud_protocol_rep
                 return true;
             }
             break;
+        case CLOUD_PROTOCOL_SG_REPORT_EVENT_PILE_WORKSTATUS:
+            CLOUD_INFO("<%s> Dispatching pile work status event: id=%u\r\n", __func__, response->id);
+            if (Cloud_Protocol_EventPost_PostPileWorkstatus_Response(response->id))
+            {
+                return true;
+            }
         case CLOUD_PROTOCOL_SG_REPORT_EVENT_OTHER:
             CLOUD_INFO("Other report event: method=%s, code=%u, id=%u\r\n", response->method, response->code, response->id);
             break;

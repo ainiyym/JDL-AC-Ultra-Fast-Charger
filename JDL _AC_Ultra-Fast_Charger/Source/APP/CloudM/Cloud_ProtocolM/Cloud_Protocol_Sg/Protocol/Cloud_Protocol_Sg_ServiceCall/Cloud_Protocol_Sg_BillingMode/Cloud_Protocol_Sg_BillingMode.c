@@ -23,12 +23,6 @@
 #define CLOUD_PROTOCOL_SG_TIME_NUM_MIN          1       // Minimum number of segments
 #define CLOUD_PROTOCOL_SG_TIME_NUM_MAX          48      // Maximum number of segments
 
-/* Time segment flag definitions */
-#define CLOUD_PROTOCOL_SG_SEG_FLAG_PEAK         1       // Peak segment
-#define CLOUD_PROTOCOL_SG_SEG_FLAG_HIGH         2       // High segment
-#define CLOUD_PROTOCOL_SG_SEG_FLAG_NORMAL       3       // Normal segment
-#define CLOUD_PROTOCOL_SG_SEG_FLAG_VALLEY       4       // Valley segment
-
 /* Fee type indices */
 #define CLOUD_PROTOCOL_SG_FEE_TYPE_PEAK         0       // Peak fee index
 #define CLOUD_PROTOCOL_SG_FEE_TYPE_HIGH         1       // High fee index
@@ -435,7 +429,7 @@ static void Cloud_Protocol_Sg_SaveBillingModeToFlash(const char *msg_id)
 
         /* trigger event notification */
         Cloud_Protocol_EventPost_FwInfo_Set(CLOUD_PROTOCOL_SG_EVENT_FW_MODEL_NO, (void *)msg_id);
-        Cloud_Protocol_EventPost_TriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_FW_INFO);
+        Cloud_Protocol_EventPost_ForceTriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_FW_INFO);
     }
 
     /* write billing mode data */

@@ -15,13 +15,19 @@
 #include "string.h"
 #include "STD_SysM.h"
 #include "Cloud_EV_Charger_Information.h"
-#include "Cloud_Protocol_ChargingOrder.h"
 #include "Cloud_Protocol_EventPost_Task.h"
 #include "Cloud_Protocol_Sg_BillingMode.h"
+#include "Cloud_Protocol_ChargingOrder.h"
+#include "Cloud_Protocol_Sg_ChargingOrder_Cfg.h"
 
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
+#if (CLOUD_PROTOCOL_DEFAULT_TCP_ID == TCP_ID_PROTOCOL_SG)
+typedef cloud_protocol_sg_order_record_t flashdb_tsdb_order_format;
+#elif (CLOUD_PROTOCOL_DEFAULT_TCP_ID == TCP_ID_PROTOCOL_GAGA)
+typedef cloud_protocol_charging_cloud_protocol_order_manager_t flashdb_tsdb_order_format;
+#endif
 
 /*******************************************************************************
 |    Enum Definition
@@ -102,7 +108,7 @@ static FlashDB_AppTsdb_InstanceCfg_t FlashDB_AppTsdbInstanceCfgTable[] =
 		.set_status_cb = FlashDB_Order_Gun1_Set_Status_Cb,
 		.get_ts_time_cb = get_ts0_time,
 		.max_records = 100,
-		.item_size = sizeof(cloud_protocol_charging_cloud_protocol_order_manager_t),
+		.item_size = sizeof(flashdb_tsdb_order_format),
 		.item_count = 1
 	},
 	{
@@ -112,7 +118,7 @@ static FlashDB_AppTsdb_InstanceCfg_t FlashDB_AppTsdbInstanceCfgTable[] =
 		.set_status_cb = FlashDB_Order_Gun2_Set_Status_Cb,
 		.get_ts_time_cb = get_ts1_time,
 		.max_records = 100,
-		.item_size = sizeof(cloud_protocol_charging_cloud_protocol_order_manager_t),
+		.item_size = sizeof(flashdb_tsdb_order_format),
 		.item_count = 1
 	}
 };
@@ -332,27 +338,27 @@ static bool FlashDB_Order_Gun1_Query_Cb(fdb_tsl_t tsl, void *arg)
 	tsdb_iter_context_t *context = (tsdb_iter_context_t *)arg;
 	fdb_tsdb_t db = &tsdb_gun1;
 
-	if (!context->record_processor && context->record_data != NULL)
+	if (context->record_processor != NULL && context->record_data != NULL)
 	{
 		fdb_blob_read((fdb_db_t)db, fdb_tsl_to_blob(tsl, fdb_blob_make(&blob, context->record_data, context->record_size)));
-		if (context->record_size == sizeof(cloud_protocol_charging_cloud_protocol_order_manager_t))
+		if (context->record_size == sizeof(flashdb_tsdb_order_format))
 		{
 			return context->record_processor(tsl, context->record_data);
 		}
 	}
 	return false;
 }
-	
+
 static bool FlashDB_Order_Gun2_Query_Cb(fdb_tsl_t tsl, void *arg)
 {
 	struct fdb_blob blob;
 	tsdb_iter_context_t *context = (tsdb_iter_context_t *)arg;
 	fdb_tsdb_t db = &tsdb_gun2;
 
-	if (!context->record_processor && context->record_data != NULL)
+	if (context->record_processor != NULL && context->record_data != NULL)
 	{
 		fdb_blob_read((fdb_db_t)db, fdb_tsl_to_blob(tsl, fdb_blob_make(&blob, context->record_data, context->record_size)));
-		if (context->record_size == sizeof(cloud_protocol_charging_cloud_protocol_order_manager_t))
+		if (context->record_size == sizeof(flashdb_tsdb_order_format))
 		{
 			return context->record_processor(tsl, context->record_data);
 		}

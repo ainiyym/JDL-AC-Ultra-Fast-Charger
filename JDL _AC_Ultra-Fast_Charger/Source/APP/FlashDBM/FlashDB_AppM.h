@@ -16,6 +16,7 @@
 #include "flashdb_wrapper.h"
 #include "stdint.h"
 #include "stddef.h"
+#include "Cloud_Protocol_Cfg.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
