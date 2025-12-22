@@ -88,7 +88,6 @@ int at_send_no_reply(const char *data, int datalen);
  */
 uint32_t at_read(char *outbuf, uint32_t readsize);
 
-
 /**
  * at register callback for recv
  *
@@ -100,8 +99,6 @@ uint32_t at_read(char *outbuf, uint32_t readsize);
  */
 int at_register_callback(const char *prefix, const char *postfix,
                          int ppcing_data_len, at_recv_cb cb, void *arg);
-
-void at_at_register_set_app_protocol_bit_num_callback(uint8_t bit_num);
 
 /**
  * at yield receive function. Only used in single task scenario

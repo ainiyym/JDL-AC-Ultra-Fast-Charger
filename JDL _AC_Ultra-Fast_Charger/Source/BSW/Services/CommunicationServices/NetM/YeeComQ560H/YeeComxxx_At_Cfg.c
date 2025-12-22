@@ -6,7 +6,7 @@ const YeeCom_AT_OobCmd_ParameterCfg YeeCom_At_Cmd_OobParam[YEECOM_AT_CMD_OOBPARA
     {YEECOM_AT_OOB_CMD_POWER_ON,            "+EIND:",               "\r\n",   YEECOM_OOB_CMD_POWER_ON_BUF_LEN,           YeeCom_At_OOB_Power_On_Callback, NULL},
     {YEECOM_AT_OOB_CMD_SIM_READY,           "+CSIM:",               "\r\n",   YEECOM_OOB_CMD_NET_READY_BUF_LEN,          YeeCom_At_OOB_Net_Ready_Callback, NULL},
     {YEECOM_AT_OOB_CMD_RESET,               "+SYSTEM",              "\r\n",   YEECOM_OOB_CMD_RESET_BUF_LEN,              YeeCom_At_OOB_Net_Reset_Callback, NULL},
-    {YEECOM_AT_OOB_CMD_DATA_PASSTHROUGH,    "RCVPORT",              NULL,     YEECOM_OOB_CMD_DATA_PASSTHROUGH_BUF_LEN,   YeeCom_At_OOB_Data_Passthrough_Callback, NULL},
+    {YEECOM_AT_OOB_CMD_DATA_PASSTHROUGH,    "{\"",                  NULL,     YEECOM_OOB_CMD_DATA_PASSTHROUGH_BUF_LEN,   YeeCom_At_OOB_Data_Passthrough_Callback, NULL},
 };
 
 /* AT set parameter command table */
@@ -14,16 +14,16 @@ const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Set_Param[YEECOM_AT_CMD_SET_PARAM
 {
     { YEECOM_AT_CMD_WORKING_MODE,                  "AT*SERVER%d=%d,%s,%d#\r\n",         { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_SERVERn_Callback } },
     { YEECOM_AT_CMD_GPRS_MODE,                     "AT*GPRSMODE=%d#\r\n",               { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_GPRSMode_Callback } },
-    { YEECOM_AT_CMD_CH_MODE,                       "AT*CHMODE=%d#\r\n",                 { NULL,           "OK\r\n",    "ERROR\r\n", 30000,         YeeCom_At_Set_CHMode_Callback } },
+    { YEECOM_AT_CMD_CH_MODE,                       "AT*CHMODE=%d#\r\n",                 { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_CHMode_Callback } },
     { YEECOM_AT_CMD_HBTIME,                        "AT*HBTIME=%d#\r\n",                 { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_HBTime_Callback } },
     { YEECOM_AT_CMD_HBHEAD,                        "AT*HBHEAD=HEX%s#\r\n",              { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_HBHead_Callback } },
     { YEECOM_AT_CMD_REGPKG,                        "AT*REGPKG=%d#\r\n",                 { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_REGPKG_Callback } },
     { YEECOM_AT_CMD_REGHEAD,                       "AT*REGHEAD=%s#\r\n",                { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_REGHEAD_Callback } },
     { YEECOM_AT_CMD_DEBUG_MODE,                    "AT*DBGMODE=%d#\r\n",                { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_DebugMode_Callback } },
-    { YEECOM_AT_CMD_USART_CFG,                     "AT*UART=%d,%d,%d,%d,%d#\r\n",       { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_USART_Callback } },
-    { YEECOM_AT_CMD_USART_FRAME_INTERVAL_TIME,     "AT*DFI=%d#\r\n",                    { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_DFI_Callback } }, /* "Unit: ms" */
-    { YEECOM_AT_CMD_DEVICE_RESET,                  "AT*RESET=%d#\r\n",                  { NULL,           "OK\r\n",    "ERROR\r\n", 30000,         YeeCom_At_Set_RESET_Callback } },
-    { YEECOM_AT_CMD_DEVICE_RESTART,                "AT*RESTART#\r\n",                   { NULL,           "OK\r\n",    "ERROR\r\n", 30000,         YeeCom_At_Set_RESTART_Callback } },
+    { YEECOM_AT_CMD_USART_CFG,                     "AT*UART=%d,%d,%d,%d,%d#\r\n",       { NULL,           "OK",        "ERROR",     5000,          YeeCom_At_Set_USART_Callback } },
+    { YEECOM_AT_CMD_USART_DFI,                     "AT*DFI=%d#\r\n",                    { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_DFI_Callback } }, /* "Unit: ms" */
+    { YEECOM_AT_CMD_DEVICE_RESET,                  "AT*RESET=%d#\r\n",                  { NULL,           "OK\r\n",    "ERROR\r\n", 10000,         YeeCom_At_Set_RESET_Callback } },
+    { YEECOM_AT_CMD_DEVICE_RESTART,                "AT*RESTART#\r\n",                   { NULL,           "OK\r\n",    "ERROR\r\n", 10000,         YeeCom_At_Set_RESTART_Callback } },
     { YEECOM_AT_CMD_WAKEUP,                        "AT*WAKEUP#\r\n",                    { NULL,           "OK\r\n",    "ERROR\r\n", 30000,         YeeCom_At_Set_WAKEUP_Callback } },
     { YEECOM_AT_CMD_DTUID,                         "AT*DTUID=%s#\r\n",                  { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_DTUID_Callback } },
     { YEECOM_AT_CMD_MQSET,                         "AT*MQSET%d=%s,%s,%s#\r\n",          { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_MQSET_Callback } },
@@ -43,7 +43,7 @@ const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Get_Param[YEECOM_AT_CMD_GET_PARAM
     { YEECOM_AT_CMD_REGHEAD,                       "AT*REGHEAD?\r\n",                   { "+REGHEAD",      "OK",    NULL,       2000,             YeeCom_At_Get_REGHEADCallback } },
     { YEECOM_AT_CMD_DEBUG_MODE,                    "AT*DBGMODE?\r\n",                   { "+DBGMODE",      "OK",    NULL,       2000,             YeeCom_At_Get_DBGMODECallback } },
     { YEECOM_AT_CMD_USART_CFG,                     "AT*UART?\r\n",                      { "+UART",         "OK",    NULL,       2000,             YeeCom_At_Get_UARTCallback } },
-    { YEECOM_AT_CMD_USART_FRAME_INTERVAL_TIME,     "AT*DFI?\r\n",                       { "+DFI",          "OK",    NULL,       2000,             YeeCom_At_Get_DFICallback } },
+    { YEECOM_AT_CMD_USART_DFI,                     "AT*DFI?\r\n",                       { "+DFI",          "OK",    NULL,       2000,             YeeCom_At_Get_DFICallback } },
     { YEECOM_AT_CMD_ICCID,                         "AT*ICCID?\r\n",                     { "+ICCID",        "OK",    NULL,       3000,             YeeCom_At_Get_ICCIDCallback } },
     { YEECOM_AT_CMD_IMEI,                          "AT*IMEI?\r\n",                      { "+IMEI",         "OK",    NULL,       3000,             YeeCom_At_Get_IMEICallback } },
     { YEECOM_AT_CMD_RSSI,                          "AT*CSQ?\r\n",                       { "+CSQ",          "OK",    NULL,       2000,             YeeCom_At_Get_RSSICallback } },
@@ -53,3 +53,22 @@ const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Get_Param[YEECOM_AT_CMD_GET_PARAM
     { YEECOM_AT_CMD_MQTOP,                         "AT*MQTOP%d?\r\n",                   { "+MQTOP",        "OK",    NULL,       2000,             YeeCom_At_Get_MQTOP_Callback } },
     { YEECOM_AT_CMD_PUBTOP,                        "AT*PUBTOP%d?\r\n",                  { "+PUBTOP",       "OK",    NULL,       2000,             YeeCom_At_Get_PUBTOP_Callback } }
 };
+
+void YeeCom_DeinitUsart(void)
+{
+    Mcal_Usart_DeInit(MCAL_USART_CHANNEL_YEECOM);
+}
+
+void YeeCom_ReInitUsart(uint32_t baudrate)
+{
+    UART_InitTypeDef usart_cfg;
+    usart_cfg.BaudRate = baudrate;
+    usart_cfg.WordLength = UART_WORDLENGTH_8B;
+    usart_cfg.StopBits = UART_STOPBITS_1;
+    usart_cfg.Parity = UART_PARITY_NONE;
+    usart_cfg.Mode = UART_MODE_TX_RX;
+    usart_cfg.HwFlowCtl = UART_HWCONTROL_NONE;
+    usart_cfg.OverSampling = UART_OVERSAMPLING_16;
+
+    Mcal_Usart_ReInit(MCAL_USART_CHANNEL_YEECOM, &usart_cfg);
+}

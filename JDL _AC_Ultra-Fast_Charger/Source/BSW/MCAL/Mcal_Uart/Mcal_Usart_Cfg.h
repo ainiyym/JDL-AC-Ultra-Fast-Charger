@@ -88,10 +88,12 @@ typedef struct
 extern void McalUsart_CycBuffCfgInit(void);
 // USART initialization
 extern void Mcal_Usart_Init(void);
+extern void Mcal_Usart_DeInit(McalUsartChannel_Enum_t UsartNum);
+extern void Mcal_Usart_ReInit(McalUsartChannel_Enum_t UsartNum, UART_InitTypeDef* Cfg);
 // USART enable
-extern void Mcal_Usart_IT_Enable(void);
+extern void Mcal_Usart_IT_Enable_All(void);
 // USART disable
-extern void Mcal_Usart_Disable(void);
+extern void Mcal_Usart_Disable_All(void);
 // USART receive data
 extern uint32_t Mcal_Usart_AppCheckData(uint32_t USART);
 extern uint32_t Mcal_Usart_AppReceiveData(uint32_t USART, uint8_t *data, uint32_t size);

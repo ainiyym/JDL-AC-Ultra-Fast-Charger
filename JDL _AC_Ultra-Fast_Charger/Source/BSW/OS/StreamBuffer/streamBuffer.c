@@ -15,7 +15,7 @@ uint16_t StreamBuff_SendMessage(StreamBuffM_t *message, uint8_t ISR)
 
     if (message == NULL || message->handle == NULL || message->Sendbuffer == NULL)
     {
-        Core_printf("Invalid message Rcvbuffer handle or Sendbuffer.\r\n");
+        // Core_printf("Invalid message Rcvbuffer handle or Sendbuffer.\r\n");
         return 0;
     }
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;

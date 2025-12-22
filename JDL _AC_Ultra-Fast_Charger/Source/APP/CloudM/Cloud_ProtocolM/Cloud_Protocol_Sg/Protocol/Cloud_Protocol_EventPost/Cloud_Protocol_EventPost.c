@@ -371,6 +371,7 @@ void Cloud_Protocol_EventPost_UpdateConfig(const v2g_data_dev_config *config)
 	}
 }
 
+#define CLOUDM_MIN_FREE_HEAP_SIZE	(1024 * 6) // 6KB
 // check if event should be posted
 static bool Cloud_Protocol_EventPost_ShouldPostEvent(cloud_protocol_event_post_task_t *task, uint32_t current_time)
 {
@@ -379,11 +380,20 @@ static bool Cloud_Protocol_EventPost_ShouldPostEvent(cloud_protocol_event_post_t
 		return false;
 	}
 
+    size_t free_heap = CLOUDM_GET_FREE_HEAP_SIZE();
 	// check if force post is set
 	if (task->force_post)
 	{
-		task->force_post = false;
-		return true;
+		if (free_heap < CLOUDM_MIN_FREE_HEAP_SIZE)
+		{
+			// CLOUD_WARN("<%s> Low memory, cannot force post event type %d\r\n", __func__, task->type);
+			return false;
+		}
+		else
+		{
+			task->force_post = false;
+			return true;
+		}
 	}
 
 	// check if interval has elapsed

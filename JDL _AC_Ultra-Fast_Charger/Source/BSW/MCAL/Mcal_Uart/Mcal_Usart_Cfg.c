@@ -80,6 +80,9 @@ McalUsart_BufCfg_t  const McalUsart_BufferCfg[MCAL_USART_MAX_NUMBER] =
     .RcvBufLen = MCAL_USART5_CH_RCV_CYCBUF_LEN
   }
 };
+
+static void Mcal_Usart_IT_Enable(McalUsartChannel_Enum_t UsartNum);
+static void Mcal_Usart_Disable(McalUsartChannel_Enum_t UsartNum);
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
@@ -113,16 +116,41 @@ void Mcal_Usart_Init(void)
   }
 }
 
-void Mcal_Usart_IT_Enable(void)
+void Mcal_Usart_DeInit(McalUsartChannel_Enum_t UsartNum)
 {
-  uint8_t USART = MCAL_USART1_CH;
+  const McalUsart_NumMapUsart_t *pUsart = NULL;
+
+  if (UsartNum < MCAL_USART_MAX_NUMBER)
+  {
+    pUsart = &McalUsart_NumMapUsart[UsartNum];
+    HAL_UART_Abort(pUsart->UsartBase);
+    Mcal_Usart_Disable(UsartNum);
+    HAL_UART_DeInit(pUsart->UsartBase);
+  }
+}
+
+void Mcal_Usart_ReInit(McalUsartChannel_Enum_t UsartNum, UART_InitTypeDef* Cfg)
+{
+  const McalUsart_NumMapUsart_t *pUsart = NULL;
+
+  if (UsartNum < MCAL_USART_MAX_NUMBER)
+  {
+    pUsart = &McalUsart_NumMapUsart[UsartNum];
+    pUsart->UsartBase->Init = *Cfg;
+    HAL_UART_Init(pUsart->UsartBase);
+    Mcal_Usart_IT_Enable(UsartNum);
+  }
+}
+
+static void Mcal_Usart_IT_Enable(McalUsartChannel_Enum_t UsartNum)
+{
   const McalUsart_NumMapUsart_t *pUsart = NULL;
   McalUsart_Ctrol_t *pUsartCtrl = NULL;
 
-  for (USART = MCAL_USART1_CH; USART < MCAL_USART_MAX_NUMBER; USART++)
+  if (UsartNum < MCAL_USART_MAX_NUMBER)
   {
-    pUsart = &McalUsart_NumMapUsart[USART];
-    pUsartCtrl = &McalUsart_Ctrl[USART];
+    pUsart = &McalUsart_NumMapUsart[UsartNum];
+    pUsartCtrl = &McalUsart_Ctrl[UsartNum];
     __HAL_UART_ENABLE_IT(pUsart->UsartBase, UART_IT_TC);
     __HAL_UART_ENABLE_IT(pUsart->UsartBase, UART_IT_IDLE);
     if (pUsart->UsartBase == &huart1 || pUsart->UsartBase == &huart2)
@@ -136,17 +164,36 @@ void Mcal_Usart_IT_Enable(void)
   }
 }
 
-void Mcal_Usart_Disable(void)
+void Mcal_Usart_IT_Enable_All(void)
 {
   uint8_t USART = MCAL_USART1_CH;
-  const McalUsart_NumMapUsart_t *pUsart = NULL;
 
   for (USART = MCAL_USART1_CH; USART < MCAL_USART_MAX_NUMBER; USART++)
   {
-    pUsart = &McalUsart_NumMapUsart[USART];
+    Mcal_Usart_IT_Enable((McalUsartChannel_Enum_t)USART);
+  }
+}
+
+static void Mcal_Usart_Disable(McalUsartChannel_Enum_t UsartNum)
+{
+  const McalUsart_NumMapUsart_t *pUsart = NULL;
+
+  if (UsartNum < MCAL_USART_MAX_NUMBER)
+  {
+    pUsart = &McalUsart_NumMapUsart[UsartNum];
     __HAL_UART_DISABLE(pUsart->UsartBase);
     __HAL_UART_DISABLE_IT(pUsart->UsartBase, UART_IT_IDLE);
     __HAL_UART_DISABLE_IT(pUsart->UsartBase, UART_IT_TC);
+  }
+}
+
+void Mcal_Usart_Disable_All(void)
+{
+  uint8_t USART = MCAL_USART1_CH;
+
+  for (USART = MCAL_USART1_CH; USART < MCAL_USART_MAX_NUMBER; USART++)
+  {
+    Mcal_Usart_Disable((McalUsartChannel_Enum_t)USART);
   }
 }
 
@@ -194,6 +241,7 @@ void HAL_UART_IdleCallback(UART_HandleTypeDef *huart, uint16_t Size)
       // Move swap buffer data to receive ring buffer
       Message_Handle[STREAM_USART1_CH].Sendsize = ActiveCtrl->RcvIntSwapBufDataCnt;
       message_sent_len = StreamBuff_SendMessage(&Message_Handle[STREAM_USART1_CH], 1);
+      // Core_printf("Rcv%lld:\r\n", message_sent_len);
       if (message_sent_len != ActiveCtrl->RcvIntSwapBufDataCnt)
       {
         // Core_printf("StreamBuff_SendMessage failed for USART1, sent %d bytes, expected %d bytes\r\n", message_sent_len, ActiveCtrl->RcvIntSwapBufDataCnt);
@@ -317,6 +365,7 @@ McalRetVal_t Mcal_Usart_AppSendData(uint32_t USART, uint8_t *data, uint32_t size
   return ret;
 }
 
+#if 1
 void assert_failed(const char *file, int line)
 {
   // 禁用中断，防止进一步破坏系统状态
@@ -373,4 +422,8 @@ void assert_failed(const char *file, int line)
       ;
   }
 }
+#else
+void assert_failed(const char *file, int line)
+{}
+#endif
   /*EOF*/

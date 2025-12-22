@@ -417,7 +417,7 @@ static void Cloud_Protocol_Sg_SaveBillingModeToFlash(const char *msg_id)
     else
     {
         return;
-    }
+    }  
 
     if (msg_id != NULL)
     {

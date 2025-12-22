@@ -117,6 +117,7 @@ void YeeCom_At_OOB_Net_Reset_Callback(void *arg, char *buf, int buflen)
             char status_str[15] = {0};
             size_t len = current - start < sizeof(status_str) - 1 ? current - start : sizeof(status_str) - 1;
             memcpy(status_str, start, len);
+            YeeCom_Log("<%s>: %s\r\n", __func__, status_str);
             if (strstr(status_str, "RESET 12") != NULL)
             {
                 YeeCom_SetDeviceState(YEECOM_DEVICE_RESET_POWER_ON, 1);
@@ -138,17 +139,19 @@ void YeeCom_At_OOB_Net_Reset_Callback(void *arg, char *buf, int buflen)
             {
                 YeeCom_SetDeviceState(YEECOM_DEVICE_RESET, 1);
             }
-            YeeCom_Log("<%s>: %s\r\n", __func__, status_str);
         }
     }
 }
 
+#if 0
 void YeeCom_At_OOB_Data_Passthrough_Callback(void *arg, char *buf, int buflen)
 {
     // Handle the received data passthrough response success
-    const char *start = buf;
+    char Msg_Buffer[1024] = {0};
+    memcpy(Msg_Buffer, buf, buflen);
+    const char *start = Msg_Buffer;
 
-    const char *reset_pos = strstr(buf, "RCVPORT");
+    const char *reset_pos = strstr(Msg_Buffer, "RCVPORT");
     if (reset_pos != NULL)
     {
         start = reset_pos + strlen("RCVPORT");
@@ -164,7 +167,7 @@ void YeeCom_At_OOB_Data_Passthrough_Callback(void *arg, char *buf, int buflen)
         {
             data_start++;
         }
-        uint16_t hex_data_len = buflen - (data_start - buf);
+        uint16_t hex_data_len = buflen - (data_start - Msg_Buffer);
         if (hex_data_len > 0)
         {
             uint8_t msg[hex_data_len + 2];
@@ -194,9 +197,31 @@ void YeeCom_At_OOB_Data_Passthrough_Callback(void *arg, char *buf, int buflen)
     else
     {
         YeeCom_Err("<%s> fail parse data:\r\n", __func__);
-        YeeCom_Print_Hex(buf, buflen);
+        YeeCom_Print_Hex(Msg_Buffer, buflen);
     }
 }
+#else
+void YeeCom_At_OOB_Data_Passthrough_Callback(void *arg, char *buf, int buflen)
+{
+    // Handle the received data passthrough response success
+    const char *reset_pos = strstr(buf, "{\"");
+    if (reset_pos != NULL)
+    {
+        char Msg_Buffer[1024] = {0};
+        int remaining_len = buflen - (reset_pos - buf);
+        int copy_len = remaining_len < sizeof(Msg_Buffer) - 2 ? remaining_len : sizeof(Msg_Buffer) - 1;
+        memcpy(&Msg_Buffer[1], reset_pos, copy_len);
+        Msg_Buffer[copy_len + 1] = '\0';
+        Msg_Buffer[0] = CLOUD_MESSAGE_DATA_TYPE_CLOUD_MQTT_PAYLOAD;
+        // YeeCom_Log("<%s> rcv len: %d send mqtt payload data passthrough:%s\r\n", __func__, hex_data_len, &msg[1]);
+        CloudNet_Protocol_SendMsg((uint8_t *)Msg_Buffer, copy_len + 2, CLOUD_MESSAGE_TYPE_DATA_PASSTHROUGH);
+    }
+    else
+    {
+        YeeCom_Err("<%s> fail parse data:%s\r\n", __func__, buf);
+    }
+}
+#endif
 
 /* at set cmd */
 void YeeCom_At_Set_SERVERn_Callback(void *arg, char *buf, int buflen)
@@ -269,11 +294,31 @@ void YeeCom_At_Set_DebugMode_Callback(void *arg, char *buf, int buflen)
 void YeeCom_At_Set_USART_Callback(void *arg, char *buf, int buflen)
 {
     // Handle the received USART response success
+    if (NULL != strstr(buf, "OK"))
+    {
+        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_USART_CFG, 1);
+        YeeCom_Log("<%s> %s\r\n", __func__,  buf);
+    }
+    else 
+    {
+        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_USART_CFG, 0);
+        YeeCom_Log("<%s> %s\r\n", __func__,  buf);
+    }
 }
 
 void YeeCom_At_Set_DFI_Callback(void *arg, char *buf, int buflen)
 {
     // Handle the received DFI response success
+    if (NULL != strstr(buf, "OK\r\n"))
+    {
+        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_DFI, 1);
+        YeeCom_Log("<%s>  OK\r\n", __func__);
+    }
+    else
+    {
+        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_DFI, 0);
+        YeeCom_Log("<%s> %s\r\n", __func__,  buf);
+    }
 }
 
 void YeeCom_At_Set_RESET_Callback(void *arg, char *buf, int buflen)
@@ -509,14 +554,98 @@ void YeeCom_At_Get_DBGMODECallback(void *arg, char *buf, int buflen)
     // Handle the received CH mode response success
 }
 
+/*
++UART:<baudrate>,<dataBits>,<parity>,<stopBits>
+OK
+*/
 void YeeCom_At_Get_UARTCallback(void *arg, char *buf, int buflen)
 {
     // Handle the received CH mode response success
+    const char *start = buf;
+    const char *current = buf;
+
+    const char *reset_pos = strstr(buf, "+UART:");
+    if (reset_pos != NULL)
+    {
+        start = reset_pos + strlen("+UART:");
+        while (*start == ' ')
+        {
+            start++;
+        }
+        current = start;
+        while (*current != '\r' && *current != '\n' && *current != '\0')
+        {
+            current++;
+        }
+        if (current > start)
+        {
+            char uart_cfg[64] = {0};
+            size_t len = current - start < sizeof(uart_cfg) - 1 ? current - start : sizeof(uart_cfg) - 1;
+            memcpy(uart_cfg, start, len);
+
+            uint32_t baudrate = 0;
+            uint8_t data_bits = 0;
+            uint8_t parity = 0;
+            uint8_t stop_bits = 0;
+
+            int result = sscanf(uart_cfg, "%lu,%hhu,%hhu,%hhu", &baudrate, &data_bits, &parity, &stop_bits);
+
+            if (result == 4)
+            {
+                YeeCom_Log("<%s> UART Config - Baudrate: %lu, Data Bits: %d, Parity: %d, Stop Bits: %d\r\n", __func__, baudrate, data_bits, parity, stop_bits);
+                if (baudrate == YEECOM_BAUDRATE_115200 &&
+                    data_bits == YEECOM_DEFAULT_DATA_BITS &&
+                    parity == YEECOM_DEFAULT_PARITY &&
+                    stop_bits == YEECOM_DEFAULT_STOP_BITS)
+                {
+                    YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_USART_CFG, 1);
+                }
+            }
+            else
+            {
+                YeeCom_Log("<%s> Failed to parse UART response: %s\r\n", __func__, buf);
+                return;
+            }
+        }
+    }
 }
 
+/*
++DFI:<time>
+OK
+*/
 void YeeCom_At_Get_DFICallback(void *arg, char *buf, int buflen)
 {
     // Handle the received CH mode response success
+    const char *start = buf;
+    const char *current = buf;
+    const char *reset_pos = strstr(buf, "+DFI:");
+    if (reset_pos != NULL)
+    {
+        start = reset_pos + strlen("+DFI:");
+        while (*start == ' ')
+        {
+            start++;
+        }
+        current = start;
+        while (*current != '\r' && *current != '\n' && *current != '\0')
+        {
+            current++;
+        }
+        if (current > start)
+        {
+            char dfi_str[10] = {0};
+            size_t len = current - start < sizeof(dfi_str) - 1 ? current - start : sizeof(dfi_str) - 1;
+            memcpy(dfi_str, start, len);
+
+            uint16_t dfi_time = (uint16_t)atoi(dfi_str);
+            YeeCom_Log("<%s> DFI Time: %d seconds\r\n", __func__, dfi_time);
+            if (dfi_time == YEECOM_DEFAULT_DFI_TIME_SET)
+            {
+                YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_DFI, 1);
+            }
+        }
+    }
 }
 
 void YeeCom_At_Get_ICCIDCallback(void *arg, char *buf, int buflen)

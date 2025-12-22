@@ -2,10 +2,10 @@
 #define _YEECOM_XXX_AT_H_
 
 #define YEECOM_AT_CMD_OOBPARAM_COUNT                    (4)
-#define YEECOM_OOB_CMD_POWER_ON_BUF_LEN                 (15u)
-#define YEECOM_OOB_CMD_NET_READY_BUF_LEN                (30u)
+#define YEECOM_OOB_CMD_POWER_ON_BUF_LEN                 (128u)
+#define YEECOM_OOB_CMD_NET_READY_BUF_LEN                (128u)
 #define YEECOM_OOB_CMD_RESET_BUF_LEN                    (20u)
-#define YEECOM_OOB_CMD_DATA_PASSTHROUGH_BUF_LEN         (800u)
+#define YEECOM_OOB_CMD_DATA_PASSTHROUGH_BUF_LEN         (600u)
 
 typedef enum
 {
@@ -77,7 +77,7 @@ typedef enum
     YEECOM_AT_CMD_REGHEAD, /* DTU Registration packet header */
     YEECOM_AT_CMD_DEBUG_MODE, /* DTU Debug mode */
     YEECOM_AT_CMD_USART_CFG, /* Serial port parameter configuration */
-    YEECOM_AT_CMD_USART_FRAME_INTERVAL_TIME, /* Serial port data frame interval time */
+    YEECOM_AT_CMD_USART_DFI, /* Serial port data frame interval time */
     YEECOM_AT_CMD_DEVICE_RESET, /* Device reset to default configuration */
     YEECOM_AT_CMD_DEVICE_RESTART, /* Device restart cmd */
     YEECOM_AT_CMD_ICCID, /* Get SIM ICCID */

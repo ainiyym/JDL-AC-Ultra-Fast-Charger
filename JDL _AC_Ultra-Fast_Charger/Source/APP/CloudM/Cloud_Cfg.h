@@ -53,7 +53,7 @@
 #define CLOUDM_FREE(ptr)                                                    vPortFree(ptr)
 #define CLOUDM_GET_FREE_HEAP_SIZE()                                         xPortGetFreeHeapSize()
 #define CLOUDM_GET_MINIMUM_HEAP_SIZE()                                      xPortGetMinimumEverFreeHeapSize()
-#define CLOUDM_MIN_HEAP_SIZE_THRESHOLD                                      (1536U) /* 1.5KB */
+#define CLOUDM_MIN_HEAP_SIZE_THRESHOLD                                      (1024U) /* 1KB */
 /* Time */
 #define CLOUD_TIME_1S_IN_MS                   (1000U)
 #define CLOUD_TIME_1MIN_IN_MS                 (60U * CLOUD_TIME_1S_IN_MS)

@@ -8,7 +8,7 @@
 #include "Cloud_Cfg.h"
 #include "CloudNet_MqttM.h"
 
-#define YEECOM_AT_CMD_SEND_BUF_SIZE             (YEECOM_OOB_CMD_DATA_PASSTHROUGH_BUF_LEN)
+#define YEECOM_AT_CMD_SEND_BUF_SIZE             (1024)
 
 typedef enum
 {
@@ -24,7 +24,12 @@ typedef enum
 {
     YEECOM_LOAD_STEP1,
     YEECOM_LOAD_STEP2,
-    YEECOM_LOAD_STEP3
+    YEECOM_LOAD_STEP3,
+    YEECOM_LOAD_STEP4,
+    YEECOM_LOAD_STEP5,
+    YEECOM_LOAD_STEP6,
+    YEECOM_LOAD_STEP7,
+    YEECOM_LOAD_STEP_DONE
 } YeeComLoadStep_Enum;
 
 typedef struct
@@ -395,7 +400,6 @@ static void YeeCom_OobRegister(void)
         }
         
     }
-    at_at_register_set_app_protocol_bit_num_callback(YEECOM_AT_OOB_CMD_DATA_PASSTHROUGH);
 }
 
 static void YeeCom_SetDeviceInitFlag(bool flag)
@@ -436,20 +440,145 @@ static void YeeCom_DevicePowerON(void)
     {
         // Power ON the device
         vTaskDelay(pdMS_TO_TICKS(500));
+        YeeCom_ResetDevice();
+        // Reset device parameters
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_DEVICE_RESET, NULL, (uint32_t)(123456));
         YeeCom_SetLoadStep(YEECOM_LOAD_STEP2);
     }
 }
 
 static void YeeCom_DeviceReset(void)
-{ 
-    YeeCom_ResetDevice();
-    // Reset device parameters
-    YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_DEVICE_RESET, NULL, (uint32_t)(123456));
-    YeeCom_SetLoadStep(YEECOM_LOAD_STEP3);
+{
+    if (YeeCom_GetDeviceState(YEECOM_DEVICE_RESET_CMD))
+    {
+        YeeCom_DeinitUsart();
+        YeeCom_ReInitUsart(YEECOM_DEFAULT_BAUDRATE);
+        YeeCom_SetLoadStep(YEECOM_LOAD_STEP3);
+        YeeCom_Log("<%s> LoadStep goto YEECOM_LOAD_STEP3\r\n", __func__);
+    }
+    else if(gv_YeeComxxx.TimerCnt > YEECOM_RESET_CHECK_TIMEOUT / YEECOM_PERIOD_MS)
+    {
+        YeeCom_ClearTimeout();
+        YeeCom_Err("Error: %s wating reset cmd timeout\r\n", __func__);
+        // Reset device parameters
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_DEVICE_RESET, NULL, (uint32_t)(123456));
+    }
+    else
+    {
+        gv_YeeComxxx.TimerCnt++;
+    }
+}
+
+static void YeeCom_SetUsartDfi(void)
+{
+    if (YeeCom_GetDeviceState(YEECOM_DEVICE_RESET_CMD) && gv_YeeComxxx_device_info.SimReadyStatus)
+    {
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_USART_DFI, NULL, YEECOM_DEFAULT_DFI_TIME_SET);
+        YeeCom_SetLoadStep(YEECOM_LOAD_STEP4);
+        YeeCom_Log("<%s> LoadStep goto YEECOM_LOAD_STEP4\r\n", __func__);
+    }
+    else if (gv_YeeComxxx.TimerCnt > YEECOM_RESET_CHECK_TIMEOUT / YEECOM_PERIOD_MS)
+    {
+        YeeCom_ClearTimeout();
+        YeeCom_Err("Error: %s wating reset cmd timeout\r\n", __func__);
+        YeeCom_SetLoadStep(YEECOM_LOAD_STEP2);
+    }
+    else
+    {
+        gv_YeeComxxx.TimerCnt++;
+    }
+}
+
+static void YeeCom_GetUsartDfi(void)
+{
+    if (YeeCom_GetDeviceParameters(YEECOM_DEVICE_PARAM_DFI))
+    {
+        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_DFI, 0);
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_USART_DFI, NULL, 0);
+        YeeCom_SetLoadStep(YEECOM_LOAD_STEP5);
+        YeeCom_Log("<%s> LoadStep goto YEECOM_LOAD_STEP5\r\n", __func__);
+    }
+    else if (gv_YeeComxxx.TimerCnt > YEECOM_USART_CHECK_TIMEOUT / YEECOM_PERIOD_MS)
+    {
+        YeeCom_ClearTimeout();
+        YeeCom_Err("Error: %s USART DFI config timeout\r\n", __func__);
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_USART_DFI, NULL, YEECOM_DEFAULT_DFI_TIME_SET);
+    }
+    else
+    {
+        gv_YeeComxxx.TimerCnt++;
+    }
+}
+
+static void YeeCom_SetUsartDeinit(void)
+{
+    if (YeeCom_GetDeviceParameters(YEECOM_DEVICE_PARAM_DFI))
+    {
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_USART_CFG, NULL, YEECOM_BAUDRATE_115200, YEECOM_DEFAULT_DATA_BITS, YEECOM_DEFAULT_PARITY, YEECOM_DEFAULT_STOP_BITS, YEECOM_DEFAULT_FLOW_CONTROL);
+        YeeCom_SetLoadStep(YEECOM_LOAD_STEP6);
+        YeeCom_Log("<%s> LoadStep goto YEECOM_LOAD_STEP6\r\n", __func__);
+    }
+    else if (gv_YeeComxxx.TimerCnt > YEECOM_USART_CHECK_TIMEOUT / YEECOM_PERIOD_MS)
+    {
+        YeeCom_ClearTimeout();
+        YeeCom_Err("Error: %s USART DFI get timeout\r\n", __func__);
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_USART_DFI, NULL, 0);
+    }
+    else
+    {
+        gv_YeeComxxx.TimerCnt++;
+    }
+}
+
+static void YeeCom_UsartReinit(void)
+{
+    if (YeeCom_GetDeviceParameters(YEECOM_DEVICE_PARAM_USART_CFG))
+    {
+        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_USART_CFG, 0);
+        YeeCom_DeinitUsart();
+        YeeCom_ReInitUsart(YEECOM_BAUDRATE_115200);
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_USART_CFG, NULL, 0);
+        YeeCom_SetLoadStep(YEECOM_LOAD_STEP7);
+        YeeCom_Log("<%s> LoadStep goto YEECOM_LOAD_STEP7\r\n", __func__);
+    }
+    else if (gv_YeeComxxx.TimerCnt > YEECOM_USART_CHECK_TIMEOUT / YEECOM_PERIOD_MS)
+    {
+        YeeCom_ClearTimeout();
+        YeeCom_Err("Error: %s USART config timeout\r\n", __func__);
+        YeeCom_SetLoadStep(YEECOM_LOAD_STEP5);
+    }
+    else
+    {
+        gv_YeeComxxx.TimerCnt++;
+    }
+}
+
+static void YeeCom_CheckUsartOk(void)
+{
+    if (YeeCom_GetDeviceParameters(YEECOM_DEVICE_PARAM_USART_CFG))
+    {
+        YeeCom_SetLoadStep(YEECOM_LOAD_STEP_DONE);
+        YeeCom_Log("<%s> LoadStep goto YEECOM_LOAD_STEP_DONE\r\n", __func__);
+    }
+    else if (gv_YeeComxxx.TimerCnt > YEECOM_USART_CHECK_TIMEOUT / YEECOM_PERIOD_MS)
+    {
+        YeeCom_ClearTimeout();
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_USART_CFG, NULL, 0);
+        if (gv_YeeComxxx.ErrorCnt++ == YEECOM_USART_CHECK_RETRY_COUNT)
+        {
+            gv_YeeComxxx.ErrorCnt = 0;
+            YeeCom_SetLoadStep(YEECOM_LOAD_STEP2);
+        }
+    }
+    else
+    {
+        gv_YeeComxxx.TimerCnt++;
+    }
 }
 
 static void YeeCom_SetDefaultCenterWorkingMode(void)
 {
+
     YeeCom_ClearTimeout();
     YeeCom_ParameterTimeoutJudgy(YeeCom_At_Cmd_Set_Param[YEECOM_AT_CMD_WORKING_MODE].rcvCfg.reply_timeout);
     YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_WORKING_MODE, NULL, 0, YEECOM_DEFAULT_NET_TYPE, YEECOM_DEFAULT_REMOTE_IP, YEECOM_DEFAULT_REMOTE_PORT);
@@ -473,9 +602,9 @@ static void YeeCom_SetDefaultGPRSMode(void)
 
 static void YeeCom_CfgParameter(void)
 {
-    while (YeeCom_GetDeviceState(YEECOM_DEVICE_RESET_CMD) && gv_YeeComxxx_device_info.SimReadyStatus)
+    while (YeeCom_GetDeviceParameters(YEECOM_DEVICE_PARAM_USART_CFG))
     {
-        YeeCom_SetDeviceState(YEECOM_DEVICE_RESET_CMD, 0);
+        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_USART_CFG, 0);
         YeeCom_SetCmd(YEECOM_AT_CMD_WORKING_MODE);
         // Configure device parameters
         YeeCom_ClearTimeout();
@@ -532,6 +661,31 @@ static void YeeCom_LoadHandle(void)
             break;
         }
         case YEECOM_LOAD_STEP3:
+        {
+           YeeCom_SetUsartDfi();
+            break;
+        }
+        case YEECOM_LOAD_STEP4:
+        {
+            YeeCom_GetUsartDfi();
+            break;
+        }
+        case YEECOM_LOAD_STEP5:
+        {
+            YeeCom_SetUsartDeinit();
+            break;
+        }
+        case YEECOM_LOAD_STEP6:
+        {
+            YeeCom_UsartReinit();
+            break;
+        }
+        case YEECOM_LOAD_STEP7:
+        {
+            YeeCom_CheckUsartOk();
+            break;
+        }
+        case YEECOM_LOAD_STEP_DONE:
         {
             YeeCom_CfgParameter();
             break;
@@ -633,15 +787,19 @@ static void YeeCom_ConfirmInfoHandle(void)
 static void YeeCom_PeriodicHandle(void)
 {
     // Handle periodic tasks
-    if(1 == YeeCom_GetDeviceState(YEECOM_NET_READY))
+    if (1 == YeeCom_GetDeviceState(YEECOM_NET_READY))
     {
         while (gv_YeeComxxx.TimerCnt++ > YEECOM_PERIODIC_TASK_PERIOD) // 15s
         {
             YeeCom_ClearTimeout();
             // Get RSSI periodically
-            YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_RSSI, NULL);
-            // Get GState periodically
-            YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_GSTATE, NULL);
+            if (gv_YeeComxxx_device_info.GState[TCP_ID_PROTOCOL_SG] != 1)
+            {
+                YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_RSSI, NULL);
+                // Get GState periodically
+                YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_GSTATE, NULL);
+            }
+
             break;
         }
     }
@@ -708,9 +866,15 @@ void YeeCom_Init(void)
             YeeCom_SetDeviceInitFlag(false);
         }
         YeeCom_SetState(YEECOM_STATE_LOADING);
+
+        // YeeCom_DeinitUsart();
+        // YeeCom_ReInitUsart(YEECOM_BAUDRATE_115200);
+
     }
     else
     {
+        YeeCom_DeinitUsart();
+        YeeCom_ReInitUsart(YEECOM_BAUDRATE_115200);
         YeeCom_SetState(YEECOM_STATE_GETTING_CONST_INFO);
     }
 }

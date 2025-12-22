@@ -201,7 +201,7 @@ void SYSM_InitTwo( void )
  *****************************************************************************************/
 void SYSM_InitThree(void)
 {
-	Mcal_Usart_IT_Enable();
+	Mcal_Usart_IT_Enable_All();
 	Mcal_Can_Enable();
 	SwitchM_SoftTimerStart74hct4851d_Enable();
 	Mcal_Adc_SoftTimer_Enable();
