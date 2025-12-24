@@ -567,7 +567,7 @@ void YeeCom_At_Get_UARTCallback(void *arg, char *buf, int buflen)
     const char *reset_pos = strstr(buf, "+UART:");
     if (reset_pos != NULL)
     {
-        start = reset_pos + strlen("+UART:");
+        start = reset_pos + strlen("+UART:");     
         while (*start == ' ')
         {
             start++;
@@ -593,7 +593,7 @@ void YeeCom_At_Get_UARTCallback(void *arg, char *buf, int buflen)
             if (result == 4)
             {
                 YeeCom_Log("<%s> UART Config - Baudrate: %lu, Data Bits: %d, Parity: %d, Stop Bits: %d\r\n", __func__, baudrate, data_bits, parity, stop_bits);
-                if (baudrate == YEECOM_BAUDRATE_115200 &&
+                if (baudrate == YEECOM_ENABLE_BAUDRATE &&
                     data_bits == YEECOM_DEFAULT_DATA_BITS &&
                     parity == YEECOM_DEFAULT_PARITY &&
                     stop_bits == YEECOM_DEFAULT_STOP_BITS)
@@ -740,7 +740,7 @@ void YeeCom_At_Get_GSTATECallback(void *arg, char *buf, int buflen)
         int parsed = sscanf(reset_pos, "+GSTATE:%1[^,\r\n],%1[^,\r\n],%1[^,\r\n],%1[^,\r\n]",
                             &status[0], &status[1], &status[2], &status[3]);
 
-        if (parsed == 4)
+        if (parsed >= 1)
         {
             CLOUD_INFO("GSTATE parsed: =%s\r\n", status);
             for(tcp_id_enum i = TCP_ID_PROTOCOL_SG; i < TCP_ID_MAXIMUM; i++)

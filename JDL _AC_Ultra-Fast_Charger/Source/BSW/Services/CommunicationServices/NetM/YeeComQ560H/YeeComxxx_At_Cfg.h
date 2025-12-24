@@ -50,6 +50,7 @@ typedef struct
 #define YEECOM_DEFAULT_DFI_TIME_SET       (100) /* ms */
 #define YEECOM_BAUDRATE_115200            (115200)
 #define YEECOM_DEFAULT_BAUDRATE           (9600)
+#define YEECOM_ENABLE_BAUDRATE            (YEECOM_BAUDRATE_115200) /* Enable setting baudrate */
 #define YEECOM_DEFAULT_DATA_BITS          (8) /* 8 bits */
 #define YEECOM_DEFAULT_STOP_BITS          (1) /* UART_STOPBITS_1 */
 #define YEECOM_DEFAULT_PARITY             (0) /* 0: none, 1: odd, 2: even */

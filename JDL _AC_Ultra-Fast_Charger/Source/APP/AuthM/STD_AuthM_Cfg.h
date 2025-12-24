@@ -39,7 +39,7 @@
 #define AUTHM_OPEN_NETAPP_EN          				STD_ON											/*Netapp Auth open enable state*/
 #define AUTHM_OPEN_SINGLE_TIMING_EN					STD_OFF											/*singletiming Auth open enable state*/
 #define AUTHM_OPEN_PERIOD_TIMING_EN					STD_OFF											/*periodtiming Auth open enable state*/
-#define AUTHM_OPEN_NOAUTH_EN						STD_ON											/*Rfid Auth open enable state*/
+#define AUTHM_OPEN_NOAUTH_EN						STD_OFF											/*Rfid Auth open enable state*/
 #define AUTHM_OPEN_BT_FAST_EN         	 			STD_OFF											/*BTapp Auth open enable state*/
 
 #define AUTHM_CLOSE_EMER_EN 						STD_OFF											/*emergencystop close enable state*/

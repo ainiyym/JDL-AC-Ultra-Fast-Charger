@@ -32,11 +32,16 @@
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
+static uint8_t MCAL_USART1_CH_RCV_CYCBUF[MCAL_USART1_CH_RCV_CYCBUF_LEN];
+static uint8_t MCAL_USART2_CH_RCV_CYCBUF[MCAL_USART2_CH_RCV_CYCBUF_LEN];
+static uint8_t MCAL_USART4_CH_RCV_CYCBUF[MCAL_USART4_CH_RCV_CYCBUF_LEN];
+static uint8_t MCAL_USART5_CH_RCV_CYCBUF[MCAL_USART5_CH_RCV_CYCBUF_LEN];
 
 /*******************************************************************************
 |    Static Local Functions Declaration
 |******************************************************************************/
-static void HAL_UART_IdleCallback(UART_HandleTypeDef *huart, uint16_t Size);
+void HAL_UART_IdleCallback(UART_HandleTypeDef *huart, uint16_t Size);
+
 /*******************************************************************************
 |    Global Variable with extern linkage
 |******************************************************************************/
@@ -65,18 +70,22 @@ McalUsart_BufCfg_t  const McalUsart_BufferCfg[MCAL_USART_MAX_NUMBER] =
 {
   {
     .UsartNum = MCAL_USART1_CH,
+    .RcvBuffer = MCAL_USART1_CH_RCV_CYCBUF,
     .RcvBufLen = MCAL_USART1_CH_RCV_CYCBUF_LEN
   },
   {
     .UsartNum = MCAL_USART2_CH,
+    .RcvBuffer = MCAL_USART2_CH_RCV_CYCBUF,
     .RcvBufLen = MCAL_USART2_CH_RCV_CYCBUF_LEN
   },
   {
     .UsartNum = MCAL_USART4_CH,
+    .RcvBuffer = MCAL_USART4_CH_RCV_CYCBUF,
     .RcvBufLen = MCAL_USART4_CH_RCV_CYCBUF_LEN
   },
   {
     .UsartNum = MCAL_USART5_CH,
+    .RcvBuffer = MCAL_USART5_CH_RCV_CYCBUF,
     .RcvBufLen = MCAL_USART5_CH_RCV_CYCBUF_LEN
   }
 };
@@ -94,7 +103,7 @@ void McalUsart_CycBuffCfgInit(void)
   for (i = MCAL_USART1_CH; i < MCAL_USART_MAX_NUMBER; i++)
   {
     McalUsart_Ctrl[i].RcvIntSwapBufSize = McalUsart_BufferCfg[i].RcvBufLen;
-    McalUsart_Ctrl[i].RcvIntSwapBuf = MCAL_MALLOC(McalUsart_Ctrl[i].RcvIntSwapBufSize);
+    McalUsart_Ctrl[i].RcvIntSwapBuf = McalUsart_BufferCfg[i].RcvBuffer;
   }
 
   for (i = STREAM_USART1_CH; i < MCAL_USART_MAX_NUMBER; i++)

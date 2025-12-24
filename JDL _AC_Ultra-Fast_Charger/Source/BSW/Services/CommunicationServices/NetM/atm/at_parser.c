@@ -794,7 +794,7 @@ static void at_work_idle(void)
     {
         at._uart_rx_len = at_read(at_rx_buf, RECV_BUFFER_SIZE);
         at._parser_status = AT_PARSER_DATA_PROCESSING;
-        // atpsr_debug("<%s> Received %lu bytes\r\n", __func__, at._uart_rx_len);
+        atpsr_debug("<%s> Received %lu bytes\r\n", __func__, at._uart_rx_len);
     }
 }
 

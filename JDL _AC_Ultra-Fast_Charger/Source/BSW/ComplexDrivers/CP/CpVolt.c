@@ -832,6 +832,7 @@ static void CPV_AdcCvrtToVolt(SysConnector_Num_Enum ch, uint16_t lv_usAdcValue)
 	else
 	{}
 	// CP_DEBUG("ch:%d,usAdcValue:%d,usVoltValue:%d\r\n", ch, lv_usAdcValue, gv_stCpVolt[ch].usVoltValue);
+	// CP_DEBUG("usVoltValue:%d\r\n", gv_stCpVolt[0].usVoltValue);
 }
 
 /*******************************************************************************

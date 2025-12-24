@@ -43,6 +43,7 @@ typedef struct
 typedef struct
 {
   uint8_t UsartNum; /* USART通道号 */
+  uint8_t *RcvBuffer;
   uint32_t RcvBufLen; /* 接收缓冲区长度 */
 }McalUsart_BufCfg_t;
 
@@ -70,7 +71,7 @@ typedef struct
 {
   uint8_t Send_Lock;
   uint16_t RcvIntSwapBufDataCnt;
-  uint8_t* RcvIntSwapBuf; // 交换缓冲区,动态分配
+  uint8_t* RcvIntSwapBuf;
   uint16_t RcvIntSwapBufSize;
   uint32_t SenLen;
 } McalUsart_Ctrol_t;

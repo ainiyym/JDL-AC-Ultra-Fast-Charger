@@ -33,7 +33,7 @@
 
 #define NOAUTHEN_NOAUTH_OPEN			(0x5A)	/*noauthen open status*/
 #define NOAUTHEN_NOAUTH_CLOSE			(0xA5)	/*noauthen close status*/
-#define NOAUTHEN_NOAUTH_DEFAULT			(NOAUTHEN_NOAUTH_OPEN)	/*default noauthen status*/
+#define NOAUTHEN_NOAUTH_DEFAULT			(NOAUTHEN_NOAUTH_CLOSE)	/*default noauthen status*/
 
 #define NOAUTHEN_GetSysPreStatus        SYSM_GetResetPrepareStatus	/*get system prepare status*/
 #define NOAUTHEN_GetAllowAuthReqStatus  AUTHM_GetAllowResAuthReqStatus	/*get allow auth request status*/

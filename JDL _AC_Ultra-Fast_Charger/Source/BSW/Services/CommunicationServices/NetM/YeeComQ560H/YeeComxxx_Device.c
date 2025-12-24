@@ -143,6 +143,7 @@ uint8_t YeeCom_AtCmd_Send(YeeCom_AT_Cmd_Get_Param_Type cmd_type, YeeCom_AT_Cmd c
     return ret;
 }
 
+#if 0
 uint8_t YeeCom_At_DataPassthrougth(uint8_t channel, const uint8_t *data, uint16_t length)
 {
     uint8_t ret = 0;
@@ -205,6 +206,59 @@ uint8_t YeeCom_At_DataPassthrougth(uint8_t channel, const uint8_t *data, uint16_
 
     return ret;
 }
+#else
+uint8_t YeeCom_At_DataPassthrougth(uint8_t channel, const uint8_t *data, uint16_t length)
+{
+    uint8_t ret = 0;
+
+    if (xSemaphoreTake(gv_YeeComxxx.SendMutex, pdMS_TO_TICKS(1000)) == pdTRUE)
+    {
+        memset(gv_YeeComxxx.AtCmdSendBuf, 0, YEECOM_AT_CMD_SEND_BUF_SIZE);
+
+        if (length < YEECOM_AT_CMD_SEND_BUF_SIZE)
+        {
+            memcpy((char *)&gv_YeeComxxx.AtCmdSendBuf[0], (const char *)data, length);
+            ret = at_send_no_reply((const char *)gv_YeeComxxx.AtCmdSendBuf, (int)(length));
+#if 1
+            YeeCom_Log("<%s> result:%d data:\r\n", __func__, ret);
+#define CHUNK_SIZE 225
+
+            uint16_t chunk_count = (length + CHUNK_SIZE - 1) / CHUNK_SIZE;  // 向上取整
+
+            for (uint16_t chunk = 0; chunk < chunk_count; chunk++)
+            {
+                char data_printf[CHUNK_SIZE + 1] = {0};
+                
+                uint16_t start_idx = chunk * CHUNK_SIZE;
+                uint16_t end_idx = start_idx + CHUNK_SIZE - 1;
+                if (end_idx >= length) end_idx = length - 1;
+                
+                uint16_t chunk_len = end_idx - start_idx + 1;
+                
+                // 复制整个块
+                memcpy(data_printf, &data[start_idx], chunk_len);
+                data_printf[chunk_len] = '\0';
+                
+                YeeCom_Log("[%u-%u] %s\r\n", start_idx, end_idx, data_printf);
+                // vTaskDelay(pdMS_TO_TICKS(10)); // 避免日志打印过快
+            }
+#endif
+        }
+        else
+        {
+            ret = 2; // Data too large
+        }
+        xSemaphoreGive(gv_YeeComxxx.SendMutex);
+    }
+    else
+    {
+        YeeCom_Err("Error: %s Failed to take YeeCom mutex\r\n", __func__);
+        ret = 3;
+    }
+
+    return ret;
+}
+#endif
 
 void YeeCom_SetDeviceState(YeeCom_Device_Status_t id, uint8_t status)  
 {
@@ -514,7 +568,7 @@ static void YeeCom_SetUsartDeinit(void)
 {
     if (YeeCom_GetDeviceParameters(YEECOM_DEVICE_PARAM_DFI))
     {
-        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_USART_CFG, NULL, YEECOM_BAUDRATE_115200, YEECOM_DEFAULT_DATA_BITS, YEECOM_DEFAULT_PARITY, YEECOM_DEFAULT_STOP_BITS, YEECOM_DEFAULT_FLOW_CONTROL);
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_USART_CFG, NULL, YEECOM_ENABLE_BAUDRATE, YEECOM_DEFAULT_DATA_BITS, YEECOM_DEFAULT_PARITY, YEECOM_DEFAULT_STOP_BITS, YEECOM_DEFAULT_FLOW_CONTROL);
         YeeCom_SetLoadStep(YEECOM_LOAD_STEP6);
         YeeCom_Log("<%s> LoadStep goto YEECOM_LOAD_STEP6\r\n", __func__);
     }
@@ -536,7 +590,7 @@ static void YeeCom_UsartReinit(void)
     {
         YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_USART_CFG, 0);
         YeeCom_DeinitUsart();
-        YeeCom_ReInitUsart(YEECOM_BAUDRATE_115200);
+        YeeCom_ReInitUsart(YEECOM_ENABLE_BAUDRATE);
         YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_USART_CFG, NULL, 0);
         YeeCom_SetLoadStep(YEECOM_LOAD_STEP7);
         YeeCom_Log("<%s> LoadStep goto YEECOM_LOAD_STEP7\r\n", __func__);
@@ -590,7 +644,7 @@ static void YeeCom_SetDefaultCHMode(void)
 {
     YeeCom_ClearTimeout();
     YeeCom_ParameterTimeoutJudgy(YeeCom_At_Cmd_Set_Param[YEECOM_AT_CMD_CH_MODE].rcvCfg.reply_timeout);
-    YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_CH_MODE, NULL, YEECOM_CENTRAL_MODE_MULTI_HOMED_CONNECTION_STANDALONE);
+    YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_CH_MODE, NULL, YEECOM_CENTRAL_MODE_SINGLE_MAIN_CENTER);
 }
 
 static void YeeCom_SetDefaultGPRSMode(void)
@@ -793,7 +847,7 @@ static void YeeCom_PeriodicHandle(void)
         {
             YeeCom_ClearTimeout();
             // Get RSSI periodically
-            if (gv_YeeComxxx_device_info.GState[TCP_ID_PROTOCOL_SG] != 1)
+            // if (gv_YeeComxxx_device_info.GState[TCP_ID_PROTOCOL_SG] != 1)
             {
                 YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_RSSI, NULL);
                 // Get GState periodically
@@ -866,15 +920,14 @@ void YeeCom_Init(void)
             YeeCom_SetDeviceInitFlag(false);
         }
         YeeCom_SetState(YEECOM_STATE_LOADING);
-
+ 
         // YeeCom_DeinitUsart();
         // YeeCom_ReInitUsart(YEECOM_BAUDRATE_115200);
-
     }
     else
     {
         YeeCom_DeinitUsart();
-        YeeCom_ReInitUsart(YEECOM_BAUDRATE_115200);
+        YeeCom_ReInitUsart(YEECOM_ENABLE_BAUDRATE);
         YeeCom_SetState(YEECOM_STATE_GETTING_CONST_INFO);
     }
 }
