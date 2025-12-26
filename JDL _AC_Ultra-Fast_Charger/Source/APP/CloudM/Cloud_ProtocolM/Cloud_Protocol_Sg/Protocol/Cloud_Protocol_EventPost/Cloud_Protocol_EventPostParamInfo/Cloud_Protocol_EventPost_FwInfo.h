@@ -42,6 +42,6 @@ extern void Cloud_Protocol_EventPost_FwInfo_Init(void);
 extern void Cloud_Protocol_EventPost_FwInfo_Set(cloud_protocol_sg_event_fireware_enum type, void *value);
 extern void Cloud_Protocol_EventPost_FwInfoMainCtrl_Func(void);\
 extern bool Cloud_Protocol_EventPost_FwInfo_HandleResponse(uint32_t msg_id);
-extern void Cloud_Protocol_EventPost_FwInfo_Post(void);
+extern bool Cloud_Protocol_EventPost_FwInfo_Post(void);
 #endif /* __CLOUD_PROTOCOL_EVENTPOST_FWINFO_H__ */
 /* EOL */

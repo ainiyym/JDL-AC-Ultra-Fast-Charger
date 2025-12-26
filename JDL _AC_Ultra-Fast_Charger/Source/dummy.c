@@ -8,6 +8,7 @@
 //* 
 /*******************************************************************************/
 #include "dummy.h"
+
 uint8_t Dummy_RemoteSuspendStatus(void)
 {
     return 0; // Dummy implementation
@@ -85,5 +86,21 @@ char* Dummy_GetOutMeterAddr(SysConnector_Num_Enum ch)
     else
     {
         return "4"; // Dummy implementation, returning 0 for external meter address
+    }
+}
+
+void Dummy_GetMeterInfo(cloud_protocol_sg_order_measure_value_t *meter_info)
+{
+    if (meter_info != NULL)
+    {
+        for (int i = 0; i < V2G_MAX_VOL_CUR_DATA_LEN; i++)
+        {
+            meter_info->voltage[i] = 220 + i; // Dummy voltage values
+            meter_info->current[i] = 32 + i;  // Dummy current values
+        }
+        for (int j = 0; j < V2G_MAX_POWER_DATA_LEN; j++)
+        {
+            meter_info->power[j] = 7000 + j;     // Dummy power values
+        }
     }
 }

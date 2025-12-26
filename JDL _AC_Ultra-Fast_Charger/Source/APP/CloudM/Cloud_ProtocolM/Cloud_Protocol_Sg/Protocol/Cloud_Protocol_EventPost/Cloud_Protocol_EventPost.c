@@ -43,7 +43,7 @@ static cloud_protocol_event_post_task_t cloud_protocol_sg_event_tasks[CLOUD_PROT
 |    Static Local Functions Declaration
 |******************************************************************************/
 static char *cloud_protocol_event_post_build_method(const char *identifier);
-static void Cloud_Protocol_EventPost_PostMessage(const char *json_str, const char* identifier);
+static bool Cloud_Protocol_EventPost_PostMessage(const char *json_str, const char* identifier);
 static void Cloud_Protocol_EventPost_DestroyResponse(cloud_protocol_event_post_resp_t *resp);
 static bool Cloud_Protocol_EventPost_ShouldPostEvent(cloud_protocol_event_post_task_t *task, uint32_t current_time);
 
@@ -194,12 +194,12 @@ cJSON *Cloud_Protocol_EventPost_BuildRequestJsonHeader(const cloud_protocol_even
 }
 
 // print JSON string and post message
-void Cloud_Protocol_EventPost_PrintUnformatted(cJSON *object, uint64_t timestamp, char* identifier)
+bool Cloud_Protocol_EventPost_PrintUnformatted(cJSON *object, uint64_t timestamp, char* identifier)
 {
 	if (object == NULL)
 	{
 		CLOUD_ERROR("Cloud_Protocol_EventPost_PrintUnformatted: object is NULL\r\n");
-		return;
+		return false;
 	}
 
 	// get params object 
@@ -207,7 +207,7 @@ void Cloud_Protocol_EventPost_PrintUnformatted(cJSON *object, uint64_t timestamp
 	if (params == NULL)
 	{
 		CLOUD_ERROR("Cloud_Protocol_EventPost_PrintUnformatted: params is NULL\r\n");
-		return;
+		return false;
 	}
 
 	// add time field
@@ -217,19 +217,20 @@ void Cloud_Protocol_EventPost_PrintUnformatted(cJSON *object, uint64_t timestamp
 	// print JSON string
 	char *json_str = cJSON_PrintUnformatted(object);	
 
-	Cloud_Protocol_EventPost_PostMessage(json_str, identifier);
+	bool result = Cloud_Protocol_EventPost_PostMessage(json_str, identifier);
 	// free json_str
 	if (json_str != NULL)
 	CLOUDM_FREE(json_str);
+	return result;
 }
 
 // post message to cloud
-static void Cloud_Protocol_EventPost_PostMessage(const char *json_str, const char *identifier)
+static bool Cloud_Protocol_EventPost_PostMessage(const char *json_str, const char *identifier)
 {
 	if (json_str == NULL)
 	{
 		CLOUD_ERROR("Cloud_Protocol_EventPost_PostMessage: json_str is NULL\r\n");
-		return;
+		return false;
 	}
 	char event_post_subscribe_topic[CLOUD_PROTOCOL_SUB_TOPIC_MAX_LENGTH];  // subscribe topic
 	char event_post_publish_topic[CLOUD_PROTOCOL_PUB_TOPIC_MAX_LENGTH]; // publish topic
@@ -239,7 +240,7 @@ static void Cloud_Protocol_EventPost_PostMessage(const char *json_str, const cha
 	Cloud_Protocol_Sg_Build_Topic(topic->publish_topic, identifier, event_post_publish_topic, CLOUD_PROTOCOL_PUB_TOPIC_MAX_LENGTH);
 
 	// send message to cloud protocol module
-	Cloud_Protocol_Mqtt_AddPublishMessage(event_post_publish_topic, json_str, CLOUD_PROTOCOL_MQTT_NEED_ACK, event_post_subscribe_topic);
+	return Cloud_Protocol_Mqtt_AddPublishMessage(event_post_publish_topic, json_str, CLOUD_PROTOCOL_MQTT_NEED_ACK, event_post_subscribe_topic);
 }
 
 // parse JSON
@@ -381,24 +382,24 @@ static bool Cloud_Protocol_EventPost_ShouldPostEvent(cloud_protocol_event_post_t
 	}
 
     size_t free_heap = CLOUDM_GET_FREE_HEAP_SIZE();
+
+	if (free_heap < CLOUDM_MIN_FREE_HEAP_SIZE)
+	{
+		// CLOUD_WARN("<%s> Low memory, cannot force post event type %d\r\n", __func__, task->type);
+		return false;
+	}
+
 	// check if force post is set
 	if (task->force_post)
 	{
-		if (free_heap < CLOUDM_MIN_FREE_HEAP_SIZE)
-		{
-			// CLOUD_WARN("<%s> Low memory, cannot force post event type %d\r\n", __func__, task->type);
-			return false;
-		}
-		else
-		{
-			task->force_post = false;
-			return true;
-		}
+		task->force_post = false;
+		return true;
 	}
 
 	// check if interval has elapsed
 	if ((current_time >= task->last_post_time + task->interval) && (0 != task->interval) && task->enabled)
 	{
+		task->interval = 0;
 		return true;
 	}
 
@@ -416,6 +417,7 @@ void Cloud_Protocol_EventPost_PeriodicTask(void)
 	uint32_t current_time = (uint32_t)CLOUD_PROTOCOL_GET_CURRENT_TIMESTAMP();
 	uint8_t gun1 = 0;
 	uint8_t gun2 = 0;
+	bool result = false;
 
 	for (int i = 0; i < CLOUD_PROTOCOL_EVENT_POST_TYPE_MAX; i++)
 	{
@@ -463,20 +465,40 @@ void Cloud_Protocol_EventPost_PeriodicTask(void)
 					}
 					return;
 				case CLOUD_PROTOCOL_EVENT_POST_TYPE_FW_INFO:
-					Cloud_Protocol_EventPost_FwInfo_Post();
+					result = Cloud_Protocol_EventPost_FwInfo_Post();
+					if (!result)
+					 {
+						Cloud_Protocol_EventPost_EnableTriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_FW_INFO, 20); // retry later
+						CLOUD_WARN("<%s> FW info event post failed, 20' will retry later\r\n", __func__);
+					 }
 					return;
 				case CLOUD_PROTOCOL_EVENT_POST_TYPE_VERSION_INFO:
-					Cloud_Protocol_EventPost_VersionInfo_Post();
+					result = Cloud_Protocol_EventPost_VersionInfo_Post();
+					if (!result)
+					 {
+						Cloud_Protocol_EventPost_EnableTriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_VERSION_INFO, 20); // retry later
+						CLOUD_WARN("<%s> Version info event post failed, 20' will retry later\r\n", __func__);
+					 }
 					return;
 				case CLOUD_PROTOCOL_EVENT_POST_TYPE_PILE_WORKSTATUS:
 					Cloud_Protocol_Sg_Order_GetOrderOnRunningStatus(&gun1, &gun2);
 					if (gun1)
 					{
-						Cloud_Protocol_EventPost_PileWorkstatus_Post(gun1);
+						result = Cloud_Protocol_EventPost_PileWorkstatus_Post(1);
+						if (!result)
+						{
+							Cloud_Protocol_EventPost_EnableTriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_PILE_WORKSTATUS, 10); // retry later
+							CLOUD_WARN("<%s> Gun %d work status event post failed, 10' will retry later\r\n", __func__, gun1);
+						}
 					}
 					if (gun2)
 					{
-						Cloud_Protocol_EventPost_PileWorkstatus_Post(gun2);
+						result = Cloud_Protocol_EventPost_PileWorkstatus_Post(2);
+						if (!result)
+						{
+							Cloud_Protocol_EventPost_EnableTriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_PILE_WORKSTATUS, 10); // retry later
+							CLOUD_WARN("<%s> Gun %d work status event post failed, 10' will retry later\r\n", __func__, gun2);
+						}
 					}
 					return;
 					
@@ -495,7 +517,12 @@ bool Cloud_Protocol_EventPost_EnableTriggerEvent(cloud_protocol_event_post_type_
 		return false;
 	}
 	cloud_protocol_sg_event_tasks[type].enabled = true;
-	cloud_protocol_sg_event_tasks[type].interval = interval;
+	cloud_protocol_sg_event_tasks[type].last_post_time = (uint32_t)CLOUD_PROTOCOL_GET_CURRENT_TIMESTAMP();
+	if (0 != interval)
+	{
+		cloud_protocol_sg_event_tasks[type].interval = interval;
+	}
+	CLOUD_INFO("<%s> Enabled event type %d with interval %u s\r\n", __func__, type, interval);
 	return true;
 }
 

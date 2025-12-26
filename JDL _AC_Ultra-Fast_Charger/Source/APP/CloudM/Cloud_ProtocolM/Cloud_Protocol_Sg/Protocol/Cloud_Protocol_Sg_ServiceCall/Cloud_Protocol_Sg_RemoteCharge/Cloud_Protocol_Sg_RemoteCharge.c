@@ -9,6 +9,7 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "Cloud_Protocol_Sg_RemoteCharge.h"
+#include "Cloud_Protocol_Sg_ChargingOrder.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -46,8 +47,10 @@ static bool Cloud_Protocol_Sg_RemoteStart_ParseTimesArray(cJSON *times_json, sta
 static uint8_t Cloud_Protocol_Sg_RemoteCharge_GetGunIndex(uint8_t gun_no);
 static cJSON *Cloud_Protocol_Sg_RemoteStart_AckPack(const v2g_service_feedback_remoteStart *feedback);
 static void Cloud_Protocol_Send_ChargeStartResponse(uint8_t gun_no, char* message_id, bool success);
+static void Cloud_Protocol_Sg_RemoteStart_PrintV2GServiceJson(const v2g_service_remoteStart *pStart);
 static cJSON *Cloud_Protocol_Sg_RemoteStop_AckPack(const v2g_service_feedback_remoteStop *feedback);
-static void Cloud_Protocol_Send_ChargeStopResponse(v2g_service_remoteStop *stop_param, char *message_id, bool success);
+static void Cloud_Protocol_Sg_RemoteStop_PrintV2GServiceJson(const v2g_service_remoteStop *pStart);
+static void Cloud_Protocol_Send_ChargeStopResponse(v2g_service_remoteStop *stop_param, char *message_id, bool success, char *reason);
 static void Cloud_Protocol_Stop_ChargeProcess(uint8_t gun_no);
 static void Cloud_Protocol_Sg_RemoteCharge_CheckTime(void);
 /*******************************************************************************
@@ -230,13 +233,13 @@ static void Cloud_Protocol_Send_ChargeStartResponse(uint8_t gun_no, char* messag
     if (success)
     {
         feedback.result = 0; // success
-        strncpy(feedback.resultDes, "Charge start successful", V2G_MAX_RESULT_LEN - 1);
+        strncpy(feedback.resultDes, "issue successful", V2G_MAX_RESULT_LEN - 1);
         feedback.resultDes[V2G_MAX_RESULT_LEN - 1] = '\0';
     }
     else
     {
         feedback.result = 1; // failure
-        strncpy(feedback.resultDes, "Charge start failed", V2G_MAX_RESULT_LEN - 1);
+        strncpy(feedback.resultDes, "issue failed", V2G_MAX_RESULT_LEN - 1);
         feedback.resultDes[V2G_MAX_RESULT_LEN - 1] = '\0';
     }
     cJSON *object = Cloud_Protocol_Sg_RemoteStart_AckPack(&feedback);
@@ -351,9 +354,38 @@ bool Cloud_Protocol_Sg_ParseRemoteStartParam(cJSON *params, const char *msg_id)
         }
     }
 
+    if (remote_start->times.direction == 3)
+    {
+        parse_success = Cloud_Protocol_Sg_Order_Pause(remote_start->gunNo, remote_start->applyNo);
+    }
+    Cloud_Protocol_Sg_RemoteStart_PrintV2GServiceJson(remote_start);
     Cloud_Protocol_Send_ChargeStartResponse(remote_start->gunNo, (char *)msg_id, parse_success);
 
     return true;
+}
+
+/**
+ * @brief Print remote stop charge service parameters in JSON format for debugging
+ * @param pStart Pointer to v2g_service_remoteStart structure containing start parameters
+ */
+static void Cloud_Protocol_Sg_RemoteStart_PrintV2GServiceJson(const v2g_service_remoteStart *pStart)
+{
+    if (pStart == NULL) return;
+    
+    CLOUD_INFO("<%s> {\r\n", __FUNCTION__);
+    CLOUD_INFO("  \"gunNo\": %u,\r\n", (unsigned int)pStart->gunNo);
+    CLOUD_INFO("  \"applyNo\": \"%s\",\r\n", pStart->applyNo);
+    CLOUD_INFO("  \"userId\": \"%s\",\r\n", pStart->userId);
+    CLOUD_INFO("  \"VIN\": \"%s\",\r\n", pStart->VIN);
+    CLOUD_INFO("  \"decisionType\": %u,\r\n", (unsigned int)pStart->decisionType);
+    CLOUD_INFO("  \"decisionTime\": \"%s\",\r\n", pStart->decisionTime);
+    CLOUD_INFO("  \"times\": {\r\n");
+    CLOUD_INFO("    \"beginTime\": \"%s\",\r\n", pStart->times.beginTime);
+    CLOUD_INFO("    \"endTime\": \"%s\"\r\n", pStart->times.endTime);
+    CLOUD_INFO("    \"direction\": %u,\r\n", (unsigned int)pStart->times.direction);
+    CLOUD_INFO("    \"power\": %u\r\n", (unsigned int)pStart->times.power);
+    CLOUD_INFO("  }\r\n");
+    CLOUD_INFO("}\r\n");
 }
 
 /*
@@ -376,31 +408,35 @@ static cJSON *Cloud_Protocol_Sg_RemoteStop_AckPack(const v2g_service_feedback_re
     return root;
 }
 
+static void Cloud_Protocol_Sg_RemoteStop_PrintV2GServiceJson(const v2g_service_remoteStop *pStart)
+{
+    if (pStart == NULL) return;
+    
+    CLOUD_INFO("<%s> {\r\n", __FUNCTION__);
+    CLOUD_INFO("  \"gunNo\": %u,\r\n", (unsigned int)pStart->gunNo);
+    CLOUD_INFO("  \"applySheetNo\": \"%s\",\r\n", pStart->applySheetNo);
+    CLOUD_INFO("  \"VIN\": \"%s\"\r\n", pStart->VIN);
+    CLOUD_INFO("}\r\n");
+}
+
 /**
  * @brief Send charge stop response to cloud platform
  * @param stop_param Pointer to remote stop parameters
  * @param message_id Message ID
  * @param success Whether the stop was successful
+ * @param reason Reason for failure (if any)
  */
-static void Cloud_Protocol_Send_ChargeStopResponse(v2g_service_remoteStop *stop_param, char *message_id, bool success)
+static void Cloud_Protocol_Send_ChargeStopResponse(v2g_service_remoteStop *stop_param, char *message_id, bool success, char *reason)
 {
     v2g_service_feedback_remoteStop feedback = {0};
 
     strncpy(feedback.applySheetNo, stop_param->applySheetNo, V2G_MAX_TRADE_LEN - 1);
     feedback.applySheetNo[V2G_MAX_TRADE_LEN - 1] = '\0';
 
-    if (success)
-    {
-        feedback.result = 0; // success
-        strncpy(feedback.resultDes, "Charge stop successful", V2G_MAX_RESULT_LEN - 1);
-        feedback.resultDes[V2G_MAX_RESULT_LEN - 1] = '\0';
-    }
-    else
-    {
-        feedback.result = 1; // failure
-        strncpy(feedback.resultDes, "Charge stop failed", V2G_MAX_RESULT_LEN - 1);
-        feedback.resultDes[V2G_MAX_RESULT_LEN - 1] = '\0';
-    }
+    feedback.result = success;
+    strncpy(feedback.resultDes, reason, V2G_MAX_RESULT_LEN - 1);
+    feedback.resultDes[V2G_MAX_RESULT_LEN - 1] = '\0';
+
     cJSON *object = Cloud_Protocol_Sg_RemoteStop_AckPack(&feedback);
     if (!object)
     {
@@ -412,7 +448,10 @@ static void Cloud_Protocol_Send_ChargeStopResponse(v2g_service_remoteStop *stop_
 
     cJSON_Delete(object);
 
-   Cloud_Protocol_Stop_ChargeProcess(stop_param->gunNo);
+    if (success)
+    {
+        Cloud_Protocol_Stop_ChargeProcess(stop_param->gunNo);
+    }
 }
 
 /**
@@ -478,11 +517,38 @@ bool Cloud_Protocol_Sg_ParseRemoteStopParam(cJSON *params, const char *msg_id)
         strncpy(remote_stop.applySheetNo, item->valuestring, V2G_MAX_TRADE_LEN - 1);
         remote_stop.applySheetNo[V2G_MAX_TRADE_LEN - 1] = '\0';
     }
+    char resultDes[V2G_MAX_RESULT_LEN] = {0};
 
-    Cloud_Protocol_Send_ChargeStopResponse(&remote_stop, (char *)msg_id, true);
+    bool result = Cloud_Protocol_Sg_Order_Stop(remote_stop.gunNo, remote_stop.applySheetNo, resultDes);
+
+    Cloud_Protocol_Sg_RemoteStop_PrintV2GServiceJson(&remote_stop);
+    Cloud_Protocol_Send_ChargeStopResponse(&remote_stop, (char *)msg_id, result, resultDes);
 
     cloud_protocol_sg_remote_charge.is_enabled[remote_stop.gunNo - 1] = true;
     return true;
+}
+
+/**
+ * @brief monitor charging status and stop orders if auth lost
+ */
+static void Cloud_Protocol_Sg_MonitoringStopOrder(uint8_t gun_index)
+{
+    static uint8_t last_auth_status[CLOUD_PROTOCOL_SG_CHARGING_GUN_NUM_MAX] = {0};
+    uint8_t auth_status = AUTHM_GetCurrAuthStatus((SysConnector_Num_Enum)gun_index);
+    uint8_t gun_no = Cloud_Protocol_Sg_RemoteCharge_GetGunNo(gun_index);
+    // Check authentication status
+    if (auth_status != last_auth_status[gun_index])
+    {
+        if (auth_status == false && last_auth_status[gun_index] == true)
+        {
+            CLOUD_INFO("<%s> Gun %d lost authentication, stop order\r\n", __func__, gun_index);
+            char resultDes[V2G_MAX_RESULT_LEN] = {0};
+            Cloud_Protocol_Sg_Order_Stop(gun_no, cloud_protocol_sg_remote_charge.charge_param[gun_index].applyNo, resultDes);
+            cloud_protocol_sg_remote_charge.is_authenticated[gun_index] = false;
+            memset(&cloud_protocol_sg_remote_charge.charge_param[gun_index], 0, sizeof(v2g_service_remoteStart));
+        }
+        last_auth_status[gun_index] = auth_status;
+    }
 }
 
 /**
@@ -497,6 +563,7 @@ static void Cloud_Protocol_Sg_RemoteCharge_CheckTime(void)
     // Check each gun for timeout
     for (int i = 0; i < CLOUD_PROTOCOL_SG_CHARGING_GUN_NUM_MAX; i++)
     {
+        Cloud_Protocol_Sg_MonitoringStopOrder(i);
         if (!cloud_protocol_sg_remote_charge.is_enabled[i])
         {
             continue; // Remote charge not enabled for this gun
@@ -507,30 +574,48 @@ static void Cloud_Protocol_Sg_RemoteCharge_CheckTime(void)
         end_time = strtoull(charge_param->times.endTime, NULL, 10);
 
         // Check start time
-        if (end_time > start_time && current_time <= start_time)
+        if (!cloud_protocol_sg_remote_charge.is_authenticated[i])
         {
-            if (!cloud_protocol_sg_remote_charge.is_authenticated[i])
+            if (end_time > start_time && current_time >= start_time)
             {
                 cloud_protocol_sg_remote_charge.is_authenticated[i] = true;
                 NETAUTH_SetReqAuthStatus((SysConnector_Num_Enum)i);
+                cloud_protocol_sg_order_op_t operation = CLOUD_PROTOCOL_SG_ORDER_OP_CHARGE;
+                if (charge_param->times.direction == 1)
+                {
+                    operation = CLOUD_PROTOCOL_SG_ORDER_OP_DISCHARGE;
+                    Cloud_Protocol_Sg_Order_Start(charge_param->gunNo, charge_param->applyNo, operation);
+                }
+                else if (charge_param->times.direction == 2)
+                {
+                    operation = CLOUD_PROTOCOL_SG_ORDER_OP_CHARGE;
+                    Cloud_Protocol_Sg_Order_Start(charge_param->gunNo, charge_param->applyNo, operation);
+                }
+                else
+                {
+                }
                 CLOUD_INFO("<%s> Gun %d charge/discharge time started, authenticating\r\n", __func__, Cloud_Protocol_Sg_RemoteCharge_GetGunNo(i));
                 continue;
             }
         }
-        else if (end_time < current_time)
+        else if (cloud_protocol_sg_remote_charge.is_authenticated[i])
         {
-            if (cloud_protocol_sg_remote_charge.is_authenticated[i])
+            if (end_time < current_time)
             {
                 cloud_protocol_sg_remote_charge.is_authenticated[i] = false;
                 cloud_protocol_sg_remote_charge.is_enabled[i] = false;
                 if (AUTHM_GetAuthOpenSource((SysConnector_Num_Enum)i) == AUTHM_OPEN_SRC_NET_APP)
                 {
                     NETAUTH_SetReqCancelAuthStatus((SysConnector_Num_Enum)i);
-                }
-                memset(charge_param, 0, sizeof(v2g_service_remoteStart));
+                }  
                 CLOUD_INFO("<%s> Gun %d charge/discharge time ended, stopping\r\n", __func__, Cloud_Protocol_Sg_RemoteCharge_GetGunNo(i));
                 continue;
             }
+        }
+        else
+        {
+            // Not authenticated and not enabled, do nothing
+            continue;
         }
     }
 }

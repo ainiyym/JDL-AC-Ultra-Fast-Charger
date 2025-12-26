@@ -39,12 +39,11 @@
 typedef enum
 {
     CLOUD_PROTOCOL_SG_ORDER_STATUS_IDLE = 0,        /* idle */
-    CLOUD_PROTOCOL_SG_ORDER_STATUS_CHARGING = 2,    /* charging */
     CLOUD_PROTOCOL_SG_ORDER_STATUS_DISCHARGING = 1, /* discharging */
+    CLOUD_PROTOCOL_SG_ORDER_STATUS_CHARGING = 2,    /* charging */
     CLOUD_PROTOCOL_SG_ORDER_STATUS_PAUSED = 3,      /* paused */
     CLOUD_PROTOCOL_SG_ORDER_STATUS_STANDBY = 4,     /* standby */
     CLOUD_PROTOCOL_SG_ORDER_STATUS_FAULT = 5,       /* fault */
-    CLOUD_PROTOCOL_SG_ORDER_STATUS_COMPLETED = 6,   /* completed */
 } cloud_protocol_sg_order_status_t;
 
 /* Order Operation Type enumeration */
@@ -85,7 +84,7 @@ typedef struct
     cloud_protocol_sg_order_measure_value_t measure_value; /* measurement values */
     uint8_t is_pending_upload : 1;                         /* pending upload flag */
     uint8_t reserved : 7;                                  /* reserved bits */
-} __attribute__((packed)) cloud_protocol_sg_order_record_t;
+} cloud_protocol_sg_order_record_t;
 
 /*******************************************************************************
 |    Table Definition
@@ -95,7 +94,7 @@ typedef struct
 |    Global Function Prototypes
 |******************************************************************************/
 extern uint32_t Cloud_Protocol_Sg_Order_GetCurrentTime(void);
-extern uint8_t Cloud_Protocol_Sg_Order_GetCurrentHour(void);
+extern uint8_t Cloud_Protocol_Sg_Order_GetCurrentBeijingHour(void);
 extern uint8_t Cloud_Protocol_Sg_Order_GetCurrentMinute(void);
 extern cloud_protocol_sg_order_energy_t Cloud_Protocol_Sg_Order_GetTotalEnergy(uint8_t gun_no);\
 extern uint32_t Cloud_Protocol_Sg_Order_GetDeltaEnergyValue(uint8_t gun_no);

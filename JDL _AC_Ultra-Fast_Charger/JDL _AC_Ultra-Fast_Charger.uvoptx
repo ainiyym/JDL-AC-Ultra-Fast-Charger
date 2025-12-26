@@ -157,55 +157,109 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>3121</LineNumber>
+          <LineNumber>186</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134345416</Address>
+          <Address>134288268</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\BSW\MCAL\HAL\STM32F1xx_HAL_Driver\Src\stm32f1xx_hal_uart.c</Filename>
+          <Filename>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Sg\Protocol\Cloud_Protocol_Sg_ChargingOrderM\Cloud_Protocol_Sg_ChargingOrder.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/MCAL/HAL/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c\3121</Expression>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CloudM/Cloud_ProtocolM/Cloud_Protocol_Sg/Protocol/Cloud_Protocol_Sg_ChargingOrderM/Cloud_Protocol_Sg_ChargingOrder.c\186</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>432</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134267626</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Sg\Protocol\Cloud_Protocol_EventPost\Cloud_Protocol_EventPost.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CloudM/Cloud_ProtocolM/Cloud_Protocol_Sg/Protocol/Cloud_Protocol_EventPost/Cloud_Protocol_EventPost.c\432</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>402</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134268894</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Sg\Protocol\Cloud_Protocol_EventPost\Cloud_Protocol_EventPost.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CloudM/Cloud_ProtocolM/Cloud_Protocol_Sg/Protocol/Cloud_Protocol_EventPost/Cloud_Protocol_EventPost.c\402</Expression>
+        </Bp>
+        <Bp>
+          <Number>3</Number>
+          <Type>0</Type>
+          <LineNumber>487</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134267754</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Sg\Protocol\Cloud_Protocol_EventPost\Cloud_Protocol_EventPost.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CloudM/Cloud_ProtocolM/Cloud_Protocol_Sg/Protocol/Cloud_Protocol_EventPost/Cloud_Protocol_EventPost.c\487</Expression>
+        </Bp>
+        <Bp>
+          <Number>4</Number>
+          <Type>0</Type>
+          <LineNumber>400</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134268876</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Sg\Protocol\Cloud_Protocol_EventPost\Cloud_Protocol_EventPost.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CloudM/Cloud_ProtocolM/Cloud_Protocol_Sg/Protocol/Cloud_Protocol_EventPost/Cloud_Protocol_EventPost.c\400</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Msg_Buffer</ItemText>
+          <ItemText>auth_status</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>message_sent_len</ItemText>
+          <ItemText>last_auth_status</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>McalUsart_Ctrl[0]</ItemText>
+          <ItemText>cloud_protocol_sg_event_tasks</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>at._uart_rx_len</ItemText>
+          <ItemText>current_time,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>at_rx_buf</ItemText>
-        </Ww>
-        <Ww>
-          <count>5</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>huart</ItemText>
-        </Ww>
-        <Ww>
-          <count>6</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>pUsart</ItemText>
+          <ItemText>cloud_protocol_event_post_pile_work_status_ctrl[i].last_post_time,0x0A</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
@@ -279,7 +333,7 @@
 
   <Group>
     <GroupName>Source/Core</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -939,7 +993,7 @@
 
   <Group>
     <GroupName>Source/BSW/MCAL/Test</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -971,7 +1025,7 @@
 
   <Group>
     <GroupName>Source/BSW/MCAL/Uart</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2522,8 +2576,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\Source\APP\CloudM\Cloud_NetM\Cloud_Protocol_Msg.c</PathWithFileName>
-      <FilenameWithoutPath>Cloud_Protocol_Msg.c</FilenameWithoutPath>
+      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol.c</PathWithFileName>
+      <FilenameWithoutPath>Cloud_Protocol.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -2534,8 +2588,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol.c</PathWithFileName>
-      <FilenameWithoutPath>Cloud_Protocol.c</FilenameWithoutPath>
+      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Cfg.c</PathWithFileName>
+      <FilenameWithoutPath>Cloud_Protocol_Cfg.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -2546,8 +2600,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Cfg.c</PathWithFileName>
-      <FilenameWithoutPath>Cloud_Protocol_Cfg.c</FilenameWithoutPath>
+      <PathWithFileName>.\Source\APP\CloudM\Cloud_NetMsgM\Cloud_Protocol_Msg.c</PathWithFileName>
+      <FilenameWithoutPath>Cloud_Protocol_Msg.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -2767,7 +2821,7 @@
 
   <Group>
     <GroupName>SgCloud</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

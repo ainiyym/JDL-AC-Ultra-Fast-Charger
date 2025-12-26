@@ -25,6 +25,7 @@
 typedef struct
 {
 	uint32_t send_message_id; // Sent message ID
+    uint32_t last_post_time;  // Last post time
     char order_id[CLOUD_PROTOCOL_SG_MAX_ORDER_ID_LEN]; /* order ID being uploaded */
     bool on_running;                             /* is uploading running flag */
 } cloud_protocol_event_post_pile_work_status_ctrl_t;
@@ -64,7 +65,7 @@ static void Cloud_Protocol_Sg_Order_ConvertOrderToRecord(const cloud_protocol_sg
 static void Cloud_Protocol_EventPost_SetGun1PileWorkStatusMsgId(uint32_t msg_id);
 static void Cloud_Protocol_EventPost_SetGun2PileWorkStatusMsgId(uint32_t msg_id);
 static void Cloud_Protocol_Sg_Order_SetPileWorkStatusOrderId(uint8_t gun_no, char *order_id);
-static void Cloud_Protocol_Sg_Order_PostPileWorkstatus(v2g_event_pile_workstatus *data);
+static bool Cloud_Protocol_Sg_Order_PostPileWorkstatus(v2g_event_pile_workstatus *data);
 static bool Cloud_Protocol_Sg_Order_SaveToTSDB(const cloud_protocol_sg_order_t *order);
 static bool Cloud_Protocol_Sg_Order_GetNextPendingRecord(uint8_t gun_no, v2g_event_pile_workstatus *output);
 static bool Cloud_Protocol_Sg_Order_NotifyUploadComplete(uint8_t gun_no, const char *order_id, bool success);
@@ -143,7 +144,7 @@ static void Cloud_Protocol_Sg_Order_Reset(cloud_protocol_sg_order_t *order)
 /**
  * @brief start an order
  */
-bool Cloud_Protocol_Sg_Order_Start(uint8_t gun_no, const char *order_id, cloud_protocol_sg_order_op_t operation, cloud_protocol_sg_order_measure_value_t measure_value)
+bool Cloud_Protocol_Sg_Order_Start(uint8_t gun_no, const char *order_id, cloud_protocol_sg_order_op_t operation)
 {
     if (!Cloud_Protocol_Sg_Order_ValidateGunNo(gun_no))
     {
@@ -153,13 +154,6 @@ bool Cloud_Protocol_Sg_Order_Start(uint8_t gun_no, const char *order_id, cloud_p
     if (order_id == NULL || strlen(order_id) == 0)
     {
         CLOUD_ERROR("<%s> Order ID cannot be empty\r\n", __func__);
-        return false;
-    }
-
-    /* check network status: only allow starting orders when online */
-    if (!Cloud_Protocol_Sg_Order_IsNetworkOnline())
-    {
-        CLOUD_ERROR("<%s> Cannot start order while offline\r\n", __func__);
         return false;
     }
 
@@ -188,9 +182,6 @@ bool Cloud_Protocol_Sg_Order_Start(uint8_t gun_no, const char *order_id, cloud_p
     order->operation = operation;
     order->start_timestamp = Cloud_Protocol_Sg_Order_GetCurrentTime();
 
-    /* set measurement values */
-    order->measure_value = measure_value;
-
     /* set status */
     if (operation == CLOUD_PROTOCOL_SG_ORDER_OP_CHARGE)
     {
@@ -202,7 +193,15 @@ bool Cloud_Protocol_Sg_Order_Start(uint8_t gun_no, const char *order_id, cloud_p
     }
 
     /* upload current order */
-    Cloud_Protocol_EventPost_PileWorkstatus_Post(gun_no);
+    // bool result = Cloud_Protocol_EventPost_PileWorkstatus_Post(gun_no);
+    // if (result)
+    // {
+    //     cloud_protocol_event_post_pile_work_status_ctrl[gun_no - 1].last_post_time = CLOUD_PROTOCOL_GET_CURRENT_TIMESTAMP();
+    // }
+    // else
+    // {
+    //     Cloud_Protocol_EventPost_EnableTriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_PILE_WORKSTATUS, 10 * 1000); // retry later
+    // }
 
     CLOUD_INFO("<%s> Order started successfully on gun %d\r\n", __func__, gun_no);
     return true;
@@ -211,7 +210,7 @@ bool Cloud_Protocol_Sg_Order_Start(uint8_t gun_no, const char *order_id, cloud_p
 /**
  * @brief stop an order(normal stop)
  */
-bool Cloud_Protocol_Sg_Order_Stop(uint8_t gun_no)
+bool Cloud_Protocol_Sg_Order_Stop(uint8_t gun_no, char *order_id, char *reason)
 {
     if (!Cloud_Protocol_Sg_Order_ValidateGunNo(gun_no))
     {
@@ -221,36 +220,64 @@ bool Cloud_Protocol_Sg_Order_Stop(uint8_t gun_no)
     cloud_protocol_sg_order_t *order = Cloud_Protocol_Sg_Order_Get(gun_no);
     if (order == NULL)
     {
+        CLOUD_ERROR("<%s> Order not found on gun %d\r\n", __func__, gun_no);
+        if (reason != NULL)
+        {
+            strncpy(reason, "Order not found", V2G_MAX_RESULT_LEN - 1);
+            reason[V2G_MAX_RESULT_LEN - 1] = '\0';
+        }
+        return false;
+    }
+
+    if (order_id != NULL && strcmp(order->order_id, order_id) != 0)
+    {
+        CLOUD_ERROR("<%s> Order ID mismatch on gun %d (expected: %s, got: %s)\r\n", __func__, gun_no, order->order_id, order_id);
+        if (reason != NULL)
+        {
+            strncpy(reason, "Order ID mismatch", V2G_MAX_RESULT_LEN - 1);
+            reason[V2G_MAX_RESULT_LEN - 1] = '\0';
+        }
         return false;
     }
 
     /* check if the order is in active state */
     if (order->status == CLOUD_PROTOCOL_SG_ORDER_STATUS_IDLE ||
-        order->status == CLOUD_PROTOCOL_SG_ORDER_STATUS_COMPLETED)
+        order->status == CLOUD_PROTOCOL_SG_ORDER_STATUS_STANDBY)
     {
         CLOUD_WARN("<%s> Gun %d is not in active state (status: %d)\r\n", __func__, gun_no, order->status);
+        if (reason != NULL)
+        {
+            strncpy(reason, "Order not active", V2G_MAX_RESULT_LEN - 1);
+            reason[V2G_MAX_RESULT_LEN - 1] = '\0';
+        }
         return false;
     }
 
+    Cloud_Protocol_EventPost_DisableTriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_PILE_WORKSTATUS);
     CLOUD_INFO("<%s> Stopping order on gun %d, order ID: %s\r\n", __func__, gun_no, order->order_id);
 
     /* update the order end time */
     order->end_timestamp = Cloud_Protocol_Sg_Order_GetCurrentTime();
 
-    /* update the last energy */
-    uint32_t energy_delta = Cloud_Protocol_Sg_Order_GetDeltaEnergyValue(gun_no);
-    Cloud_Protocol_Sg_Order_UpdateEnergy(gun_no, energy_delta);
-
     /* set status to completed */
-    order->status = CLOUD_PROTOCOL_SG_ORDER_STATUS_COMPLETED;
+    order->status = CLOUD_PROTOCOL_SG_ORDER_STATUS_STANDBY;
     order->is_offline_timed = false; 
 
     /* upload current order */
-    Cloud_Protocol_EventPost_PileWorkstatus_Post(gun_no);
+    bool result = Cloud_Protocol_EventPost_PileWorkstatus_Post(gun_no);
 
-    /* reset current order */
-    Cloud_Protocol_Sg_Order_Reset(order);
+    if (!result)
+    {
+        Cloud_Protocol_EventPost_EnableTriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_PILE_WORKSTATUS, 10); // retry later
+    }
 
+    /* reset auth */
+    NETAUTH_SetReqCancelAuthStatus((SysConnector_Num_Enum)(gun_no - 1));
+    if (reason != NULL)
+    {
+        strncpy(reason, "Order stopped successfully", V2G_MAX_RESULT_LEN - 1);
+        reason[V2G_MAX_RESULT_LEN - 1] = '\0';
+    }
     CLOUD_INFO("<%s> Order stopped successfully on gun %d\r\n", __func__, gun_no);
     return true;
 }
@@ -272,7 +299,7 @@ bool Cloud_Protocol_Sg_Order_ForceStop(uint8_t gun_no, bool save_to_tsdb)
     }
 
     /* only active orders need to be force stopped */
-    if (order->status == CLOUD_PROTOCOL_SG_ORDER_STATUS_IDLE || order->status == CLOUD_PROTOCOL_SG_ORDER_STATUS_COMPLETED)
+    if (order->status == CLOUD_PROTOCOL_SG_ORDER_STATUS_IDLE || order->status == CLOUD_PROTOCOL_SG_ORDER_STATUS_STANDBY)
     {
         return true;
     }
@@ -282,35 +309,33 @@ bool Cloud_Protocol_Sg_Order_ForceStop(uint8_t gun_no, bool save_to_tsdb)
     /* update the order end time */
     order->end_timestamp = Cloud_Protocol_Sg_Order_GetCurrentTime();
 
-    /* update the last energy */
-    uint32_t energy_delta = Cloud_Protocol_Sg_Order_GetDeltaEnergyValue(gun_no);
-    Cloud_Protocol_Sg_Order_UpdateEnergy(gun_no, energy_delta);
-
     /* set status to completed */
-    order->status = CLOUD_PROTOCOL_SG_ORDER_STATUS_COMPLETED;
+    order->status = CLOUD_PROTOCOL_SG_ORDER_STATUS_STANDBY;
     order->is_offline_timed = false;
 
+    bool result = true;
     /* if save_to_tsdb is true, save to TSDB */
     if (save_to_tsdb)
     {
-        Cloud_Protocol_Sg_Order_SaveToTSDB(order);
+        result = Cloud_Protocol_Sg_Order_SaveToTSDB(order);
     }
     else
     {
         /* upload current order */
-        Cloud_Protocol_EventPost_PileWorkstatus_Post(gun_no);
+        result = Cloud_Protocol_EventPost_PileWorkstatus_Post(gun_no);
+        if (!result)
+        {
+            Cloud_Protocol_EventPost_EnableTriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_PILE_WORKSTATUS, 10); // retry later
+        }
     }
 
-    /* Reset current order */
-    Cloud_Protocol_Sg_Order_Reset(order);
-
-    return true;
+    return result;
 }
 
 /**
  * @brief pause an order
  */
-bool Cloud_Protocol_Sg_Order_Pause(uint8_t gun_no)
+bool Cloud_Protocol_Sg_Order_Pause(uint8_t gun_no, const char *order_id)
 {
     if (!Cloud_Protocol_Sg_Order_ValidateGunNo(gun_no))
     {
@@ -318,7 +343,7 @@ bool Cloud_Protocol_Sg_Order_Pause(uint8_t gun_no)
     }
 
     cloud_protocol_sg_order_t *order = Cloud_Protocol_Sg_Order_Get(gun_no);
-    if (order == NULL)
+    if (order == NULL || (order_id != NULL && strcmp(order->order_id, order_id) != 0))
     {
         return false;
     }
@@ -334,8 +359,7 @@ bool Cloud_Protocol_Sg_Order_Pause(uint8_t gun_no)
 
     order->status = CLOUD_PROTOCOL_SG_ORDER_STATUS_PAUSED;
 
-    /* upload current order */
-    Cloud_Protocol_EventPost_PileWorkstatus_Post(gun_no);
+    cloud_protocol_event_post_pile_work_status_ctrl[gun_no - 1].last_post_time = CLOUD_PROTOCOL_GET_CURRENT_TIMESTAMP();
 
     return true;
 }
@@ -360,13 +384,6 @@ bool Cloud_Protocol_Sg_Order_Resume(uint8_t gun_no)
     if (order->status != CLOUD_PROTOCOL_SG_ORDER_STATUS_PAUSED)
     {
         CLOUD_WARN("<%s> Gun %d is not paused (status: %d)\r\n", __func__, gun_no, order->status);
-        return false;
-    }
-
-    /* check network status: only allow resume when online */
-    if (!Cloud_Protocol_Sg_Order_IsNetworkOnline())
-    {
-        CLOUD_ERROR("<%s> Cannot resume order while offline\r\n", __func__);
         return false;
     }
 
@@ -410,7 +427,7 @@ static void Cloud_Protocol_Sg_Order_UpdateEnergyByTime(cloud_protocol_sg_order_t
         return;
 
     /* get current hour and minute */
-    uint8_t hour = Cloud_Protocol_Sg_Order_GetCurrentHour();
+    uint8_t hour = Cloud_Protocol_Sg_Order_GetCurrentBeijingHour();
     uint8_t minute = Cloud_Protocol_Sg_Order_GetCurrentMinute();
     uint8_t seg_flag = Cloud_Protocol_Sg_GetCurrentSegFlag(hour, minute);
 
@@ -476,8 +493,6 @@ void Cloud_Protocol_Sg_Order_SetNetworkStatus(bool online)
 
     if (!online)
     {
-        /* disable event upload */
-        Cloud_Protocol_EventPost_DisableTriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_PILE_WORKSTATUS);
         /* mark all active orders for offline timeout */
         for (int i = 0; i < CLOUD_PROTOCOL_SG_MAX_ORDERS; i++)
         {
@@ -545,16 +560,25 @@ static bool Cloud_Protocol_Sg_Order_ExportToV2GStruct(cloud_protocol_sg_order_re
     output->electricPower = 0;
 
     /* copy ac measurement values */
-    memcpy(output->acVoltage, order->measure_value.voltage, sizeof(order->measure_value.voltage));
-    memcpy(output->acCurrent, order->measure_value.current, sizeof(order->measure_value.current));
-    memcpy(output->acElectricPower, order->measure_value.power, sizeof(order->measure_value.power));
+    for (int i = 0; i < V2G_MAX_VOL_CUR_DATA_LEN; i++)
+    {
+        output->acVoltage[i] = order->measure_value.voltage[i];
+        output->acCurrent[i] = order->measure_value.current[i];
+    }
+    for (int i = 0; i < V2G_MAX_POWER_DATA_LEN; i++)
+    {
+        output->acElectricPower[i] = order->measure_value.power[i];
+    }
 
     /* fill ac charging/discharge energy data */
     if (order->operation == CLOUD_PROTOCOL_SG_ORDER_OP_CHARGE)
     {
         /* get total energy */
         cloud_protocol_sg_order_energy_t total_energy = Cloud_Protocol_Sg_Order_GetTotalEnergy(order->gun_no);
-        memcpy(output->acChargingEnergyValue, &total_energy, sizeof(total_energy));
+        for (int i = 0; i < V2G_MAX_ENERGY_DATA_LEN; i++)
+        {
+            output->acChargingEnergyValue[i] = ((uint32_t*)&total_energy)[i];
+        }
         memset(output->acDisChargingEnergyValue, 0, sizeof(output->acDisChargingEnergyValue));
         /* set ac charge energy equal to charge energy */
         output->acCumulativeCharge[0] = order->energy.total;  /* total */
@@ -569,7 +593,10 @@ static bool Cloud_Protocol_Sg_Order_ExportToV2GStruct(cloud_protocol_sg_order_re
     {
         /* get total energy */
         cloud_protocol_sg_order_energy_t total_energy = Cloud_Protocol_Sg_Order_GetTotalEnergy(order->gun_no);
-        memcpy(output->acDisChargingEnergyValue, &total_energy, sizeof(total_energy));
+        for (int i = 0; i < V2G_MAX_ENERGY_DATA_LEN; i++)
+        {
+            output->acDisChargingEnergyValue[i] = ((uint32_t*)&total_energy)[i];
+        }
         memset(output->acChargingEnergyValue, 0, sizeof(output->acChargingEnergyValue));
 
         /* discharge order: fill discharge energy, charging energy is 0 */
@@ -811,11 +838,13 @@ static cloud_protocol_sg_order_t *Cloud_Protocol_Sg_Order_Get(uint8_t gun_no)
 static void Cloud_Protocol_EventPost_SetGun1PileWorkStatusMsgId(uint32_t msg_id)
 {
     cloud_protocol_event_post_pile_work_status_ctrl[0].send_message_id = msg_id;
+    CLOUD_INFO("<%s> Gun 1 Pile Work Status Msg ID set to: %d\r\n", __func__, cloud_protocol_event_post_pile_work_status_ctrl[0].send_message_id);
 }
 
 static void Cloud_Protocol_EventPost_SetGun2PileWorkStatusMsgId(uint32_t msg_id)
 {
     cloud_protocol_event_post_pile_work_status_ctrl[1].send_message_id = msg_id;
+    CLOUD_INFO("<%s> Gun 2 Pile Work Status Msg ID set to: %d\r\n", __func__, cloud_protocol_event_post_pile_work_status_ctrl[1].send_message_id);
 }
 
 /*
@@ -842,7 +871,7 @@ static void Cloud_Protocol_Sg_Order_SetPileWorkStatusOrderId(uint8_t gun_no, cha
 /**
  * @brief post pile work status event to cloud
  */
-static void Cloud_Protocol_Sg_Order_PostPileWorkstatus(v2g_event_pile_workstatus *data)
+static bool Cloud_Protocol_Sg_Order_PostPileWorkstatus(v2g_event_pile_workstatus *data)
 {
     cJSON *root = NULL;
     unsigned char i = 0;
@@ -862,7 +891,7 @@ static void Cloud_Protocol_Sg_Order_PostPileWorkstatus(v2g_event_pile_workstatus
     else
     {
         CLOUD_WARN("<%s %d> invalid gunNo: %d\r\n", __func__, __LINE__, data->gunNo);
-        return;
+        return false;
     }
 
     // build json header
@@ -874,14 +903,14 @@ static void Cloud_Protocol_Sg_Order_PostPileWorkstatus(v2g_event_pile_workstatus
     if (params_obj == NULL)
     {
         CLOUD_WARN("<%s %d> params object not found\r\n", __func__, __LINE__);
-        return;
+        return false;
     }
 
     cJSON *value_obj = cJSON_GetObjectItem(params_obj, "value");
     if (value_obj == NULL)
     {
         CLOUD_WARN("<%s %d> value object not found\r\n", __func__, __LINE__);
-        return;
+        return false;
     }
 
     cJSON_AddNumberToObject(value_obj, "gunNo", data->gunNo);
@@ -972,22 +1001,38 @@ static void Cloud_Protocol_Sg_Order_PostPileWorkstatus(v2g_event_pile_workstatus
 
     // print unformatted json string
     timestamp = (uint64_t)CLOUD_PROTOCOL_GET_CURRENT_TIMESTAMP() * 1000; // convert to milliseconds
-    Cloud_Protocol_EventPost_PrintUnformatted(root, timestamp, "pileWorkStatusEvt");
+    bool ret = Cloud_Protocol_EventPost_PrintUnformatted(root, timestamp, "pileWorkStatusEvt");
+    if (!ret)
+    {
+        CLOUD_ERROR("<%s> Failed to print unformatted JSON for pile work status event\r\n", __func__);
+    }
+    else
+    {
+        cloud_protocol_sg_order_t *order = Cloud_Protocol_Sg_Order_Get(data->gunNo);
+        if (order->status == CLOUD_PROTOCOL_SG_ORDER_STATUS_STANDBY)
+        {
+            Cloud_Protocol_Sg_Order_Reset(order);
+            CLOUD_DEBUG("<%s> Order on gun %d completed, reset order data\r\n", __func__, data->gunNo);
+        }
+    }
 
     cJSON_Delete(root);
     root = NULL;
+    return ret;
 }
 
 /**
  * @brief post pile work status for active orders
  */
-void Cloud_Protocol_EventPost_PileWorkstatus_Post(uint8_t gun_no)
+bool Cloud_Protocol_EventPost_PileWorkstatus_Post(uint8_t gun_no)
 {
     cloud_protocol_sg_order_t *order = Cloud_Protocol_Sg_Order_Get(gun_no);
     if (order == NULL || order->status == CLOUD_PROTOCOL_SG_ORDER_STATUS_IDLE)
     {
-        return;
+        return false;
     }
+    /* set measurement values */
+    Dummy_GetMeterInfo(&order->measure_value);
 
     uint32_t energy_delta = Cloud_Protocol_Sg_Order_GetDeltaEnergyValue(gun_no);
     Cloud_Protocol_Sg_Order_UpdateEnergy(gun_no, energy_delta);
@@ -1005,11 +1050,12 @@ void Cloud_Protocol_EventPost_PileWorkstatus_Post(uint8_t gun_no)
     if (!result)
     {
         CLOUD_ERROR("<%s> Failed to export order to V2G structure for gun %d\r\n", __func__, gun_no);
-        return;
+        return false;
     }
 
     /* post event */
-    Cloud_Protocol_Sg_Order_PostPileWorkstatus(&workstatus);
+    result = Cloud_Protocol_Sg_Order_PostPileWorkstatus(&workstatus);
+    return result;
 }
 
 /**
@@ -1062,34 +1108,28 @@ void Cloud_Protocol_Sg_Order_GetOrderOnRunningStatus(uint8_t* gun1, uint8_t* gun
  */
 static void Cloud_Protocol_Sg_Order_HandleOnlineRunningOrders(void)
 {
-    bool current_trigger_state = false;
+    uint32_t current_time = Cloud_Protocol_Sg_Order_GetCurrentTime();
 
     for (int i = 0; i < CLOUD_PROTOCOL_SG_MAX_ORDERS; i++)
     {
         cloud_protocol_sg_order_t *order = &cloud_protocol_sg_order_manager.orders[i];
 
-        if (order->status != CLOUD_PROTOCOL_SG_ORDER_STATUS_IDLE &&
-            order->status != CLOUD_PROTOCOL_SG_ORDER_STATUS_COMPLETED)
+        if (cloud_protocol_event_post_pile_work_status_ctrl[i].last_post_time + CLOUD_PROTOCOL_SG_ORDER_UPDATE_PERIOD > current_time)
         {
-            current_trigger_state = true;
+            continue;
+        }
+
+        if (order->status != CLOUD_PROTOCOL_SG_ORDER_STATUS_IDLE &&
+            order->status != CLOUD_PROTOCOL_SG_ORDER_STATUS_STANDBY)
+        {
+            cloud_protocol_event_post_pile_work_status_ctrl[i].last_post_time = current_time;
+            cloud_protocol_event_post_pile_work_status_ctrl[i].on_running = true;
+            Cloud_Protocol_EventPost_ForceTriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_PILE_WORKSTATUS);
+            CLOUD_INFO("<%s> Gun %d order %s is running, triggering pile work status upload\r\n", __func__, order->gun_no, order->order_id);
         }
         else
         {
-            current_trigger_state = false;
-        }
-
-        if (current_trigger_state != cloud_protocol_event_post_pile_work_status_ctrl[i].on_running)
-        {
-            if (current_trigger_state)
-            {
-                Cloud_Protocol_EventPost_EnableTriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_PILE_WORKSTATUS, CLOUD_PROTOCOL_SG_ORDER_UPDATE_PERIOD);
-            }
-            else
-            {
-                Cloud_Protocol_EventPost_DisableTriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_PILE_WORKSTATUS);
-            }
-
-            cloud_protocol_event_post_pile_work_status_ctrl[i].on_running = current_trigger_state;
+            cloud_protocol_event_post_pile_work_status_ctrl[i].on_running = false;
         }
     }
 }

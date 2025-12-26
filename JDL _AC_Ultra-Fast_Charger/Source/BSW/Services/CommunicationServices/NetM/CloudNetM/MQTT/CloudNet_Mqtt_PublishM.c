@@ -186,6 +186,7 @@ static void CloudNetM_MqttRemoveQueueHead(void)
 /* Check whether topic AT command needs to be sent */
 static bool CloudNetM_MqttNeedSendTopicAT(const char *current_topic)
 {
+#if 0
     /* If last topic is NULL or different from current, send topic AT */
     if (cloud_net_mqtt_publish_manager.last_topic == NULL)
     {
@@ -199,6 +200,9 @@ static bool CloudNetM_MqttNeedSendTopicAT(const char *current_topic)
 
     /* Same topic, no need to resend */
     return false;
+#else
+    return true;
+#endif
 }
 
 /* Send topic AT command */

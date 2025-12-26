@@ -40,6 +40,6 @@
 |******************************************************************************/
 extern void Cloud_Protocol_EventPost_VersionInfo_Init(void);
 extern bool Cloud_Protocol_EventPost_VersionInfo_HandleResponse(uint32_t msg_id);
-extern void Cloud_Protocol_EventPost_VersionInfo_Post(void);
+extern bool Cloud_Protocol_EventPost_VersionInfo_Post(void);
 #endif /* __CLOUD_PROTOCOL_EVENTPOST_VERSIONINFO_H__ */
 /* EOL */

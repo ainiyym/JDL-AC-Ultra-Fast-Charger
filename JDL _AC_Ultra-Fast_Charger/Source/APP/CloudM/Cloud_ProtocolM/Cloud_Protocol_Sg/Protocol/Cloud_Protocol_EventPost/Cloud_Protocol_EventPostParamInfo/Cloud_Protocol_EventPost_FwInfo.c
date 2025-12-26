@@ -351,7 +351,7 @@ static bool Cloud_Protocol_EventPost_FwInfo_Validate(void)
     return true;
 }
 
-void Cloud_Protocol_EventPost_FwInfo_Post(void)
+bool Cloud_Protocol_EventPost_FwInfo_Post(void)
 {
     cloud_protocol_event_post_req_t *cloud_protocol_event_post_req = NULL;
     uint64_t timestamp = 0;
@@ -394,14 +394,14 @@ void Cloud_Protocol_EventPost_FwInfo_Post(void)
     if (params_obj == NULL)
     {
         CLOUD_WARN("<%s %d> params object not found\r\n", __func__, __LINE__);
-        return;
+        return false;
     }
 
     cJSON *value_obj = cJSON_GetObjectItem(params_obj, "value");
     if (value_obj == NULL)
     {
         CLOUD_WARN("<%s %d> value object not found\r\n", __func__, __LINE__);
-        return;
+        return false;
     }
     // add fw info fields to value object
     cJSON_AddStringToObject(value_obj, "simNo", cloud_protocol_event_fireware_info.simNo);
@@ -458,17 +458,25 @@ void Cloud_Protocol_EventPost_FwInfo_Post(void)
         {
             cJSON_AddItemToArray(outMeterArray, item);
         }
-    }
+    }  
 
     // print unformatted json string
     timestamp = (uint64_t)CLOUD_PROTOCOL_GET_CURRENT_TIMESTAMP() * 1000; // convert to milliseconds
+
+    bool ret = false;
     if (Cloud_Protocol_EventPost_FwInfo_Validate())
     {
-        Cloud_Protocol_EventPost_PrintUnformatted(root, timestamp, "firmwareEvt");
+        ret = Cloud_Protocol_EventPost_PrintUnformatted(root, timestamp, "firmwareEvt");
+        if (ret == false)
+        {
+            CLOUD_WARN("<%s %d> Post fw info event failed\r\n", __func__, __LINE__);
+        }
     }
 
     cJSON_Delete(root);
     root = NULL;
+
+    return ret;
 }
 
 bool Cloud_Protocol_EventPost_FwInfo_HandleResponse(uint32_t msg_id)

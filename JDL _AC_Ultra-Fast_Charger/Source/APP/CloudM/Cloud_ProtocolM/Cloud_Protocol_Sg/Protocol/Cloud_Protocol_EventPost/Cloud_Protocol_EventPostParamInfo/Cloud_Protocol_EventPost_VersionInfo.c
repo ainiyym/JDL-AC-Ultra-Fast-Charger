@@ -66,7 +66,7 @@ void Cloud_Protocol_EventPost_SetVersionInfoMsgId(uint32_t msg_id)
 	cloud_protocol_event_post_version_info_ctrl.send_message_id = msg_id;
 }
 
-void Cloud_Protocol_EventPost_VersionInfo_Post(void)
+bool Cloud_Protocol_EventPost_VersionInfo_Post(void)
 {
 	cloud_protocol_event_post_req_t *cloud_protocol_event_post_req = NULL;
 	cJSON *root = NULL;
@@ -84,14 +84,14 @@ void Cloud_Protocol_EventPost_VersionInfo_Post(void)
 	if (params_obj == NULL)
 	{
 		CLOUD_WARN("<%s %d> params object not found\r\n", __func__, __LINE__);
-		return;
+		return false;
 	}
 
 	cJSON *value_obj = cJSON_GetObjectItem(params_obj, "value");
 	if (value_obj == NULL)
 	{
 		CLOUD_WARN("<%s %d> value object not found\r\n", __func__, __LINE__);
-		return;
+		return false;
 	}
 
 	cJSON_AddNumberToObject(value_obj, "devRegMethod", cloud_protocol_event_version_info.devRegMethod);
@@ -101,10 +101,15 @@ void Cloud_Protocol_EventPost_VersionInfo_Post(void)
 
 	// print unformatted json string
 	timestamp = (uint64_t)CLOUD_PROTOCOL_GET_CURRENT_TIMESTAMP() * 1000; // convert to milliseconds
-	Cloud_Protocol_EventPost_PrintUnformatted(root, timestamp, "verInfoEvt");
+	bool ret = Cloud_Protocol_EventPost_PrintUnformatted(root, timestamp, "verInfoEvt");
+	if (ret == false)
+	{
+		CLOUD_WARN("<%s %d> Post version info event failed\r\n", __func__, __LINE__);
+	}
 
 	cJSON_Delete(root);
 	root = NULL;
+	return ret;
 }
 
 bool Cloud_Protocol_EventPost_VersionInfo_HandleResponse(uint32_t msg_id)

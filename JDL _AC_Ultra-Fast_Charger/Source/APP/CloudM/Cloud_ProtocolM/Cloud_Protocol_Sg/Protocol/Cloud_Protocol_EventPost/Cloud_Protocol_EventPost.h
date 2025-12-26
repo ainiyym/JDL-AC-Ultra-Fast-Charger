@@ -51,9 +51,5 @@ typedef struct
 extern void Cloud_Protocol_EventPost_Init(void);
 extern void Cloud_Protocol_EventPost_PeriodicTask(void);
 extern void Cloud_Protocol_EventPost_UpdateConfig(const v2g_data_dev_config *config);
-extern bool Cloud_Protocol_EventPost_EnableTriggerEvent(cloud_protocol_event_post_type_t type, uint16_t interval);
-extern bool Cloud_Protocol_EventPost_DisableTriggerEvent(cloud_protocol_event_post_type_t type);
-extern bool Cloud_Protocol_EventPost_ForceTriggerEvent(cloud_protocol_event_post_type_t type);
-extern void Cloud_Protocol_EventPost_ForceAllEvents(void);
 #endif /* __CLOUD_PROTOCOL_EVENTPOST_H */ 
 /* EOL */

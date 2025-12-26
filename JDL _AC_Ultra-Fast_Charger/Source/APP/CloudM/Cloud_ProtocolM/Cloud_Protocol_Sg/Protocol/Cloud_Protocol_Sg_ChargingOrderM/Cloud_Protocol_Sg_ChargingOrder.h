@@ -15,6 +15,8 @@
 |******************************************************************************/
 #include "Cloud_Protocol_Sg_ChargingOrder_Cfg.h"
 #include "Cloud_Protocol_EventPost_Cfg.h"
+#include "STD_AuthM.h"
+#include "dummy.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -66,9 +68,9 @@ typedef struct
 extern bool Cloud_Protocol_Sg_Order_Init(void);
 extern void Cloud_Protocol_Sg_Order_Deinit(void);
 /* order management */
-extern bool Cloud_Protocol_Sg_Order_Start(uint8_t gun_no, const char *order_id, cloud_protocol_sg_order_op_t operation, cloud_protocol_sg_order_measure_value_t measure_value);
-extern bool Cloud_Protocol_Sg_Order_Stop(uint8_t gun_no);
-extern bool Cloud_Protocol_Sg_Order_Pause(uint8_t gun_no);
+extern bool Cloud_Protocol_Sg_Order_Start(uint8_t gun_no, const char *order_id, cloud_protocol_sg_order_op_t operation);
+extern bool Cloud_Protocol_Sg_Order_Stop(uint8_t gun_no, char *order_id, char *reason);
+extern bool Cloud_Protocol_Sg_Order_Pause(uint8_t gun_no, const char *order_id);
 extern bool Cloud_Protocol_Sg_Order_Resume(uint8_t gun_no);
 extern bool Cloud_Protocol_Sg_Order_ForceStop(uint8_t gun_no, bool save_to_tsdb);
 /* update order */
@@ -81,7 +83,7 @@ extern void Cloud_Protocol_Sg_Order_TimerTask(void);
 void Cloud_Protocol_Sg_Order_HandlePowerFailure(void);
 /* event post response handling */
 extern void Cloud_Protocol_Sg_Order_GetOrderOnRunningStatus(uint8_t* gun1, uint8_t* gun2);
-extern void Cloud_Protocol_EventPost_PileWorkstatus_Post(uint8_t gun_no);
+extern bool Cloud_Protocol_EventPost_PileWorkstatus_Post(uint8_t gun_no);
 extern bool Cloud_Protocol_EventPost_PostPileWorkstatus_Response(uint32_t msg_id);
 #endif /* __CLOUD_PROTOCOL_SG_CHARGING_ORDER_H */
 /* EOL */

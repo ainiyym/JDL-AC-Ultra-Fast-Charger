@@ -92,7 +92,6 @@ static mqtt_client_manager_t cloud_protocol_mqtt_client;
 |    Static Local Functions Declaration
 |******************************************************************************/
 static void Cloud_Protocol_Mqtt_StartConnection(void);
-static void Cloud_Protocol_Mqtt_StartReconnect(void);
 static void Cloud_Protocol_Mqtt_RemoveMessageFromQueue(cloud_protocol_mqtt_message_item_t *msg);
 static void Cloud_Protocol_Mqtt_DropOldestMessage(void);
 static void Cloud_Protocol_Mqtt_FreePublishItem(cloud_protocol_mqtt_message_item_t *item);
@@ -324,7 +323,7 @@ void Cloud_Protocol_Mqtt_HandleDisconnected(void)
 /**
  * @brief Start reconnect attempts
  */
-static void Cloud_Protocol_Mqtt_StartReconnect(void)
+void Cloud_Protocol_Mqtt_StartReconnect(void)
 {
     uint64_t current_time = CLOUD_GET_TIME_MS();
     uint32_t reconnect_interval = CLOUD_PROTOCOL_MQTT_RECONNECT_INTERVAL_MS; /* reconnect interval */
@@ -1001,7 +1000,8 @@ void Cloud_Protocol_Mqtt_ClientManagerProcess(void)
     }
     else if (cloud_protocol_mqtt_client.ctrl.net_status == CLOUD_PROTOCOL_MQTT_STATE_DISCONNECTED)
     {
-        Cloud_Protocol_Mqtt_StartReconnect();
+        // Cloud_Protocol_Mqtt_StartReconnect();
+        // waiting automatic reconnect triggered by network layer
     }
     else if (cloud_protocol_mqtt_client.ctrl.net_status == CLOUD_PROTOCOL_MQTT_STATE_CONNECTED)
     {

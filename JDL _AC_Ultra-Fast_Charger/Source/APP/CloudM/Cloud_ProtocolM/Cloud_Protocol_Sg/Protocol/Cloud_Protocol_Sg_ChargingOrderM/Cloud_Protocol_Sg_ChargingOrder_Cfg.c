@@ -57,7 +57,7 @@ uint32_t Cloud_Protocol_Sg_Order_GetCurrentTime(void)
 /**
  * @brief get current hour
  */
-uint8_t Cloud_Protocol_Sg_Order_GetCurrentHour(void)
+uint8_t Cloud_Protocol_Sg_Order_GetCurrentBeijingHour(void)
 {
     uint32_t timestamp = Cloud_Protocol_Sg_Order_GetCurrentTime();
 
@@ -65,7 +65,7 @@ uint8_t Cloud_Protocol_Sg_Order_GetCurrentHour(void)
     uint32_t seconds_in_day = timestamp % (24 * 3600);
     uint8_t hour = seconds_in_day / 3600;
 
-    return hour;
+    return hour + 8;
 }
 
 /**

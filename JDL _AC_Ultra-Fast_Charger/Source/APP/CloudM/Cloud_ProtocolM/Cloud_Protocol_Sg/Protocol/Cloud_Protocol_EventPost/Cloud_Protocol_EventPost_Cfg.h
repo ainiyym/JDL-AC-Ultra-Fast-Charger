@@ -94,7 +94,12 @@ typedef struct
 extern cloud_protocol_event_post_req_t *Cloud_Protocol_EventPost_CreateRequest(char* identifier, cloud_protocol_mqtt_set_msg_id_cb set_msg_id_cb);
 extern cJSON *Cloud_Protocol_EventPost_BuildRequestJsonHeader(const cloud_protocol_event_post_req_t *req);
 extern void Cloud_Protocol_EventPost_DestroyRequest(cloud_protocol_event_post_req_t *req);
-extern void Cloud_Protocol_EventPost_PrintUnformatted(cJSON *object, uint64_t timestamp, char* identifier);
+extern bool Cloud_Protocol_EventPost_PrintUnformatted(cJSON *object, uint64_t timestamp, char* identifier);
+// event post module
+extern bool Cloud_Protocol_EventPost_EnableTriggerEvent(cloud_protocol_event_post_type_t type, uint16_t interval);
+extern bool Cloud_Protocol_EventPost_DisableTriggerEvent(cloud_protocol_event_post_type_t type);
+extern bool Cloud_Protocol_EventPost_ForceTriggerEvent(cloud_protocol_event_post_type_t type);
+extern void Cloud_Protocol_EventPost_ForceAllEvents(void);
 // parse response object
 extern cloud_protocol_event_post_resp_t *Cloud_Protocol_EventPost_ParseResponse(const char *json_str);
 
