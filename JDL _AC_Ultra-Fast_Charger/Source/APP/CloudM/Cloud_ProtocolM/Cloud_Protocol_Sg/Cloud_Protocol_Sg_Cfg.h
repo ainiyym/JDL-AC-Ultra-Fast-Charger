@@ -30,6 +30,7 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
+#define CLOUD_PROTOCOL_SG_MAX_GUN_NUM       SYS_CONNECTOR_NUM_MAX                   /* connector num */
 #define DEV_SIGN_SOURCE_MAXLEN              (200)
 #define SIGN_FMT_LEN                        50                                      /* "clientId%sdeviceName%sproductKey%stimestamp%s";*/
 #define MAX_TOPIC_LENGTH                    256                                     /* max topic length */

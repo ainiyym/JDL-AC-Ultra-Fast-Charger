@@ -15,7 +15,6 @@
 |******************************************************************************/
 #include "Cloud_Protocol_Sg_DataDef.h"
 #include "Cloud_Protocol_Sg_Cfg.h"
-#include "STD_AuthM.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)

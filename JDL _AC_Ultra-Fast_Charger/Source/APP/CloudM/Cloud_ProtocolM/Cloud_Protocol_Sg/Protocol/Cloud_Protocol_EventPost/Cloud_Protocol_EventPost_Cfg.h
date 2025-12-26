@@ -41,6 +41,7 @@ typedef enum
    CLOUD_PROTOCOL_EVENT_POST_TYPE_FW_INFO,          // firmware information
    CLOUD_PROTOCOL_EVENT_POST_TYPE_VERSION_INFO,     // version information
    CLOUD_PROTOCOL_EVENT_POST_TYPE_PILE_WORKSTATUS,  // pile work status
+   CLOUD_PROTOCOL_EVENT_POST_TYPE_GUN_STATUS,       // gun status
    CLOUD_PROTOCOL_EVENT_POST_TYPE_MAX
 } cloud_protocol_event_post_type_t;
 

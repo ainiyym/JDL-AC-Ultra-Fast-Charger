@@ -501,7 +501,26 @@ void Cloud_Protocol_EventPost_PeriodicTask(void)
 						}
 					}
 					return;
-					
+				case CLOUD_PROTOCOL_EVENT_POST_TYPE_GUN_STATUS:
+					Cloud_Protocol_Sg_Order_GetGunStatusPostEnable(&gun1, &gun2);
+					if (gun1)
+					{
+						result = Cloud_Protocol_EventPost_GunStatus_Post(1);
+						if (!result)
+						{
+							Cloud_Protocol_EventPost_EnableTriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_GUN_STATUS, 10); // retry later
+							CLOUD_WARN("<%s> Gun %d status event post failed, 10' will retry later\r\n", __func__, gun1);
+						}
+					}
+					if (gun2)
+					{
+						result = Cloud_Protocol_EventPost_GunStatus_Post(2);
+						if (!result)
+						{
+							Cloud_Protocol_EventPost_EnableTriggerEvent(CLOUD_PROTOCOL_EVENT_POST_TYPE_GUN_STATUS, 10); // retry later
+							CLOUD_WARN("<%s> Gun %d status event post failed, 10' will retry later\r\n", __func__, gun2);
+						}
+					}
 				default:
 					return;
 			}

@@ -42,7 +42,7 @@ typedef struct
 |    Global variables Declaration
 |******************************************************************************/
 static cloud_protocol_sg_order_manager_t cloud_protocol_sg_order_manager = {0};
-static cloud_protocol_event_post_pile_work_status_ctrl_t cloud_protocol_event_post_pile_work_status_ctrl[CLOUD_PROTOCOL_SG_MAX_ORDERS] = {0};
+static cloud_protocol_event_post_pile_work_status_ctrl_t cloud_protocol_event_post_pile_work_status_ctrl[CLOUD_PROTOCOL_SG_MAX_GUN_NUM] = {0};
 
 /*******************************************************************************
 |    Table Const Definition
@@ -87,7 +87,7 @@ bool Cloud_Protocol_Sg_Order_Init(void)
     cloud_protocol_sg_order_manager.is_uploading_pending = false;
 
     /* Initialize the order for two guns */
-    for (int i = 0; i < CLOUD_PROTOCOL_SG_MAX_ORDERS; i++)
+    for (int i = 0; i < CLOUD_PROTOCOL_SG_MAX_GUN_NUM; i++)
     {
         cloud_protocol_sg_order_t *order = &cloud_protocol_sg_order_manager.orders[i];
         order->gun_no = i + 1; /* gun serial number starts from 1 */
@@ -117,7 +117,7 @@ void Cloud_Protocol_Sg_Order_Deinit(void)
  */
 static bool Cloud_Protocol_Sg_Order_ValidateGunNo(uint8_t gun_no)
 {
-    if (gun_no < 1 || gun_no > CLOUD_PROTOCOL_SG_MAX_ORDERS)
+    if (gun_no < 1 || gun_no > CLOUD_PROTOCOL_SG_MAX_GUN_NUM)
     {
         CLOUD_ERROR("<%s> Invalid gun number: %d\r\n", __func__, gun_no);
         return false;
@@ -494,7 +494,7 @@ void Cloud_Protocol_Sg_Order_SetNetworkStatus(bool online)
     if (!online)
     {
         /* mark all active orders for offline timeout */
-        for (int i = 0; i < CLOUD_PROTOCOL_SG_MAX_ORDERS; i++)
+        for (int i = 0; i < CLOUD_PROTOCOL_SG_MAX_GUN_NUM; i++)
         {
             cloud_protocol_sg_order_t *order = &cloud_protocol_sg_order_manager.orders[i];
 
@@ -779,7 +779,7 @@ static bool Cloud_Protocol_Sg_Order_HandleOfflineTimeout(uint8_t gun_no)
  */
 static void Cloud_Protocol_Sg_Order_StopAllActiveOrders(bool save_to_tsdb)
 {
-    for (int i = 0; i < CLOUD_PROTOCOL_SG_MAX_ORDERS; i++)
+    for (int i = 0; i < CLOUD_PROTOCOL_SG_MAX_GUN_NUM; i++)
     {
         cloud_protocol_sg_order_t *order = &cloud_protocol_sg_order_manager.orders[i];
 
@@ -1065,7 +1065,7 @@ bool Cloud_Protocol_EventPost_PostPileWorkstatus_Response(uint32_t msg_id)
 {
     int gun_index = -1;
 
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < CLOUD_PROTOCOL_SG_MAX_GUN_NUM; i++)
     {
         if (msg_id == cloud_protocol_event_post_pile_work_status_ctrl[i].send_message_id)
         {
@@ -1110,7 +1110,7 @@ static void Cloud_Protocol_Sg_Order_HandleOnlineRunningOrders(void)
 {
     uint32_t current_time = Cloud_Protocol_Sg_Order_GetCurrentTime();
 
-    for (int i = 0; i < CLOUD_PROTOCOL_SG_MAX_ORDERS; i++)
+    for (int i = 0; i < CLOUD_PROTOCOL_SG_MAX_GUN_NUM; i++)
     {
         cloud_protocol_sg_order_t *order = &cloud_protocol_sg_order_manager.orders[i];
 
@@ -1146,7 +1146,7 @@ static void Cloud_Protocol_Sg_Order_HandlePendingUploadOrders(void)
 
     v2g_event_pile_workstatus pending_record;
 
-    for (int i = 0; i < CLOUD_PROTOCOL_SG_MAX_ORDERS; i++)
+    for (int i = 0; i < CLOUD_PROTOCOL_SG_MAX_GUN_NUM; i++)
     {
         memset(&pending_record, 0, sizeof(v2g_event_pile_workstatus));
         if (Cloud_Protocol_Sg_Order_GetNextPendingRecord(i + 1, &pending_record))
@@ -1168,7 +1168,7 @@ void Cloud_Protocol_Sg_Order_TimerTask(void)
     /* check offline timeout (check every second) */
     if (!Cloud_Protocol_Sg_Order_IsNetworkOnline())
     {
-        for (int i = 0; i < CLOUD_PROTOCOL_SG_MAX_ORDERS; i++)
+        for (int i = 0; i < CLOUD_PROTOCOL_SG_MAX_GUN_NUM; i++)
         {
             Cloud_Protocol_Sg_Order_HandleOfflineTimeout(i + 1);
         }

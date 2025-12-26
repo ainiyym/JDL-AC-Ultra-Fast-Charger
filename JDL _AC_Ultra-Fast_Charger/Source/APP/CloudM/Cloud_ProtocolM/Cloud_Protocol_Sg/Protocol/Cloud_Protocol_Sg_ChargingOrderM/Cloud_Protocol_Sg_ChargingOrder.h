@@ -52,7 +52,7 @@ typedef struct
 /* The global structure of the order module */
 typedef struct
 {
-    cloud_protocol_sg_order_t orders[CLOUD_PROTOCOL_SG_MAX_ORDERS]; /* current orders */
+    cloud_protocol_sg_order_t orders[CLOUD_PROTOCOL_SG_MAX_GUN_NUM]; /* current orders */
     bool network_online;                                            /* network online status */
     bool is_uploading_pending;                                      /* is uploading pending orders */
 } cloud_protocol_sg_order_manager_t;

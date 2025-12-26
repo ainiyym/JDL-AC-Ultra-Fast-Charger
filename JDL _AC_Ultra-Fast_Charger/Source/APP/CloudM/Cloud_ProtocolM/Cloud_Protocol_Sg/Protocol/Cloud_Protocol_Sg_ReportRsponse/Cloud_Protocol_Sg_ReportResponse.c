@@ -172,6 +172,11 @@ static cloud_protocol_sg_report_event_type_t cloud_protocol_report_detect_report
         return CLOUD_PROTOCOL_SG_REPORT_EVENT_PILE_WORKSTATUS;
     }
 
+    if (strstr(method, "dcStChEvt") != NULL)
+    {
+        return CLOUD_PROTOCOL_SG_REPORT_EVENT_GUN_STATUS;
+    }
+
     /* Check for other known event patterns (extendable) */
     if (strstr(method, "thing.event.") != NULL)
     {
@@ -213,6 +218,13 @@ static bool cloud_protocol_report_dispatch_report_event(const cloud_protocol_rep
             {
                 return true;
             }
+        case CLOUD_PROTOCOL_SG_REPORT_EVENT_GUN_STATUS:
+            CLOUD_INFO("<%s> Dispatching gun status event: id=%u\r\n", __func__, response->id);
+            if (Cloud_Protocol_EventPost_GunStatus_HandleResponse(response->id))
+            {
+                return true;
+            }
+            break;
         case CLOUD_PROTOCOL_SG_REPORT_EVENT_OTHER:
             CLOUD_INFO("Other report event: method=%s, code=%u, id=%u\r\n", response->method, response->code, response->id);
             break;

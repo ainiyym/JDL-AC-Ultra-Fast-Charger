@@ -266,5 +266,7 @@ void Cloud_Protocol_Mqtt_MainProcess(void)
     Cloud_Protocol_Sg_RemoteCharge_PeriodicTask();
     /* order timer task */
     Cloud_Protocol_Sg_Order_TimerTask();
+    /* gun status monitoring */
+    Cloud_Protocol_EventPost_GunStatusMonitoring();
 }
 /* EOL */

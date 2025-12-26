@@ -3065,6 +3065,18 @@
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
+    <File>
+      <GroupNumber>51</GroupNumber>
+      <FileNumber>195</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Sg\Protocol\Cloud_Protocol_EventPost\Cloud_Protocol_EventPost_GunStatus\Cloud_Protocol_EventPost_GunStatus.c</PathWithFileName>
+      <FilenameWithoutPath>Cloud_Protocol_EventPost_GunStatus.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
   </Group>
 
 </ProjectOpt>
