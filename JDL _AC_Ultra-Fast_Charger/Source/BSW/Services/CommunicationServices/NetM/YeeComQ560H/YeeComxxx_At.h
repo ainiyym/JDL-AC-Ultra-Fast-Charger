@@ -68,6 +68,7 @@ typedef enum
 
 typedef enum
 {
+    YEECOM_AT_CMD_DTU_VERSION = 0, /* Get DTU version info */
     YEECOM_AT_CMD_WORKING_MODE, /* DTU working mode */
     YEECOM_AT_CMD_GPRS_MODE, /* DTU online mode */
     YEECOM_AT_CMD_CH_MODE, /* DTU Central mode */

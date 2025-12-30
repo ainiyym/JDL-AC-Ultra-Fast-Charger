@@ -157,82 +157,18 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>186</LineNumber>
+          <LineNumber>521</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134288268</Address>
+          <Address>134361064</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Sg\Protocol\Cloud_Protocol_Sg_ChargingOrderM\Cloud_Protocol_Sg_ChargingOrder.c</Filename>
+          <Filename>.\Source\BSW\Services\CommunicationServices\NetM\YeeComQ560H\YeeComxxx_Device.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CloudM/Cloud_ProtocolM/Cloud_Protocol_Sg/Protocol/Cloud_Protocol_Sg_ChargingOrderM/Cloud_Protocol_Sg_ChargingOrder.c\186</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>432</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134267626</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Sg\Protocol\Cloud_Protocol_EventPost\Cloud_Protocol_EventPost.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CloudM/Cloud_ProtocolM/Cloud_Protocol_Sg/Protocol/Cloud_Protocol_EventPost/Cloud_Protocol_EventPost.c\432</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>402</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134268894</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Sg\Protocol\Cloud_Protocol_EventPost\Cloud_Protocol_EventPost.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CloudM/Cloud_ProtocolM/Cloud_Protocol_Sg/Protocol/Cloud_Protocol_EventPost/Cloud_Protocol_EventPost.c\402</Expression>
-        </Bp>
-        <Bp>
-          <Number>3</Number>
-          <Type>0</Type>
-          <LineNumber>487</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134267754</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Sg\Protocol\Cloud_Protocol_EventPost\Cloud_Protocol_EventPost.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CloudM/Cloud_ProtocolM/Cloud_Protocol_Sg/Protocol/Cloud_Protocol_EventPost/Cloud_Protocol_EventPost.c\487</Expression>
-        </Bp>
-        <Bp>
-          <Number>4</Number>
-          <Type>0</Type>
-          <LineNumber>400</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134268876</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\Source\APP\CloudM\Cloud_ProtocolM\Cloud_Protocol_Sg\Protocol\Cloud_Protocol_EventPost\Cloud_Protocol_EventPost.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/APP/CloudM/Cloud_ProtocolM/Cloud_Protocol_Sg/Protocol/Cloud_Protocol_EventPost/Cloud_Protocol_EventPost.c\400</Expression>
+          <Expression>\\JDL__AC_Ultra_Fast_Charger\Source/BSW/Services/CommunicationServices/NetM/YeeComQ560H/YeeComxxx_Device.c\521</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -260,6 +196,11 @@
           <count>4</count>
           <WinNumber>1</WinNumber>
           <ItemText>cloud_protocol_event_post_pile_work_status_ctrl[i].last_post_time,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>ActiveCtrl</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
@@ -292,7 +233,7 @@
       <DebugFlag>
         <trace>0</trace>
         <periodic>1</periodic>
-        <aLwin>1</aLwin>
+        <aLwin>0</aLwin>
         <aCover>0</aCover>
         <aSer1>0</aSer1>
         <aSer2>0</aSer2>
@@ -993,7 +934,7 @@
 
   <Group>
     <GroupName>Source/BSW/MCAL/Test</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1025,7 +966,7 @@
 
   <Group>
     <GroupName>Source/BSW/MCAL/Uart</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2201,7 +2142,7 @@
 
   <Group>
     <GroupName>atm</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2257,7 +2198,7 @@
 
   <Group>
     <GroupName>at/yeecom</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2821,7 +2762,7 @@
 
   <Group>
     <GroupName>SgCloud</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

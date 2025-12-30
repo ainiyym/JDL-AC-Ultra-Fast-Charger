@@ -11,9 +11,10 @@
 #define YEECOM_DEFAULT_REMOTE_PORT              (1883u)
 #define YEECOM_DEFAULT_NET_TYPE                 (YEECOM_WORKING_MQTT)
 
+#define YEECOM_DTU_VERSION_LENGTH               (20U)
 #define YEECOM_ICCID_LENGTH                     (20U)
 #define YEECOM_IMEI_LENGTH                      (15U)
-#define YEECOM_DTUID_LENGTH                     (96U)
+#define YEECOM_DTUID_LENGTH                     (128U)
 #define YEECOM_GSTATE_NUMBER                    (TCP_ID_MAXIMUM) // The online status of the connected server: 0-disconnected, 1-connected
 
 #define YEECOM_PERIODIC_TASK_PERIOD             (15 * 1000 / YEECOM_PERIOD_MS)   // 10s

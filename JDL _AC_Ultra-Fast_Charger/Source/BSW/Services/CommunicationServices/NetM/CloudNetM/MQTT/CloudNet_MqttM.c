@@ -110,8 +110,7 @@ bool CloudNetM_MqttConnect(uint8_t socket_id, uint8_t *payload, uint16_t length)
                       config.password);
     YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_DTUID, NULL);
     YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_MQSET, NULL, socket_id);
-    // vTaskDelay(pdMS_TO_TICKS(100)); // Wait for 100 ms for the settings to take effect
-    // YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_GSTATE, NULL);
+
     return true;
 }
 

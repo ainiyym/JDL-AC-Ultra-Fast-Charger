@@ -12,6 +12,7 @@ const YeeCom_AT_OobCmd_ParameterCfg YeeCom_At_Cmd_OobParam[YEECOM_AT_CMD_OOBPARA
 /* AT set parameter command table */
 const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Set_Param[YEECOM_AT_CMD_SET_PARAM_COUNT] =
 {
+    {YEECOM_AT_CMD_DTU_VERSION,                    "AT*UPDATE=%s#\r\n",                 { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_VersionCallback } },
     { YEECOM_AT_CMD_WORKING_MODE,                  "AT*SERVER%d=%d,%s,%d#\r\n",         { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_SERVERn_Callback } },
     { YEECOM_AT_CMD_GPRS_MODE,                     "AT*GPRSMODE=%d#\r\n",               { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_GPRSMode_Callback } },
     { YEECOM_AT_CMD_CH_MODE,                       "AT*CHMODE=%d#\r\n",                 { NULL,           "OK\r\n",    "ERROR\r\n", 5000,          YeeCom_At_Set_CHMode_Callback } },
@@ -34,6 +35,7 @@ const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Set_Param[YEECOM_AT_CMD_SET_PARAM
 /* AT get parameter command table */
 const YeeCom_AT_Cmd_ParameterCfg YeeCom_At_Cmd_Get_Param[YEECOM_AT_CMD_GET_PARAM_COUNT] =
 {
+    { YEECOM_AT_CMD_DTU_VERSION,                   "AT*VERSION?\r\n",                   { "+VERSION",      "OK",    NULL,       2000,             YeeCom_At_Get_VersionCallback } },
     { YEECOM_AT_CMD_WORKING_MODE,                  "AT*SERVER%d?\r\n",                  { "+SERVER",       "OK",    NULL,       2000,             YeeCom_At_Get_SERVERnCallback } },
     { YEECOM_AT_CMD_GPRS_MODE,                     "AT*GPRSMODE?\r\n",                  { "+GPRSMODE",     "OK",    NULL,       2000,             YeeCom_At_Get_GPRSMODECallback } },
     { YEECOM_AT_CMD_CH_MODE,                       "AT*CHMODE?\r\n",                    { "+CHMODE",       "OK",    NULL,       2000,             YeeCom_At_Get_CHMODECallback } },

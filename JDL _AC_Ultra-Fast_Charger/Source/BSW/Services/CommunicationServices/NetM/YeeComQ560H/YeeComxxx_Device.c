@@ -13,6 +13,7 @@
 typedef enum
 {
     YEECOM_STATE_LOADING,
+    YEECOM_STATE_CHECK_DTU_VERSION,
     YEECOM_STATE_GETTING_CONST_INFO,
     YEECOM_STATE_CONFIRM_INFO,
     YEECOM_STATE_READY,
@@ -56,6 +57,8 @@ typedef struct
 {
     uint8_t SimReadyStatus;                         /* device sim is valid:1 ,invalid:0 */
     uint16_t Rssi;                                  /* Signal Strength */
+    uint16_t Dfi;                                   /* UART Data frame interval time */
+    char DtuVersion[YEECOM_DTU_VERSION_LENGTH + 1]; /* DTU version info */
     char ICCID[YEECOM_ICCID_LENGTH + 1];            /* SIM ICCID */
     char IMEI[YEECOM_IMEI_LENGTH + 1];              /* device imei */
     char DTUID[YEECOM_DTUID_LENGTH + 1];            /* device DTUID */
@@ -82,7 +85,7 @@ uint8_t YeeCom_AtCmd_Send(YeeCom_AT_Cmd_Get_Param_Type cmd_type, YeeCom_AT_Cmd c
     switch (cmd_type)
     {
         case YEECOM_AT_CMD_GET:
-            for (YeeCom_AT_Cmd  id = YEECOM_AT_CMD_WORKING_MODE; id < YEECOM_AT_CMD_GET_PARAM_COUNT; id++)
+            for (YeeCom_AT_Cmd  id = (YeeCom_AT_Cmd)0; id < YEECOM_AT_CMD_GET_PARAM_COUNT; id++)
             {
                 if (YeeCom_At_Cmd_Get_Param[id].cmd == cmd)
                 {
@@ -92,7 +95,7 @@ uint8_t YeeCom_AtCmd_Send(YeeCom_AT_Cmd_Get_Param_Type cmd_type, YeeCom_AT_Cmd c
             }
             break;
         case YEECOM_AT_CMD_SET:
-            for (YeeCom_AT_Cmd id = YEECOM_AT_CMD_WORKING_MODE; id < YEECOM_AT_CMD_SET_PARAM_COUNT; id++)
+            for (YeeCom_AT_Cmd id = (YeeCom_AT_Cmd)0; id < YEECOM_AT_CMD_SET_PARAM_COUNT; id++)
             {
                 if (YeeCom_At_Cmd_Set_Param[id].cmd == cmd)
                 {
@@ -299,6 +302,23 @@ void YeeCom_DeviceRestart(void)
     YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_DEVICE_RESTART, NULL);
 }
 
+void YeeCom_SetDeviceInfo_DtuVersion(const char* version)
+{
+    if (version != NULL)
+    {
+        memcpy(&gv_YeeComxxx_device_info.DtuVersion, version, YEECOM_DTU_VERSION_LENGTH);
+        gv_YeeComxxx_device_info.DtuVersion[YEECOM_DTU_VERSION_LENGTH] = '\0';
+        YeeCom_Log("<%s> DTU Version: %s\r\n", __func__, gv_YeeComxxx_device_info.DtuVersion);
+        // YeeCom_Print_Hex((uint8_t*)gv_YeeComxxx_device_info.DtuVersion, YEECOM_DTU_VERSION_LENGTH);
+    }
+}
+
+void YeeCom_SetDeviceInfo_UARTDfi(uint16_t dfi)
+{
+    gv_YeeComxxx_device_info.Dfi = dfi;
+    YeeCom_Log("<%s> UART DFI: %d ms\r\n", __func__, gv_YeeComxxx_device_info.Dfi);
+}
+
 void YeeCom_SetDeviceInfo_sim(uint8_t sim_status)
 {
     gv_YeeComxxx_device_info.SimReadyStatus = sim_status;
@@ -503,10 +523,8 @@ static void YeeCom_DevicePowerON(void)
 
 static void YeeCom_DeviceReset(void)
 {
-    if (YeeCom_GetDeviceState(YEECOM_DEVICE_RESET_CMD))
+    if (YeeCom_GetDeviceState(YEECOM_DEVICE_RESET_CMD) && gv_YeeComxxx_device_info.SimReadyStatus)
     {
-        YeeCom_DeinitUsart();
-        YeeCom_ReInitUsart(YEECOM_DEFAULT_BAUDRATE);
         YeeCom_SetLoadStep(YEECOM_LOAD_STEP3);
         YeeCom_Log("<%s> LoadStep goto YEECOM_LOAD_STEP3\r\n", __func__);
     }
@@ -515,7 +533,8 @@ static void YeeCom_DeviceReset(void)
         YeeCom_ClearTimeout();
         YeeCom_Err("Error: %s wating reset cmd timeout\r\n", __func__);
         // Reset device parameters
-        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_DEVICE_RESET, NULL, (uint32_t)(123456));
+        YeeCom_ResetDevice();
+        YeeCom_DeviceRestart();
     }
     else
     {
@@ -525,48 +544,33 @@ static void YeeCom_DeviceReset(void)
 
 static void YeeCom_SetUsartDfi(void)
 {
-    if (YeeCom_GetDeviceState(YEECOM_DEVICE_RESET_CMD) && gv_YeeComxxx_device_info.SimReadyStatus)
+    if (gv_YeeComxxx_device_info.Dfi == 0)
+    {
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_USART_DFI, NULL, 0);
+    }
+    else if (gv_YeeComxxx_device_info.Dfi != YEECOM_DEFAULT_DFI_TIME_SET)
     {
         YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_USART_DFI, NULL, YEECOM_DEFAULT_DFI_TIME_SET);
         YeeCom_SetLoadStep(YEECOM_LOAD_STEP4);
         YeeCom_Log("<%s> LoadStep goto YEECOM_LOAD_STEP4\r\n", __func__);
     }
-    else if (gv_YeeComxxx.TimerCnt > YEECOM_RESET_CHECK_TIMEOUT / YEECOM_PERIOD_MS)
-    {
-        YeeCom_ClearTimeout();
-        YeeCom_Err("Error: %s wating reset cmd timeout\r\n", __func__);
-        YeeCom_SetLoadStep(YEECOM_LOAD_STEP2);
-    }
     else
     {
-        gv_YeeComxxx.TimerCnt++;
+        YeeCom_SetLoadStep(YEECOM_LOAD_STEP5);
+        YeeCom_Log("<%s> LoadStep goto YEECOM_LOAD_STEP5\r\n", __func__);
     }
 }
 
 static void YeeCom_GetUsartDfi(void)
 {
-    if (YeeCom_GetDeviceParameters(YEECOM_DEVICE_PARAM_DFI))
-    {
-        YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_DFI, 0);
-        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_USART_DFI, NULL, 0);
-        YeeCom_SetLoadStep(YEECOM_LOAD_STEP5);
-        YeeCom_Log("<%s> LoadStep goto YEECOM_LOAD_STEP5\r\n", __func__);
-    }
-    else if (gv_YeeComxxx.TimerCnt > YEECOM_USART_CHECK_TIMEOUT / YEECOM_PERIOD_MS)
-    {
-        YeeCom_ClearTimeout();
-        YeeCom_Err("Error: %s USART DFI config timeout\r\n", __func__);
-        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_USART_DFI, NULL, YEECOM_DEFAULT_DFI_TIME_SET);
-    }
-    else
-    {
-        gv_YeeComxxx.TimerCnt++;
-    }
+    YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_USART_DFI, NULL, 0);
+    YeeCom_SetLoadStep(YEECOM_LOAD_STEP5);
+    YeeCom_Log("<%s> LoadStep goto YEECOM_LOAD_STEP5\r\n", __func__);
 }
 
 static void YeeCom_SetUsartDeinit(void)
 {
-    if (YeeCom_GetDeviceParameters(YEECOM_DEVICE_PARAM_DFI))
+    if (YEECOM_DEFAULT_DFI_TIME_SET == gv_YeeComxxx_device_info.Dfi)
     {
         YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_USART_CFG, NULL, YEECOM_ENABLE_BAUDRATE, YEECOM_DEFAULT_DATA_BITS, YEECOM_DEFAULT_PARITY, YEECOM_DEFAULT_STOP_BITS, YEECOM_DEFAULT_FLOW_CONTROL);
         YeeCom_SetLoadStep(YEECOM_LOAD_STEP6);
@@ -576,7 +580,7 @@ static void YeeCom_SetUsartDeinit(void)
     {
         YeeCom_ClearTimeout();
         YeeCom_Err("Error: %s USART DFI get timeout\r\n", __func__);
-        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_USART_DFI, NULL, 0);
+        YeeCom_SetLoadStep(YEECOM_LOAD_STEP4);
     }
     else
     {
@@ -627,6 +631,32 @@ static void YeeCom_CheckUsartOk(void)
     else
     {
         gv_YeeComxxx.TimerCnt++;
+    }
+}
+
+static void YeeCom_CheckDtuVersion(void)
+{
+    if (!YeeCom_GetDeviceState(YEECOM_POWER_ON) && gv_YeeComxxx_device_info.SimReadyStatus == 0)
+    {
+        return;
+    }
+
+    if (strcmp(gv_YeeComxxx_device_info.DtuVersion, "") == 0)
+    {
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_GET, YEECOM_AT_CMD_DTU_VERSION, NULL, 0);
+    }
+    else if (strcmp(gv_YeeComxxx_device_info.DtuVersion, YEECOM_EXPECTED_DTU_VERSION) != 0)
+    {
+        YeeCom_Err("Error: %s DTU version mismatch. Expected: %s, Got: %s\r\n", __func__, YEECOM_EXPECTED_DTU_VERSION, gv_YeeComxxx_device_info.DtuVersion);
+        // Handle version mismatch if necessary
+        YeeCom_AtCmd_Send(YEECOM_AT_CMD_SET, YEECOM_AT_CMD_DTU_VERSION, NULL, "ec_app452d");
+        memset(gv_YeeComxxx_device_info.DtuVersion, 0, YEECOM_DTU_VERSION_LENGTH);
+        YeeCom_ResetDevice();
+    }
+    else
+    {
+        YeeCom_SetState(YEECOM_STATE_GETTING_CONST_INFO);
+        YeeCom_Log("<%s> YeeComxxxState goto getting const info\r\n", __func__);
     }
 }
 
@@ -693,8 +723,8 @@ static void YeeCom_CfgParameter(void)
     {
         YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_GPRS_MODE, 0);
         // All parameters are configured successfully
-        YeeCom_SetState(YEECOM_STATE_GETTING_CONST_INFO);
-        YeeCom_Log("<%s> YeeComxxxState goto get const_info\r\n", __func__);
+        YeeCom_SetState(YEECOM_STATE_CHECK_DTU_VERSION);
+        YeeCom_Log("<%s> YeeComxxxState goto check dtu version\r\n", __func__);
         YeeCom_ClearTimeout();
         break;
     }
@@ -868,6 +898,11 @@ void YeeCom_MainFunc(void)
             YeeCom_LoadHandle();
             break;
         }
+        case YEECOM_STATE_CHECK_DTU_VERSION:
+        {
+            YeeCom_CheckDtuVersion();
+            break;
+        }
         case YEECOM_STATE_GETTING_CONST_INFO:
         {
             YeeCom_GetDeviceConstInfoHandle();
@@ -920,14 +955,13 @@ void YeeCom_Init(void)
             YeeCom_SetDeviceInitFlag(false);
         }
         YeeCom_SetState(YEECOM_STATE_LOADING);
- 
         // YeeCom_DeinitUsart();
-        // YeeCom_ReInitUsart(YEECOM_BAUDRATE_115200);
+        // YeeCom_ReInitUsart(YEECOM_ENABLE_BAUDRATE);
     }
     else
     {
         YeeCom_DeinitUsart();
         YeeCom_ReInitUsart(YEECOM_ENABLE_BAUDRATE);
-        YeeCom_SetState(YEECOM_STATE_GETTING_CONST_INFO);
+        YeeCom_SetState(YEECOM_STATE_CHECK_DTU_VERSION);
     }
 }

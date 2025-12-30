@@ -28,7 +28,6 @@
 |    Macro Definition
 |******************************************************************************/
 /* Maximum order quantity (two guns) */
-#define CLOUD_PROTOCOL_SG_MAX_ORDERS                        SYS_CONNECTOR_NUM_MAX
 #define CLOUD_PROTOCOL_SG_MAX_ORDER_ID_LEN                  40
 #define CLOUD_PROTOCOL_SG_OFFLINE_TIMEOUT                   300                     /* Offline timeout time (5 minutes =300 seconds) */
 #define CLOUD_PROTOCOL_SG_ORDER_UPDATE_PERIOD               (60)                    /* Order update period in seconds(60') */

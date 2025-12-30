@@ -27,6 +27,8 @@ extern void YeeCom_SetDeviceState(YeeCom_Device_Status_t id, uint8_t status);
 extern uint8_t YeeCom_GetDeviceState(YeeCom_Device_Status_t id);
 extern void YeeCom_SetDeviceParameters(YeeCom_Device_Param_t id, uint8_t status);
 extern void YeeCom_DeviceRestart(void);
+extern void YeeCom_SetDeviceInfo_UARTDfi(uint16_t dfi);
+extern void YeeCom_SetDeviceInfo_DtuVersion(const char* version);
 extern void YeeCom_SetDeviceInfo_sim(uint8_t sim_status);
 extern void YeeCom_SetDeviceInfo_rssi(uint16_t rssi);
 extern void YeeCom_SetDeviceInfo_iccid(const char* iccid);

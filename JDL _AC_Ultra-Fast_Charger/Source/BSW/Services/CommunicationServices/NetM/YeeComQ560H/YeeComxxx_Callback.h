@@ -14,6 +14,7 @@ void YeeCom_At_OOB_Net_Reset_Callback(void *arg, char *buf, int buflen);
 void YeeCom_At_OOB_Data_Passthrough_Callback(void *arg, char *buf, int buflen);
 
 /* at set cmd */
+void YeeCom_At_Set_VersionCallback(void *arg, char *buf, int buflen);
 void YeeCom_At_Set_SERVERn_Callback(void *arg, char *buf, int buflen);
 void YeeCom_At_Set_GPRSMode_Callback(void *arg, char *buf, int buflen);
 void YeeCom_At_Set_CHMode_Callback(void *arg, char *buf, int buflen);
@@ -32,6 +33,7 @@ void YeeCom_At_Set_MQSET_Callback(void *arg, char *buf, int buflen);
 void YeeCom_At_Set_MQTOP_Callback(void *arg, char *buf, int buflen);
 void YeeCom_At_Set_PUBTOP_Callback(void *arg, char *buf, int buflen);
 /* at get cmd */
+void YeeCom_At_Get_VersionCallback(void *arg, char *buf, int buflen);
 void YeeCom_At_Get_SERVERnCallback(void *arg, char *buf, int buflen);
 void YeeCom_At_Get_GPRSMODECallback(void *arg, char *buf, int buflen);
 void YeeCom_At_Get_CHMODECallback(void *arg, char *buf, int buflen);

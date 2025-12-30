@@ -43,10 +43,11 @@ typedef struct
     void *arg;
 } YeeCom_AT_OobCmd_ParameterCfg;
 
-#define YEECOM_AT_CMD_SET_PARAM_COUNT       (17)
-#define YEECOM_AT_CMD_GET_PARAM_COUNT       (19)
+#define YEECOM_AT_CMD_SET_PARAM_COUNT       (18)
+#define YEECOM_AT_CMD_GET_PARAM_COUNT       (20)
 
 #define MCAL_USART_CHANNEL_YEECOM         (MCAL_USART1_CH)
+#define YEECOM_EXPECTED_DTU_VERSION       "4.52dEC_G0TU1"
 #define YEECOM_DEFAULT_DFI_TIME_SET       (100) /* ms */
 #define YEECOM_BAUDRATE_115200            (115200)
 #define YEECOM_DEFAULT_BAUDRATE           (9600)
@@ -56,6 +57,7 @@ typedef struct
 #define YEECOM_DEFAULT_PARITY             (0) /* 0: none, 1: odd, 2: even */
 #define YEECOM_DEFAULT_FLOW_CONTROL       (0) /* 0: none, 1: RTS/CTS */
 #define YEECOM_USART_CHECK_TIMEOUT        (5000) /* ms */
+#define YEECOM_DTU_VERSION_CHECK_TIMEOUT  (5000) /* ms */
 #define YEECOM_RESET_CHECK_TIMEOUT        (45000) /* ms */
 #define YEECOM_USART_CHECK_RETRY_COUNT    (3)
 

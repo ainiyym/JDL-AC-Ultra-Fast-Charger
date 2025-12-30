@@ -223,6 +223,20 @@ void YeeCom_At_OOB_Data_Passthrough_Callback(void *arg, char *buf, int buflen)
 }
 #endif
 
+/* AT set update version command callback */
+void YeeCom_At_Set_VersionCallback(void *arg, char *buf, int buflen)
+{
+    // Handle the received DTU version response success
+    if (NULL != strstr(buf, "OK\r\n"))
+    {
+        YeeCom_Log("<%s> %s\r\n", __func__,  buf);
+    }
+    else 
+    {
+        YeeCom_Log("<%s> %s\r\n", __func__,  buf);
+    }
+}
+
 /* at set cmd */
 void YeeCom_At_Set_SERVERn_Callback(void *arg, char *buf, int buflen)
 {
@@ -383,6 +397,34 @@ void YeeCom_At_Set_PUBTOP_Callback(void *arg, char *buf, int buflen)
 {
     // Handle the received server response success
     YeeCom_Log("<%s> %s\r\n", __func__, buf);
+}
+
+/* at get cmd
++VERSION:=<sw_ver>
+OK 
+*/
+void YeeCom_At_Get_VersionCallback(void *arg, char *buf, int buflen)
+{
+    // Handle the received version response success
+    const char *start = buf;
+
+    const char *version_pos = strstr(buf, "+VERSION:");
+    if (version_pos != NULL)
+    {
+        char sw_ver[YEECOM_DTU_VERSION_LENGTH] = {0};
+
+        int result = sscanf(start, "+VERSION:%19[^\r\n]", sw_ver);
+
+        if (result == 1)
+        {
+            YeeCom_SetDeviceInfo_DtuVersion(sw_ver);
+        }
+        else
+        {
+            YeeCom_Log("<%s> Failed to parse VERSION response: %s\r\n", __func__, buf);
+            return;
+        }
+    }
 }
 
 /* at get cmd */
@@ -639,11 +681,7 @@ void YeeCom_At_Get_DFICallback(void *arg, char *buf, int buflen)
             memcpy(dfi_str, start, len);
 
             uint16_t dfi_time = (uint16_t)atoi(dfi_str);
-            YeeCom_Log("<%s> DFI Time: %d seconds\r\n", __func__, dfi_time);
-            if (dfi_time == YEECOM_DEFAULT_DFI_TIME_SET)
-            {
-                YeeCom_SetDeviceParameters(YEECOM_DEVICE_PARAM_DFI, 1);
-            }
+            YeeCom_SetDeviceInfo_UARTDfi(dfi_time);
         }
     }
 }
@@ -786,7 +824,7 @@ void YeeCom_At_Get_DTUID_Callback(void *arg, char *buf, int buflen)
         }
         if (current > start)
         {
-            char dtuid[128] = {0};
+            char dtuid[YEECOM_DTUID_LENGTH] = {0};
             strncpy(dtuid, start, current - start);
             YeeCom_SetDeviceInfo_dtuid(dtuid);
         }
