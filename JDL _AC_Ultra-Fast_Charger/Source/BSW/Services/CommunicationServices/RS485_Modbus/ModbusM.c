@@ -138,8 +138,8 @@ McalRetVal_t ModbusM_Send(ModbusChannel_t Channel, uint8_t addr, uint8_t cmd, ui
 	memcpy((ModbusRtu[Channel].txBuf + 2), data, data_len);
 	ModbusRtu[Channel].txLen = data_len + 2; // data(n)+add(1)+cmd(1)
 	crc = Lib_Crc16(ModbusRtu[Channel].txBuf, ModbusRtu[Channel].txLen);
-	ModbusRtu[Channel].txBuf[ModbusRtu[Channel].txLen++] = (uint8_t)(crc >> 8);
 	ModbusRtu[Channel].txBuf[ModbusRtu[Channel].txLen++] = (uint8_t)(crc & 0xff);
+	ModbusRtu[Channel].txBuf[ModbusRtu[Channel].txLen++] = (uint8_t)(crc >> 8);
 	if (MCAL_RET_SUCCESS == ModbusM_SendCallFunc(Channel))
 	{
 		return MCAL_RET_SUCCESS;
@@ -155,16 +155,15 @@ static void ModbusM_Timeout_Handler(ModbusChannel_t Channel)
 	if (ModbusRtu[Channel].rxTimeOut++ > ModbusUartConfigValue[Channel].RcvBlockFrameOverTime)
 	{
 		ModbusRtu[Channel].state = MODBUS_STATE_REC_ERR;
+		MODBUS_ERROR("%s <channel:%d> ERR!!!\r\n", __func__, Channel);
 	}
-	// MODBUS_ERROR("%s ERR!!!\r\n", __func__);
 }
 
 static void ModbusM_ClearTimeout_Handler(ModbusChannel_t Channel)
 {
 	ModbusRtu[Channel].rxTimeOut = 0;
-	ModbusRtu[Channel].errTimes = 0;
 	ModbusRtu[Channel].state = MODBUS_STATE_RX_CHECK;
-	MODBUS_DEBUG("%s go to MODBUS_STATE_RX_CHECK \r\n", __func__);
+	MODBUS_DEBUG("%s <channel:%d> go to MODBUS_STATE_RX_CHECK \r\n", __func__, Channel);
 }
 
 static void ModbusM_ExecuteHandle(ModbusChannel_t Channel, uint8_t *pframe, uint16_t len)
@@ -231,7 +230,7 @@ static void ModbusM_MainCtrl(ModbusChannel_t Channel)
 	/* After receiving a frame of data, the verification process begins */
 	case MODBUS_STATE_RX_CHECK:
 		if ((ModbusRtu[Channel].rxCounter >= MODBUS_RTU_MIN_SIZE) &&
-			((Lib_Crc16(ModbusRtu[Channel].rxBuf, ModbusRtu[Channel].rxCounter - 2) == (uint16_t)(((uint16_t)ModbusRtu[Channel].rxBuf[ModbusRtu[Channel].rxCounter - 2] << 8) | ModbusRtu[Channel].rxBuf[ModbusRtu[Channel].rxCounter - 1]))))
+			((Lib_Crc16(ModbusRtu[Channel].rxBuf, ModbusRtu[Channel].rxCounter - 2) == (uint16_t)(((uint16_t)ModbusRtu[Channel].rxBuf[ModbusRtu[Channel].rxCounter - 2]) | ModbusRtu[Channel].rxBuf[ModbusRtu[Channel].rxCounter - 1] << 8))))
 		{
 			/* Valid frame processing */
 			if ((ModbusRtu[Channel].txBuf[0] == ModbusRtu[Channel].rxBuf[0]) && (ModbusRtu[Channel].txBuf[1] == ModbusRtu[Channel].rxBuf[1])) // The address and function code of the sent frame data and the received frame data are the same

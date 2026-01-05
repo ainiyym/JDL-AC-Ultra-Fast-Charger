@@ -24,8 +24,9 @@
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
-#define MODBUS_DEBUG(fmt, ...) 	LOG_DEBUG(LOG_MODULE_MCAL, fmt, ##__VA_ARGS__)
-#define MODBUS_ERROR(fmt, ...) 	LOG_ERROR(LOG_MODULE_MCAL, fmt, ##__VA_ARGS__)
+#define MODBUS_DEBUG(fmt, ...) 			LOG_DEBUG(LOG_MODULE_RS485, fmt, ##__VA_ARGS__)
+#define MODBUS_ERROR(fmt, ...) 			LOG_ERROR(LOG_MODULE_RS485, fmt, ##__VA_ARGS__)
+#define MODBUS_PRINT_HEX(pdata, len) 	LogService_Print_Hex_Array(LOG_MODULE_RS485, pdata, len, 1)
 
 #define MODBUS_BLOCKING_FRAME_RESEND_NUM  (3)  	/* Frame retransmission times */
 #define MODBUS_RTU_MIN_SIZE	(4)
