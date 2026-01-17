@@ -23,7 +23,7 @@
 #include "STD_EvseM.h"
 #include "switchM.h"
 #include "STD_Lib.h"
-#include "dummy.h"
+#include "Meter_data.h"
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
 |******************************************************************************/
@@ -63,9 +63,9 @@
 #define CURR_CP12V_MODE											(SWITCHM_CP_12V)					/*current module cp 12v mode*/
 #define CURR_CP4V_MODE											(SWITCHM_CP_4V)						/*current module cp 4v mode*/
 
-#define CURR_GetL1CurrVailVal(ch)								Dummy_GetCurrL1(ch)					/*current module get METERM module L1 current value interface*/
-#define CURR_GetL2CurrVailVal(ch)								Dummy_GetCurrL2(ch)					/*current module get METERM module L2 current value interface*/
-#define CURR_GetL3CurrVailVal(ch)								Dummy_GetCurrL3(ch)					/*current module get METERM module L3 current value interface*/
+#define CURR_GetL1CurrVailVal(ch)								Meter_GetCurrL1(ch)					/*current module get METERM module L1 current value interface(0.01A)*/
+#define CURR_GetL2CurrVailVal(ch)								Meter_GetCurrL2(ch)					/*current module get METERM module L2 current value interface(0.01A)*/
+#define CURR_GetL3CurrVailVal(ch)								Meter_GetCurrL3(ch)					/*current module get METERM module L3 current value interface(0.01A)*/
 #define CURR_GetAllCurrVailVal(ch)\
 do{\
     gv_stCurr[ch].stChanVartArray[CURR_L1_CHAN_NUM].usCurrTempVal = CURR_GetL1CurrVailVal(ch);\
@@ -83,7 +83,7 @@ do{\
 #define CURR_GetChargeStatus(ch)									EVSEM_GetChargeStatus(ch)				/*current module get EVSEM module charge status interface*/
 #define CURR_GetReqChargeStatus(ch)									AUTHM_GetReqChargeStatus(ch)			/*current module get AUTHM module request charge status interface*/
 #define CURR_GetSysPrepareStatus()									SYSM_GetResetPrepareStatus()			/*current module get SYSM module reset Prepare status interface*/
-#define CURR_GetMeterPrepareStatus(ch)								Dummy_GetMeterReadyStatus(ch)			/*current module get METERM module ready  status interface*/
+#define CURR_GetMeterPrepareStatus(ch)								Meter_GetMeterReadyStatus(ch)			/*current module get METERM module ready  status interface*/
 #define CURR_FaultStatusUpdata(lv_enFaultIdNum, lv_ucFaultStatus) 	ERRHDL_FaultStatusUpdata_CallBack(lv_enFaultIdNum, lv_ucFaultStatus) /*Fault Status Updata to errorHnadle module */
 #define CURR_SetCpCurrVal(ch, lv_ucPercent, lv_ucEn)				CPM_AdjustCurrentValue(ch, lv_ucPercent, lv_ucEn)/*current module adjust CPM module cp current value interface*/
 #define CURR_GetChargeConditions()									ERRHDL_GetChargeConditions()			/*current module get ERRHDL module charge conditions interface*/

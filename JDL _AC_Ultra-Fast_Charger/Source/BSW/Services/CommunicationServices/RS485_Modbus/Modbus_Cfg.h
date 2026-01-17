@@ -25,6 +25,8 @@
 |    Macro Definition
 |******************************************************************************/
 #define MODBUS_DEBUG(fmt, ...) 			LOG_DEBUG(LOG_MODULE_RS485, fmt, ##__VA_ARGS__)
+#define MODBUS_INFO(fmt, ...) 			LOG_INFO(LOG_MODULE_RS485, fmt, ##__VA_ARGS__)
+#define MODBUS_WARN(fmt, ...) 			LOG_WARN(LOG_MODULE_RS485, fmt, ##__VA_ARGS__)
 #define MODBUS_ERROR(fmt, ...) 			LOG_ERROR(LOG_MODULE_RS485, fmt, ##__VA_ARGS__)
 #define MODBUS_PRINT_HEX(pdata, len) 	LogService_Print_Hex_Array(LOG_MODULE_RS485, pdata, len, 1)
 

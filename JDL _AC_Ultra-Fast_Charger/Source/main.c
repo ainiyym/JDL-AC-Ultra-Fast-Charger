@@ -22,7 +22,7 @@
 |    Macro Definition
 |******************************************************************************/
 #define INIT_TASK_STACK_SIZE (1u * 1024u / 4u)
-#define MAIN_TASK_STACK_SIZE (7u * 1024u / 4u)
+#define MAIN_TASK_STACK_SIZE (8u * 1024u / 4u)
 #define OS_TIMER_TASK_STACK_SIZE (1u * 1024u / 4u)
 #define TASK_INFO_TASK_STACK_SIZE (1u * 1024u / 4u)
 #define TASK_4G_TASK_STACK_SIZE (4u * 1024u / 4u)

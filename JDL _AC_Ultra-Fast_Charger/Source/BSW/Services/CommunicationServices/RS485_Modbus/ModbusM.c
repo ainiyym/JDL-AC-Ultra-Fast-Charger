@@ -140,6 +140,10 @@ McalRetVal_t ModbusM_Send(ModbusChannel_t Channel, uint8_t addr, uint8_t cmd, ui
 	crc = Lib_Crc16(ModbusRtu[Channel].txBuf, ModbusRtu[Channel].txLen);
 	ModbusRtu[Channel].txBuf[ModbusRtu[Channel].txLen++] = (uint8_t)(crc & 0xff);
 	ModbusRtu[Channel].txBuf[ModbusRtu[Channel].txLen++] = (uint8_t)(crc >> 8);
+
+	// MODBUS_INFO("%s <channel:%d> Send Modbus Frame: ", __func__, Channel);
+	// MODBUS_PRINT_HEX(ModbusRtu[Channel].txBuf, ModbusRtu[Channel].txLen);
+	
 	if (MCAL_RET_SUCCESS == ModbusM_SendCallFunc(Channel))
 	{
 		return MCAL_RET_SUCCESS;
@@ -155,6 +159,7 @@ static void ModbusM_Timeout_Handler(ModbusChannel_t Channel)
 	if (ModbusRtu[Channel].rxTimeOut++ > ModbusUartConfigValue[Channel].RcvBlockFrameOverTime)
 	{
 		ModbusRtu[Channel].state = MODBUS_STATE_REC_ERR;
+		ModbusRtu[Channel].rxTimeOut = 0;
 		MODBUS_ERROR("%s <channel:%d> ERR!!!\r\n", __func__, Channel);
 	}
 }
@@ -163,7 +168,7 @@ static void ModbusM_ClearTimeout_Handler(ModbusChannel_t Channel)
 {
 	ModbusRtu[Channel].rxTimeOut = 0;
 	ModbusRtu[Channel].state = MODBUS_STATE_RX_CHECK;
-	MODBUS_DEBUG("%s <channel:%d> go to MODBUS_STATE_RX_CHECK \r\n", __func__, Channel);
+	// MODBUS_DEBUG("%s <channel:%d> go to MODBUS_STATE_RX_CHECK \r\n", __func__, Channel);
 }
 
 static void ModbusM_ExecuteHandle(ModbusChannel_t Channel, uint8_t *pframe, uint16_t len)
@@ -264,6 +269,7 @@ static void ModbusM_MainCtrl(ModbusChannel_t Channel)
 	/*Exceeded the maximum number of erroneous transmissions*/
 	case MODBUS_STATE_TIMES_ERR:
 		ModbusM_ErrHandle(Channel, ModbusRtu[Channel].txBuf[0], ModbusRtu[Channel].txBuf[1]);
+		ModbusRtu[Channel].state = MODBUS_STATE_IDLE;
 		ModbusRtu[Channel].rxCounter = 0;
 		break;
 	/* Make sure to receive the correct execution callback */

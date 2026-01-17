@@ -11,6 +11,7 @@
 |******************************************************************************/
 #include "Modbus_Hook.h"
 #include "FanM_Drv.h"
+#include "Meter.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -79,19 +80,23 @@ void Modbus_Hook_Rec02(ModbusChannel_t Channel, uint8_t addr, uint8_t *data, uin
 
 void Modbus_Hook_Rec03(ModbusChannel_t Channel, uint8_t addr, uint8_t *data, uint8_t datalen)
 {
+    // MODBUS_INFO("%s <channel:%d> Rcv Modbus Frame: ", __func__, Channel);
+	// MODBUS_PRINT_HEX(data, datalen);
+
     switch (Channel)
     {
-    case MODBUS_CHANNEL_METER:
-        /* code */
-        break;
-    case MODBUS_CHANNEL_FAN:
-        if (FanMDrv_GetSlaveAddr() == addr)
-        {
-            FanMDrv_CurrRunningVolCallBack(data, datalen);
-        }
-        break;
-    default:
-        break;
+        case MODBUS_CHANNEL_METER:
+            /* code */
+            MeterModule_HandleResponse(addr, data, datalen);
+            break;
+        case MODBUS_CHANNEL_FAN:
+            if (FanMDrv_GetSlaveAddr() == addr)
+            {
+                FanMDrv_CurrRunningVolCallBack(data, datalen);
+            }
+            break;
+        default:
+            break;
     }
 }
 
@@ -174,6 +179,7 @@ void Modbus_Hook_ErrHandle(ModbusChannel_t Channel, uint8_t addr, uint8_t cmd)
     {
     case MODBUS_CHANNEL_METER:
         /* code */
+        MeterModule_ErrHandleCallback();
         break;
     case MODBUS_CHANNEL_FAN:
         /* code */

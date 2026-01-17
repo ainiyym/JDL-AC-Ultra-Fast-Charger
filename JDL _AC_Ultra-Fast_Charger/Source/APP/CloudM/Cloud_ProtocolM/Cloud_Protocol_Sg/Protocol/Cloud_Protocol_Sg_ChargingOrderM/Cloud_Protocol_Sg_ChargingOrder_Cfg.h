@@ -95,8 +95,8 @@ typedef struct
 extern uint32_t Cloud_Protocol_Sg_Order_GetCurrentTime(void);
 extern uint8_t Cloud_Protocol_Sg_Order_GetCurrentBeijingHour(void);
 extern uint8_t Cloud_Protocol_Sg_Order_GetCurrentMinute(void);
-extern cloud_protocol_sg_order_energy_t Cloud_Protocol_Sg_Order_GetTotalEnergy(uint8_t gun_no);\
-extern uint32_t Cloud_Protocol_Sg_Order_GetDeltaEnergyValue(uint8_t gun_no);
+extern cloud_protocol_sg_order_energy_t Cloud_Protocol_Sg_Order_GetTotalEnergy(uint8_t gun_no, cloud_protocol_sg_order_op_t op);
+extern uint32_t Cloud_Protocol_Sg_Order_GetDeltaEnergyValue(uint8_t gun_no, cloud_protocol_sg_order_op_t op);
 extern bool Cloud_Protocol_Sg_Order_SaveOrderToTsdb(cloud_protocol_sg_order_record_t *order, fdb_time_t timestamp);
 extern bool Cloud_Protocol_Sg_Order_LoadNextPendingFromTSDB(uint8_t gun_no, cloud_protocol_sg_order_record_t *record);
 extern bool Cloud_Protocol_Sg_Order_RemovePendingFromTSDB(uint8_t gun_no, const char *order_id);

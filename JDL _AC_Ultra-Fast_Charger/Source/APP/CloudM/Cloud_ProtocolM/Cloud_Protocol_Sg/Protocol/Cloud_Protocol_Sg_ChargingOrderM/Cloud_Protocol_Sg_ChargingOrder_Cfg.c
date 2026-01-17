@@ -9,6 +9,7 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "Cloud_Protocol_Sg_ChargingOrder_Cfg.h"
+#include "Meter_data.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -86,21 +87,20 @@ uint8_t Cloud_Protocol_Sg_Order_GetCurrentMinute(void)
 /**
  * @brief get total energy of an order
  */
-cloud_protocol_sg_order_energy_t Cloud_Protocol_Sg_Order_GetTotalEnergy(uint8_t gun_no)
+cloud_protocol_sg_order_energy_t Cloud_Protocol_Sg_Order_GetTotalEnergy(uint8_t gun_no, cloud_protocol_sg_order_op_t op)
 {
-  // dummy implementation
   cloud_protocol_sg_order_energy_t total_energy = {0};
-
+  Meter_GetTotalEnergy(gun_no, &total_energy, op);
   return total_energy;
 }
 
 /**
  * @brief get delta energy value since last update
  */
-uint32_t Cloud_Protocol_Sg_Order_GetDeltaEnergyValue(uint8_t gun_no)
+uint32_t Cloud_Protocol_Sg_Order_GetDeltaEnergyValue(uint8_t gun_no, cloud_protocol_sg_order_op_t op)
 {
-    uint32_t delta_energy = 1000; // kWh * 100; // in 100kWh units
-    // dummy implementation
+    uint32_t delta_energy = Meter_GetDeltaEnergyValue(gun_no, op);
+
     return delta_energy;
 }
 

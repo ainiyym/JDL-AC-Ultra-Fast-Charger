@@ -62,12 +62,12 @@ typedef enum
 #define SYSM_ADC_PERIOD_COLLECTION_TIME      (SYSM_4HCT4851D_SOFTTIMER_PERIOD * 8)  /* ADC周期采样周期，单位us */
 
 /*Power Down*/
-#define SYSM_PowerDownStatus()                 Dummy_GetPowerDownStatus() /* Get power down status */
-#define SYSM_GetPowerDownVoltValue()           Dummy_GetPowerDownVoltValue() /* Get power down voltage value */
+#define SYSM_PowerDownStatus()                 Meter_GetPowerDownStatus() /* Get power down status */
+#define SYSM_GetPowerDownVoltValue()           Meter_GetPowerDownVoltValue() /* Get power down voltage value */
 #define SYSM_DisableAllMode()\
 do{\
 }while(0)
-#define SYSM_OUT_POWER_DOWN					     (10000U)   /* Power down voltage threshold value 100V */
+#define SYSM_OUT_POWER_DOWN					     (100U)   /* Power down voltage threshold value 100V */
 #define SYSM_POWERDOWN_FILTER_TIME				 (uint16_t)( 500 / SYSM_TASK_PERIOD )   /* 500ms */
 #define SYSM_DELAY_1S							 (uint16_t)( 1000U / SYSM_TASK_PERIOD)  /* 1s */
 

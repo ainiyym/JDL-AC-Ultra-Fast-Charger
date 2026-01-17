@@ -11,7 +11,7 @@
 |******************************************************************************/
 #include "Cloud_Protocol_EventPost_FwInfo.h"
 #include "FlashDB_AppM.h"
-#include "dummy.h"
+#include "Meter_data.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -89,12 +89,12 @@ void Cloud_Protocol_EventPost_FwInfo_Init(void)
     cloud_protocol_event_fireware_info.otMaxVol = CLOUDM_SG_OT_MAX_VOL;
     cloud_protocol_event_fireware_info.otCur = CLOUDM_SG_OT_MAX_CUR;
 
-    strcpy(cloud_protocol_event_fireware_info.inMeter[SYS_CONNECTOR1], Dummy_GetInMeterAddr(SYS_CONNECTOR1));
+    strcpy(cloud_protocol_event_fireware_info.inMeter[SYS_CONNECTOR1], Meter_GetMeterAddr(SYS_CONNECTOR1));
 #if (SYSM_CONNECTOR2_ENABLE == STD_ON)
-    strcpy(cloud_protocol_event_fireware_info.inMeter[SYS_CONNECTOR2], Dummy_GetInMeterAddr(SYS_CONNECTOR2));
-    strcpy(cloud_protocol_event_fireware_info.outMeter[SYS_CONNECTOR2], Dummy_GetOutMeterAddr(SYS_CONNECTOR2));
+    strcpy(cloud_protocol_event_fireware_info.inMeter[SYS_CONNECTOR2], Meter_GetMeterAddr(SYS_CONNECTOR2));
+    strcpy(cloud_protocol_event_fireware_info.outMeter[SYS_CONNECTOR2], Meter_GetMeterAddr(SYS_CONNECTOR2));
 #endif
-    strcpy(cloud_protocol_event_fireware_info.outMeter[SYS_CONNECTOR1], Dummy_GetOutMeterAddr(SYS_CONNECTOR1));
+    strcpy(cloud_protocol_event_fireware_info.outMeter[SYS_CONNECTOR1], Meter_GetMeterAddr(SYS_CONNECTOR1));
     cloud_protocol_event_fireware_info.CT = 1; // The default value of the current transformer coefficient is 1
     cloud_protocol_event_fireware_info.isGateLock = 10;
     cloud_protocol_event_fireware_info.isGroundLock = 10;

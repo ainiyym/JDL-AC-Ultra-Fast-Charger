@@ -30,6 +30,7 @@
 #include "ModbusM.h"
 #include "FanM.h"
 #include "Sensor.h"
+#include "Meter.h"
 #include "YeeComxxx_Device.h"
 #include "Cloud_EV_Charger_Information.h"
 #include "CloudM.h"
@@ -188,6 +189,7 @@ void SYSM_InitTwo( void )
 	CURR_InitMemory();
 	VOLT_InitMemory();
 	SENSOR_InitMemory();
+	MeterModule_Init();
 	CloudM_Init();
 }
 
@@ -666,7 +668,7 @@ void SYSM_10msMainFunction(void)
 
 	SYSM_StandbyStatusCtrl();
 
-	SYSM_ShutDownMCtrl();
+	// SYSM_ShutDownMCtrl();
 
 	SYSM_RemoteResetManage();
 

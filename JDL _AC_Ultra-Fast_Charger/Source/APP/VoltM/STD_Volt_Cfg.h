@@ -13,7 +13,7 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "STD_LogService.h"
-#include "dummy.h"
+#include "Meter_data.h"
 #include "STD_ErrorHandler.h"
 #include "STD_SysM.h"
 /*******************************************************************************
@@ -25,7 +25,7 @@
 |******************************************************************************/
 #define VOLT_TASK_PERIOD										(20u)							 /*Volt module task period*/
 #define	VOLT_ENLARGE											(100u)							 /*enlarge factor*/
-#define VOLT_INPUT_MODE_TYPE        							VOLT_ONE_PHASE_INPUT_MODE		 /*Input module type*/
+#define VOLT_INPUT_MODE_TYPE        							VOLT_THREE_PHASE_INPUT_MODE		 /*Input module type*/
 #define VOLT_ONE_PHASE_INPUT_MODE      							(0u)							 /*voltage module one phase input mode*/
 #define VOLT_THREE_PHASE_INPUT_MODE    							(1u)							 /*voltage module three phase input mode*/
 
@@ -62,12 +62,12 @@
 
 #define VOLT_GetAllVoltVailVal(ch)\
 do{\
-    gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal = Dummy_GetVoltL1(ch);\
-    gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal = Dummy_GetVoltL2(ch);\
-    gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal = Dummy_GetVoltL3(ch);\
+    gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal = Meter_GetVoltL1(ch);\
+    gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal = Meter_GetVoltL2(ch);\
+    gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal = Meter_GetVoltL3(ch);\
 }while(0)
 #define VOLT_GetSysPrepareStatus()								SYSM_GetResetPrepareStatus()	/*Obtain the system readiness interface*/
-#define VOLT_GetMeterPrepareStatus(ch)							Dummy_GetMeterReadyStatus(ch)		/*Obtain the Meter module prepare status interface*/
+#define VOLT_GetMeterPrepareStatus(ch)							Meter_GetMeterReadyStatus(ch)		/*Obtain the Meter module prepare status interface*/
 
 #define VOLT_SetLv1OverVoltL1P(lv_ucFaultStatus)				ERRHDL_FaultStatusUpdata_CallBack(ERRHDL_ID_L1P_OVER_VOLT_L1,lv_ucFaultStatus)  /*set L1 phase level 1 over voltage status*/
 #define VOLT_SetLv2OverVoltL1P(lv_ucFaultStatus)				ERRHDL_FaultStatusUpdata_CallBack(ERRHDL_ID_L1P_OVER_VOLT_L2,lv_ucFaultStatus)	/*set L1 phase level 2 over voltage status*/

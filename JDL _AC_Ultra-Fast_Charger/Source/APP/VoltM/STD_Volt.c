@@ -346,8 +346,8 @@ Call By         : VOLT_ModeNormalHandle
 static void VOLT_NormalModeErrHandle(SysConnector_Num_Enum ch)
 {
 #if VOLT_INPUT_MODE_TYPE == VOLT_THREE_PHASE_INPUT_MODE
-	static uint8_t lv_ucLv2OverVoltFaultStatus = STD_FALSE, lv_ucLv1OverVoltFaultStatus = STD_FALSE, lv_ucLv1LowVoltFaultStatus = STD_FALSE, lv_ucLv2LowVoltFaultStatus = STD_FALSE;
 #if (VOLT_LV2_OVERVOLT_FUN_EN == STD_ON)
+	static uint8_t lv_ucLv2OverVoltFaultStatus = STD_FALSE, lv_ucLv1OverVoltFaultStatus = STD_FALSE, lv_ucLv1LowVoltFaultStatus = STD_FALSE, lv_ucLv2LowVoltFaultStatus = STD_FALSE;
 	if ((STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].stLv2OverVoltFilt.ucValidStatus) || (STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].stLv2OverVoltFilt.ucValidStatus))
 	{
 		if (STD_FALSE == lv_ucLv2OverVoltFaultStatus)

@@ -10,6 +10,7 @@
 |******************************************************************************/
 #include "Cloud_Protocol_Sg_ChargingOrder.h"
 #include "Cloud_Protocol_EventPost.h"
+#include "Meter_data.h"
 
 /*******************************************************************************
 |    Macro Definition
@@ -574,7 +575,7 @@ static bool Cloud_Protocol_Sg_Order_ExportToV2GStruct(cloud_protocol_sg_order_re
     if (order->operation == CLOUD_PROTOCOL_SG_ORDER_OP_CHARGE)
     {
         /* get total energy */
-        cloud_protocol_sg_order_energy_t total_energy = Cloud_Protocol_Sg_Order_GetTotalEnergy(order->gun_no);
+        cloud_protocol_sg_order_energy_t total_energy = Cloud_Protocol_Sg_Order_GetTotalEnergy(order->gun_no, (cloud_protocol_sg_order_op_t)order->operation);
         for (int i = 0; i < V2G_MAX_ENERGY_DATA_LEN; i++)
         {
             output->acChargingEnergyValue[i] = ((uint32_t*)&total_energy)[i];
@@ -592,7 +593,7 @@ static bool Cloud_Protocol_Sg_Order_ExportToV2GStruct(cloud_protocol_sg_order_re
     else
     {
         /* get total energy */
-        cloud_protocol_sg_order_energy_t total_energy = Cloud_Protocol_Sg_Order_GetTotalEnergy(order->gun_no);
+        cloud_protocol_sg_order_energy_t total_energy = Cloud_Protocol_Sg_Order_GetTotalEnergy(order->gun_no, (cloud_protocol_sg_order_op_t)order->operation);
         for (int i = 0; i < V2G_MAX_ENERGY_DATA_LEN; i++)
         {
             output->acDisChargingEnergyValue[i] = ((uint32_t*)&total_energy)[i];
@@ -1032,9 +1033,9 @@ bool Cloud_Protocol_EventPost_PileWorkstatus_Post(uint8_t gun_no)
         return false;
     }
     /* set measurement values */
-    Dummy_GetMeterInfo(&order->measure_value);
+    Meter_GetMeterInfo(gun_no, &order->measure_value);
 
-    uint32_t energy_delta = Cloud_Protocol_Sg_Order_GetDeltaEnergyValue(gun_no);
+    uint32_t energy_delta = Cloud_Protocol_Sg_Order_GetDeltaEnergyValue(gun_no, (cloud_protocol_sg_order_op_t)order->operation);
     Cloud_Protocol_Sg_Order_UpdateEnergy(gun_no, energy_delta);
 
     v2g_event_pile_workstatus workstatus;
