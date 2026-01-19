@@ -28,7 +28,9 @@
 #include "ModbusM.h"
 #include "FanM.h"
 #include "Sensor.h"
+#include "Meter.h"
 #include "CloudM.h"
+#include "Debug.h"
 /*******************************************************************************
 |    Macro Definition
 |******************************************************************************/
@@ -153,13 +155,15 @@ static void Task5ms(void)
     CPM_5msMainFunction();
     RELAYM_5msMainFunction();
     SENSOR_5msMainFunction();
+    MeterModule_Process();
+    UsartCommand_Parser();
 }
 
 static void Task10ms(void)
 {
     SYSM_10msMainFunction();
     ModbusM_10msMainFunction();
-    FanM_10msMainFunction();
+    // FanM_10msMainFunction();
     /* 10ms task code */
 #if (MCAL_WDG_ENABLED)
     Mcal_Iwdg_Feedback();
@@ -186,11 +190,11 @@ static void Task100ms(void)
     NOAUTHEN_100msFunction();
     NETAUTH_MainFunction();
     CanM_Rte_Msg_Main_Task(); // Call canM task
+    Mcal_Test_Run();
 }
 
 static void Task1000ms(void)
 {
     /* 1-second task code */
-    Mcal_Test_Run();
     SYSM_RunningLedHandle();
 }

@@ -226,6 +226,7 @@ static void RLYCTRL_ModeSwitchHandle(SysConnector_Num_Enum ch)
 	{
 		gv_stRlyCtrl[ch].ucMode = RLYCTRL_MODE_IDLE;
 		gv_stRlyCtrl[ch].ucSwitchStep = RLYCTRL_Switch_One;
+		RLYCTRL_DEBUG("ch:%d RELAYCTRL_MODE_IDLE \r\n",ch);
 	}
 	else
 	{
@@ -333,8 +334,23 @@ static void RLYCTRL_SwitchControl(SysConnector_Num_Enum ch)
 		break;
 		case RLYCTRL_Switch_Three:
 		{
-			MOSDRV_ResetMosOnStatus(ch);
-			gv_stRlyCtrl[ch].ucControlType = RLYCTRL_SWITCH_IDLE;
+			static uint8_t cnt = 0;
+			if (RLYCTRL_SWITCH_ON == gv_stRlyCtrl[ch].ucControlType)
+			{
+				if (cnt++ > 20u)
+				{
+					cnt = 0;
+					MOSDRV_ResetMosOnStatus(ch);
+					gv_stRlyCtrl[ch].ucControlType = RLYCTRL_SWITCH_IDLE;
+					RLYCTRL_DEBUG("ch:%d ON GO TO IDLE \r\n",ch);
+				}
+			}
+			else
+			{
+				MOSDRV_ResetMosOnStatus(ch);
+				gv_stRlyCtrl[ch].ucControlType = RLYCTRL_SWITCH_IDLE;
+				RLYCTRL_DEBUG("ch:%d OFF GO TO IDLE \r\n",ch);
+			}
 		}
 		break;
 		default:
