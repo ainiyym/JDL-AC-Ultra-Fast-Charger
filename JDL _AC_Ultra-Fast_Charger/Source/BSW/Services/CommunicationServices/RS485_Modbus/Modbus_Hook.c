@@ -10,7 +10,7 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "Modbus_Hook.h"
-#include "FanM_Drv.h"
+#include "FanM.h"
 #include "Meter.h"
 
 /*******************************************************************************
@@ -90,10 +90,7 @@ void Modbus_Hook_Rec03(ModbusChannel_t Channel, uint8_t addr, uint8_t *data, uin
             MeterModule_HandleResponse(addr, data, datalen);
             break;
         case MODBUS_CHANNEL_FAN:
-            if (FanMDrv_GetSlaveAddr() == addr)
-            {
-                FanMDrv_CurrRunningVolCallBack(data, datalen);
-            }
+            /* code */
             break;
         default:
             break;
@@ -109,6 +106,7 @@ void Modbus_Hook_Rec04(ModbusChannel_t Channel, uint8_t addr, uint8_t *data, uin
         break;
     case MODBUS_CHANNEL_FAN:
         /* code */
+        FanM_HandleModbusResponse(addr,MODBUS_CMD_READ_INPUT_REGISTERS,data,datalen);
         break;
     default:
         break;
@@ -167,6 +165,7 @@ void Modbus_Hook_Rec10(ModbusChannel_t Channel, uint8_t addr, uint8_t *data, uin
         break;
     case MODBUS_CHANNEL_FAN:
         /* code */
+        FanM_HandleModbusResponse(addr,MODBUS_CMD_WRITE_MULTIPLE_REGISTERS,data,datalen);
         break;
     default:
         break;

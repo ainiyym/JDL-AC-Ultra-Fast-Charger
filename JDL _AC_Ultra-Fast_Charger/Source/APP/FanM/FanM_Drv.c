@@ -9,7 +9,7 @@
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "FanM_Cfg.h"
+#include "FanM_Drv.h"
 #include "Mcal_BigLittle_Endian.h"
 
 /*******************************************************************************
@@ -23,12 +23,6 @@
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
-typedef struct 
-{
-    uint8_t  slaveAddr;
-    uint16_t Reg;
-    uint16_t CurrentRunningVol;
-}FanM_Drv_Struct;
 
 /*******************************************************************************
 |    Static local KAM variables Declaration
@@ -45,53 +39,91 @@ typedef struct
 /*******************************************************************************
 |    Static Local Functions Declaration
 |******************************************************************************/
-static FanM_Drv_Struct FanMDrv_Ctrl;
 
 /*******************************************************************************
 |    Function Source Code
 |******************************************************************************/
-void FanMDrv_Init(void)
+bool FanM_Storage_Write(const FanM_HistoryRecord_t *record)
 {
-    memset(&FanMDrv_Ctrl, 0, sizeof(FanMDrv_Ctrl));
-    FanMDrv_Ctrl.slaveAddr = 0x01;
+    
+    return true;
 }
 
-uint8_t FanMDrv_GetSlaveAddr(void)
+bool FanM_Storage_GetUsedCount(uint32_t *count)
 {
-    return FanMDrv_Ctrl.slaveAddr;
+    return true;
 }
 
-uint16_t FanMDrv_GetCurrRunningVol(void)
+bool FanM_Storage_Clear(void)
 {
-    return FanMDrv_Ctrl.CurrentRunningVol;
+
+    return true;
 }
 
-/* when Cmd == MODBUS_STATE_RX_PENDING, Vol is second reg */
-uint8_t FanMDrv_SetAdVolCmd(uint8_t Cmd, uint16_t REG, uint16_t Vol)
+/* 构建状态读取请求数据 */
+void FanM_BuildStatusReadRequest(uint8_t *data, uint8_t *len)
 {
-    uint8_t SendBuff[5] = {0};
-    uint8_t SendLen = 0;
-
-    FanMDrv_Ctrl.Reg = BIGLITTLEEND_SWAP_2_BYTES(REG);
-    BIGLITTLEEND_SWAP_2_BYTES(Vol);
-    memcpy(&SendBuff[SendLen], &FanMDrv_Ctrl.Reg ,sizeof(FanMDrv_Ctrl.Reg));
-    SendLen += sizeof(FanMDrv_Ctrl.Reg);
-    memcpy(&SendBuff[SendLen], &Vol,sizeof(Vol));
-    SendLen += sizeof(Vol);
-
-    return (uint8_t)FANM_SEND_MODBUS(FanMDrv_Ctrl.slaveAddr, Cmd, SendBuff, SendLen);
+    if (data == NULL || len == NULL) return;
+    
+    data[0] = FANM_REG_STATUS_START_ADDR >> 8;      /* 起始地址高字节 */
+    data[1] = FANM_REG_STATUS_START_ADDR & 0xFF;    /* 起始地址低字节 */
+    data[2] = FANM_REG_STATUS_COUNT >> 8;           /* 寄存器数量高字节 */
+    data[3] = FANM_REG_STATUS_COUNT & 0xFF;         /* 寄存器数量低字节 */
+    
+    *len = 4;
 }
 
-void FanMDrv_CurrRunningVolCallBack(uint8_t *data, uint8_t datalen)
+/* 构建控制命令数据 */
+void FanM_BuildControlCommand(uint8_t cmd, uint8_t fan_speed, 
+                                uint8_t pump1_speed, uint8_t pump2_speed,
+                                uint8_t *data, uint8_t *len)
 {
-    if (data != NULL && datalen > 2 &&  2 == data[0])
-    {
-        FanMDrv_Ctrl.CurrentRunningVol = BigLittleEnd_Swap_2_Bytes(*((uint16_t *)(data + 1)));
+    if (data == NULL || len == NULL) return;
+
+    data[0] = FANM_REG_CONTROL_START_ADDR >> 8;   /* 起始地址高字节 */
+    data[1] = FANM_REG_CONTROL_START_ADDR & 0xFF; /* 起始地址低字节 */
+    data[2] = FANM_REG_CONTROL_COUNT >> 8;        /* 寄存器数量高字节 */
+    data[3] = FANM_REG_CONTROL_COUNT & 0xFF;      /* 寄存器数量低字节 */
+    data[4] = FANM_REG_CONTROL_BYTE_COUNT;        /* 字节数 */
+    data[5] = cmd;                                /* 运行命令 */
+    data[6] = fan_speed;                          /* 风扇速度设置 */
+    data[7] = pump1_speed;                        /* 泵1速度设置 */
+    data[8] = pump2_speed;                        /* 泵2速度设置 */
+
+    /* 预留字节清零 */
+    for (int i = 9; i < 15; i++) {
+        data[i] = 0x00;
     }
-    else
-    {
-        FANM_ERROR("%s: Invalid length. datalen: %d!\r\n", __func__, datalen);
-        FANM_PRINT_HEX(data, datalen);
-    }
+    
+    *len = 15;
 }
+
+McalRetVal_t FanM_SendControlCommand(uint8_t cmd)
+{
+	uint8_t control_data[15] = {0};
+	uint8_t data_len;
+
+	FanM_BuildControlCommand(cmd, 0, 0, 0, control_data, &data_len);
+	McalRetVal_t ret = FANM_SEND_MODBUS(FANM_MODBUS_ADDR, FANM_MODBUS_CMD_WRITE_MULTIPLE_REGISTERS, control_data, data_len);
+
+	return ret;
+}
+
+McalRetVal_t FanM_ManualControl(uint8_t fan_speed, uint8_t pump1_speed, uint8_t pump2_speed)
+{
+	uint8_t control_data[15] = {0};
+	uint8_t data_len;
+
+	FanM_BuildControlCommand(FANM_CMD_DEBUG_START, fan_speed, pump1_speed, pump2_speed, control_data, &data_len);
+
+	McalRetVal_t ret = FANM_SEND_MODBUS(FANM_MODBUS_ADDR, FANM_MODBUS_CMD_WRITE_MULTIPLE_REGISTERS, control_data, data_len);
+
+	return ret;
+}
+
+McalRetVal_t FanM_RebootDevice(void)
+{
+    return FanM_SendControlCommand(FANM_CMD_REBOOT);
+}
+
 /* EOL */

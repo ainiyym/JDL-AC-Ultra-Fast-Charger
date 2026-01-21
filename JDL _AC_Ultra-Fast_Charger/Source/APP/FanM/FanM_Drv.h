@@ -14,6 +14,7 @@
 |    Other Header File Inclusion
 |******************************************************************************/
 #include "stdint.h"
+#include "FanM_Cfg.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
@@ -30,6 +31,13 @@
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
+/* 历史数据存储接口 */
+typedef struct
+{
+    uint8_t data[50];    /* 原始状态数据 */
+    uint64_t timestamp;  /* 时间戳(毫秒) */
+    uint8_t reserved[2]; /* 保留 */
+} FanM_HistoryRecord_t;
 
 /*******************************************************************************
 |    Table Definition
@@ -38,11 +46,16 @@
 /*******************************************************************************
 |    Global Function Prototypes
 |******************************************************************************/
-extern void FanMDrv_Init(void);
-extern uint8_t FanMDrv_GetSlaveAddr(void);
-extern uint16_t FanMDrv_GetCurrRunningVol(void);
-extern uint8_t FanMDrv_SetAdVolCmd(uint8_t Cmd, uint16_t REG, uint16_t Vol);
-extern void FanMDrv_CurrRunningVolCallBack(uint8_t *data, uint8_t datalen);
+bool FanM_Storage_Write(const FanM_HistoryRecord_t *record);
+bool FanM_Storage_GetUsedCount(uint32_t *count);
+bool FanM_Storage_Clear(void);
 
+void FanM_BuildStatusReadRequest(uint8_t *data, uint8_t *len);
+void FanM_BuildControlCommand(uint8_t cmd, uint8_t fan_speed, 
+                                uint8_t pump1_speed, uint8_t pump2_speed,
+                                uint8_t *data, uint8_t *len);
+McalRetVal_t FanM_SendControlCommand(uint8_t cmd);
+McalRetVal_t FanM_ManualControl(uint8_t fan_speed, uint8_t pump1_speed, uint8_t pump2_speed);
+McalRetVal_t FanM_RebootDevice(void);
 #endif /* __FANM_DRV_H */
 /* EOL */
