@@ -370,12 +370,13 @@ void CanM_Rte_EVSE_Main_Task(void)
 {
     /* Main function for CanM RTE, can be used to call periodic tasks or handle events */
     /* Check if the system is ready for charging */
-    uint8_t ChargeConditions = CanM_Rte_GetChargeConditions();
+    uint8_t ChargeConditions = 0;
 
     /* Call the step function of CanM_EVSEM to process the EVSE CAN control logic */
     CanM_EVSEM_step();
     for (SysConnector_Num_Enum ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
     {
+        ChargeConditions = CanM_Rte_GetChargeConditions(ch);
         /* Handle the self-test for each connector */
         CanM_Rte_SelfTestHandler(ch);
         /* Handle charging CAN fault */

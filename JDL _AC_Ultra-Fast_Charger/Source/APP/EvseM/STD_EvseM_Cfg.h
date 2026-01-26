@@ -75,7 +75,7 @@
 #define EVSEM_SetRelayOn(ch)							        RELAYM_ReqRelaySwitchOn(ch)				/*request relay turn on*/
 #define EVSEM_GetRelayStatus(ch)						        RELAYM_GetRelayStatus(ch)				/*get relay status*/
 #define EVSEM_GetSysReadyState()				                SYSM_GetResetPrepareStatus()            /*get sys status*/
-#define EVSEM_GetChargeConditions()				                ERRHDL_GetChargeConditions()			/*get Charge Conditions*/
+#define EVSEM_GetChargeConditions(ch)				            ERRHDL_GetChargeConditions(ch)			/*get Charge Conditions*/
 
 #define EVSEM_SetCanModeStatus(ch, mode)                        SYSM_SetSysStatusBit(ch, (uint32_t)STD_SYSM_SYSSTATUS_CAN, mode)      /*set CAN mode status*/
 

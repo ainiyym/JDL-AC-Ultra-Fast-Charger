@@ -207,7 +207,7 @@ void CPV_MainFunction(SysConnector_Num_Enum ch)
 	if ((STD_TRUE == gv_stCpVolt[ch].ucEnStatus) && (STD_FALSE == CPD_DiodeDetectFlag()))
 #else
 	if (STD_TRUE == gv_stCpVolt[ch].ucEnStatus)
-#endif
+#endif 
 	{
 		if (STD_TRUE == FIFO_GetData(CPDRV_ConnectorCfgTable[ch].CpAdVolFifoCh, gv_stCpVolt[ch].usAdData))
 		{
@@ -232,11 +232,25 @@ void CPV_MainFunction(SysConnector_Num_Enum ch)
 
 		if (gv_stCpVolt[ch].stCpVoltError.ucValidStatus == STD_TRUE)
 		{
-			CpDrvif_SetFaultStatus(ERRHDL_ID_CP_VOLT, STD_TRUE);
+			if (SYS_CONNECTOR1 == ch)
+			{
+				CpDrvif_SetFaultStatus(ERRHDL_ID_GUN1_CP_VOLT, STD_TRUE);
+			}
+			else
+			{
+				CpDrvif_SetFaultStatus(ERRHDL_ID_GUN2_CP_VOLT, STD_TRUE);
+			}
 		}
 		else
 		{
-			CpDrvif_SetFaultStatus(ERRHDL_ID_CP_VOLT, STD_FALSE);
+			if (SYS_CONNECTOR1 == ch)
+			{
+				CpDrvif_SetFaultStatus(ERRHDL_ID_GUN1_CP_VOLT, STD_FALSE);
+			}
+			else
+			{
+				CpDrvif_SetFaultStatus(ERRHDL_ID_GUN2_CP_VOLT, STD_FALSE);
+			}
 		}
 	}
 	else

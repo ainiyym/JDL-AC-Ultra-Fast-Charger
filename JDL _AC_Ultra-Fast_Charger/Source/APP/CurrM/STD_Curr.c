@@ -250,6 +250,7 @@ static void CURR_AdjCpCurrHandle(SysConnector_Num_Enum ch)
 				gv_stCurr[ch].usAdjCpCurrWaitCnt = 0u;
 			}
 		}
+		
 		else if (STD_FALSE == gv_stCurr[ch].ucAdjCpCurrEn)
 		{
 			gv_stCurr[ch].usAdjCpCurrPrc = CURR_PERCENT_MAX;
@@ -274,7 +275,7 @@ static void CURR_AdjCpCurrHandle(SysConnector_Num_Enum ch)
 			lv_usCpCurrPercent = gv_stCurr[ch].usAdjCpCurrPrc;
 		}
 #if (STD_ON == CURR_DERATE_PERCENT_FUN_EN)
-		if ((uint8_t)ERRHDL_CHARGE_DERATE == CURR_GetChargeConditions(SysConnector_Num_Enum ch))
+		if ((uint8_t)ERRHDL_CHARGE_DERATE == CURR_GetChargeConditions(ch))
 		{
 			gv_stCurr[ch].ucAdjCpCurrEn = STD_TRUE;
 			lv_uCpCurrValue = (lv_usCpCurrPercent * CURR_DERATE_PERCENT * gv_stCurr[ch].usDfltCurrVal) / (CURR_PERCENT_MAX * CURR_PERCENT_MAX);
@@ -658,12 +659,26 @@ static void CURR_ErrCallBackHandle(SysConnector_Num_Enum ch)
 	{
 		if (STD_TRUE == gv_stCurr[ch].stChanVartArray[CURR_L1_CHAN_NUM].stLv1OverCurrFilt.ucStatus)
 		{
-			CURR_FaultStatusUpdata(ERRHDL_ID_L1P_OVER_CURR_L1, STD_TRUE);
+			if (SYS_CONNECTOR1 == ch)
+			{
+				CURR_FaultStatusUpdata(ERRHDL_ID_GUN1_OVER_CURR_L1, STD_TRUE);
+			}
+			else
+			{
+				CURR_FaultStatusUpdata(ERRHDL_ID_GUN2_OVER_CURR_L1, STD_TRUE);
+			}
 			CURR_DEBUG("connector: %d L1CurrVal : %d\r\n", ch, gv_stCurr[ch].stChanVartArray[CURR_L1_CHAN_NUM].usCurrTempVal);
 		}
 		else
 		{
-			CURR_FaultStatusUpdata(ERRHDL_ID_L1P_OVER_CURR_L1, STD_FALSE);
+			if (SYS_CONNECTOR1 == ch)
+			{
+				CURR_FaultStatusUpdata(ERRHDL_ID_GUN1_OVER_CURR_L1, STD_FALSE);
+			}
+			else
+			{
+				CURR_FaultStatusUpdata(ERRHDL_ID_GUN2_OVER_CURR_L1, STD_FALSE);
+			}
 		}
 	}
 #if CURR_MONITOR_MODE_TYPE == CURR_THR_PHASE_MODE_TYPE
@@ -671,24 +686,52 @@ static void CURR_ErrCallBackHandle(SysConnector_Num_Enum ch)
 	{
 		if (STD_TRUE == gv_stCurr[ch].stChanVartArray[CURR_L2_CHAN_NUM].stLv1OverCurrFilt.ucStatus)
 		{
-			CURR_FaultStatusUpdata(ERRHDL_ID_L2L3P_OVER_CURR_L1, STD_TRUE);
+			if (SYS_CONNECTOR1 == ch)
+			{
+				CURR_FaultStatusUpdata(ERRHDL_ID_GUN1_OVER_CURR_L1, STD_TRUE);
+			}
+			else
+			{
+				CURR_FaultStatusUpdata(ERRHDL_ID_GUN2_OVER_CURR_L1, STD_TRUE);
+			}
 			CURR_DEBUG("connector: %d L2CurrVal : %d\r\n", ch, gv_stCurr[ch].stChanVartArray[CURR_L2_CHAN_NUM].usCurrTempVal);
 		}
 		else
 		{
-			CURR_FaultStatusUpdata(ERRHDL_ID_L2L3P_OVER_CURR_L1, STD_FALSE);
+			if (SYS_CONNECTOR1 == ch)
+			{
+				CURR_FaultStatusUpdata(ERRHDL_ID_GUN1_OVER_CURR_L1, STD_FALSE);
+			}
+			else
+			{
+				CURR_FaultStatusUpdata(ERRHDL_ID_GUN2_OVER_CURR_L1, STD_FALSE);
+			}
 		}
 	}
 	if (STD_TRUE == gv_stCurr[ch].stChanVartArray[CURR_L3_CHAN_NUM].stLv1OverCurrFilt.ucValidStatus)
 	{
 		if (STD_TRUE == gv_stCurr[ch].stChanVartArray[CURR_L3_CHAN_NUM].stLv1OverCurrFilt.ucStatus)
 		{
-			CURR_FaultStatusUpdata(ERRHDL_ID_L2L3P_OVER_CURR_L1, STD_TRUE);
+			if (SYS_CONNECTOR1 == ch)
+			{
+				CURR_FaultStatusUpdata(ERRHDL_ID_GUN1_OVER_CURR_L1, STD_TRUE);
+			}
+			else
+			{
+				CURR_FaultStatusUpdata(ERRHDL_ID_GUN2_OVER_CURR_L1, STD_TRUE);
+			}
 			CURR_DEBUG("connector: %d L3CurrVal : %d\r\n", ch, gv_stCurr[ch].stChanVartArray[CURR_L3_CHAN_NUM].usCurrTempVal);
 		}
 		else
 		{
-			CURR_FaultStatusUpdata(ERRHDL_ID_L2L3P_OVER_CURR_L1, STD_FALSE);
+			if (SYS_CONNECTOR1 == ch)
+			{
+				CURR_FaultStatusUpdata(ERRHDL_ID_GUN1_OVER_CURR_L1, STD_FALSE);
+			}
+			else
+			{
+				CURR_FaultStatusUpdata(ERRHDL_ID_GUN2_OVER_CURR_L1, STD_FALSE);
+			}
 		}
 	}
 #endif
@@ -700,7 +743,14 @@ static void CURR_ErrCallBackHandle(SysConnector_Num_Enum ch)
 	{
 		if (STD_TRUE == gv_stCurr[ch].stChanVartArray[CURR_L1_CHAN_NUM].stLv2OverCurrFilt.ucStatus)
 		{
-			CURR_FaultStatusUpdata(ERRHDL_ID_L1P_OVER_CURR_L2, STD_TRUE);
+			if (SYS_CONNECTOR1 == ch)
+			{
+				CURR_FaultStatusUpdata(ERRHDL_ID_GUN1_OVER_CURR_L2, STD_TRUE);
+			}
+			else
+			{
+				CURR_FaultStatusUpdata(ERRHDL_ID_GUN2_OVER_CURR_L2, STD_TRUE);
+			}
 			CURR_DEBUG("connector: %d L1CurrVal : %d\r\n", ch, gv_stCurr[ch].stChanVartArray[CURR_L1_CHAN_NUM].usCurrTempVal);
 		}
 		else
@@ -712,7 +762,14 @@ static void CURR_ErrCallBackHandle(SysConnector_Num_Enum ch)
 	{
 		if (STD_TRUE == gv_stCurr[ch].stChanVartArray[CURR_L2_CHAN_NUM].stLv2OverCurrFilt.ucStatus)
 		{
-			CURR_FaultStatusUpdata(ERRHDL_ID_L2L3P_OVER_CURR_L2, STD_TRUE);
+			if (SYS_CONNECTOR1 == ch)
+			{
+				CURR_FaultStatusUpdata(ERRHDL_ID_GUN1_OVER_CURR_L2, STD_TRUE);
+			}
+			else
+			{
+				CURR_FaultStatusUpdata(ERRHDL_ID_GUN2_OVER_CURR_L2, STD_TRUE);
+			}
 			CURR_DEBUG("connector: %d L2CurrVal : %d\r\n", ch, gv_stCurr[ch].stChanVartArray[CURR_L2_CHAN_NUM].usCurrTempVal);
 		}
 		else
@@ -723,7 +780,14 @@ static void CURR_ErrCallBackHandle(SysConnector_Num_Enum ch)
 	{
 		if (STD_TRUE == gv_stCurr[ch].stChanVartArray[CURR_L3_CHAN_NUM].stLv2OverCurrFilt.ucStatus)
 		{
-			CURR_FaultStatusUpdata(ERRHDL_ID_L2L3P_OVER_CURR_L2, STD_TRUE);
+			if (SYS_CONNECTOR1 == ch)
+			{
+				CURR_FaultStatusUpdata(ERRHDL_ID_GUN1_OVER_CURR_L2, STD_TRUE);
+			}
+			else
+			{
+				CURR_FaultStatusUpdata(ERRHDL_ID_GUN2_OVER_CURR_L2, STD_TRUE);
+			}
 			CURR_DEBUG("connector: %d L3CurrVal : %d\r\n", ch, gv_stCurr[ch].stChanVartArray[CURR_L3_CHAN_NUM].usCurrTempVal);
 		}
 		else

@@ -317,7 +317,7 @@ static void AUTHM_ReqAuthStop(SysConnector_Num_Enum ch)
 	}
 	else
 #endif
-	if (AUTHM_GetChargeConditions() >= AUTHM_ERRHDL_CHARGE_CANCEL)
+	if (AUTHM_GetChargeConditions(ch) >= AUTHM_ERRHDL_CHARGE_CANCEL)
 	{
 		gv_stAuthM[ch].ucMode = AUTHM_MODE_UNAUTHORIZED;
 		gv_stAuthM[ch].ucReqChargeStatus = STD_FALSE;
@@ -564,7 +564,7 @@ Call By         : AUTHM_10msMainFunction
 static void AUTHM_EvseStatusManage(SysConnector_Num_Enum ch)
 {
 	uint8_t lv_ucChargeConditions;
-	lv_ucChargeConditions = ERRHDL_GetChargeConditions();
+	lv_ucChargeConditions = ERRHDL_GetChargeConditions(ch);
 
 	if(STD_TRUE == gv_stAuthM[ch].ucReqChargeStatus)
 	{

@@ -384,9 +384,19 @@ static void RLYCTRL_AuxlDetect(SysConnector_Num_Enum ch)
 		{
 			if (gv_stRlyCtrl[ch].stAuxiliaryFilter.ucValidStatus == MOSDRV_HIGH)
 			{
-				RLYCTRL_FAULT_CALLBACK(ERRHDL_ID_RELAY_CONGLUTINATION, STD_TRUE);
-				// gv_stRlyCtrl[ch].ucErrorStatus = STD_TRUE;
-				// RLYCTRL_ERR("ch:%d ERRHDL_ID_RELAY_CONGLUTINATION!!! \r\n",ch);
+				if (ch == SYS_CONNECTOR1)
+				{
+					RLYCTRL_FAULT_CALLBACK(ERRHDL_ID_GUN1_RELAY_FAULT, STD_TRUE);
+				}
+				else if (ch == SYS_CONNECTOR2)
+				{
+					RLYCTRL_FAULT_CALLBACK(ERRHDL_ID_GUN2_RELAY_FAULT, STD_TRUE);
+				}
+				else
+				{
+				}
+				gv_stRlyCtrl[ch].ucErrorStatus = STD_TRUE;
+				RLYCTRL_ERR("ch:%d ERRHDL_ID_RELAY_CONGLUTINATION!!! \r\n",ch);
 			}
 			gv_stRlyCtrl[ch].stAuxiliaryFilter.ucValidStatus = 0xff; /* Reset valid status */
 		}
@@ -399,9 +409,19 @@ static void RLYCTRL_AuxlDetect(SysConnector_Num_Enum ch)
 		{
 			if (gv_stRlyCtrl[ch].stAuxiliaryFilter.ucValidStatus == MOSDRV_LOW)
 			{
-				RLYCTRL_FAULT_CALLBACK(ERRHDL_ID_RELAY_OPENCIRCUIT, STD_TRUE);
-				// gv_stRlyCtrl[ch].ucErrorStatus = STD_TRUE;
-				// RLYCTRL_ERR("ch:%d ERRHDL_ID_RELAY_OPENCIRCUIT!!! \r\n",ch);
+				if (ch == SYS_CONNECTOR1)
+				{
+					RLYCTRL_FAULT_CALLBACK(ERRHDL_ID_GUN1_RELAY_FAULT, STD_TRUE);
+				}
+				else if (ch == SYS_CONNECTOR2)
+				{
+					RLYCTRL_FAULT_CALLBACK(ERRHDL_ID_GUN2_RELAY_FAULT, STD_TRUE);
+				}
+				else
+				{
+				}
+				gv_stRlyCtrl[ch].ucErrorStatus = STD_TRUE;
+				RLYCTRL_ERR("ch:%d ERRHDL_ID_RELAY_OPENCIRCUIT!!! \r\n",ch);
 			}
 			gv_stRlyCtrl[ch].stAuxiliaryFilter.ucValidStatus = 0xff; /* Reset valid status */
 		}

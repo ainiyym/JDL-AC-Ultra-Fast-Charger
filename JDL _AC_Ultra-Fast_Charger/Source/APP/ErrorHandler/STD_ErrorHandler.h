@@ -61,7 +61,7 @@ extern void ERRHDL_10msMainFunction(void);
 extern void ERRHDL_FaultStatusUpdata_CallBack(ErrHdlId_Enum lv_enFaultIdNum,uint8_t lv_ucFaultStatus);
 extern ErrHdlLevel_Enum ERRHDL_GetErrorLevelStatus(void);
 extern void ERRHDL_GetAllFaultData(uint8_t *lv_arrBuff);
-extern uint8_t ERRHDL_GetChargeConditions(void);
+extern uint8_t ERRHDL_GetChargeConditions(uint32_t gun_index);
 extern void ERRHDL_Disable(void);
 extern void ERRHDL_Enable(void);
 #endif

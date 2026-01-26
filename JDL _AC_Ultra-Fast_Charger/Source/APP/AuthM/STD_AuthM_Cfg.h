@@ -59,7 +59,7 @@
 #define AUTHM_TASK_PERIOD                			(10U)											/*10ms*/
 #define AUTHM_NOT_PLUG_IN_TIMEOUT_CNT  				((uint32_t)2*60*1000u / AUTHM_TASK_PERIOD )		/*2 minutes*/
 
-#define AUTHM_GetChargeConditions() 				ERRHDL_GetChargeConditions()					/*get charge conditions*/
+#define AUTHM_GetChargeConditions(ch) 				ERRHDL_GetChargeConditions(ch)					/*get charge conditions*/
 #define AUTHM_GetResetPrepareStatus()				SYSM_GetResetPrepareStatus()					/*get system prepare status*/
 
 #define AUTHM_EVSE_STATUS_3_DOT						(uint8_t)EVSEM_STATE_THREE_dot					/*6U*/

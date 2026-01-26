@@ -53,6 +53,7 @@ typedef struct
 {
 	uint8_t CpStatus[SYS_CONNECTOR_NUM_MAX]; /* Cp status */
 	uint8_t EVSEStatus[SYS_CONNECTOR_NUM_MAX]; /* EVSE status */
+	uint8_t ChargeConditions[SYS_CONNECTOR_NUM_MAX]; /* Charge Conditions */
 	uint8_t StopChargingReason[SYS_CONNECTOR_NUM_MAX]; /* Stop charging reason */
 	uint32_t ul10msCnt; /* Counter */
 }SysM_BasicInfo_Struct;
@@ -445,6 +446,7 @@ static void SYSM_ShowBasicInfo(void)
 
 	uint8_t ucCpStatus[SYS_CONNECTOR_NUM_MAX] = {0};
 	uint8_t ucEvseStatus[SYS_CONNECTOR_NUM_MAX] = {0};
+	uint8_t ucChargeConditions[ERRHDL_GUN_MAX_NUM] = {0};
 	uint8_t lv_ucStopReson[SYS_CONNECTOR_NUM_MAX] = {0};
 	static uint32_t lv_ulSystemStatus[SYS_CONNECTOR_NUM_MAX] = {0};
 
@@ -452,13 +454,17 @@ static void SYSM_ShowBasicInfo(void)
 	{
 		ucCpStatus[i] = CPM_GetCpVoltStatus(i);
 		ucEvseStatus[i] = EVSEM_GetChargeStatus(i);
+		ucChargeConditions[i] = ERRHDL_GetChargeConditions(i);
 		lv_ucStopReson[i] = EVSEM_GetChargeStopReason(i);
 
-		if ((stSysM.basic_ctrl_info.CpStatus[i] != ucCpStatus[i]) || (stSysM.basic_ctrl_info.EVSEStatus[i] != ucEvseStatus[i]))
+		if ((stSysM.basic_ctrl_info.CpStatus[i] != ucCpStatus[i]) ||\
+		 (stSysM.basic_ctrl_info.EVSEStatus[i] != ucEvseStatus[i]) ||\
+		 (stSysM.basic_ctrl_info.ChargeConditions[i] != ucChargeConditions[i]))
 		{
 			stSysM.basic_ctrl_info.CpStatus[i] = ucCpStatus[i];
 			stSysM.basic_ctrl_info.EVSEStatus[i] = ucEvseStatus[i];
-			SYSM_INFO("Connecter:%d CP %d EVSE %d \r\n", i, stSysM.basic_ctrl_info.CpStatus[i], stSysM.basic_ctrl_info.EVSEStatus[i]);
+			stSysM.basic_ctrl_info.ChargeConditions[i] = ucChargeConditions[i];
+			SYSM_INFO("Connecter:%d CP %d EVSE %d ChargeConditions %d\r\n", i, stSysM.basic_ctrl_info.CpStatus[i], stSysM.basic_ctrl_info.EVSEStatus[i], stSysM.basic_ctrl_info.ChargeConditions[i]);
 		}
 
 		if (stSysM.ulSystemStatus[i] != lv_ulSystemStatus[i])
@@ -480,13 +486,22 @@ static void SYSM_ShowBasicInfo(void)
 	else
 	{
 		stSysM.basic_ctrl_info.ul10msCnt = 0;
-		SYSM_INFO("Connecter1 CP %d EVSE %d \r\n", stSysM.basic_ctrl_info.CpStatus[0], stSysM.basic_ctrl_info.EVSEStatus[0]);
+		uint8_t FltData[ERRHDL_BYTE_MAX_NUM] = {0};
+
+		ERRHDL_GetAllFaultData(FltData);
+		SYSM_INFO("\r\n[0]:0x%02x [1]:0x%02x [2]:0x%02x [3]:0x%02x [4]:0x%02x\r\n",\
+			 FltData[0],\
+			 FltData[1],\
+			 FltData[2],\
+			 FltData[3],\
+			 FltData[4]);
+		SYSM_INFO("Connecter1 Charging Condition:%d CP %d EVSE %d \r\n", stSysM.basic_ctrl_info.ChargeConditions[0], stSysM.basic_ctrl_info.CpStatus[0], stSysM.basic_ctrl_info.EVSEStatus[0]);
 		SYSM_INFO("Connector1 Front Temp value:%d Connector1 RearTemp value:%d\r\n", SENSOR_GetSensorAdcTempValue(SENSOR_CONNECTOR1_FRONT_TEMP_CH), SENSOR_GetSensorAdcTempValue(SENSOR_CONNECTOR1_REAR_TEMP_CH));
 		SYSM_INFO("Oil1 InTemp value:%d Oil1 OutTemp value:%d\r\n\r\n", SENSOR_GetSensorAdcTempValue(SENSOR_OIL1_INLET_TEMP_CH), SENSOR_GetSensorAdcTempValue(SENSOR_OIL1_OUTLET_TEMP_CH));
 
-		SYSM_INFO("Connecter2 CP %d EVSE %d \r\n", stSysM.basic_ctrl_info.CpStatus[1], stSysM.basic_ctrl_info.EVSEStatus[1]);
-		SYSM_INFO("Connector2 Front Temp value:%d Connector2 RearTemp value:%d\r\n", SENSOR_GetSensorAdcTempValue(SENSOR_CONNECTOR1_FRONT_TEMP_CH), SENSOR_GetSensorAdcTempValue(SENSOR_CONNECTOR1_REAR_TEMP_CH));
-		SYSM_INFO("Oil2 InTemp value:%d Oil2 OutTemp value:%d\r\n\r\n", SENSOR_GetSensorAdcTempValue(SENSOR_OIL1_INLET_TEMP_CH), SENSOR_GetSensorAdcTempValue(SENSOR_OIL1_OUTLET_TEMP_CH));
+		SYSM_INFO("Connecter2 Charging Condition:%d CP %d EVSE %d \r\n", stSysM.basic_ctrl_info.ChargeConditions[1], stSysM.basic_ctrl_info.CpStatus[1], stSysM.basic_ctrl_info.EVSEStatus[1]);
+		SYSM_INFO("Connector2 Front Temp value:%d Connector2 RearTemp value:%d\r\n", SENSOR_GetSensorAdcTempValue(SENSOR_CONNECTOR2_FRONT_TEMP_CH), SENSOR_GetSensorAdcTempValue(SENSOR_CONNECTOR2_REAR_TEMP_CH));
+		SYSM_INFO("Oil2 InTemp value:%d Oil2 OutTemp value:%d\r\n\r\n", SENSOR_GetSensorAdcTempValue(SENSOR_OIL2_INLET_TEMP_CH), SENSOR_GetSensorAdcTempValue(SENSOR_OIL2_OUTLET_TEMP_CH));
 	}
 }
 

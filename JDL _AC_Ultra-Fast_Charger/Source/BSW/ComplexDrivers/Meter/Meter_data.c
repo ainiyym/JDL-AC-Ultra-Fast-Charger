@@ -312,9 +312,9 @@ uint16_t Meter_GetVoltL1(SysConnector_Num_Enum ch)
 	switch (ch)
 	{
 		case SYS_CONNECTOR1:
-			return (uint16_t)(meter_data[0].measure.Ua);
+			return (uint16_t)(meter_data[0].measure.Ua * 100); //0.01V
 		case SYS_CONNECTOR2:
-			return (uint16_t)(meter_data[1].measure.Ua);
+			return (uint16_t)(meter_data[1].measure.Ua * 100);
 		default:
 			return 0;
 	}
@@ -324,9 +324,9 @@ uint16_t Meter_GetVoltL2(SysConnector_Num_Enum ch)
 	switch (ch)
 	{
 		case SYS_CONNECTOR1:
-			return (uint16_t)(meter_data[0].measure.Ub);
+			return (uint16_t)(meter_data[0].measure.Ub * 100);
 		case SYS_CONNECTOR2:
-			return (uint16_t)(meter_data[1].measure.Ua);
+			return (uint16_t)(meter_data[1].measure.Ub * 100);
 		default:
 			return 0;
 	}
@@ -337,9 +337,9 @@ uint16_t Meter_GetVoltL3(SysConnector_Num_Enum ch)
 	switch (ch)
 	{
 		case SYS_CONNECTOR1:
-			return (uint16_t)(meter_data[0].measure.Uc);
+			return (uint16_t)(meter_data[0].measure.Uc * 100);
 		case SYS_CONNECTOR2:
-			return (uint16_t)(meter_data[1].measure.Uc);
+			return (uint16_t)(meter_data[1].measure.Uc * 100);
 		default:
 			return 0;
 	}
@@ -350,7 +350,7 @@ uint16_t Meter_GetCurrL1(SysConnector_Num_Enum ch)
 	switch (ch)
 	{
 		case SYS_CONNECTOR1:
-			return (uint16_t)(meter_data[0].measure.Ia) * 100;
+			return (uint16_t)(meter_data[0].measure.Ia) * 100;//(0.01A)
 		case SYS_CONNECTOR2:
 			return (uint16_t)(meter_data[1].measure.Ia) * 100;
 		default:

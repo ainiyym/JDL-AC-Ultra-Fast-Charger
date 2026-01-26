@@ -27,15 +27,15 @@
 |******************************************************************************/
 typedef struct
 {
-	ErrHdlLevel_Enum enErrorL;				   /*Error level */
-	ErrHdlLevel_Enum enFinalEeeorL;			   /*Last Error level*/
-	uint8_t ucMode;							   /*Error Module mode */
-	uint8_t ucEnStatus;						   /*Error Module Enable */
-	uint8_t ucCurrIdx;						   /*Current error id */
-	uint8_t ucChargeConditions;				   /*Charging Conditions*/
-	uint8_t arFltData[ERRHDL_BYTE_MAX_NUM];	   /*Fault data*/
-	uint8_t arFltCnt[ERRHDL_ID_MAX_NUM];	   /*Number of failures*/
-	uint32_t arRecoveryCnt[ERRHDL_ID_MAX_NUM]; /*Duration of fault occurrence*/
+	ErrHdlLevel_Enum enErrorL[ERRHDL_GUN_MAX_NUM];		/*Error level */
+	ErrHdlLevel_Enum enFinalEeeorL[ERRHDL_GUN_MAX_NUM]; /*Last Error level*/
+	uint8_t ucMode;										/*Error Module mode */
+	uint8_t ucEnStatus;									/*Error Module Enable */
+	uint8_t ucCurrIdx;									/*Current error id */
+	uint8_t ucChargeConditions[ERRHDL_GUN_MAX_NUM];		/*Charging Conditions*/
+	uint8_t arFltData[ERRHDL_BYTE_MAX_NUM];				/*Fault data*/
+	uint8_t arFltCnt[ERRHDL_ID_MAX_NUM];				/*Number of failures*/
+	uint16_t arRecoveryCnt[ERRHDL_ID_MAX_NUM];			/*Duration of fault occurrence*/
 } ErrHdl_Struct;
 
 /*******************************************************************************
@@ -54,6 +54,11 @@ static ErrHdl_Struct gv_stErrHdl;
 |    Static Local Functions Declaration
 |******************************************************************************/
 static void ERRHDL_JudgeChargeConditions(void);
+static void ERRHDL_ClearErrorLevelJudgy(void);
+static void ERRHDL_SetErrorLevelJudgy(void);
+static void ERRHDL_SetErrorLevel(uint8_t FaultAttribution, ErrHdlLevel_Enum enFltLevel);
+static void ERRHDL_MultiErrorSelfRecoveryProcess(uint8_t lv_ucErrHdlId);
+static void ERRHDL_SetErrorLevelProcess(uint8_t lv_ucErrHdlId);
 static void ERRHDL_NormalProcess(void);
 /*******************************************************************************
 |    Function Source Code
@@ -124,15 +129,15 @@ Name            : ERRHDL_GetChargeConditions
 Syntax          : uint8_t ERRHDL_GetChargeConditions(void)
 Sync/Async      : Synchronous
 Reentrancy      :
-Parameters(in)  : none
+Parameters(in)  : gun_index: 0--gun1; 1--gun2
 Parameters(out) : none
 Return value    : uint8_t
 Description     : Obtaining charging status information
 Call By         :
 |******************************************************************************/
-uint8_t ERRHDL_GetChargeConditions(void)
+uint8_t ERRHDL_GetChargeConditions(uint32_t gun_index)
 {
-	return gv_stErrHdl.ucChargeConditions;
+	return gv_stErrHdl.ucChargeConditions[gun_index];
 }
 
 /*******************************************************************************
@@ -144,43 +149,280 @@ Parameters(in)  : none
 Parameters(out) : none
 Return value    : void
 Description     : Judge the charging status task
-Call By         : Cyclic Executing Function
+Call By         : ERRHDL_NormalProcess
 |******************************************************************************/
 static void ERRHDL_JudgeChargeConditions(void)
 {
-	switch (gv_stErrHdl.enFinalEeeorL)
+	for (uint8_t gun_index = 0; gun_index < ERRHDL_GUN_MAX_NUM; gun_index++)
 	{
-	case ERRHDL_FLT_L_NONE:
-	case ERRORH_FLT_L_ONE:
-	{
-		gv_stErrHdl.ucChargeConditions = (uint8_t)ERRHDL_CHARGE_ALLOW;
-		break;
+		if ((uint8_t)gv_stErrHdl.enFinalEeeorL[gun_index] != (uint8_t)gv_stErrHdl.enErrorL[gun_index])
+		{
+			gv_stErrHdl.enFinalEeeorL[gun_index] = gv_stErrHdl.enErrorL[gun_index];
+		}
+		else
+		{
+			break;
+		}
+
+		switch (gv_stErrHdl.enFinalEeeorL[gun_index])
+		{
+			case ERRHDL_FLT_L_NONE:
+			case ERRORH_FLT_L_ONE:
+			{
+				gv_stErrHdl.ucChargeConditions[gun_index] = (uint8_t)ERRHDL_CHARGE_ALLOW;
+				break;
+			}
+			case ERRORH_FLT_L_TWO:
+			{
+				gv_stErrHdl.ucChargeConditions[gun_index] = (uint8_t)ERRHDL_CHARGE_DERATE;
+				break;
+			}
+			case ERRORH_FLT_L_THREE:
+			{
+				gv_stErrHdl.ucChargeConditions[gun_index] = (uint8_t)ERRHDL_CHARGE_SUSPENDED;
+				break;
+			}
+			case ERRORH_FLT_L_FOUR:
+			{
+				gv_stErrHdl.ucChargeConditions[gun_index] = (uint8_t)ERRHDL_CHARGE_CANCEL;
+				break;
+			}
+			case ERRORH_FLT_L_FIVE:
+			{
+				gv_stErrHdl.ucChargeConditions[gun_index] = (uint8_t)ERRHDL_CHARGE_SAFETY;
+				break;
+			}
+			default:
+			{
+				gv_stErrHdl.ucChargeConditions[gun_index] = (uint8_t)ERRHDL_CHARGE_ALLOW;
+				break;
+			}
+		}
 	}
-	case ERRORH_FLT_L_TWO:
+}
+
+/*******************************************************************************
+ * Name            : ERRHDL_ClearErrorLevelJudgy
+ * Syntax          : static void ERRHDL_ClearErrorLevelJudgy(void)
+ * Sync/Async      : Synchronous
+ * Reentrancy      :
+ * Parameters(in)  : none
+ * Parameters(out) : none
+ * Return value    : void
+ * Description     : Error level clearing judgment task
+ * Call By         : ERRHDL_NormalProcess
+ |******************************************************************************/
+static void ERRHDL_ClearErrorLevelJudgy(void)
+{
+	uint8_t lv_ucByteIdx = 0, lv_ucBitOffset = 0;
+	uint8_t FaultAttribution = 0;
+
+	if (gv_stErrHdl.ucCurrIdx < (uint8_t)ERRHDL_ID_MAX_NUM)
 	{
-		gv_stErrHdl.ucChargeConditions = (uint8_t)ERRHDL_CHARGE_DERATE;
-		break;
+		lv_ucByteIdx = (uint8_t)c_arErrHdlCfgArray[gv_stErrHdl.ucCurrIdx].enFltByteIdx;
+		lv_ucBitOffset = (uint8_t)c_arErrHdlCfgArray[gv_stErrHdl.ucCurrIdx].enFltBitOffset;
+		if ((uint8_t)STD_FALSE == LIB_GET_UINT8_BIT(gv_stErrHdl.arFltData[lv_ucByteIdx], lv_ucBitOffset))
+		{
+			gv_stErrHdl.ucCurrIdx = 0u;
+
+			FaultAttribution = (uint8_t)c_arErrHdlCfgArray[gv_stErrHdl.ucCurrIdx].enFaultAttribution;
+			switch (FaultAttribution)
+			{
+				case ERRHDL_ATTIBUTION_NONE:
+				{
+					gv_stErrHdl.enErrorL[0] = ERRHDL_FLT_L_NONE;
+					gv_stErrHdl.enErrorL[1] = ERRHDL_FLT_L_NONE;
+					break;
+				}
+				case ERRHDL_ATTIBUTION_GUN1:
+				{
+					gv_stErrHdl.enErrorL[0] = ERRHDL_FLT_L_NONE;
+					break;
+				}
+				case ERRHDL_ATTIBUTION_GUN2:
+				{
+					gv_stErrHdl.enErrorL[1] = ERRHDL_FLT_L_NONE;
+					break;
+				}
+				default:
+				{
+					break;
+				}
+			}
+		}
+		else
+		{
+		}
 	}
-	case ERRORH_FLT_L_THREE:
+	else
 	{
-		gv_stErrHdl.ucChargeConditions = (uint8_t)ERRHDL_CHARGE_SUSPENDED;
-		break;
+		gv_stErrHdl.ucCurrIdx = 0u;
+		gv_stErrHdl.enErrorL[0] = ERRHDL_FLT_L_NONE;
+		gv_stErrHdl.enErrorL[1] = ERRHDL_FLT_L_NONE;
 	}
-	case ERRORH_FLT_L_FOUR:
+}
+
+/*******************************************************************************
+ * Name            : ERRHDL_SetErrorLevelJudgy
+ * Syntax          : static void ERRHDL_SetErrorLevelJudgy(void)
+ * Sync/Async      : Synchronous
+ * Reentrancy      :
+ * Parameters(in)  : none
+ * Parameters(out) : none
+ * Return value    : void
+ * Description     : Error level setting judgment task
+ * Call By         : ERRHDL_NormalProcess
+ |******************************************************************************/
+static void ERRHDL_SetErrorLevelJudgy(void)
+{
+	uint8_t lv_ucByteIdx = 0, lv_ucBitOffset = 0;
+	uint8_t lv_ucErrHdlId = 0;
+
+	for (lv_ucErrHdlId = 0u; lv_ucErrHdlId < (uint8_t)ERRHDL_ID_MAX_NUM; lv_ucErrHdlId++)
 	{
-		gv_stErrHdl.ucChargeConditions = (uint8_t)ERRHDL_CHARGE_CANCEL;
-		break;
+		lv_ucByteIdx = (uint8_t)c_arErrHdlCfgArray[lv_ucErrHdlId].enFltByteIdx;
+		lv_ucBitOffset = (uint8_t)c_arErrHdlCfgArray[lv_ucErrHdlId].enFltBitOffset;
+
+		if ((uint8_t)STD_TRUE == LIB_GET_UINT8_BIT(gv_stErrHdl.arFltData[lv_ucByteIdx], lv_ucBitOffset))
+		{
+			ERRHDL_SetErrorLevelProcess(lv_ucErrHdlId);
+			gv_stErrHdl.ucCurrIdx = lv_ucErrHdlId;
+		}
+		else
+		{
+			gv_stErrHdl.arRecoveryCnt[lv_ucErrHdlId] = 0u;
+		}
 	}
-	case ERRORH_FLT_L_FIVE:
+}
+
+/*******************************************************************************
+ * Name            : ERRHDL_SetErrorLevel
+ * Syntax          : static void ERRHDL_SetErrorLevel(uint8_t FaultAttribution, ErrHdlLevel_Enum enFltLevel)
+ * Sync/Async      : Synchronous
+ * Reentrancy      :
+ * Parameters(in)  : FaultAttribution: Fault attribution, enFltLevel: Fault level
+ * Parameters(out) : none
+ * Return value    : void
+ * Description     : Setting the fault level task
+ * Call By         : ERRHDL_SetErrorLevelProcess
+ * 	***************************************************************************/
+static void ERRHDL_SetErrorLevel(uint8_t FaultAttribution, ErrHdlLevel_Enum enFltLevel)
+{
+	switch (FaultAttribution)
 	{
-		gv_stErrHdl.ucChargeConditions = (uint8_t)ERRHDL_CHARGE_SAFETY;
-		break;
+		case ERRHDL_ATTIBUTION_NONE:
+		{
+			for (uint8_t gun_index = 0; gun_index < ERRHDL_GUN_MAX_NUM; gun_index++)
+			{
+				if ((uint8_t)enFltLevel > (uint8_t)gv_stErrHdl.enErrorL[gun_index])
+				{
+					gv_stErrHdl.enErrorL[gun_index] = enFltLevel;
+				}
+			}
+			break;
+		}
+		case ERRHDL_ATTIBUTION_GUN1:
+		{
+			if ((uint8_t)enFltLevel > (uint8_t)gv_stErrHdl.enErrorL[0])
+			{
+				gv_stErrHdl.enErrorL[0] = enFltLevel;
+			}
+			break;
+		}
+		case ERRHDL_ATTIBUTION_GUN2:
+		{
+			if ((uint8_t)enFltLevel > (uint8_t)gv_stErrHdl.enErrorL[1])
+			{
+				gv_stErrHdl.enErrorL[1] = enFltLevel;
+			}
+			break;
+		}
+		default:
+			break;
 	}
-	default:
+}
+
+/*******************************************************************************
+ * Name            : ERRHDL_MultiErrorSelfRecoveryProcess
+ * Syntax          : static void ERRHDL_MultiErrorSelfRecoveryProcess(uint8_t lv_ucErrHdlId)
+ * Sync/Async      : Synchronous
+ * Reentrancy      :
+ * Parameters(in)  : lv_ucErrHdlId: Error ID
+ * Parameters(out) : none
+ * Return value    : void
+ * Description     : Multi-fault self-recovery processing task
+ * Call By         : ERRHDL_SetErrorLevelProcess
+ * ***************************************************************************/
+static void ERRHDL_MultiErrorSelfRecoveryProcess(uint8_t lv_ucErrHdlId)
+{
+	uint8_t lv_ucByteIdx = 0, lv_ucBitOffset = 0;
+
+	lv_ucByteIdx = (uint8_t)c_arErrHdlCfgArray[gv_stErrHdl.ucCurrIdx].enFltByteIdx;
+	lv_ucBitOffset = (uint8_t)c_arErrHdlCfgArray[gv_stErrHdl.ucCurrIdx].enFltBitOffset;
+
+	if ((uint8_t)ERRHDL_FLT_FLAG_CLEAR == (uint8_t)(c_arErrHdlCfgArray[lv_ucErrHdlId].ucFltFlag & ERRHDL_FLT_FLAG_CLEAR))
 	{
-		gv_stErrHdl.ucChargeConditions = (uint8_t)ERRHDL_CHARGE_ALLOW;
-		break;
+		gv_stErrHdl.arRecoveryCnt[lv_ucErrHdlId]++;
+		if (gv_stErrHdl.arRecoveryCnt[lv_ucErrHdlId] >= c_arErrHdlCfgArray[lv_ucErrHdlId].ulRecoveryTime)
+		{
+			gv_stErrHdl.arRecoveryCnt[lv_ucErrHdlId] = 0u;
+			LIB_RESET_UINT8_BIT(gv_stErrHdl.arFltData[lv_ucByteIdx], lv_ucBitOffset);
+		}
+		else
+		{
+		}
 	}
+	else
+	{
+		gv_stErrHdl.arRecoveryCnt[lv_ucErrHdlId] = c_arErrHdlCfgArray[lv_ucErrHdlId].ulRecoveryTime;
+	}
+}
+
+/*******************************************************************************
+ * Name            : ERRHDL_SetErrorLevelProcess
+ * Syntax          : static void ERRHDL_SetErrorLevelProcess(uint8_t lv_ucErrHdlId)
+ * Sync/Async      : Synchronous
+ * Reentrancy      :
+ * Parameters(in)  : lv_ucErrHdlId: Error ID
+ * Parameters(out) : none
+ * Return value    : void
+ * Description     : Setting the fault level processing task
+ * Call By         : ERRHDL_NormalProcess
+ * ***************************************************************************/
+static void ERRHDL_SetErrorLevelProcess(uint8_t lv_ucErrHdlId)
+{
+	uint8_t FaultAttribution = (uint8_t)c_arErrHdlCfgArray[lv_ucErrHdlId].enFaultAttribution;
+
+	if ((uint8_t)ERRHDL_FLT_FLAG_MULTI != (uint8_t)(c_arErrHdlCfgArray[lv_ucErrHdlId].ucFltFlag & ERRHDL_FLT_FLAG_MULTI))
+	{
+		ERRHDL_SetErrorLevel(FaultAttribution, c_arErrHdlCfgArray[lv_ucErrHdlId].enFltLevel);
+	}
+	else
+	{
+		if (gv_stErrHdl.arFltCnt[lv_ucErrHdlId] < c_arErrHdlCfgArray[lv_ucErrHdlId].ucMultiFltNum)
+		{
+			if (0u == gv_stErrHdl.arRecoveryCnt[lv_ucErrHdlId])
+			{
+				gv_stErrHdl.arFltCnt[lv_ucErrHdlId]++;
+			}
+			else
+			{
+			}
+
+			if (gv_stErrHdl.arFltCnt[lv_ucErrHdlId] == c_arErrHdlCfgArray[lv_ucErrHdlId].ucMultiFltNum)
+			{
+				ERRHDL_SetErrorLevel(FaultAttribution, c_arErrHdlCfgArray[lv_ucErrHdlId].enFltLevel);
+			}
+			else
+			{
+				ERRHDL_SetErrorLevel(FaultAttribution, c_arErrHdlCfgArray[lv_ucErrHdlId].enTempFltLevel);
+			}
+			ERRHDL_MultiErrorSelfRecoveryProcess(lv_ucErrHdlId);
+		}
+		else
+		{
+			ERRHDL_SetErrorLevel(FaultAttribution, c_arErrHdlCfgArray[lv_ucErrHdlId].enFltLevel);
+		}
 	}
 }
 
@@ -197,9 +439,6 @@ Call By         : 10ms Cyclic Executing Function
 |******************************************************************************/
 static void ERRHDL_NormalProcess(void)
 {
-	uint8_t lv_ucByteIdx = 0, lv_ucBitOffset = 0;
-	uint8_t lv_ucErrHdlId = 0;
-
 	if ((uint8_t)STD_FALSE == gv_stErrHdl.ucEnStatus)
 	{
 		gv_stErrHdl.ucMode = ERRHDL_MODE_IDLE;
@@ -207,122 +446,9 @@ static void ERRHDL_NormalProcess(void)
 	}
 	else
 	{
-		if (gv_stErrHdl.ucCurrIdx < (uint8_t)ERRHDL_ID_MAX_NUM)
-		{
-			lv_ucByteIdx = (uint8_t)c_arErrHdlCfgArray[gv_stErrHdl.ucCurrIdx].enFltByteIdx;
-			lv_ucBitOffset = (uint8_t)c_arErrHdlCfgArray[gv_stErrHdl.ucCurrIdx].enFltBitOffset;
-			if ((uint8_t)STD_FALSE == LIB_GET_UINT8_BIT(gv_stErrHdl.arFltData[lv_ucByteIdx], lv_ucBitOffset))
-			{
-				gv_stErrHdl.ucCurrIdx = 0u;
-				gv_stErrHdl.enErrorL = ERRHDL_FLT_L_NONE;
-			}
-			else
-			{
-			}
-		}
-		else
-		{
-			gv_stErrHdl.ucCurrIdx = 0u;
-			gv_stErrHdl.enErrorL = ERRHDL_FLT_L_NONE;
-		}
-
-		for (lv_ucErrHdlId = 0u; lv_ucErrHdlId < (uint8_t)ERRHDL_ID_MAX_NUM; lv_ucErrHdlId++)
-		{
-			lv_ucByteIdx = (uint8_t)c_arErrHdlCfgArray[lv_ucErrHdlId].enFltByteIdx;
-			lv_ucBitOffset = (uint8_t)c_arErrHdlCfgArray[lv_ucErrHdlId].enFltBitOffset;
-
-			if ((uint8_t)STD_TRUE == LIB_GET_UINT8_BIT(gv_stErrHdl.arFltData[lv_ucByteIdx], lv_ucBitOffset)) 
-			{
-				if ((uint8_t)ERRHDL_FLT_FLAG_MULTI != (uint8_t)(c_arErrHdlCfgArray[lv_ucErrHdlId].ucFltFlag & ERRHDL_FLT_FLAG_MULTI))
-				{
-					if ((uint8_t)c_arErrHdlCfgArray[lv_ucErrHdlId].enFltLevel > (uint8_t)gv_stErrHdl.enErrorL)
-					{
-						gv_stErrHdl.enErrorL = c_arErrHdlCfgArray[lv_ucErrHdlId].enFltLevel;
-						gv_stErrHdl.ucCurrIdx = lv_ucErrHdlId;
-					}
-					else
-					{
-					}
-				}
-				else
-				{
-					if (gv_stErrHdl.arFltCnt[lv_ucErrHdlId] < c_arErrHdlCfgArray[lv_ucErrHdlId].ucMultiFltNum)
-					{
-						if (0u == gv_stErrHdl.arRecoveryCnt[lv_ucErrHdlId])
-						{
-							gv_stErrHdl.arFltCnt[lv_ucErrHdlId]++;
-						}
-						else
-						{
-						}
-
-						if (gv_stErrHdl.arFltCnt[lv_ucErrHdlId] == c_arErrHdlCfgArray[lv_ucErrHdlId].ucMultiFltNum)
-						{
-							if ((uint8_t)c_arErrHdlCfgArray[lv_ucErrHdlId].enFltLevel > (uint8_t)gv_stErrHdl.enErrorL)
-							{
-								gv_stErrHdl.enErrorL = c_arErrHdlCfgArray[lv_ucErrHdlId].enFltLevel;
-								gv_stErrHdl.ucCurrIdx = lv_ucErrHdlId;
-							}
-							else
-							{
-							}
-						}
-						else
-						{
-							if ((uint8_t)c_arErrHdlCfgArray[lv_ucErrHdlId].enTempFltLevel > (uint8_t)gv_stErrHdl.enErrorL)
-							{
-								gv_stErrHdl.enErrorL = c_arErrHdlCfgArray[lv_ucErrHdlId].enTempFltLevel;
-								gv_stErrHdl.ucCurrIdx = lv_ucErrHdlId;
-							}
-							else
-							{
-							}
-						}
-
-						if ((uint8_t)ERRHDL_FLT_FLAG_CLEAR == (uint8_t)(c_arErrHdlCfgArray[lv_ucErrHdlId].ucFltFlag & ERRHDL_FLT_FLAG_CLEAR))
-						{
-							gv_stErrHdl.arRecoveryCnt[lv_ucErrHdlId]++;
-							if (gv_stErrHdl.arRecoveryCnt[lv_ucErrHdlId] >= c_arErrHdlCfgArray[lv_ucErrHdlId].ulRecoveryTime)
-							{
-								gv_stErrHdl.arRecoveryCnt[lv_ucErrHdlId] = 0u;
-								LIB_RESET_UINT8_BIT(gv_stErrHdl.arFltData[lv_ucByteIdx], lv_ucBitOffset);
-							}
-							else
-							{
-							}
-						}
-						else
-						{
-							gv_stErrHdl.arRecoveryCnt[lv_ucErrHdlId] = c_arErrHdlCfgArray[lv_ucErrHdlId].ulRecoveryTime;
-						}
-					}
-					else
-					{
-						if ((uint8_t)c_arErrHdlCfgArray[lv_ucErrHdlId].enFltLevel > (uint8_t)gv_stErrHdl.enErrorL)
-						{
-							gv_stErrHdl.enErrorL = c_arErrHdlCfgArray[lv_ucErrHdlId].enFltLevel;
-							gv_stErrHdl.ucCurrIdx = lv_ucErrHdlId;
-						}
-						else
-						{
-						}
-					}
-				}
-			}
-			else
-			{
-				gv_stErrHdl.arRecoveryCnt[lv_ucErrHdlId] = 0u;
-			}
-		}
-
-		if ((uint8_t)gv_stErrHdl.enFinalEeeorL != (uint8_t)gv_stErrHdl.enErrorL)
-		{
-			gv_stErrHdl.enFinalEeeorL = gv_stErrHdl.enErrorL;
-			ERRHDL_JudgeChargeConditions();
-		}
-		else
-		{
-		}
+		ERRHDL_ClearErrorLevelJudgy();
+		ERRHDL_SetErrorLevelJudgy();
+		ERRHDL_JudgeChargeConditions();
 	}
 }
 

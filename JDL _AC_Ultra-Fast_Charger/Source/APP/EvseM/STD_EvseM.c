@@ -465,7 +465,7 @@ Call By         : EVSEM_10msMainFunction
 |******************************************************************************/
 static void EVSEM_StateZeroHandle(SysConnector_Num_Enum ch)
 {
-	uint8_t lv_ucChargeConditions = EVSEM_GetChargeConditions();
+	uint8_t lv_ucChargeConditions = EVSEM_GetChargeConditions(ch);
 
 	if ((uint8_t)STD_TRUE == EVSEM_GetSysReadyState())
 	{
@@ -822,7 +822,7 @@ Call By         : EVSEM_10msMainFunction
 |******************************************************************************/
 static void EVSEM_EnterStateFourHandle(SysConnector_Num_Enum ch)
 {
-	uint8_t lv_ucChargeConditions = EVSEM_GetChargeConditions();
+	uint8_t lv_ucChargeConditions = EVSEM_GetChargeConditions(ch);
 	static uint8_t st_ucChargeConditions = EVSEM_CHARGE_ALLOW;
 
 	if (lv_ucChargeConditions >= (uint8_t)EVSEM_CHARGE_SUSPENDED && lv_ucChargeConditions != st_ucChargeConditions)

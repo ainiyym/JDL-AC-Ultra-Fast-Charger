@@ -29,9 +29,9 @@
 #define VOLT_ONE_PHASE_INPUT_MODE      							(0u)							 /*voltage module one phase input mode*/
 #define VOLT_THREE_PHASE_INPUT_MODE    							(1u)							 /*voltage module three phase input mode*/
 
-#define VOLT_LV1_LOWVOLT_FUN_EN									STD_OFF							 /*Level 1 lowvoltage function enable*/
+#define VOLT_LV1_LOWVOLT_FUN_EN									STD_ON							 /*Level 1 lowvoltage function enable*/
 #define VOLT_LV2_LOWVOLT_FUN_EN									STD_OFF							 /*Level 2 lowvoltage function enable*/
-#define VOLT_LV1_OVERVOLT_FUN_EN								STD_OFF							 /*Level 1 Overvoltage function enable*/
+#define VOLT_LV1_OVERVOLT_FUN_EN								STD_ON							 /*Level 1 Overvoltage function enable*/
 #define VOLT_LV2_OVERVOLT_FUN_EN								STD_OFF							 /*Level 2 Overvoltage function enable*/
 #define VOLT_FAULT_PHASE_FUN_EN      							STD_OFF							 /*fire zero error phase function enable*/
 
@@ -55,32 +55,19 @@
 #define VOLT_LV1_IN_LOWVOLT_WAIT_NUM							(uint16_t)(2000u/VOLT_TASK_PERIOD)  /* input low voltage wait number*/
 #define VOLT_LV1_OUT_LOWVOLT_WAIT_NUM							(uint16_t)(2000u/VOLT_TASK_PERIOD) /* input low voltage wait number*/
 
-#define VOLT_AUTO_TEST_L2_VOLT_THRSH							(uint16_t)(150u*VOLT_ENLARGE)		 /*The adaptive functional L2 voltage has a threshold*/
-#define VOLT_AUTO_TEST_L3_VOLT_THRSH							(uint16_t)(150u*VOLT_ENLARGE)		 /*The adaptive functional L3 voltage has a threshold*/
-#define VOLT_AUTO_TEST_FILT_WAIT_NUM							(uint16_t)(500u/VOLT_TASK_PERIOD)  /*Adaptive functional filter counting*/
-#define VOLT_AUTO_TEST_MAX_WAIT_NUM								(uint16_t)(3000u/VOLT_TASK_PERIOD) /*Adaptive function timeout waiting time*/
-
 #define VOLT_GetAllVoltVailVal(ch)\
 do{\
     gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal = Meter_GetVoltL1(ch);\
     gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal = Meter_GetVoltL2(ch);\
     gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal = Meter_GetVoltL3(ch);\
 }while(0)
-#define VOLT_GetSysPrepareStatus()								SYSM_GetResetPrepareStatus()	/*Obtain the system readiness interface*/
-#define VOLT_GetMeterPrepareStatus(ch)							Meter_GetMeterReadyStatus(ch)		/*Obtain the Meter module prepare status interface*/
+#define VOLT_GetSysPrepareStatus()									SYSM_GetResetPrepareStatus()	/*Obtain the system readiness interface*/
+#define VOLT_GetMeterPrepareStatus(ch)								Meter_GetMeterReadyStatus(ch)		/*Obtain the Meter module prepare status interface*/
 
-#define VOLT_SetLv1OverVoltL1P(lv_ucFaultStatus)				ERRHDL_FaultStatusUpdata_CallBack(ERRHDL_ID_L1P_OVER_VOLT_L1,lv_ucFaultStatus)  /*set L1 phase level 1 over voltage status*/
-#define VOLT_SetLv2OverVoltL1P(lv_ucFaultStatus)				ERRHDL_FaultStatusUpdata_CallBack(ERRHDL_ID_L1P_OVER_VOLT_L2,lv_ucFaultStatus)	/*set L1 phase level 2 over voltage status*/
-#define VOLT_SetLv1LowVoltL1P(lv_ucFaultStatus)					0																				/*set L1 phase level 1 low voltage status*/
-#define VOLT_SetLv2LowVoltL1P(lv_ucFaultStatus)					ERRHDL_FaultStatusUpdata_CallBack(ERRHDL_ID_L1P_LOW_VOLT,lv_ucFaultStatus)	/*set L1 phase level 2 low voltage status*/
-#define VOLT_SetLv1OverVoltL2L3P(lv_ucFaultStatus)				ERRHDL_FaultStatusUpdata_CallBack(ERRHDL_ID_L2L3P_OVER_VOLT_L1,lv_ucFaultStatus)/*set L2L3 phase level 1 over voltage status*/
-#define VOLT_SetLv2OverVoltL2L3P(lv_ucFaultStatus)				ERRHDL_FaultStatusUpdata_CallBack(ERRHDL_ID_L2L3P_OVER_VOLT_L2,lv_ucFaultStatus)/*set L2L3 phase level 2 over voltage status*/
-#define VOLT_SetLv1LowVoltL2L3P(lv_ucFaultStatus)				ERRHDL_FaultStatusUpdata_CallBack(ERRHDL_ID_L2L3P_LOW_VOLT_L1,lv_ucFaultStatus) /*set L2L3 phase level 1 low voltage status*/
-#define VOLT_SetLv2LowVoltL2L3P(lv_ucFaultStatus)				0																				/*set L2L3 phase level 2 low voltage status*/
-#define VOLT_SetFaultPhaseStatus(lv_ucFaultStatus)				ERRHDL_FaultStatusUpdata_CallBack(ERRHDL_ID_Fire_ZERO_MISPHASE_FAULT,lv_ucFaultStatus)		
+#define VOLT_SetVoltFaultStatus(lv_enFaultIdNum, lv_ucFaultStatus)	ERRHDL_FaultStatusUpdata_CallBack(lv_enFaultIdNum, lv_ucFaultStatus)	/*set voltage fault status*/	
 
-#define VOLT_DEBUG(fmt, ...)	   								LOG_DEBUG(LOG_MODULE_VOLTM, fmt, ##__VA_ARGS__)/*Log printing interface*/
-#define VOLT_ERROR(fmt, ...)	   								LOG_ERROR(LOG_MODULE_VOLTM, fmt, ##__VA_ARGS__)/*Log printing interface*/
+#define VOLT_DEBUG(fmt, ...)	   									LOG_DEBUG(LOG_MODULE_VOLTM, fmt, ##__VA_ARGS__)/*Log printing interface*/
+#define VOLT_ERROR(fmt, ...)	   									LOG_ERROR(LOG_MODULE_VOLTM, fmt, ##__VA_ARGS__)/*Log printing interface*/
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/

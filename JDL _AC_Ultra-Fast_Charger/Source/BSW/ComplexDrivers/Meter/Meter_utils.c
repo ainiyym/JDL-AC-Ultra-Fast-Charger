@@ -151,6 +151,7 @@ void Meter_CalculatePowerData(MeterData_t *meter)
 
 void Meter_PrintMeterData(MeterData_t *meter)
 {
+	METER_DEBUG("Meter %d CT_ratio=%2d, PT_ratio=%2d \r\n", meter->meter_id, meter->measure.CT_ratio, meter->measure.PT_ratio);
 	METER_DEBUG("Meter %d Converted Data: Uab=%.2fV, Ubc=%.2fV, Uca=%.2fV, Ua=%.2fV, Ub=%.2fV, Uc=%.2fV, Ia=%.3fA, Ib=%.3fA, Ic=%.3fA\r\n",
 			   meter->meter_id,
 			   meter->measure.Uab,

@@ -30,7 +30,10 @@
 #define ERRHDL_FLT_FLAG_SHOW_FIXED_TIME				(0x02u)   /*Led fixed time display flag*/
 #define ERRHDL_FLT_FLAG_CLEAR						(0x04u)	  /*Manual clearing flag*/
 
-#define ERRHDL_GetSysReadyState()				SYSM_GetResetPrepareStatus()	  /*get sys status*/
+#define ERRHDL_GUN1                                 SYS_CONNECTOR1   /* gun1 */
+#define ERRHDL_GUN2                                 SYS_CONNECTOR2   /* gun2 */
+#define ERRHDL_GUN_MAX_NUM                          SYS_CONNECTOR_NUM_MAX  /* max gun num */
+#define ERRHDL_GetSysReadyState()				    SYSM_GetResetPrepareStatus()	  /*get sys status*/
 
 #define ERRHDL_DEBUG(fmt, ...) 						LOG_DEBUG(LOG_MODULE_ERRHDL, fmt, ##__VA_ARGS__)
 /*******************************************************************************
@@ -38,39 +41,47 @@
 |******************************************************************************/
 typedef enum
 {
-/*0*/	ERRHDL_ID_RCD_SELFCHECK = 0u,
-/*1*/	ERRHDL_ID_RCD_AC_DC,			
+/*0*/	ERRHDL_ID_RESERVE_01 = 0u,
+/*1*/	ERRHDL_ID_RESERVE_02,			
 /*2*/	ERRHDL_ID_PE,
 /*3*/	ERRHDL_ID_RESERVE_03,
-/*4*/	ERRHDL_ID_RELAY_SHORTCIRCUIT,
-/*5*/	ERRHDL_ID_RELAY_OPENCIRCUIT,
-/*6*/	ERRHDL_ID_RELAY_CONGLUTINATION,
-/*7*/	ERRHDL_ID_CP_BREAKLINE,
-/*8*/	ERRHDL_ID_CP_VOLT,
-/*9*/	ERRHDL_ID_CP_PWM,
-/*10*/	ERRHDL_ID_OVER_TEMP_L3,
-/*11*/	ERRHDL_ID_OVER_TEMP_L2,
-/*12*/	ERRHDL_ID_OVER_TEMP_L1,
-/*13*/	ERRHDL_ID_LOW_TEMP,
-/*14*/	ERRHDL_ID_POWER_RELAYPWR_FAULT,
-/*15*/	ERRHDL_ID_Fire_ZERO_MISPHASE_FAULT,
-/*16*/	ERRHDL_ID_L1P_OVER_VOLT_L1,
-/*17*/	ERRHDL_ID_L1P_OVER_VOLT_L2,
-/*18*/	ERRHDL_ID_L1P_LOW_VOLT,
-/*19*/	ERRHDL_ID_L1P_OVER_CURR_L1,
-/*20*/	ERRHDL_ID_L1P_OVER_CURR_L2,
-/*21*/	ERRHDL_ID_GRID_FREQ,
-/*22*/	ERRHDL_ID_METER_CHIP,
-/*23*/	ERRHDL_ID_POWER_5V_FAULT,
-/*24*/	ERRHDL_ID_CAN_FAULT,
-/*25*/	ERRHDL_ID_EMERG_STOP,
-/*26*/	ERRHDL_ID_KEY_STUCK,
-/*27*/	ERRHDL_ID_L2L3P_OVER_VOLT_L1,
-/*28*/	ERRHDL_ID_L2L3P_OVER_VOLT_L2,
-/*29*/	ERRHDL_ID_L2L3P_LOW_VOLT,
-/*30*/	ERRHDL_ID_L2L3P_OVER_CURR_L1,
-/*31*/	ERRHDL_ID_L2L3P_OVER_CURR_L2,
-/*32*/	ERRHDL_ID_MAX_NUM
+/*4*/	ERRHDL_ID_GUN1_RELAY_FAULT,
+/*5*/	ERRHDL_ID_GUN2_RELAY_FAULT,
+/*6*/	ERRHDL_ID_POWER_12V_FAULT,
+/*7*/	ERRHDL_ID_POWER_5V_FAULT,
+/*8*/	ERRHDL_ID_GUN1_CP_VOLT,
+/*9*/	ERRHDL_ID_GUN1_CP_PWM,
+/*10*/	ERRHDL_ID_GUN2_CP_VOLT,
+/*11*/	ERRHDL_ID_GUN2_CP_PWM,
+/*12*/	ERRHDL_ID_GUN1_CONNECTOR_TEMP_HIGHT,
+/*13*/	ERRHDL_ID_GUN2_CONNECTOR_TEMP_HIGHT,
+/*14*/	ERRHDL_ID_RESERVE_06,
+/*15*/	ERRHDL_ID_RESERVE_07,
+/*16*/	ERRHDL_ID_GUN1_METER_COM_FAIL,
+/*17*/	ERRHDL_ID_GUN2_METER_COM_FAIL,
+/*18*/	ERRHDL_ID_GUN1_L1_PHASE_OVER_VOLT,
+/*19*/	ERRHDL_ID_GUN1_L2L3_PHASE_OVER_VOLT,
+/*20*/	ERRHDL_ID_GUN1_LOW_VOLT,
+/*21*/	ERRHDL_ID_GUN2_L1_PHASE_OVER_VOLT,
+/*22*/	ERRHDL_ID_GUN2_L2L3_PHASE_OVER_VOLT,
+/*23*/	ERRHDL_ID_GUN2_LOW_VOLT,
+/*24*/	ERRHDL_ID_GUN1_OVER_CURR_L1,
+/*25*/	ERRHDL_ID_GUN1_OVER_CURR_L2,
+/*26*/	ERRHDL_ID_GUN2_OVER_CURR_L1,
+/*27*/	ERRHDL_ID_GUN2_OVER_CURR_L2,
+/*28*/	ERRHDL_ID_RESERVE_08,
+/*29*/	ERRHDL_ID_RESERVE_09,
+/*30*/	ERRHDL_ID_RESERVE_0A,
+/*31*/	ERRHDL_ID_RESERVE_0B,
+/*32*/	ERRHDL_ID_FANM_COM_FAULT,
+/*33*/	ERRHDL_ID_FANM_SERIOUS_FAULT,
+/*34*/	ERRHDL_ID_PUMP_LIQUID_LEVEL_LOW,
+/*35*/	ERRHDL_ID_PUMP_LIQUID_TEMP_HIGHT,
+/*36*/  ERRHDL_ID_RESERVE_0C,
+/*37*/	ERRHDL_ID_RESERVE_0D,
+/*38*/	ERRHDL_ID_RESERVE_0E,
+/*39*/	ERRHDL_ID_RESERVE_0F,
+/*40*/	ERRHDL_ID_MAX_NUM
 } ErrHdlId_Enum;
 
 typedef enum
@@ -79,7 +90,8 @@ typedef enum
     ERRHDL_BYTE_IDX1,                                         	/*1*/
     ERRHDL_BYTE_IDX2,										  	/*2*/
     ERRHDL_BYTE_IDX3,										  	/*3*/
-    ERRHDL_BYTE_MAX_NUM										  	/*NUM = 4*/
+    ERRHDL_BYTE_IDX4,										  	/*4*/
+    ERRHDL_BYTE_MAX_NUM										  	/*NUM = 5*/
 } ErrHdlByteIdx_Enum;
 
 typedef enum
@@ -103,19 +115,28 @@ typedef enum
 	ERRORH_FLT_L_FOUR,											/*4*/
 	ERRORH_FLT_L_FIVE											/*5*/
 } ErrHdlLevel_Enum;
+
+typedef enum
+{
+    ERRHDL_ATTIBUTION_NONE = 0u,
+    ERRHDL_ATTIBUTION_GUN1, /* gun1 */
+    ERRHDL_ATTIBUTION_GUN2, /* gun2 */
+    ERRHDL_ATTIBUTION_MAX
+} ErrHdlAttibution_Enum;
 /*******************************************************************************
 |    Typedef Definition
 |******************************************************************************/
 typedef struct
 {
-	ErrHdlByteIdx_Enum enFltByteIdx;          					/*Fault byte ID*/
-	ErrHdlBitOffset_Enum enFltBitOffset;     				 	/*Fault byte Offset */
-	ErrHdlLevel_Enum enTempFltLevel;          					/*Temporary fault level*/
-	ErrHdlLevel_Enum enFltLevel;              					/*Fault level */
-	uint8_t ucFltFlag;                          					/*Configuration flag*/
-	uint8_t ucMultiFltNum;                      					/*Mult fault number */
-	uint32_t ulRecoveryTime;                    					/*Fault Recovery Time */
-}ErrHdlCfg_Struct;
+    ErrHdlByteIdx_Enum enFltByteIdx;          /*Fault byte ID*/
+    ErrHdlBitOffset_Enum enFltBitOffset;      /*Fault byte Offset */
+    ErrHdlLevel_Enum enTempFltLevel;          /*Temporary fault level*/
+    ErrHdlLevel_Enum enFltLevel;              /*Fault level */
+    ErrHdlAttibution_Enum enFaultAttribution; /*Gun type */
+    uint8_t ucFltFlag;                        /*Configuration flag*/
+    uint8_t ucMultiFltNum;                    /*Mult fault number */
+    uint32_t ulRecoveryTime;                  /*Fault Recovery Time */
+} ErrHdlCfg_Struct;
 
 /*******************************************************************************
 |    Table Definition

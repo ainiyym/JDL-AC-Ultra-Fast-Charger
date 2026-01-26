@@ -69,7 +69,7 @@
 #define CanM_Rte_GetReqChargeStatus(ch)                             AUTHM_GetReqChargeStatus(ch)                /* get authm req charging status */
 #define CanM_Rte_GetAuthCloseSource(ch)                             AUTHM_GetAuthCloseSource(ch)                /* get authm stop auth source */
 
-#define CanM_Rte_GetChargeConditions()                              ERRHDL_GetChargeConditions()                /*get Charge Conditions*/
+#define CanM_Rte_GetChargeConditions(ch)                            ERRHDL_GetChargeConditions(ch)                /*get Charge Conditions*/
 
 #define CanM_Rte_SetRelayOff(ch)							        RELAYM_ReqRelaySwitchOff(ch)			    /*request relay turn off*/
 #define CanM_Rte_SetRelayOn(ch)							            RELAYM_ReqRelaySwitchOn(ch)				    /*request relay turn on*/

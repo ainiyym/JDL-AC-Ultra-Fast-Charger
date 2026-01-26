@@ -44,7 +44,7 @@
 #define BTRCTR_12V_IN_VALUE						 (11.0F*BTRCTR_ENLARGE) 	/* 12V lower voltage threshold */
 
 #define BTRCTR_VOL5V_ERRORCALLBACK(Flag)         ERRHDL_FaultStatusUpdata_CallBack(ERRHDL_ID_POWER_5V_FAULT,Flag)
-#define BTRCTR_VOL12V_ERRORCALLBACK(Flag)		 ERRHDL_FaultStatusUpdata_CallBack(ERRHDL_ID_POWER_RELAYPWR_FAULT,Flag)
+#define BTRCTR_VOL12V_ERRORCALLBACK(Flag)		 ERRHDL_FaultStatusUpdata_CallBack(ERRHDL_ID_POWER_12V_FAULT,Flag)
 
 #define BTRCTR_DEBUG(fmt, ...) 					  LOG_DEBUG(LOG_MODULE_BTRCTR, fmt, ##__VA_ARGS__)
 /*******************************************************************************

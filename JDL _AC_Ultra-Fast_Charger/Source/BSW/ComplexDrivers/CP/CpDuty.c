@@ -512,7 +512,18 @@ static void CPD_PwmDutyFreqErrCheck(SysConnector_Num_Enum ch)
 		}
 		else
 		{
-			CpDrvif_SetFaultStatus(ERRHDL_ID_CP_PWM, STD_TRUE);
+			if (SYS_CONNECTOR1 == ch)
+			{
+				CpDrvif_SetFaultStatus(ERRHDL_ID_GUN1_CP_PWM, STD_TRUE);
+			}
+			else if (SYS_CONNECTOR2 == ch)
+			{
+				CpDrvif_SetFaultStatus(ERRHDL_ID_GUN2_CP_PWM, STD_TRUE);
+			}
+			else
+			{
+
+			}
 			gv_stCpD[ch].enMode = CPD_MODE_IDLE;
 			LIB_SetMemory((uint8_t *)(&gv_stCpD[ch].stDutyError), 0u, (uint16_t)(sizeof(gv_stCpD[ch].stDutyError) / sizeof(uint8_t)));
 			LIB_SetMemory((uint8_t *)(&gv_stCpD[ch].stFreqError), 0u, (uint16_t)(sizeof(gv_stCpD[ch].stFreqError) / sizeof(uint8_t)));
@@ -520,7 +531,17 @@ static void CPD_PwmDutyFreqErrCheck(SysConnector_Num_Enum ch)
 	}
 	else
 	{
-		CpDrvif_SetFaultStatus(ERRHDL_ID_CP_PWM, STD_FALSE);
+		if (SYS_CONNECTOR1 == ch)
+		{
+			CpDrvif_SetFaultStatus(ERRHDL_ID_GUN1_CP_PWM, STD_FALSE);
+		}
+		else if (SYS_CONNECTOR2 == ch)
+		{
+			CpDrvif_SetFaultStatus(ERRHDL_ID_GUN2_CP_PWM, STD_FALSE);
+		}
+		else
+		{
+		}
 	}
 
 #endif
