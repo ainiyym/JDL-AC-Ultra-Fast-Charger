@@ -398,11 +398,8 @@ static bool FanM_IsBusyStatus(void)
 				fan_m.busy_time = 0;
 				return false;
 			}
-			else
-			{
-				return true; /* 正在等待控制命令响应，跳过状态读取 */
-			}
 		}
+		return true; /* 正在等待控制命令响应，跳过状态读取 */
 	}
 }
 

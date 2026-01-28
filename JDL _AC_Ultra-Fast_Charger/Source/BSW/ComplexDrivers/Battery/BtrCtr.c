@@ -23,7 +23,7 @@
 typedef enum
 {
 	BTRCTR_IDLE,            /*Module main function Idle working mode*/
-	BTRCTR_NOMARL,		    /*Module main function NOMARL working mode*/
+	BTRCTR_NORMAL,		    /*Module main function NOMARL working mode*/
 } BtrCtr_MainMode_Enum;
 /*******************************************************************************
 |    Typedef Definition
@@ -74,7 +74,9 @@ Call By           : BTRM_InitMemory
 |******************************************************************************/
 void BTRCTR_InitMemory(void)
 {
-	LIB_SetMemory((uint8_t *)(&gv_stBtrCtr), 0u, (uint16_t)(sizeof(gv_stBtrCtr) / sizeof(uint8_t)));/*PRQA S 0310*/
+    LIB_SetMemory((uint8_t *)(&gv_stBtrCtr), 0u, (uint16_t)(sizeof(gv_stBtrCtr) / sizeof(uint8_t))); /*PRQA S 0310*/
+    gv_stBtrCtr.st12VStatus.ucValidStatus = BTRCTR_FILTER_INIT;
+    gv_stBtrCtr.st5VStatus.ucValidStatus = BTRCTR_FILTER_INIT;
 }
 
 /*******************************************************************************
@@ -201,7 +203,7 @@ static void BTRCTR_12vCheck(void)
             // BTRCTR_DEBUG("gv_stBtrCtr.us12vAdData:%d\n\r",gv_stBtrCtr.us12vAdData[0]);
 			if(STD_TRUE == BTRV_AdcFillter(gv_stBtrCtr.us12vAdData, &gv_stBtrCtr.us12vValidAdValue))
 			{
-				lv_ui12vVol = (uint32_t)gv_stBtrCtr.us12vValidAdValue * CALCULATION_12V / BTRCTR_ENLARGE;
+				lv_ui12vVol = (uint32_t)gv_stBtrCtr.us12vValidAdValue * BTRCTR_CALCULATION_12V / BTRCTR_ENLARGE;
 				// BTRCTR_DEBUG("us12vValidAdValue:%d lv_ui12vVol:%d\n\r",gv_stBtrCtr.us12vValidAdValue, lv_ui12vVol);
 				if((lv_ui12vVol >= BTRCTR_12V_IN_VALUE) && (lv_ui12vVol <= BTRCTR_12V_OUT_VALUE))
 				{
@@ -249,7 +251,7 @@ static void BTRCTR_5vCheck(void)
             // BTRCTR_DEBUG("gv_stBtrCtr.us5vAdData:%d\n\r", gv_stBtrCtr.us5vAdData[0]);
             if (STD_TRUE == BTRV_AdcFillter(gv_stBtrCtr.us5vAdData, &gv_stBtrCtr.us5vValidAdValue))
             {
-                lv_ui5vVol = (uint32_t)gv_stBtrCtr.us5vValidAdValue * CALCULATION_5V / BTRCTR_ENLARGE;
+                lv_ui5vVol = (uint32_t)gv_stBtrCtr.us5vValidAdValue * BTRCTR_CALCULATION_5V / BTRCTR_ENLARGE;
                 // BTRCTR_DEBUG("us5vValidAdValue:%d lv_ui5vVol:%d\n\r",gv_stBtrCtr.us5vValidAdValue, lv_ui5vVol);
                 if ((lv_ui5vVol >= BTRCTR_5V_IN_VALUE) && (lv_ui5vVol <= BTRCTR_5V_OUT_VALUE))
                 {
@@ -312,12 +314,12 @@ void BTRCTR_10msMainFunction(void)
         {
             if (STD_TRUE == SYSM_GetResetPrepareStatus() && (gv_stBtrCtr.ucEnStatus == TRUE))
             {
-                gv_stBtrCtr.enMainStatus = BTRCTR_NOMARL;
+                gv_stBtrCtr.enMainStatus = BTRCTR_NORMAL;
             }
             break;
         }
 
-        case BTRCTR_NOMARL:
+        case BTRCTR_NORMAL:
         {
             if (gv_stBtrCtr.ucEnStatus == FALSE)
             {
