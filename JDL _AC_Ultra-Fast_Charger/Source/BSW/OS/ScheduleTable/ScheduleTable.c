@@ -163,13 +163,12 @@ static void Task10ms(void)
 {
     SYSM_10msMainFunction();
     ModbusM_10msMainFunction();
-    // FanM_10msMainFunction();
     /* 10ms task code */
 #if (MCAL_WDG_ENABLED)
     Mcal_Iwdg_Feedback();
 #endif
     EVSEM_10msMainFunction(); // Call the EVSE manager's 10ms main function
-    // ERRHDL_10msMainFunction();  // Call the error handler's 10ms main function
+    ERRHDL_10msMainFunction();  // Call the error handler's 10ms main function
     AUTHM_10msMainFunction(); // Call the authorization manager's 10ms main function
     BTRM_10msMainFunction(); // Call the battery manager's 10ms main function
     CanM_Rte_10ms_Task();   // Call the can manager's 10ms main function
@@ -190,7 +189,8 @@ static void Task100ms(void)
     NOAUTHEN_100msFunction();
     NETAUTH_MainFunction();
     CanM_Rte_Msg_Main_Task(); // Call canM task
-    Mcal_Test_Run();
+    FanM_Task_100ms();
+    // Mcal_Test_Run();
 }
 
 static void Task1000ms(void)

@@ -510,7 +510,7 @@ static void AUTHM_ReqChargeModeHandle(SysConnector_Num_Enum ch)
 	else if((AUTHM_CP_VOL_STATUS_9V == lv_ucCpVolStatus) || (AUTHM_CP_VOL_STATUS_6V == lv_ucCpVolStatus)\
 			||(AUTHM_CP_VOL_STATUS_3V == lv_ucCpVolStatus)||(AUTHM_CP_VOL_STATUS_2V == lv_ucCpVolStatus))
 	{
-		if(AUTHM_EVSE_STATUS_3_DOT == lv_ucEvseStatus)
+		if(AUTHM_EVSE_STATUS_3_DOT == lv_ucEvseStatus || AUTHM_EVSE_STATUS_CAN_MODEL == lv_ucEvseStatus)
 		{
 			gv_stAuthM[ch].ucMode = AUTHM_MODE_CHARGING;
 			AUTHM_DEBUG("ch:%d Enter the charging\r\n", ch);

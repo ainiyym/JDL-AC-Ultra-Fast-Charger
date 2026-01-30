@@ -67,7 +67,7 @@ do{\
 #define VOLT_SetVoltFaultStatus(lv_enFaultIdNum, lv_ucFaultStatus)	ERRHDL_FaultStatusUpdata_CallBack(lv_enFaultIdNum, lv_ucFaultStatus)	/*set voltage fault status*/	
 
 #define VOLT_DEBUG(fmt, ...)	   									LOG_DEBUG(LOG_MODULE_VOLTM, fmt, ##__VA_ARGS__)/*Log printing interface*/
-#define VOLT_ERROR(fmt, ...)	   									LOG_ERROR(LOG_MODULE_VOLTM, fmt, ##__VA_ARGS__)/*Log printing interface*/
+#define VOLT_ERROR(fmt, ...)	   									//LOG_ERROR(LOG_MODULE_VOLTM, fmt, ##__VA_ARGS__)/*Log printing interface*/
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/

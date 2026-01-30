@@ -106,22 +106,24 @@ void ERRHDL_ClearAuthInfor(void)
 			LIB_RESET_UINT8_BIT(gv_stErrHdl.arFltData[lv_ucByteIdx], lv_ucBitOffset);
 		}
 	}
+	LIB_RESET_UINT8_BIT(gv_stErrHdl.arFltData[ERRHDL_BYTE_IDX3], ERRHDL_BIT_1);	/*Clear the current fault flag*/
+	LIB_RESET_UINT8_BIT(gv_stErrHdl.arFltData[ERRHDL_BYTE_IDX3], ERRHDL_BIT_3);	/*Clear the current fault flag*/
 }
 
 /*******************************************************************************
 Name            : ERRHDL_GetErrorLevelStatus
-Syntax          : ErrHdlLevel_Enum ERRHDL_GetErrorLevelStatus(void)
+Syntax          : ErrHdlLevel_Enum ERRHDL_GetErrorLevelStatus(uint32_t gun_index)
 Sync/Async      : Synchronous
 Reentrancy      :
-Parameters(in)  : none
+Parameters(in)  : gun_index: 0--gun1; 1--gun2
 Parameters(out) : none
 Return value    : ErrHdlLevel_Enum
 Description     : Obtaining the Fault level
 Call By         :
 |******************************************************************************/
-ErrHdlLevel_Enum ERRHDL_GetErrorLevelStatus(void)
+ErrHdlLevel_Enum ERRHDL_GetErrorLevelStatus(uint32_t gun_index)
 {
-	return gv_stErrHdl.enFinalEeeorL;
+	return (ErrHdlLevel_Enum)gv_stErrHdl.enFinalEeeorL[gun_index];
 }
 
 /*******************************************************************************

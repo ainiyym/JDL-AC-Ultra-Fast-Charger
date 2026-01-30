@@ -102,7 +102,7 @@ static void Meter_HandleErrState(uint8_t meter_idx)
 		module->error_count = 0;
 		module->recover_count = 0;
 		module->read_state = METER_READ_IDLE;
-		METER_WARN("Meter %d recovered from error state\r\n", meter_idx);
+		// METER_WARN("Meter %d recovered from error state\r\n", meter_idx);
 	}
 }
 

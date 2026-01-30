@@ -347,22 +347,19 @@ static void VOLT_NormalModeErrHandle(SysConnector_Num_Enum ch)
 {
 #if VOLT_INPUT_MODE_TYPE == VOLT_THREE_PHASE_INPUT_MODE
 #if (VOLT_LV2_OVERVOLT_FUN_EN == STD_ON)
-	static uint8_t lv_ucLv2OverVoltFaultStatus = STD_FALSE;
 	if ((STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].stLv2OverVoltFilt.ucValidStatus) || (STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].stLv2OverVoltFilt.ucValidStatus))
 	{
-		if (STD_FALSE == lv_ucLv2OverVoltFaultStatus)
+		if (STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].stLv2OverVoltFilt.ucStatus) || (STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].stLv2OverVoltFilt.ucStatus))
 		{
-			lv_ucLv2OverVoltFaultStatus = STD_TRUE;
 			if (SYS_CONNECTOR1 == ch)
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_L2L3_PHASE_OVER_VOLT, lv_ucLv2OverVoltFaultStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_L2L3_PHASE_OVER_VOLT, STD_TRUE);
 			}
 			else
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_L2L3_PHASE_OVER_VOLT, lv_ucLv2OverVoltFaultStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_L2L3_PHASE_OVER_VOLT, STD_TRUE);
 			}
-			VOLT_DEBUG("L2L3Lv2OverVoltStatus: %d \r\n", lv_ucLv2OverVoltFaultStatus);
-			VOLT_DEBUG("L2VoltVal :%d     L3VoltVal :%d \r\n", gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal, gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal);
+			VOLT_ERROR("Set[ch:%d] L2L3 Lvl2 over Volt, L2VoltVal :%d     L3VoltVal :%d \r\n", ch, gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal, gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal);
 		}
 		else
 		{
@@ -370,19 +367,17 @@ static void VOLT_NormalModeErrHandle(SysConnector_Num_Enum ch)
 	}
 	else if ((STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].stLv2OverVoltFilt.ucValidStatus) && (STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].stLv2OverVoltFilt.ucValidStatus))
 	{
-		if (STD_TRUE == lv_ucLv2OverVoltFaultStatus)
+		if ((STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].stLv2OverVoltFilt.ucStatus) || (STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].stLv2OverVoltFilt.ucStatus))
 		{
-			lv_ucLv2OverVoltFaultStatus = STD_FALSE;
 			if (SYS_CONNECTOR1 == ch)
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_L2L3_PHASE_OVER_VOLT, lv_ucLv2OverVoltFaultStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_L2L3_PHASE_OVER_VOLT, STD_FALSE);
 			}
 			else
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_L2L3_PHASE_OVER_VOLT, lv_ucLv2OverVoltFaultStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_L2L3_PHASE_OVER_VOLT, STD_FALSE);
 			}
-			VOLT_DEBUG("L2L3Lv2OverVoltStatus: %d \r\n", lv_ucLv2OverVoltFaultStatus);
-			VOLT_DEBUG("L2VoltVal :%d     L3VoltVal :%d \r\n", gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal, gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal);
+			VOLT_ERROR("Reset [ch:%d] L2L3 Lvl2 over Volt, L2VoltVal :%d     L3VoltVal :%d \r\n", ch, gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal, gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal);
 		}
 		else
 		{
@@ -393,22 +388,19 @@ static void VOLT_NormalModeErrHandle(SysConnector_Num_Enum ch)
 	}
 #endif
 #if (VOLT_LV1_OVERVOLT_FUN_EN == STD_ON)
-	static uint8_t lv_ucLv1OverVoltFaultStatus = STD_FALSE;
 	if ((STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].stLv1OverVoltFilt.ucValidStatus) || (STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].stLv1OverVoltFilt.ucValidStatus))
 	{
-		if (STD_FALSE == lv_ucLv1OverVoltFaultStatus)
+		if ((STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].stLv1OverVoltFilt.ucStatus) || (STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].stLv1OverVoltFilt.ucStatus))
 		{
-			lv_ucLv1OverVoltFaultStatus = STD_TRUE;
 			if (SYS_CONNECTOR1 == ch)
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_L2L3_PHASE_OVER_VOLT, lv_ucLv1OverVoltFaultStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_L2L3_PHASE_OVER_VOLT, STD_TRUE);
 			}
 			else
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_L2L3_PHASE_OVER_VOLT, lv_ucLv1OverVoltFaultStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_L2L3_PHASE_OVER_VOLT, STD_TRUE);
 			}
-			VOLT_DEBUG("L2L3Lv1OverVoltStatus: %d \r\n", lv_ucLv1OverVoltFaultStatus);
-			VOLT_DEBUG("L2VoltVal :%d     L3VoltVal :%d \r\n", gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal, gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal);
+			VOLT_ERROR("Set [ch:%d] L2L3 Lvl1 over Volt, L2VoltVal :%d     L3VoltVal :%d \r\n", ch, gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal, gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal);
 		}
 		else
 		{
@@ -416,19 +408,17 @@ static void VOLT_NormalModeErrHandle(SysConnector_Num_Enum ch)
 	}
 	else if ((STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].stLv1OverVoltFilt.ucValidStatus) && (STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].stLv1OverVoltFilt.ucValidStatus))
 	{
-		if (STD_TRUE == lv_ucLv1OverVoltFaultStatus)
+		if ((STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].stLv1OverVoltFilt.ucStatus) || (STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].stLv1OverVoltFilt.ucStatus))
 		{
-			lv_ucLv1OverVoltFaultStatus = STD_FALSE;
 			if (SYS_CONNECTOR1 == ch)
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_L2L3_PHASE_OVER_VOLT, lv_ucLv1OverVoltFaultStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_L2L3_PHASE_OVER_VOLT, STD_FALSE);
 			}
 			else
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_L2L3_PHASE_OVER_VOLT, lv_ucLv1OverVoltFaultStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_L2L3_PHASE_OVER_VOLT, STD_FALSE);
 			}
-			VOLT_DEBUG("L2L3Lv1OverVoltStatus: %d \r\n", lv_ucLv1OverVoltFaultStatus);
-			VOLT_DEBUG("L2VoltVal :%d     L3VoltVal :%d \r\n", gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal, gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal);
+			VOLT_ERROR("Reset [ch:%d] L2L3 Lvl1 over Volt, L2VoltVal :%d     L3VoltVal :%d \r\n", ch, gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal, gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal);
 		}
 		else
 		{
@@ -439,22 +429,19 @@ static void VOLT_NormalModeErrHandle(SysConnector_Num_Enum ch)
 	}
 #endif
 #if (VOLT_LV1_LOWVOLT_FUN_EN == STD_ON)
-	static uint8_t lv_ucLv1LowVoltFaultStatus = STD_FALSE;
 	if ((STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].stLv1LowVoltFilt.ucValidStatus) || (STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].stLv1LowVoltFilt.ucValidStatus))
 	{
-		if (STD_FALSE == lv_ucLv1LowVoltFaultStatus)
+		if ((STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].stLv1LowVoltFilt.ucStatus) || (STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].stLv1LowVoltFilt.ucStatus))
 		{
-			lv_ucLv1LowVoltFaultStatus = STD_TRUE;
 			if (SYS_CONNECTOR1 == ch)
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_LOW_VOLT, lv_ucLv1LowVoltFaultStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_LOW_VOLT, STD_TRUE);
 			}
 			else
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_LOW_VOLT, lv_ucLv1LowVoltFaultStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_LOW_VOLT, STD_TRUE);
 			}
-			VOLT_DEBUG("L2L3Lv1LowVoltStatus: %d \r\n", lv_ucLv1LowVoltFaultStatus);
-			VOLT_DEBUG("L2VoltVal :%d     L3VoltVal :%d \r\n", gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal, gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal);
+			VOLT_ERROR("Set [ch:%d] low Volt, L2VoltVal :%d     L3VoltVal :%d \r\n", ch, gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal, gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal);
 		}
 		else
 		{
@@ -462,19 +449,17 @@ static void VOLT_NormalModeErrHandle(SysConnector_Num_Enum ch)
 	}
 	else if ((STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].stLv1LowVoltFilt.ucValidStatus) && (STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].stLv1LowVoltFilt.ucValidStatus))
 	{
-		if (STD_TRUE == lv_ucLv1LowVoltFaultStatus)
+		if ((STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].stLv1LowVoltFilt.ucStatus) || (STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].stLv1LowVoltFilt.ucStatus))
 		{
-			lv_ucLv1LowVoltFaultStatus = STD_FALSE;
 			if (SYS_CONNECTOR1 == ch)
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_LOW_VOLT, lv_ucLv1LowVoltFaultStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_LOW_VOLT, STD_FALSE);
 			}
 			else
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_LOW_VOLT, lv_ucLv1LowVoltFaultStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_LOW_VOLT, STD_FALSE);
 			}
-			VOLT_DEBUG("L2L3Lv1LowVoltStatus: %d \r\n", lv_ucLv1LowVoltFaultStatus);
-			VOLT_DEBUG("L2VoltVal :%d     L3VoltVal :%d \r\n", gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal, gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal);
+			VOLT_ERROR("Reset [ch:%d] L2L3 Lvl1 low Volt, L2VoltVal :%d     L3VoltVal :%d \r\n", ch, gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal, gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal);
 		}
 		else
 		{
@@ -485,22 +470,19 @@ static void VOLT_NormalModeErrHandle(SysConnector_Num_Enum ch)
 	}
 #endif
 #if (VOLT_LV2_LOWVOLT_FUN_EN == STD_ON)
-	static uint8_t lv_ucLv2LowVoltFaultStatus = STD_FALSE;
 	if ((STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].stLv2LowVoltFilt.ucValidStatus) || (STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].stLv2LowVoltFilt.ucValidStatus))
 	{
-		if (STD_FALSE == lv_ucLv2LowVoltFaultStatus)
+		if (STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].stLv2LowVoltFilt.ucStatus || STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].stLv2LowVoltFilt.ucStatus)
 		{
-			lv_ucLv2LowVoltFaultStatus = STD_TRUE;
 			if (SYS_CONNECTOR1 == ch)
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_LOW_VOLT, lv_ucLv2LowVoltFaultStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_LOW_VOLT, STD_TRUE);
 			}
 			else
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_LOW_VOLT, lv_ucLv2LowVoltFaultStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_LOW_VOLT, STD_TRUE);
 			}
-			VOLT_DEBUG("L2L3Lv2LowVoltStatus: %d \r\n", lv_ucLv2LowVoltFaultStatus);
-			VOLT_DEBUG("L2VoltVal :%d     L3VoltVal :%d \r\n", gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal, gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal);
+			VOLT_ERROR("Set [ch:%d] L2L3 Lvl2 low Volt, L2VoltVal :%d     L3VoltVal :%d \r\n", ch, gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal, gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal);
 		}
 		else
 		{
@@ -508,19 +490,17 @@ static void VOLT_NormalModeErrHandle(SysConnector_Num_Enum ch)
 	}
 	else if ((STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].stLv2LowVoltFilt.ucValidStatus) && (STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].stLv2LowVoltFilt.ucValidStatus))
 	{
-		if (STD_TRUE == lv_ucLv2LowVoltFaultStatus)
+		if (STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].stLv2LowVoltFilt.ucStatus || STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].stLv2LowVoltFilt.ucStatus)
 		{
-			lv_ucLv2LowVoltFaultStatus = STD_FALSE;
 			if (SYS_CONNECTOR1 == ch)
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_LOW_VOLT, lv_ucLv2LowVoltFaultStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_LOW_VOLT, STD_FALSE);
 			}
 			else
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_LOW_VOLT, lv_ucLv2LowVoltFaultStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_LOW_VOLT, STD_FALSE);
 			}
-			VOLT_DEBUG("L2L3Lv2LowVoltStatus: %d \r\n", lv_ucLv2LowVoltFaultStatus);
-			VOLT_DEBUG("L2VoltVal :%d     L3VoltVal :%d \r\n", gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal, gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal);
+			VOLT_ERROR("Reset [ch:%d] L2L3 Lvl2 low Volt, L2VoltVal :%d     L3VoltVal :%d \r\n", ch, gv_stVolt[ch].stChanVartArray[VOLT_L2_CHAN_NUM].usVoltTempVal, gv_stVolt[ch].stChanVartArray[VOLT_L3_CHAN_NUM].usVoltTempVal);
 		}
 		else
 		{
@@ -533,23 +513,19 @@ static void VOLT_NormalModeErrHandle(SysConnector_Num_Enum ch)
 #endif
 
 #if (VOLT_LV1_OVERVOLT_FUN_EN == STD_ON)
-static uint8_t lv_ucL1Lv1OverVoltStatus = STD_FALSE;
-
 	if (STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].stLv1OverVoltFilt.ucValidStatus)
 	{
-		if (lv_ucL1Lv1OverVoltStatus == STD_FALSE)
+		if (STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].stLv1OverVoltFilt.ucStatus)
 		{
-			lv_ucL1Lv1OverVoltStatus = STD_TRUE;
 			if (SYS_CONNECTOR1 == ch)
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_L1_PHASE_OVER_VOLT, lv_ucL1Lv1OverVoltStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_L1_PHASE_OVER_VOLT, STD_TRUE);
 			}
 			else
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_L1_PHASE_OVER_VOLT, lv_ucL1Lv1OverVoltStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_L1_PHASE_OVER_VOLT, STD_TRUE);
 			}
-			VOLT_DEBUG("L1Lv1OverVoltStatus: %d \r\n", lv_ucL1Lv1OverVoltStatus);
-			VOLT_DEBUG("VoltVal :%d \r\n", gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal);
+			VOLT_ERROR("Set [ch:%d] L1 lv1 over volt, VoltVal :%d \r\n", ch, gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal);
 		}
 		else
 		{
@@ -557,19 +533,17 @@ static uint8_t lv_ucL1Lv1OverVoltStatus = STD_FALSE;
 	}
 	else if (STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].stLv1OverVoltFilt.ucValidStatus)
 	{
-		if (lv_ucL1Lv1OverVoltStatus == STD_TRUE)
+		if (STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].stLv1OverVoltFilt.ucStatus)
 		{
-			lv_ucL1Lv1OverVoltStatus = STD_FALSE;
 			if (SYS_CONNECTOR1 == ch)
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_L1_PHASE_OVER_VOLT, lv_ucL1Lv1OverVoltStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_L1_PHASE_OVER_VOLT, STD_FALSE);
 			}
 			else
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_L1_PHASE_OVER_VOLT, lv_ucL1Lv1OverVoltStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_L1_PHASE_OVER_VOLT, STD_FALSE);
 			}
-			VOLT_DEBUG("L1Lv1OverVoltStatus: %d \r\n", lv_ucL1Lv1OverVoltStatus);
-			VOLT_DEBUG("VoltVal :%d \r\n", gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal);
+			VOLT_ERROR("Reset [ch:%d] L1 lv1 over volt, VoltVal :%d \r\n", ch, gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal);
 		}
 		else
 		{
@@ -581,22 +555,19 @@ static uint8_t lv_ucL1Lv1OverVoltStatus = STD_FALSE;
 #endif
 
 #if (VOLT_LV2_OVERVOLT_FUN_EN == STD_ON)
-	static uint8_t lv_ucL1Lv2OverVoltStatus = STD_FALSE;
 	if (STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].stLv2OverVoltFilt.ucValidStatus)
 	{
-		if (lv_ucL1Lv2OverVoltStatus == STD_FALSE)
+		if (STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].stLv2OverVoltFilt.ucStatus)
 		{
-			lv_ucL1Lv2OverVoltStatus = STD_TRUE;
 			if (SYS_CONNECTOR1 == ch)
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_L1_PHASE_OVER_VOLT, lv_ucL1Lv2OverVoltStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_L1_PHASE_OVER_VOLT, STD_TRUE);
 			}
 			else
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_L1_PHASE_OVER_VOLT, lv_ucL1Lv2OverVoltStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_L1_PHASE_OVER_VOLT, STD_TRUE);
 			}
-			VOLT_DEBUG("L1Lv2OverVoltStatus: %d \r\n", lv_ucL1Lv2OverVoltStatus);
-			VOLT_DEBUG("VoltVal :%d \r\n", gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal);
+			VOLT_ERROR("Set [ch:%d] L1 lv2 over volt, VoltVal :%d \r\n", ch, gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal);
 		}
 		else
 		{
@@ -604,19 +575,17 @@ static uint8_t lv_ucL1Lv1OverVoltStatus = STD_FALSE;
 	}
 	else if (STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].stLv2OverVoltFilt.ucValidStatus)
 	{
-		if (lv_ucL1Lv2OverVoltStatus == STD_TRUE)
+		if (STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].stLv2OverVoltFilt.ucStatus)
 		{
-			lv_ucL1Lv2OverVoltStatus = STD_FALSE;
 			if (SYS_CONNECTOR1 == ch)
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_L1_PHASE_OVER_VOLT, lv_ucL1Lv2OverVoltStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_L1_PHASE_OVER_VOLT, STD_FALSE);
 			}
 			else
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_L1_PHASE_OVER_VOLT, lv_ucL1Lv2OverVoltStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_L1_PHASE_OVER_VOLT, STD_FALSE);
 			}
-			VOLT_DEBUG("L1Lv2OverVoltStatus: %d \r\n", lv_ucL1Lv2OverVoltStatus);
-			VOLT_DEBUG("VoltVal :%d \r\n", gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal);
+			VOLT_ERROR("Reset [ch:%d] L1 lv2 over volt, VoltVal :%d \r\n", ch, gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal);
 		}
 		else
 		{
@@ -629,22 +598,19 @@ static uint8_t lv_ucL1Lv1OverVoltStatus = STD_FALSE;
 #endif
 
 #if (VOLT_LV1_LOWVOLT_FUN_EN == STD_ON)
-	static uint8_t lv_ucL1Lv1LowVoltStatus = STD_FALSE;
 	if (STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].stLv1LowVoltFilt.ucValidStatus)
 	{
-		if (lv_ucL1Lv1LowVoltStatus == STD_FALSE)
+		if (STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].stLv1LowVoltFilt.ucStatus)
 		{
-			lv_ucL1Lv1LowVoltStatus = STD_TRUE;
 			if (SYS_CONNECTOR1 == ch)
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_LOW_VOLT, lv_ucL1Lv1LowVoltStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_LOW_VOLT, STD_TRUE);
 			}
 			else
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_LOW_VOLT, lv_ucL1Lv1LowVoltStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_LOW_VOLT, STD_TRUE);
 			}
-			VOLT_DEBUG("L1Lv1LowVoltStatus: %d \r\n", lv_ucL1Lv1LowVoltStatus);
-			VOLT_DEBUG("VoltVal :%d \r\n", gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal);
+			VOLT_ERROR("Set [ch:%d] L1 lv1 low volt, VoltVal :%d \r\n", ch, gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal);
 		}
 		else
 		{
@@ -652,19 +618,17 @@ static uint8_t lv_ucL1Lv1OverVoltStatus = STD_FALSE;
 	}
 	else if (STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].stLv1LowVoltFilt.ucValidStatus)
 	{
-		if (lv_ucL1Lv1LowVoltStatus == STD_TRUE)
+		if (STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].stLv1LowVoltFilt.ucStatus)
 		{
-			lv_ucL1Lv1LowVoltStatus = STD_FALSE;
 			if (SYS_CONNECTOR1 == ch)
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_LOW_VOLT, lv_ucL1Lv1LowVoltStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_LOW_VOLT, STD_FALSE);
 			}
 			else
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_LOW_VOLT, lv_ucL1Lv1LowVoltStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_LOW_VOLT, STD_FALSE);
 			}
-			VOLT_DEBUG("L1Lv1LowVoltStatus: %d \r\n", lv_ucL1Lv1LowVoltStatus);
-			VOLT_DEBUG("VoltVal :%d \r\n", gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal);
+			VOLT_ERROR("Reset [ch:%d] L1 lv1 low volt, VoltVal :%d \r\n", ch, gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal);
 		}
 		else
 		{
@@ -676,22 +640,19 @@ static uint8_t lv_ucL1Lv1OverVoltStatus = STD_FALSE;
 #endif
 
 #if (VOLT_LV2_LOWVOLT_FUN_EN == STD_ON)
-	static uint8_t lv_ucL1Lv2LowVoltStatus = STD_FALSE;
 	if (STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].stLv2LowVoltFilt.ucValidStatus)
 	{
-		if (lv_ucL1Lv2LowVoltStatus == STD_FALSE)
+		if (STD_TRUE == gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].stLv2LowVoltFilt.ucStatus)
 		{
-			lv_ucL1Lv2LowVoltStatus = STD_TRUE;
 			if (SYS_CONNECTOR1 == ch)
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_LOW_VOLT, lv_ucL1Lv2LowVoltStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_LOW_VOLT, STD_TRUE);
 			}
 			else
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_LOW_VOLT, lv_ucL1Lv2LowVoltStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_LOW_VOLT, STD_TRUE);
 			}
-			VOLT_DEBUG("L1Lv2LowVoltStatus: %d \r\n", lv_ucL1Lv2LowVoltStatus);
-			VOLT_DEBUG("VoltVal :%d \r\n", gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal);
+			VOLT_ERROR("Set [ch:%d] L1 lv2 low volt, VoltVal :%d \r\n", ch, gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal);
 		}
 		else
 		{
@@ -699,19 +660,17 @@ static uint8_t lv_ucL1Lv1OverVoltStatus = STD_FALSE;
 	}
 	else if (STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].stLv2LowVoltFilt.ucValidStatus)
 	{
-		if (lv_ucL1Lv2LowVoltStatus == STD_TRUE)
+		if (STD_FALSE == gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].stLv2LowVoltFilt.ucStatus)
 		{
-			lv_ucL1Lv2LowVoltStatus = STD_FALSE;
 			if (SYS_CONNECTOR1 == ch)
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_LOW_VOLT, lv_ucL1Lv2LowVoltStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN1_LOW_VOLT, STD_FALSE);
 			}
 			else
 			{
-				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_LOW_VOLT, lv_ucL1Lv2LowVoltStatus);
+				VOLT_SetVoltFaultStatus(ERRHDL_ID_GUN2_LOW_VOLT, STD_FALSE);
 			}
-			VOLT_DEBUG("L1Lv2LowVoltStatus: %d \r\n", lv_ucL1Lv2LowVoltStatus);
-			VOLT_DEBUG("VoltVal :%d \r\n", gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal);
+			VOLT_ERROR("Reset [ch:%d] L1 lv2 low volt, VoltVal :%d \r\n", ch, gv_stVolt[ch].stChanVartArray[VOLT_L1_CHAN_NUM].usVoltTempVal);
 		}
 		else
 		{

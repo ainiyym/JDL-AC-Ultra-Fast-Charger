@@ -59,7 +59,7 @@ extern void ERRHDL_InitMemory(void);
 extern void ERRHDL_ClearAuthInfor(void);
 extern void ERRHDL_10msMainFunction(void);
 extern void ERRHDL_FaultStatusUpdata_CallBack(ErrHdlId_Enum lv_enFaultIdNum,uint8_t lv_ucFaultStatus);
-extern ErrHdlLevel_Enum ERRHDL_GetErrorLevelStatus(void);
+extern ErrHdlLevel_Enum ERRHDL_GetErrorLevelStatus(uint32_t gun_index);
 extern void ERRHDL_GetAllFaultData(uint8_t *lv_arrBuff);
 extern uint8_t ERRHDL_GetChargeConditions(uint32_t gun_index);
 extern void ERRHDL_Disable(void);

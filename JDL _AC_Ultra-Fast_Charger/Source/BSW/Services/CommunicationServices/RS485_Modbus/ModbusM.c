@@ -160,7 +160,7 @@ static void ModbusM_Timeout_Handler(ModbusChannel_t Channel)
 	{
 		ModbusRtu[Channel].state = MODBUS_STATE_REC_ERR;
 		ModbusRtu[Channel].rxTimeOut = 0;
-		MODBUS_ERROR("%s <channel:%d> ERR!!!\r\n", __func__, Channel);
+		// MODBUS_ERROR("%s <channel:%d> ERR!!!\r\n", __func__, Channel);
 	}
 }
 

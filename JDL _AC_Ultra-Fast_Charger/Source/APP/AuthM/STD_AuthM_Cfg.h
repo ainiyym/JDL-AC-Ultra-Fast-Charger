@@ -63,6 +63,7 @@
 #define AUTHM_GetResetPrepareStatus()				SYSM_GetResetPrepareStatus()					/*get system prepare status*/
 
 #define AUTHM_EVSE_STATUS_3_DOT						(uint8_t)EVSEM_STATE_THREE_dot					/*6U*/
+#define AUTHM_EVSE_STATUS_CAN_MODEL					(uint8_t)EVSEM_STATE_CAN_MODEL					/*7U*/
 
 #define AUTHM_CP_VOL_STATUS_INVALID					CPV_VOLT_ZERO							        /*0U*/
 #define AUTHM_CP_VOL_STATUS_12V						CPV_VOLT_TWF								    /*1U*/

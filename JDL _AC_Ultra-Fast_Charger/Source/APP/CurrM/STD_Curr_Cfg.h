@@ -53,6 +53,7 @@
 #define CURR_REMOTE_REQ_INTER_MAX_WAIT_NUM						(uint16_t)(5000u/CURR_TASK_PERIOD)	/*current module  remote request inter max wait number*/
 
 #define CURR_CHARGE_STATE										(EVSEM_STATE_THREE_dot)				/*evse charge status*/
+#define CURR_CAN_CHARGE_STATE									(EVSEM_STATE_CAN_MODEL)				/*evse can status*/
 #define CURR_FLT_CURR_BASIS_VAL									(uint16_t)(20u)						/*refresh basis error current value*/
 #define CURR_ENLARGE											(100u)								/*current module enlarge multiple*/
 #define CURR_L_BASIS_LV1_VAL									(2u)								/*Lower than the reference current fault primary overcurrent coefficient value*/
@@ -74,6 +75,9 @@ do{\
 }while (0)
 
 #define CURR_DEBUG(fmt, ...)	  							    LOG_DEBUG(LOG_MODULE_CURRM, fmt, ##__VA_ARGS__)
+#define CURR_INFO(fmt, ...)	  									LOG_INFO(LOG_MODULE_CURRM, fmt, ##__VA_ARGS__)
+#define CURR_WARN(fmt, ...)	  									LOG_WARN(LOG_MODULE_CURRM, fmt, ##__VA_ARGS__)
+#define CURR_ERROR(fmt, ...)	  								//LOG_ERROR(LOG_MODULE_CURRM, fmt, ##__VA_ARGS__)
 
 #define CURR_SetEepDfltCurrVal()\
 do{\
