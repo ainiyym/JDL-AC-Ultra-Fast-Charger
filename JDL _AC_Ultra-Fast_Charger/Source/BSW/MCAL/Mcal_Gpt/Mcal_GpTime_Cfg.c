@@ -136,16 +136,7 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
   if (htim == &htim1)
   {
-    if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
-    {
-      Mcal_Adc_ConvCollection_Disable(MCAL_ADC_CHANNEL_1);
-      Mcal_Adc_EnableInjected(MCAL_ADC1_CP1_CH);
-    }
-    if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_4)
-    {
-      Mcal_Adc_ConvCollection_Disable(MCAL_ADC_CHANNEL_1);
-      Mcal_Adc_EnableInjected(MCAL_ADC1_CP2_CH);
-    }
+    Mcal_Adc_EnableInjected(MCAL_ADC1_CP1_CH);
   }
 }
 
