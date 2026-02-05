@@ -404,7 +404,7 @@ void CanM_Rte_10ms_Task(void)
         CanM_Rte_SetReqChargingEnableStatus(ch);
         CanM_Set_SECC_MSG1_Input(ch);
         CanM_Set_SECC_MSG2_Input(ch, gv_stCanM_RteCtrl[ch].SECC_MSG2_Input);
-        CanM_Set_SECC_MSG_Enable(ch, CanM_Get_McuState3HeartBeatStatus(ch));
+        CanM_Set_SECC_MSG_Enable(ch, CanM_Rte_GetCanModeStatus(ch, STD_SYSM_SYSSTATUS_CAN));
 #if(STD_ON == AUTHM_OPEN_NOAUTH_EN)
         if (CanM_Rte_GetCanModeStatus(ch, STD_SYSM_SYSSTATUS_CAN))
         {

@@ -57,8 +57,8 @@
 |******************************************************************************/
 extern void CPD_InitMemory(void);
 extern void CPD_MainFunction(SysConnector_Num_Enum ch);
-extern void CPD_Open(void);
-extern void CPD_Close(void);
+extern void CPD_Open(SysConnector_Num_Enum ch);
+extern void CPD_Close(SysConnector_Num_Enum ch);
 extern void CPD_OutputEnable(SysConnector_Num_Enum ch);
 extern void CPD_OutputDisable(SysConnector_Num_Enum ch);
 extern void CPD_ConfigCurrentValue(SysConnector_Num_Enum ch, uint16_t lv_usCurrValue);

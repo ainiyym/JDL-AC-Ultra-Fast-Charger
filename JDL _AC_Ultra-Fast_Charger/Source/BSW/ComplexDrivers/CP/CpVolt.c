@@ -120,42 +120,49 @@ void CPV_InitMemory(void)
 
 /*******************************************************************************
 Name            : CPV_Open
-Syntax          : void CPV_Open(void)
+Syntax          : void CPV_Open(SysConnector_Num_Enum ch)
 Sync/Async      : Synchronous
 Reentrancy      :
-Parameters(in)  : None                      :-
+Parameters(in)  : ch                        :-
 Parameters(out) : None                      :-
 Return value    : None                      :-
 Description     : CPV Module Enable
 Call By         :
 |******************************************************************************/
-void CPV_Open(void)
+void CPV_Open(SysConnector_Num_Enum ch)
 {
-	for (SysConnector_Num_Enum ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
-	{
-		gv_stCpVolt[ch].ucEnStatus = STD_TRUE;
-	}
+	gv_stCpVolt[ch].ucEnStatus = STD_TRUE;
 	CPDRV_StartAdcCollection();
 }
 
 /*******************************************************************************
 Name            : CPV_Close
-Syntax          : void CPV_Close(void)
+Syntax          : void CPV_Close(SysConnector_Num_Enum ch)
 Sync/Async      : Synchronous
 Reentrancy      :
-Parameters(in)  : None                      :-
+Parameters(in)  : ch                        :-
 Parameters(out) : None                      :-
 Return value    : None                      :-
 Description     : CPV Module Disable
 Call By         :
 |******************************************************************************/
-void CPV_Close(void)
+void CPV_Close(SysConnector_Num_Enum ch)
 {
-	for (SysConnector_Num_Enum ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
+	gv_stCpVolt[ch].ucEnStatus = STD_FALSE;
+
+	SysConnector_Num_Enum other_ch = SYS_CONNECTOR1;
+	if (ch == SYS_CONNECTOR1)
 	{
-		gv_stCpVolt[ch].ucEnStatus = STD_FALSE;
+		other_ch = SYS_CONNECTOR2;
 	}
-	CPDRV_StopAdcCollection();
+	else
+	{
+		other_ch = SYS_CONNECTOR1;
+	}
+	if (gv_stCpVolt[other_ch].ucEnStatus == STD_FALSE)
+	{
+		CPDRV_StopAdcCollection();
+	}
 }
 
 /*******************************************************************************

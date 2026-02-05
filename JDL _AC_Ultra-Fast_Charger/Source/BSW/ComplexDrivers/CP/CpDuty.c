@@ -136,44 +136,38 @@ void CPD_InitMemory(void)
 
 /*******************************************************************************
 Name            : CPD_Open
-Syntax          : void CPD_Open(void)
+Syntax          : void CPD_Open(SysConnector_Num_Enum ch)
 Sync/Async      : Synchronous
 Reentrancy      :
-Parameters(in)  : None                      :-
+Parameters(in)  : ch                        :-
 Parameters(out) : None                      :-
 Return value    : None                      :-
 Description     : Enable CPD Module
 Call By         :
 |******************************************************************************/
-void CPD_Open(void)
+void CPD_Open(SysConnector_Num_Enum ch)
 {
-	for (SysConnector_Num_Enum ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
-	{
-		gv_stCpD[ch].ucEnStatus = STD_TRUE;
-		gv_stCpD[ch].ucPwmOutputFlag = STD_FALSE;
-		(void)CPD_SetPwmOutput(ch, CPD_PWM_DFLT, CPD_PWM_DFLT);
-	}
+	gv_stCpD[ch].ucEnStatus = STD_TRUE;
+	gv_stCpD[ch].ucPwmOutputFlag = STD_FALSE;
+	(void)CPD_SetPwmOutput(ch, CPD_PWM_DFLT, CPD_PWM_DFLT);
 	// Mcal_Set_Pwm_Param(MCAL_GPT_CH_PWM_OUT_CP1, 1000, 1000); // Set cp1 level hight
 	// Mcal_Set_Pwm_Param(MCAL_GPT_CH_PWM_OUT_CP2, 1000, 1000); // Set cp2 level hight
 }
 
 /*******************************************************************************
 Name            : CPD_Close
-Syntax          : void CPD_Close(void)
+Syntax          : void CPD_Close(SysConnector_Num_Enum ch)
 Sync/Async      : Synchronous
 Reentrancy      :
-Parameters(in)  : None                      :-
+Parameters(in)  : ch                        :-
 Parameters(out) : None                      :-
 Return value    : None                      :-
 Description     : Disable CPD Module
 Call By         :
 |******************************************************************************/
-void CPD_Close(void)
+void CPD_Close(SysConnector_Num_Enum ch)
 {
-	for (SysConnector_Num_Enum ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
-	{
-		gv_stCpD[ch].ucEnStatus = STD_FALSE;
-	}
+	gv_stCpD[ch].ucEnStatus = STD_FALSE;
 }
 
 /*******************************************************************************

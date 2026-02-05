@@ -298,7 +298,7 @@ void MeterModule_ErrHandleCallback(void)
 	module->error_flag = true;
 	module->read_state = METER_READ_ERROR;
 	meter_ctrl.comm_status = METER_COMM_PENDING;
-	METER_WARN("Meter %d communication error callback invoked\r\n", meter_ctrl.actice_index);
+	// METER_WARN("Meter %d communication error callback invoked\r\n", meter_ctrl.actice_index);
 }
 
 // Modbus response processing function

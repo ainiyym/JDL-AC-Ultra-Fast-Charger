@@ -75,12 +75,12 @@
 #define CanM_Rte_SetRelayOn(ch)							            RELAYM_ReqRelaySwitchOn(ch)				    /*request relay turn on*/
 #define CanM_Rte_GetRelayStatus(ch)                                 RELAYM_GetRelayStatus(ch)                   /* get relay status */
 
-#define CanM_Rte_GetL1CUrr(ch)                                      CURR_GetL1Value(ch)                         /* get L1 current value */
-#define CanM_Rte_GetL2CUrr(ch)                                      CURR_GetL2Value(ch)                         /* get L2 current value */
-#define CanM_Rte_GetL3CUrr(ch)                                      CURR_GetL3Value(ch)                         /* get L3 current value */
-#define CanM_Rte_GetL1Volt(ch)                                      VOLT_GetL1VoltValue(ch)                     /* get L1 voltage value */
-#define CanM_Rte_GetL2Volt(ch)                                      VOLT_GetL2VoltValue(ch)                     /* get L2 voltage value */
-#define CanM_Rte_GetL3Volt(ch)                                      VOLT_GetL3VoltValue(ch)                     /* get L3 voltage value */
+#define CanM_Rte_GetL1CUrr(ch)                                      (CURR_GetL1Value(ch) / 100)                 /* get L1 current value */
+#define CanM_Rte_GetL2CUrr(ch)                                      (CURR_GetL2Value(ch) / 100)                 /* get L2 current value */
+#define CanM_Rte_GetL3CUrr(ch)                                      (CURR_GetL3Value(ch) / 100)                 /* get L3 current value */
+#define CanM_Rte_GetL1Volt(ch)                                      (VOLT_GetL1VoltValue(ch) / 100)             /* get L1 voltage value */
+#define CanM_Rte_GetL2Volt(ch)                                      (VOLT_GetL2VoltValue(ch) / 100)             /* get L2 voltage value */
+#define CanM_Rte_GetL3Volt(ch)                                      (VOLT_GetL3VoltValue(ch) / 100)             /* get L3 voltage value */
 
 #define CanM_Rte_GetCanModeStatus(ch, SysStatusMask)                SYSM_GetSysStatusBit(ch, SysStatusMask)
 

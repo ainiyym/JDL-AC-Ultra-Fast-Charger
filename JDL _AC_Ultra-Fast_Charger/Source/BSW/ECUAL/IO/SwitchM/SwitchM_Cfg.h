@@ -13,11 +13,11 @@
 /*******************************************************************************
 |    Other Header File Inclusion
 |******************************************************************************/
-#include "Mcal_App.h"
 #include "Std_Types.h"
 #include "STD_LogService.h"
 #include "STD_Os_Timer.h"
-#include "STD_SysM_Cfg.h"
+#include "CpM.h"
+
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)
 |******************************************************************************/
@@ -30,6 +30,9 @@
 #define SWITCHM_SET_SYSM_CP_MODE(ch, mode)		SYSM_SetCpVolMode(ch, mode)
 #define SWITCHM_SET_SYS_STATUS_BIT(ch, SysStatusMask, Mode) SYSM_SetSysStatusBit(ch, SysStatusMask, Mode)
 
+#define SWITCHM_ENABLE_CP_MODULE(ch)            CPD_Open(ch);CPV_Open(ch);
+#define SWITCHM_DISABLE_CP_MODULE(ch)           CPD_Close(ch);CPV_Close(ch);
+
 #define SWITCHM_74HCT4851D_MULTIPLEX_ADC0       MCAL_ADC_CHANNEL_1
 #define SWITCHM_74HCT4851D_MULTIPLEX_ADC1       MCAL_ADC_CHANNEL_2
 #define SWITCHM_74HCT4851D_MULTIPLEX_CH_NUM     MCAL_ADC_CHANNEL_NUM_MAX
@@ -40,7 +43,6 @@
 /*******************************************************************************
 |    Enum Definition
 |******************************************************************************/
-typedef Mcal_Adc_Channel_Num_e SwitchM_74HCT4851D_Multiplex_e;
 
 typedef enum
 {

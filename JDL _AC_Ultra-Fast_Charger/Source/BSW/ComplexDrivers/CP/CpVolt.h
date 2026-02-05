@@ -57,8 +57,8 @@
 |    Global Function Prototypes
 |******************************************************************************/
 extern void CPV_InitMemory(void);
-extern void CPV_Open(void);
-extern void CPV_Close(void);
+extern void CPV_Open(SysConnector_Num_Enum ch);
+extern void CPV_Close(SysConnector_Num_Enum ch);
 extern uint8_t CPV_GetCpVoltStatus(SysConnector_Num_Enum ch);
 extern uint16_t CPV_GetCpVoltage(SysConnector_Num_Enum ch);
 extern void CPV_MainFunction(SysConnector_Num_Enum ch);

@@ -84,8 +84,11 @@ Call By         :
 |******************************************************************************/
 void CPM_Enable(void)
 {
-	CPD_Open();
-	CPV_Open();
+	for (SysConnector_Num_Enum ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
+	{
+		CPD_Open(ch);
+		CPV_Open(ch);
+	}
 }
 
 /*******************************************************************************
@@ -101,8 +104,11 @@ Call By         :
 |******************************************************************************/
 void CPM_Disable(void)
 {
-	CPD_Close();
-	CPV_Close();
+	for (SysConnector_Num_Enum ch = SYS_CONNECTOR1; ch < SYS_CONNECTOR_NUM_MAX; ch++)
+	{
+		CPD_Close(ch);
+		CPV_Close(ch);
+	}
 }
 
 /*******************************************************************************

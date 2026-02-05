@@ -3,9 +3,9 @@
  *
  * Code generated for Simulink model 'CanM_MsgM'.
  *
- * Model version                  : 1.142
+ * Model version                  : 1.146
  * Simulink Coder version         : 23.2 (R2023b) 01-Aug-2023
- * C/C++ source code generated on : Mon Oct 13 15:28:22 2025
+ * C/C++ source code generated on : Fri Jan 30 17:02:47 2026
  *
  * Target selection: ert.tlc
  * Embedded hardware selection: ARM Compatible->ARM Cortex-M
@@ -45,14 +45,14 @@ RT_MODEL_CanM_MsgM_T *const CanM_MsgM_M = &CanM_MsgM_M_;
  *    '<S8>/Bit Shift4'
  *    '<S8>/Bit Shift5'
  *    '<S8>/Bit Shift6'
- *    '<S38>/Bit Shift'
- *    '<S38>/Bit Shift1'
- *    '<S38>/Bit Shift2'
+ *    '<S28>/Bit Shift'
+ *    '<S28>/Bit Shift1'
+ *    '<S28>/Bit Shift2'
  *    ...
  */
 uint64_T CanM_MsgM_BitShift(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S23>/bit_shift' */
+  /* MATLAB Function: '<S13>/bit_shift' */
   return rtu_u >> 8;
 }
 
@@ -61,11 +61,14 @@ uint64_T CanM_MsgM_BitShift(uint64_T rtu_u)
  *    '<Root>/MCU_Status3_Unpack'
  *    '<Root>/MCU_Status3_Unpack1'
  */
-void CanM_Ms_MCU_Status3_Unpack_Init(void)
+void CanM_Ms_MCU_Status3_Unpack_Init(DW_MCU_Status3_Unpack_CanM_Ms_T *localDW)
 {
   /* Start for S-Function (scanunpack): '<S1>/CAN Unpack' */
 
   /*-----------S-Function Block: <S1>/CAN Unpack -----------------*/
+
+  /* SystemInitialize for MATLAB Function: '<S7>/MATLAB Function' */
+  localDW->count_not_empty = false;
 }
 
 /*
@@ -81,15 +84,8 @@ void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
   real_T tmp;
   uint64_T rtb_y_m;
   uint64_T rtb_y_o4;
+  int32_T qY;
   uint8_T rtb_DataTypeConversion_o;
-  uint8_T rtb_Subtract;
-  boolean_T rtb_Compare;
-  boolean_T rtb_Compare_i;
-  boolean_T rtb_LogicalOperator;
-  boolean_T rtb_LogicalOperator_g;
-  boolean_T rtb_UnitDelay_bh;
-  boolean_T rtb_UnitDelay_m;
-  boolean_T rtb_UnitDelay_p;
 
   /* Outputs for Enabled SubSystem: '<Root>/MCU_Status3_Unpack' incorporates:
    *  EnablePort: '<S1>/Enable'
@@ -537,99 +533,52 @@ void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
 
     /* End of DataTypeConversion: '<S1>/Data Type Conversion' */
 
-    /* Sum: '<S7>/Subtract' incorporates:
-     *  Delay: '<S7>/Delay'
-     */
-    rtb_Subtract = (uint8_T)(rtb_DataTypeConversion_o - localDW->Delay_DSTATE);
-
-    /* RelationalOperator: '<S9>/Compare' incorporates:
-     *  Constant: '<S9>/Constant'
-     */
-    rtb_Compare = (rtb_Subtract > 2);
-
-    /* Logic: '<S15>/Logical Operator' incorporates:
-     *  UnitDelay: '<S15>/Unit Delay'
-     */
-    rtb_LogicalOperator = (localDW->UnitDelay_DSTATE && rtb_Compare);
-
-    /* Logic: '<S16>/Logical Operator' incorporates:
-     *  UnitDelay: '<S16>/Unit Delay'
-     */
-    rtb_LogicalOperator_g = (localDW->UnitDelay_DSTATE_m && rtb_LogicalOperator);
-
-    /* UnitDelay: '<S20>/Unit Delay' */
-    rtb_UnitDelay_p = localDW->UnitDelay_DSTATE_h;
-
-    /* UnitDelay: '<S19>/Unit Delay' */
-    rtb_UnitDelay_m = localDW->UnitDelay_DSTATE_c;
-
-    /* UnitDelay: '<S21>/Unit Delay' */
-    rtb_UnitDelay_bh = localDW->UnitDelay_DSTATE_hf;
-
-    /* RelationalOperator: '<S10>/Compare' incorporates:
+    /* MATLAB Function: '<S7>/MATLAB Function' incorporates:
      *  Constant: '<S10>/Constant'
-     */
-    rtb_Compare_i = (rtb_Subtract == 0);
-
-    /* Logic: '<S18>/Logical Operator' incorporates:
-     *  UnitDelay: '<S18>/Unit Delay'
-     *  UnitDelay: '<S21>/Unit Delay'
-     */
-    localDW->UnitDelay_DSTATE_hf = (localDW->UnitDelay_DSTATE_mj &&
-      rtb_Compare_i);
-
-    /* Logic: '<S21>/Logical Operator' incorporates:
-     *  UnitDelay: '<S19>/Unit Delay'
-     *  UnitDelay: '<S21>/Unit Delay'
-     */
-    localDW->UnitDelay_DSTATE_c = (rtb_UnitDelay_bh &&
-      localDW->UnitDelay_DSTATE_hf);
-
-    /* Logic: '<S19>/Logical Operator' incorporates:
-     *  UnitDelay: '<S19>/Unit Delay'
-     *  UnitDelay: '<S20>/Unit Delay'
-     */
-    localDW->UnitDelay_DSTATE_h = (rtb_UnitDelay_m &&
-      localDW->UnitDelay_DSTATE_c);
-
-    /* Logic: '<S20>/Logical Operator' incorporates:
-     *  UnitDelay: '<S20>/Unit Delay'
-     */
-    rtb_UnitDelay_p = (rtb_UnitDelay_p && localDW->UnitDelay_DSTATE_h);
-
-    /* Logic: '<S7>/Logical Operator1' incorporates:
-     *  Logic: '<S17>/Logical Operator'
-     *  Logic: '<S22>/Logical Operator'
+     *  Constant: '<S7>/Constant'
+     *  Constant: '<S7>/Constant1'
+     *  Constant: '<S9>/Constant'
      *  Logic: '<S7>/Logical Operator'
-     *  RelationalOperator: '<S11>/Compare'
-     *  RelationalOperator: '<S12>/Compare'
-     *  UnitDelay: '<S17>/Unit Delay'
-     *  UnitDelay: '<S22>/Unit Delay'
+     *  Logic: '<S7>/Logical Operator1'
+     *  RelationalOperator: '<S10>/Compare'
+     *  RelationalOperator: '<S7>/Relational Operator'
+     *  RelationalOperator: '<S9>/Compare'
+     *  Sum: '<S7>/Add'
+     *  Sum: '<S7>/Subtract'
+     *  UnitDelay: '<S7>/Unit Delay'
      */
-    *rty_MCU_State3ValidStatus = (((!localDW->UnitDelay_DSTATE_a) ||
-      (!rtb_UnitDelay_p)) && ((!localDW->UnitDelay_DSTATE_o) ||
-      (!rtb_LogicalOperator_g)));
+    if (!localDW->count_not_empty) {
+      localDW->count = 0U;
+      localDW->count_not_empty = true;
+    }
+
+    if ((((uint8_T)((uint32_T)rtb_DataTypeConversion_o -
+                    localDW->UnitDelay_DSTATE) == 1) || ((uint8_T)((uint32_T)
+           rtb_DataTypeConversion_o + localDW->UnitDelay_DSTATE) == 15)) &&
+        (localDW->UnitDelay_DSTATE != rtb_DataTypeConversion_o)) {
+      if (localDW->count < 5) {
+        localDW->count++;
+      }
+    } else if (localDW->count > 0) {
+      qY = (int32_T)(localDW->count - /*MW:OvSatOk*/ 1U);
+      if (localDW->count - 1U > localDW->count) {
+        qY = 0;
+      }
+
+      localDW->count = (uint8_T)qY;
+    }
+
+    /* RelationalOperator: '<S11>/Compare' incorporates:
+     *  Constant: '<S11>/Constant'
+     *  MATLAB Function: '<S7>/MATLAB Function'
+     */
+    *rty_MCU_State3ValidStatus = (localDW->count >= 3);
 
     /* DataTypeConversion: '<S1>/Data Type Conversion1' */
     *rty_MCU_State3ReqChargingEnable = (localB->CANUnpack_o9 != 0.0);
 
-    /* Update for Delay: '<S7>/Delay' */
-    localDW->Delay_DSTATE = rtb_DataTypeConversion_o;
-
-    /* Update for UnitDelay: '<S15>/Unit Delay' */
-    localDW->UnitDelay_DSTATE = rtb_Compare;
-
-    /* Update for UnitDelay: '<S16>/Unit Delay' */
-    localDW->UnitDelay_DSTATE_m = rtb_LogicalOperator;
-
-    /* Update for UnitDelay: '<S17>/Unit Delay' */
-    localDW->UnitDelay_DSTATE_o = rtb_LogicalOperator_g;
-
-    /* Update for UnitDelay: '<S22>/Unit Delay' */
-    localDW->UnitDelay_DSTATE_a = rtb_UnitDelay_p;
-
-    /* Update for UnitDelay: '<S18>/Unit Delay' */
-    localDW->UnitDelay_DSTATE_mj = rtb_Compare_i;
+    /* Update for UnitDelay: '<S7>/Unit Delay' */
+    localDW->UnitDelay_DSTATE = rtb_DataTypeConversion_o;
   }
 
   /* End of Outputs for SubSystem: '<Root>/MCU_Status3_Unpack' */
@@ -644,7 +593,7 @@ void CanM_MsgM_MCU_Status3_Unpack(boolean_T rtu_Enable, uint64_T
  */
 uint64_T CanM_MsgM_BitShift_e(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S67>/bit_shift' */
+  /* MATLAB Function: '<S47>/bit_shift' */
   return rtu_u << 8;
 }
 
@@ -657,7 +606,7 @@ uint64_T CanM_MsgM_BitShift_e(uint64_T rtu_u)
  */
 uint64_T CanM_MsgM_BitShift1(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S68>/bit_shift' */
+  /* MATLAB Function: '<S48>/bit_shift' */
   return rtu_u << 16;
 }
 
@@ -670,7 +619,7 @@ uint64_T CanM_MsgM_BitShift1(uint64_T rtu_u)
  */
 uint64_T CanM_MsgM_BitShift2(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S69>/bit_shift' */
+  /* MATLAB Function: '<S49>/bit_shift' */
   return rtu_u << 24;
 }
 
@@ -683,7 +632,7 @@ uint64_T CanM_MsgM_BitShift2(uint64_T rtu_u)
  */
 uint64_T CanM_MsgM_BitShift3(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S70>/bit_shift' */
+  /* MATLAB Function: '<S50>/bit_shift' */
   return rtu_u << 32;
 }
 
@@ -696,7 +645,7 @@ uint64_T CanM_MsgM_BitShift3(uint64_T rtu_u)
  */
 uint64_T CanM_MsgM_BitShift4(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S71>/bit_shift' */
+  /* MATLAB Function: '<S51>/bit_shift' */
   return rtu_u << 40;
 }
 
@@ -709,7 +658,7 @@ uint64_T CanM_MsgM_BitShift4(uint64_T rtu_u)
  */
 uint64_T CanM_MsgM_BitShift5(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S72>/bit_shift' */
+  /* MATLAB Function: '<S52>/bit_shift' */
   return rtu_u << 48;
 }
 
@@ -722,7 +671,7 @@ uint64_T CanM_MsgM_BitShift5(uint64_T rtu_u)
  */
 uint64_T CanM_MsgM_BitShift6(uint64_T rtu_u)
 {
-  /* MATLAB Function: '<S73>/bit_shift' */
+  /* MATLAB Function: '<S53>/bit_shift' */
   return rtu_u << 56;
 }
 
@@ -749,14 +698,14 @@ void CanM_MsgM_SECC_MSG1(boolean_T rtu_Enable, uint16_T rtu_SECC_MSG1_L1_Curr,
    *  EnablePort: '<S3>/Enable'
    */
   if (rtu_Enable) {
-    /* UnitDelay: '<S74>/Output' */
+    /* UnitDelay: '<S54>/Output' */
     localB->Output = localDW->Output_DSTATE;
 
-    /* Switch: '<S83>/FixPt Switch' incorporates:
-     *  Constant: '<S82>/FixPt Constant'
-     *  Constant: '<S83>/Constant'
-     *  Sum: '<S82>/FixPt Sum1'
-     *  UnitDelay: '<S74>/Output'
+    /* Switch: '<S63>/FixPt Switch' incorporates:
+     *  Constant: '<S62>/FixPt Constant'
+     *  Constant: '<S63>/Constant'
+     *  Sum: '<S62>/FixPt Sum1'
+     *  UnitDelay: '<S54>/Output'
      */
     if ((uint8_T)(localB->Output + 1U) > 15) {
       localDW->Output_DSTATE = 0U;
@@ -764,7 +713,7 @@ void CanM_MsgM_SECC_MSG1(boolean_T rtu_Enable, uint16_T rtu_SECC_MSG1_L1_Curr,
       localDW->Output_DSTATE = (uint8_T)(localB->Output + 1U);
     }
 
-    /* End of Switch: '<S83>/FixPt Switch' */
+    /* End of Switch: '<S63>/FixPt Switch' */
 
     /* DataTypeConversion: '<S3>/Data Type Conversion8' */
     localB->DataTypeConversion8 = (int16_T)rtu_SECC_MSG1_L1_Curr;
@@ -1203,7 +1152,7 @@ void CanM_MsgM_step(void)
    *  EnablePort: '<S5>/Enable'
    */
   if (CanM_MsgM_U.SECC_MSG_Enable) {
-    /* UnitDelay: '<S108>/Output' */
+    /* UnitDelay: '<S88>/Output' */
     CanM_MsgM_B.Output_h = CanM_MsgM_DW.Output_DSTATE_m;
 
     /* DataTypeConversion: '<S5>/Data Type Conversion8' incorporates:
@@ -2112,11 +2061,11 @@ void CanM_MsgM_step(void)
     CanM_MsgM_Y.SECC_MSG2_OutU64 = rtb_y_k | rtb_DataTypeConversion | rtb_y |
       rtb_y_l | rtb_y_h | rtb_y_o | rtb_y_f | rtb_y_a;
 
-    /* Switch: '<S117>/FixPt Switch' incorporates:
-     *  Constant: '<S116>/FixPt Constant'
-     *  Constant: '<S117>/Constant'
-     *  Sum: '<S116>/FixPt Sum1'
-     *  UnitDelay: '<S108>/Output'
+    /* Switch: '<S97>/FixPt Switch' incorporates:
+     *  Constant: '<S96>/FixPt Constant'
+     *  Constant: '<S97>/Constant'
+     *  Sum: '<S96>/FixPt Sum1'
+     *  UnitDelay: '<S88>/Output'
      */
     if ((uint8_T)(CanM_MsgM_B.Output_h + 1U) > 15) {
       CanM_MsgM_DW.Output_DSTATE_m = 0U;
@@ -2124,7 +2073,7 @@ void CanM_MsgM_step(void)
       CanM_MsgM_DW.Output_DSTATE_m = (uint8_T)(CanM_MsgM_B.Output_h + 1U);
     }
 
-    /* End of Switch: '<S117>/FixPt Switch' */
+    /* End of Switch: '<S97>/FixPt Switch' */
   }
 
   /* End of Inport: '<Root>/SECC_MSG_Enable' */
@@ -2176,7 +2125,7 @@ void CanM_MsgM_step(void)
    *  EnablePort: '<S6>/Enable'
    */
   if (CanM_MsgM_U.SECC_MSG_Enable1) {
-    /* UnitDelay: '<S125>/Output' */
+    /* UnitDelay: '<S105>/Output' */
     CanM_MsgM_B.Output = CanM_MsgM_DW.Output_DSTATE;
 
     /* DataTypeConversion: '<S6>/Data Type Conversion8' incorporates:
@@ -3080,11 +3029,11 @@ void CanM_MsgM_step(void)
     CanM_MsgM_Y.SECC_MSG2_OutU64_1 = CanM_MsgM_B.SECC_MSG2Pack.Data[0] | rtb_y_k
       | rtb_y_a | rtb_y_f | rtb_y_o | rtb_y_h | rtb_y_l | rtb_y;
 
-    /* Switch: '<S134>/FixPt Switch' incorporates:
-     *  Constant: '<S133>/FixPt Constant'
-     *  Constant: '<S134>/Constant'
-     *  Sum: '<S133>/FixPt Sum1'
-     *  UnitDelay: '<S125>/Output'
+    /* Switch: '<S114>/FixPt Switch' incorporates:
+     *  Constant: '<S113>/FixPt Constant'
+     *  Constant: '<S114>/Constant'
+     *  Sum: '<S113>/FixPt Sum1'
+     *  UnitDelay: '<S105>/Output'
      */
     if ((uint8_T)(CanM_MsgM_B.Output + 1U) > 15) {
       CanM_MsgM_DW.Output_DSTATE = 0U;
@@ -3092,7 +3041,7 @@ void CanM_MsgM_step(void)
       CanM_MsgM_DW.Output_DSTATE = (uint8_T)(CanM_MsgM_B.Output + 1U);
     }
 
-    /* End of Switch: '<S134>/FixPt Switch' */
+    /* End of Switch: '<S114>/FixPt Switch' */
   }
 
   /* End of Inport: '<Root>/SECC_MSG_Enable1' */
@@ -3119,7 +3068,7 @@ void CanM_MsgM_initialize(void)
                 sizeof(DW_CanM_MsgM_T));
 
   /* SystemInitialize for Enabled SubSystem: '<Root>/MCU_Status3_Unpack' */
-  CanM_Ms_MCU_Status3_Unpack_Init();
+  CanM_Ms_MCU_Status3_Unpack_Init(&CanM_MsgM_DW.MCU_Status3_Unpack);
 
   /* End of SystemInitialize for SubSystem: '<Root>/MCU_Status3_Unpack' */
 
@@ -3133,7 +3082,7 @@ void CanM_MsgM_initialize(void)
   /* End of SystemInitialize for SubSystem: '<Root>/SECC_MSG1' */
 
   /* SystemInitialize for Enabled SubSystem: '<Root>/MCU_Status3_Unpack1' */
-  CanM_Ms_MCU_Status3_Unpack_Init();
+  CanM_Ms_MCU_Status3_Unpack_Init(&CanM_MsgM_DW.MCU_Status3_Unpack1);
 
   /* End of SystemInitialize for SubSystem: '<Root>/MCU_Status3_Unpack1' */
 

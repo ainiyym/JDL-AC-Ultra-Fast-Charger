@@ -28,7 +28,7 @@
 |******************************************************************************/
 #define BTRCTR_TASK_PERIOD          			 (10U)															/*10ms*/
 #define BTRV_ADC_FIFO_MAX_NUM					 16						 	                                    /*btr adc fifo max numer*/
-#define BTRCTR_FILTER_INIT						 0xfff						                                    /*filter initial value*/
+#define BTRCTR_FILTER_INIT						 0xff						                                    /*filter initial value*/
 
 #define BTRCTR_12V_WAIT_NUM  					 (uint16_t)( 100U / BTRCTR_TASK_PERIOD ) 						/* 12V Filter time */
 #define BTRCTR_5V_WAIT_NUM  					 (uint16_t)( 100U / BTRCTR_TASK_PERIOD ) 						/* 5V Filter time */
