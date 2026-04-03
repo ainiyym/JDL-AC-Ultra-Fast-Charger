@@ -823,11 +823,9 @@ Call By         : EVSEM_10msMainFunction
 static void EVSEM_EnterStateFourHandle(SysConnector_Num_Enum ch)
 {
 	uint8_t lv_ucChargeConditions = EVSEM_GetChargeConditions(ch);
-	static uint8_t st_ucChargeConditions = EVSEM_CHARGE_ALLOW;
 
-	if (lv_ucChargeConditions >= (uint8_t)EVSEM_CHARGE_SUSPENDED && lv_ucChargeConditions != st_ucChargeConditions)
+	if (lv_ucChargeConditions >= (uint8_t)EVSEM_CHARGE_SUSPENDED)
 	{
-		st_ucChargeConditions = lv_ucChargeConditions;
 		EVSEM_SetRelayOff(ch);
 		EVSEM_StopCpOutput(ch);
 		EVSEM_CpOutputNegative12V(ch);

@@ -57,6 +57,7 @@ typedef enum
 
 typedef enum
 {
+	RLYCTRL_SwitchIdle = 0U,            /*Relay control switch idle*/
 	RLYCTRL_SwitchOff,                  /*Relay control switching off*/
 	RLYCTRL_SwitchOn                   	/*Relay control switching on*/
 }RLYCTRL_Switch_EnumType;

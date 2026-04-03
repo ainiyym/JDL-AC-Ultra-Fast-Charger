@@ -17,6 +17,7 @@
 #include "STD_LogService.h"
 #include "STD_Os_Timer.h"
 #include "CpM.h"
+#include "FreeRTOS.h"
 
 /*******************************************************************************
 |    Compile Option or configuration Section (for test/debug)

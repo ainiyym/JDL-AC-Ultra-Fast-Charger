@@ -25,7 +25,7 @@
 #define CLOUDNET_MQTT_PROCESS_INTERVAL_MS 			10	  	// processing interval 10 ms
 #define CLOUDNET_MQTT_AT_RESPONSE_TIMEOUT_MS 		5000 	// AT response timeout 5 seconds
 #define CLOUDNET_MQTT_MAX_QUEUE_SIZE 				50		// maximum queue size
-#define CLOUDNET_MQTT_MAX_RETRY_COUNT 				3		// maximum retry attempts
+#define CLOUDNET_MQTT_MAX_RETRY_COUNT 				1		// maximum retry attempts
 
 /*******************************************************************************
 |    Enum Definition

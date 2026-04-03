@@ -34,7 +34,7 @@
 /* Cloud Client */
 #define Cloud_MessageBuffer_SendMessage(pMsg, datalen, Type)                MessageBuffer_SendMessage(message_buffer_app_2_net, (MessageBuffer_type_t)Type, pMsg, datalen, MESSAGE_BUFFER_ID_APP2, pdTICKS_TO_MS(100))
 #define Cloud_MessageBuffer_ReceiveMessage(pMsgBuffer, pType, pRcvLen)      MessageBuffer_ReceiveMessage(message_buffer_app_2_net, (MessageBuffer_type_t*)pType, pMsgBuffer, pRcvLen, MESSAGE_BUFFER_ID_APP1, 0)
-#define CLOUD_INFO(fmt, ...) 	                                            LOG_INFO(LOG_MODULE_CLOUDM, fmt, ##__VA_ARGS__)
+#define CLOUD_INFO(fmt, ...) 	                                            //LOG_INFO(LOG_MODULE_CLOUDM, fmt, ##__VA_ARGS__)
 #define CLOUD_DEBUG(fmt, ...) 	                                            LOG_DEBUG(LOG_MODULE_CLOUDM, fmt, ##__VA_ARGS__)
 #define CLOUD_WARN(fmt, ...) 	                                            LOG_WARN(LOG_MODULE_CLOUDM, fmt, ##__VA_ARGS__)
 #define CLOUD_ERROR(fmt, ...) 	                                            LOG_ERROR(LOG_MODULE_CLOUDM, fmt, ##__VA_ARGS__)

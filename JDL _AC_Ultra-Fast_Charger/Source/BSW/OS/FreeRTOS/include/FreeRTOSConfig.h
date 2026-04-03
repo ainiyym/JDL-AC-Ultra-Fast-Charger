@@ -153,7 +153,7 @@ extern uint32_t SystemCoreClock;
 /* configQUEUE_REGISTRY_SIZE sets the maximum number of queues and semaphores
  * that can be referenced from the queue registry.  Only required when using a
  * kernel aware debugger.  Defaults to 0 if left undefined. */
-#define configQUEUE_REGISTRY_SIZE                  10
+#define configQUEUE_REGISTRY_SIZE                  0
 
 /* Set configENABLE_BACKWARD_COMPATIBILITY to 1 to map function names and
  * datatypes from old version of FreeRTOS to their latest equivalent.  Defaults to
@@ -164,7 +164,7 @@ extern uint32_t SystemCoreClock;
  * storage.  configNUM_THREAD_LOCAL_STORAGE_POINTERS set the number of indexes in
  * the array.  See https://www.freertos.org/thread-local-storage-pointers.html
  * Defaults to 0 if left undefined. */
-#define configNUM_THREAD_LOCAL_STORAGE_POINTERS    1
+#define configNUM_THREAD_LOCAL_STORAGE_POINTERS    0
 
 /* When configUSE_MINI_LIST_ITEM is set to 0, MiniListItem_t and ListItem_t are
  * both the same. When configUSE_MINI_LIST_ITEM is set to 1, MiniListItem_t contains
@@ -219,7 +219,7 @@ extern uint32_t SystemCoreClock;
  * FreeRTOS/source/timers.c source file must be included in the build if
  * configUSE_TIMERS is set to 1.  Default to 0 if left undefined.  See
  * https://www.freertos.org/RTOS-software-timer.html. */
-#define configUSE_TIMERS                1
+#define configUSE_TIMERS                0
 
 /* configTIMER_TASK_PRIORITY sets the priority used by the timer task.  Only
  * used if configUSE_TIMERS is set to 1.  The timer task is a standard FreeRTOS
